@@ -15,9 +15,11 @@ namespace Project.Areas.Admin.Models.Entities
         [Required]
         [StringLength(50)]
         public string Name { get; set; }
-        [StringLength(500)]
         public string? Description { get; set; }
-        [Required]
-        public string Image { get; set; }
+        public string? Images { get; set; }
+
+        /////////////////////////////////////////////////////
+        /// Relationship
+        public virtual ICollection<Medicine>? Medicines { get; set; }
     }
 }
