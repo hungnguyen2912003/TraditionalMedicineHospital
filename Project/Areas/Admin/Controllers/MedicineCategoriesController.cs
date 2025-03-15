@@ -22,7 +22,7 @@ namespace Project.Areas.Admin.Controllers
         {
             var list = await _repository.GetAllAsync();
             var dtos = _mapper.Map<IEnumerable<MedicineCategoryDto>>(list);
-            return View(dtos);
+            return Json(dtos);
         }
 
         public async Task<IActionResult> Details(Guid id)
