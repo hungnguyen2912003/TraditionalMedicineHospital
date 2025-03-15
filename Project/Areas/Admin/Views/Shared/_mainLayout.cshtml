@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/nunito-fonts.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/perfect-scrollbar.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/style.css">
+    <link defer="" rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/animate.css">
+    <script src="~/Public/assets/js/perfect-scrollbar.min.js"></script>
+    <script defer="" src="~/Public/assets/js/popper.min.js"></script>
+    <script defer="" src="~/Public/assets/js/tippy-bundle.umd.min.js"></script>
+    <script defer="" src="~/Public/assets/js/sweetalert.min.js"></script>
+</head>
+
+<body x-data="main" class="relative overflow-x-hidden font-nunito text-sm font-normal antialiased" :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout,$store.app.rtlClass]">
+    <!-- sidebar menu overlay -->
+    <partial name="_SidebarMenuOverlay"/>
+
+    <!-- screen loader -->
+    <partial name="_screenLoader" />
+
+    <!-- scroll to top button -->
+    <partial name="_ScrollToTop" />
+
+    <div class="main-container min-h-screen text-black dark:text-white-dark" :class="[$store.app.navbar]">
+        <!-- start sidebar section -->
+        <partial name="_PatialSidebar" />
+        <!-- end sidebar section -->
+
+        <div class="main-content flex min-h-screen flex-col">
+            <!-- start header section -->
+            <partial name="_PatialHeader" />
+            <!-- end header section -->
+
+            <div class="animate__animated p-6" :class="[$store.app.animation]">
+                <!-- start main content section -->
+                @RenderBody()
+                <!-- end main content section -->
+            </div>
+
+            <!-- start footer section -->
+            <partial name="_PatialFooter" />
+            <!-- end footer section -->
+        </div>
+    </div>
+
+
+    <script src="~/Public/assets/js/alpine-collaspe.min.js"></script>
+    <script src="~/Public/assets/js/alpine-persist.min.js"></script>
+    <script defer="" src="~/Public/assets/js/alpine-ui.min.js"></script>
+    <script defer="" src="~/Public/assets/js/alpine-focus.min.js"></script>
+    <script defer="" src="~/Public/assets/js/alpine.min.js"></script>
+    <script src="~/Public/assets/js/custom.js"></script>
+    <script defer="" src="~/Public/assets/js/apexcharts.js"></script>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+
+            Alpine.data('header', () => ({
+                init() {
+
+                },
+            }));
+
+            // main section
+            Alpine.data('scrollToTop', () => ({
+                showTopButton: false,
+                init() {
+                    window.onscroll = () => {
+                        this.scrollFunction();
+                    };
+                },
+
+                scrollFunction() {
+                    if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+                        this.showTopButton = true;
+                    } else {
+                        this.showTopButton = false;
+                    }
+                },
+
+                goToTop() {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                },
+            }));
+
+            // sidebar section
+            Alpine.data('sidebar', () => ({
+                init() {
+                    const selector = document.querySelector('.sidebar ul a[href="' + window.location.pathname + '"]');
+                    if (selector) {
+                        selector.classList.add('active');
+                        const ul = selector.closest('ul.sub-menu');
+                        if (ul) {
+                            let ele = ul.closest('li.menu').querySelectorAll('.nav-link');
+                            if (ele) {
+                                ele = ele[0];
+                                setTimeout(() => {
+                                    ele.click();
+                                });
+                            }
+                        }
+                    }
+                },
+            }));
+        });
+    </script>
+</body>
+</html>
