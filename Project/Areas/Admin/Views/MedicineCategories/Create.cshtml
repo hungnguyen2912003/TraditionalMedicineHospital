@@ -1,0 +1,267 @@
+﻿@model Project.Areas.Admin.Models.DTOs.MedicineCategoryDto
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Areas/Admin/Views/Shared/_mainLayout.cshtml";
+}
+
+<style>
+    .text-danger {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    }
+    .border-red-500 {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5;
+    }
+
+    input:invalid {
+        border-color: #dc3545;
+        background-color: #fff5f5;
+    }
+
+    input:invalid + .text-danger {
+        display: block;
+        color: #dc3545;
+        font-size: 0.875rem;
+    }
+</style>
+
+<form id="myForm" method="post" enctype="multipart/form-data" asp-action="Create">
+    @Html.AntiForgeryToken()
+
+    <div x-data="addData">
+        <ul class="flex space-x-2 rtl:space-x-reverse">
+            <li>
+                <a href="javascript:;" class="text-primary hover:underline">Loại thuốc</a>
+            </li>
+            <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                <span>Thêm mới</span>
+            </li>
+        </ul>
+        <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
+            <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
+                <div class="px-6">
+                    <div class="text-lg font-semibold mb-6">Thêm thông tin loại thuốc</div>
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success mb-4">@TempData["Success"]</div>
+                    }
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger mb-4">
+                            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                        </div>
+                    }
+
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <div class="w-full lg:max-w-full p-4 border rounded-lg shadow-sm">
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                <div class="w-full sm:w-1/2">
+                                    <label for="Code" class="block text-sm font-medium text-gray-700 form-label">Mã loại thuốc</label>
+                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded form-control" x-model="params.Code" placeholder="Nhập mã loại thuốc" />
+                                    @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="w-full sm:w-1/2">
+                                    <label for="Name" class="block text-sm font-medium text-gray-700 form-label">Tên loại thuốc</label>
+                                    <input id="Name" type="text" name="Name" class="form-input w-full mt-1 p-2 border rounded form-control" x-model="params.name" placeholder="Nhập tên loại thuốc" />
+                                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label for="description" class="block text-sm font-medium text-gray-700 form-label">Mô tả loại thuốc</label>
+                                <textarea id="description" name="Description" class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" placeholder="Nhập mô tả loại thuốc..." x-model="params.description"></textarea>
+                                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 w-full xl:mt-0 xl:w-96">
+                <div class="panel mb-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 form-label">Hình ảnh loại thuốc</label>
+                        <div class="dropzone flex-1" id="imageDropzone"></div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-1">
+                        <button type="button" @@click="add()" class="btn btn-success py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 hover:bg-green-700">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
+                                <path d="M3.46447 20.5355C4.92893 22 7.28595 22 12 22C16.714 22 19.0711 22 20.5355 20.5355C22 19.0711 22 16.714 22 12C22 11.6585 22 11.4878 21.9848 11.3142C21.9142 10.5049 21.586 9.71257 21.0637 9.09034C20.9516 8.95687 20.828 8.83317 20.5806 8.58578L15.4142 3.41944C15.1668 3.17206 15.0431 3.04835 14.9097 2.93631C14.2874 2.414 13.4951 2.08581 12.6858 2.01515C12.5122 2 12.3415 2 12 2C7.28595 2 4.92893 2 3.46447 3.46447C2 4.92893 2 7.28595 2 12C2 16.714 2 19.0711 3.46447 20.5355Z" stroke="white" stroke-width="1.5"></path>
+                                <path d="M17 22V21C17 19.1144 17 18.1716 16.4142 17.5858C15.8284 17 14.8856 17 13 17H11C9.11438 17 8.17157 17 7.58579 17.5858C7 18.1716 7 19.1144 7 21V22" stroke="white" stroke-width="1.5"></path>
+                                <path opacity="0.5" d="M7 8H13" stroke="white" stroke-width="1.5" stroke-linecap="round"></path>
+                            </svg>
+                            Thêm mới
+                        </button>
+                        <button type="button" class="btn btn-secondary w-full py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600" @@click ="goBack()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
+                                <path d="M4 10L3.29289 10.7071L2.58579 10L3.29289 9.29289L4 10ZM21 18C21 18.5523 20.5523 19 20 19C19.4477 19 19 18.5523 19 18L21 18ZM8.29289 15.7071L3.29289 10.7071L4.70711 9.29289L9.70711 14.2929L8.29289 15.7071ZM3.29289 9.29289L8.29289 4.29289L9.70711 5.70711L4.70711 10.7071L3.29289 9.29289ZM4 9L14 9L14 11L4 11L4 9ZM21 16L21 18L19 18L19 16L21 16ZM14 9C17.866 9 21 12.134 21 16L19 16C19 13.2386 16.7614 11 14 11L14 9Z" fill="white" />
+                            </svg>
+                            Trở về
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    Dropzone.autoDiscover = false;
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('addData', () => ({
+            params: {
+                Code: '',
+                name: '',
+                description: ''
+            },
+            dropzone: null,
+
+            init() {
+                this.dropzone = new Dropzone('#imageDropzone', {
+                    url: '/Admin/MedicineCategories/Create',
+                    autoProcessQueue: false,
+                    maxFiles: 1,
+                    acceptedFiles: 'image/*',
+                    addRemoveLinks: true,
+                    dictDefaultMessage: 'Kéo thả hoặc nhấp để chọn ảnh',
+                    paramName: 'ImageFile',
+                    init: function () {
+                        this.on('addedfile', (file) => {
+                            if (this.files.length > 1) {
+                                this.removeFile(this.files[0]);
+                            }
+                        });
+                        this.on('sending', function(file, xhr, formData) {
+                            formData.append('Code', document.getElementById('Code').value);
+                            formData.append('Name', document.getElementById('Name').value);
+                            formData.append('Description', document.getElementById('description').value);
+                            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                            formData.append('__RequestVerificationToken', token);
+                        });
+                        this.on('success', () => {
+                            alert('Thêm loại thuốc thành công!');
+                            window.location.href = '/Admin/MedicineCategories/Index';
+                        });
+                        this.on('error', (file, errorMessage) => {
+                            alert('Có lỗi xảy ra khi thêm loại thuốc: ' + errorMessage);
+                            console.error('Server error:', errorMessage);
+                        });
+                    }
+                });
+
+                // Thêm jQuery Validation
+                $("#myForm").validate({
+                    rules: {
+                        Code: {
+                            required: true,
+                            maxlength: 10
+                        },
+                        Name: {
+                            required: true,
+                            maxlength: 50
+                        }
+                    },
+                    messages: {
+                        Code: {
+                            required: "Mã loại thuốc không được bỏ trống.",
+                            maxlength: "Mã loại thuốc không được vượt quá 10 ký tự."
+                        },
+                        Name: {
+                            required: "Tên loại thuốc không được bỏ trống.",
+                            maxlength: "Tên loại thuốc không được vượt quá 50 ký tự."
+                        }
+                    },
+                    errorElement: "div",
+                    errorClass: "text-danger",
+                    highlight: function(element) {
+                        $(element).addClass("border-red-500");
+                    },
+                    unhighlight: function(element) {
+                        $(element).removeClass("border-red-500");
+                    },
+                    errorPlacement: function(error, element) {
+                        error.insertAfter(element);
+                    },
+                    onfocusout: function(element) {
+                        this.element(element);
+                    },
+                    onkeyup: false
+                });
+
+                $('input[name="Code"], input[name="Name"], textarea[name="Description"]').on('focus', function() {
+                    if ($(this).val() === '') {
+                        validator.element(this);
+                    }
+                });
+
+                const form = document.getElementById('myForm');
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    if ($("#myForm").valid()) {
+                        if (this.dropzone.files.length > 0) {
+                            this.dropzone.processQueue();
+                        } else {
+                            const formData = new FormData(form);
+                            fetch('/Admin/MedicineCategories/Create', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    alert('Thêm loại thuốc thành công!');
+                                    window.location.href = '/Admin/MedicineCategories/Index';
+                                } else {
+                                    response.text().then(text => {
+                                        console.error('Server response:', text);
+                                        alert('Có lỗi xảy ra khi thêm loại thuốc: ' + text);
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Fetch error:', error);
+                                alert('Có lỗi xảy ra khi gửi yêu cầu.');
+                            });
+                        }
+                    }
+                });
+            },
+
+            add() {
+                const form = document.getElementById('myForm');
+                if (this.dropzone.files.length > 0) {
+                    this.dropzone.processQueue();
+                } else {
+                    const formData = new FormData(form);
+                    fetch('/Admin/MedicineCategories/Create', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Thêm loại thuốc thành công!');
+                            window.location.href = '/Admin/MedicineCategories/Index';
+                        } else {
+                            response.text().then(text => {
+                                console.error('Server response:', text);
+                                alert('Có lỗi xảy ra khi thêm loại thuốc: ' + text);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                        alert('Có lỗi xảy ra khi gửi yêu cầu.');
+                    });
+                }
+            },
+
+            goBack() {
+                window.location.href = '/Admin/MedicineCategories/Index';
+            }
+        }));
+    });
+</script>

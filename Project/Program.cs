@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 ServiceConfiguration.ConfigureServices(builder);
 DatabaseConfiguration.ConfigureDatabase(builder);
+ValidatorConfiguration.ConfigureValidator(builder);
 RepositoryConfiguration.ConfigureRepository(builder);
 AutoMapperConfiguration.ConfigureMappers(builder);
 

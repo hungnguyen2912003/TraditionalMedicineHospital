@@ -4,13 +4,23 @@
 }
 
 <div x-data="list">
+
+    <ul class="flex space-x-2 rtl:space-x-reverse mb-3">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Loại thuốc</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Danh sách</span>
+        </li>
+    </ul>
+
     <script src="~/Public/assets/js/simple-datatables.js"></script>
 
     <div class="panel border-[#e0e6ed] px-0 dark:border-[#1b2e4b]">
         <div class="px-5">
             <div class="md:absolute md:top-5 ltr:md:left-5 rtl:md:right-5">
                 <div class="mb-5 flex items-center gap-2">
-                    <button type="button" class="btn btn-danger gap-2" @@click ="deleteRow()">
+                    <button type="button" class="btn btn-danger gap-2" @@click ="deleteSelectedRows()" :disabled="selectedRows.length === 0">
                         <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
                             <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
                             <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
@@ -18,19 +28,19 @@
                             <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
                             <path opacity="0.5" d="M6.5 6C6.55588 6 6.58382 6 6.60915 5.99936C7.43259 5.97849 8.15902 5.45491 8.43922 4.68032C8.44784 4.65649 8.45667 4.62999 8.47434 4.57697L8.57143 4.28571C8.65431 4.03708 8.69575 3.91276 8.75071 3.8072C8.97001 3.38607 9.37574 3.09364 9.84461 3.01877C9.96213 3 10.0932 3 10.3553 3H13.6447C13.9068 3 14.0379 3 14.1554 3.01877C14.6243 3.09364 15.03 3.38607 15.2493 3.8072C15.3043 3.91276 15.3457 4.03708 15.4286 4.28571L15.5257 4.57697C15.5433 4.62992 15.5522 4.65651 15.5608 4.68032C15.841 5.45491 16.5674 5.97849 17.3909 5.99936C17.4162 6 17.4441 6 17.5 6" stroke="currentColor" stroke-width="1.5"></path>
                         </svg>
-                        Delete
+                        Xóa
                     </button>
-                    <a href="" class="btn btn-primary gap-2">
+                    <a href="/Admin/MedicineCategories/Create" class="btn btn-primary gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
-                        Add New
+                        Thêm mới
                     </a>
                 </div>
             </div>
         </div>
-        <div class="table">
+        <div class="tbl">
             <table id="myTable" class="whitespace-nowrap"></table>
         </div>
     </div>
@@ -40,13 +50,12 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('list', () => ({
             selectedRows: [],
-            items: [],
+            items: @Html.Raw(Json.Serialize(Model)),
             searchText: '',
             datatable: null,
             dataArr: [],
 
-            async init() {
-                await this.fetchData();
+            init() {
                 this.setTableData();
                 this.initializeTable();
                 this.$watch('items', (value) => {
@@ -59,17 +68,6 @@
                     this.setTableData();
                     this.initializeTable();
                 });
-            },
-
-            async fetchData() {
-                try {
-                    const response = await fetch('/Admin/MedicineCategories/GetAllAsync');
-                    if (!response.ok) throw new Error('Failed to fetch data');
-                    this.items = await response.json();
-                } catch (error) {
-                    console.error(error);
-                    this.items = [];
-                }
             },
 
             initializeTable() {
@@ -85,6 +83,7 @@
                         data: this.dataArr,
                     },
                     perPage: 10,
+                    perPageSelect: [10, 20, 30, 50, 100],
                     columns: [
                         {
                             select: 0,
@@ -97,27 +96,26 @@
                             select: 1,
                             render: function (data, cell, row) {
                                 return (
-                                    '<a href="apps-invoice-preview.html" class="text-primary underline font-semibold hover:no-underline">#' +
-                                    data +
-                                    '</a>'
+                                    `<a href="/Admin/MedicineCategories/Details/${data}" class="text-primary underline font-semibold hover:no-underline">${data}</a>`
                                 );
                             },
                         },
                         {
                             select: 2,
                             render: function (data, cell, row) {
-                                return '<div class="flex items-center font-semibold">$' + data + '</div>';
+                                return `<div class="font-semibold">${data}</div>`;
+                            },
+                        },
+                        {
+                            select: 3,
+                            render: function (data, cell, row) {
+                                let status = data ? 'Active' : 'Inactive';
+                                let styleClass = data ? 'badge-outline-success' : 'badge-outline-danger';
+                                return `<span class="badge ${styleClass}">${status}</span>`;
                             },
                         },
                         {
                             select: 4,
-                            render: function (data, cell, row) {
-                                let styleClass = data == 'Đang hoạt động' ? 'badge-outline-success' : 'badge-outline-danger';
-                                return '<span class="badge ' + styleClass + '">' + data + '</span>';
-                            },
-                        },
-                        {
-                            select: 5,
                             sortable: false,
                             render: function (data, cell, row) {
                                 return `<div class="flex gap-4 items-center">
@@ -188,7 +186,7 @@
                         '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"> <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </svg>',
                     labels: {
                         perPage: "<span class='ml-2'>{select}</span>",
-                        noRows: 'No data available',
+                        noRows: 'Không có dữ liệu',
                     },
                     layout: {
                         top: '{search}',
@@ -198,58 +196,77 @@
             },
 
             checkAllCheckbox() {
-                if (this.items.length && this.selectedRows.length === this.items.length) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return this.items.length && this.selectedRows.length === this.items.length;
             },
 
             checkAll(isChecked) {
                 if (isChecked) {
-                    this.selectedRows = this.items.map((d) => {
-                        return d.id;
-                    });
+                    this.selectedRows = this.items.map((d) => d.id);
                 } else {
                     this.selectedRows = [];
                 }
             },
 
             setTableData() {
-                this.dataArr = this.items.map(item => [
-                    item.id,
-                    item.code,
-                    item.name,
-                    item.status,
-                    item.id
-                ]);
+                this.dataArr = [];
+                for (let i = 0; i < this.items.length; i++) {
+                    this.dataArr[i] = [
+                        this.items[i].id,
+                        this.items[i].code,
+                        this.items[i].name,
+                        this.items[i].status,
+                        this.items[i].id
+                    ];
+                }
             },
 
             search() {
                 return this.items.filter(
                     (d) =>
-                        (d.MedicineCategoryCode && d.MedicineCategoryCode.toLowerCase().includes(this.searchText)) ||
-                        (d.name && d.name.toLowerCase().includes(this.searchText))
+                        (d.medicineCategoryCode && d.medicineCategoryCode.toLowerCase().includes(this.searchText.toLowerCase())) ||
+                        (d.name && d.name.toLowerCase().includes(this.searchText.toLowerCase()))
                 );
             },
 
-            async deleteRow(item) {
-                if (confirm('Bạn có chắc muốn xóa dòng đã chọn không?')) {
-                    if (itemId) {
-                        await fetch(`/Admin/MedicineCategories/Delete/${itemId}`, { method: 'POST' });
-                        this.items = this.items.filter(d => d.id !== itemId);
-                    } else if (this.selectedRows.length > 0) {
-                        for (let id of this.selectedRows) {
-                            await fetch(`/Admin/MedicineCategories/Delete/${id}`, { method: 'POST' });
-                        }
-                        this.items = this.items.filter(d => !this.selectedRows.includes(d.id));
-                        this.selectedRows = [];
-                    }
-                    this.datatable.destroy();
-                    this.setTableData();
-                    this.initializeTable();
+            deleteSelectedRows() {
+                if (this.selectedRows.length === 0) {
+                    alert('Vui lòng chọn ít nhất một loại thuốc để xóa.');
+                    return;
                 }
-            }
-        })
-    })
+
+                if (confirm(`Bạn có chắc muốn xóa ${this.selectedRows.length} loại thuốc đã chọn không?`)) {
+                    const token = this.getCsrfToken();
+                    if (!token) {
+                        alert('Không thể tìm thấy CSRF token. Vui lòng tải lại trang và thử lại.');
+                        return;
+                    }
+
+                    const deletePromises = this.selectedRows.map(itemId =>
+                        fetch(`/admin/MedicineCategories/Delete/${itemId}`, {
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': token
+                            }
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                return response.json();
+                            }
+                            throw new Error(`Lỗi khi xóa loại thuốc có Id: ${itemId}`);
+                        })
+                    );
+
+                    Promise.all(deletePromises)
+                        .then(results => {
+                            alert('Xóa thành công!');
+                            this.items = this.items.filter(d => !this.selectedRows.includes(d.id));
+                            this.selectedRows = [];
+                        })
+                        .catch(error => {
+                            alert(error.message);
+                        });
+                }
+            },
+        }));
+    });
 </script>
