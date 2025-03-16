@@ -11,10 +11,18 @@
     <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/perfect-scrollbar.min.css">
     <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/style.css">
     <link defer="" rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/animate.css">
+    <link href="~/Public/assets/dropzone/min/dropzone.min.css" rel="stylesheet" />
+
+    <script src="~/public/assets/dropzone/min/dropzone.min.js"></script>
     <script src="~/Public/assets/js/perfect-scrollbar.min.js"></script>
     <script defer="" src="~/Public/assets/js/popper.min.js"></script>
     <script defer="" src="~/Public/assets/js/tippy-bundle.umd.min.js"></script>
     <script defer="" src="~/Public/assets/js/sweetalert.min.js"></script>
+
+    <script src="~/public/assets/js/jquery-3.7.1.min.js"></script>
+    <script src="~/public/assets/js/jquery.validate.min.js"></script>
+    <script src="~/public/assets/js/jquery.validate.unobtrusive.min.js"></script>
+
 </head>
 
 <body x-data="main" class="relative overflow-x-hidden font-nunito text-sm font-normal antialiased" :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout,$store.app.rtlClass]">
@@ -58,9 +66,9 @@
     <script src="~/Public/assets/js/custom.js"></script>
     <script defer="" src="~/Public/assets/js/apexcharts.js"></script>
 
+
     <script>
         document.addEventListener('alpine:init', () => {
-
             Alpine.data('header', () => ({
                 init() {
 

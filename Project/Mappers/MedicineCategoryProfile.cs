@@ -9,7 +9,8 @@ namespace Project.Mappers
         public MedicineCategoryProfile()
         {
             CreateMap<MedicineCategory, MedicineCategoryDto>();
-            CreateMap<MedicineCategoryDto, MedicineCategory>();
+            CreateMap<MedicineCategoryDto, MedicineCategory>()
+                .ForMember(dest => dest.Images, opt => opt.Ignore());
         }
     }
 }

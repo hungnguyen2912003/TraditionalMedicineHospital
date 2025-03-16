@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Repositories.Interfaces;
+using Project.Validators;
 
 namespace Project.Areas.Admin.Controllers
 {
@@ -11,18 +13,21 @@ namespace Project.Areas.Admin.Controllers
     {
         private readonly IMedicineCategoryRepository _repository;
         private readonly IMapper _mapper;
-
-        public MedicineCategoriesController(IMedicineCategoryRepository repository, IMapper mapper)
+        private readonly ImageValidator _imageValidator;
+        private readonly IValidator<MedicineCategoryDto> _validator;
+        public MedicineCategoriesController(IMedicineCategoryRepository repository, IMapper mapper, ImageValidator imageValidator, IValidator<MedicineCategoryDto> validator)
         {
             _repository = repository;
             _mapper = mapper;
+            _imageValidator = imageValidator;
+            _validator = validator;
         }
 
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAsync();
             var dtos = _mapper.Map<IEnumerable<MedicineCategoryDto>>(list);
-            return Json(dtos);
+            return View(dtos);
         }
 
         public async Task<IActionResult> Details(Guid id)
@@ -37,23 +42,35 @@ namespace Project.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View(new MedicineCategoryDto());
+            return View();
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromForm] MedicineCategoryDto inputDto)
         {
-            if (ModelState.IsValid)
+            var validationResult = await _validator.ValidateAsync(inputDto);
+            if (!validationResult.IsValid)
             {
-                var entity = _mapper.Map<MedicineCategory>(inputDto);
-                entity.CreatedBy = "Admin";
-                entity.CreatedDate = DateTime.UtcNow;
-                entity.Status = true;
-
-                await _repository.CreateAsync(entity);
-                return RedirectToAction("Index");
+                foreach (var error in validationResult.Errors)
+                {
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+                return View(inputDto);
             }
-            return View(inputDto);
+            var entity = _mapper.Map<MedicineCategory>(inputDto);
+            entity.CreatedBy = "Admin";
+            entity.CreatedDate = DateTime.UtcNow;
+            entity.Status = true;
+
+            if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
+            {
+                entity.Images = await _imageValidator.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
+            }
+
+            await _repository.CreateAsync(entity);
+            TempData["Success"] = "Thêm loại thuốc thành công!";
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -68,18 +85,25 @@ namespace Project.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit([FromForm] MedicineCategoryDto inputDto)
         {
-            if (ModelState.IsValid)
+            var validationResult = await _validator.ValidateAsync(inputDto);
+            if (!validationResult.IsValid)
             {
-                var entity = _mapper.Map<MedicineCategory>(inputDto);
-                entity.UpdatedBy = "Admin";
-                entity.UpdatedDate = DateTime.UtcNow;
-                await _repository.UpdateAsync(entity);
-                return RedirectToAction("Index");
+                foreach (var error in validationResult.Errors)
+                {
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+                return View(inputDto);
             }
-            return View(inputDto);
+
+            var entity = _mapper.Map<MedicineCategory>(inputDto);
+            entity.UpdatedBy = "Admin";
+            entity.UpdatedDate = DateTime.UtcNow;
+            await _repository.UpdateAsync(entity);
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)
         {
             await _repository.DeleteAsync(id);
