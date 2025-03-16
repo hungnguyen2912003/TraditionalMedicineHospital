@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
@@ -15,7 +16,15 @@ namespace Project.Areas.Admin.Controllers
         private readonly IMapper _mapper;
         private readonly ImageValidator _imageValidator;
         private readonly IValidator<MedicineCategoryDto> _validator;
-        public MedicineCategoriesController(IMedicineCategoryRepository repository, IMapper mapper, ImageValidator imageValidator, IValidator<MedicineCategoryDto> validator)
+
+        public MedicineCategoriesController
+        (
+            IMedicineCategoryRepository repository, 
+            IMapper mapper, 
+            ImageValidator imageValidator, 
+            IValidator<MedicineCategoryDto> validator,
+            INotyfService notify
+        )
         {
             _repository = repository;
             _mapper = mapper;
@@ -69,7 +78,7 @@ namespace Project.Areas.Admin.Controllers
             }
 
             await _repository.CreateAsync(entity);
-            TempData["Success"] = "Thêm loại thuốc thành công!";
+            TempData["SuccessMessage"] = "Thêm loại thuốc thành công!";
             return RedirectToAction("Index");
         }
 
@@ -99,6 +108,7 @@ namespace Project.Areas.Admin.Controllers
             entity.UpdatedBy = "Admin";
             entity.UpdatedDate = DateTime.UtcNow;
             await _repository.UpdateAsync(entity);
+            TempData["SuccessMessage"] = "Cập nhật loại thuốc thành công!";
             return RedirectToAction("Index");
         }
 
@@ -107,6 +117,7 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             await _repository.DeleteAsync(id);
+            TempData["SuccessMessage"] = "Xóa loại thuốc thành công!";
             return RedirectToAction("Index");
         }
     }

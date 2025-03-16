@@ -45,11 +45,6 @@
                 <div class="px-6">
                     <div class="text-lg font-semibold mb-6">Thêm thông tin loại thuốc</div>
 
-                    @if (TempData["Success"] != null)
-                    {
-                        <div class="alert alert-success mb-4">@TempData["Success"]</div>
-                    }
-
                     @if (!ViewData.ModelState.IsValid)
                     {
                         <div class="alert alert-danger mb-4">
@@ -120,6 +115,7 @@
                 description: ''
             },
             dropzone: null,
+            validator: null,
 
             init() {
                 this.dropzone = new Dropzone('#imageDropzone', {
@@ -144,18 +140,17 @@
                             formData.append('__RequestVerificationToken', token);
                         });
                         this.on('success', () => {
-                            alert('Thêm loại thuốc thành công!');
+                            new Notyf().success("Thêm loại thuốc thành công!");
                             window.location.href = '/Admin/MedicineCategories/Index';
                         });
                         this.on('error', (file, errorMessage) => {
-                            alert('Có lỗi xảy ra khi thêm loại thuốc: ' + errorMessage);
+                            new Notyf().error("Có lỗi xảy ra khi thêm loại thuốc: " + errorMessage);
                             console.error('Server error:', errorMessage);
                         });
                     }
                 });
 
-                // Thêm jQuery Validation
-                $("#myForm").validate({
+                this.validator = $("#myForm").validate({
                     rules: {
                         Code: {
                             required: true,
@@ -188,74 +183,39 @@
                         error.insertAfter(element);
                     },
                     onfocusout: function(element) {
-                        this.element(element);
+                        if ($(element).val() === '' || $(element).val().length > 0) {
+                            this.element(element);
+                        }
                     },
                     onkeyup: false
-                });
-
-                $('input[name="Code"], input[name="Name"], textarea[name="Description"]').on('focus', function() {
-                    if ($(this).val() === '') {
-                        validator.element(this);
-                    }
-                });
-
-                const form = document.getElementById('myForm');
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    if ($("#myForm").valid()) {
-                        if (this.dropzone.files.length > 0) {
-                            this.dropzone.processQueue();
-                        } else {
-                            const formData = new FormData(form);
-                            fetch('/Admin/MedicineCategories/Create', {
-                                method: 'POST',
-                                body: formData
-                            })
-                            .then(response => {
-                                if (response.ok) {
-                                    alert('Thêm loại thuốc thành công!');
-                                    window.location.href = '/Admin/MedicineCategories/Index';
-                                } else {
-                                    response.text().then(text => {
-                                        console.error('Server response:', text);
-                                        alert('Có lỗi xảy ra khi thêm loại thuốc: ' + text);
-                                    });
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Fetch error:', error);
-                                alert('Có lỗi xảy ra khi gửi yêu cầu.');
-                            });
-                        }
-                    }
                 });
             },
 
             add() {
                 const form = document.getElementById('myForm');
-                if (this.dropzone.files.length > 0) {
-                    this.dropzone.processQueue();
-                } else {
-                    const formData = new FormData(form);
-                    fetch('/Admin/MedicineCategories/Create', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            alert('Thêm loại thuốc thành công!');
-                            window.location.href = '/Admin/MedicineCategories/Index';
-                        } else {
-                            response.text().then(text => {
-                                console.error('Server response:', text);
-                                alert('Có lỗi xảy ra khi thêm loại thuốc: ' + text);
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Fetch error:', error);
-                        alert('Có lỗi xảy ra khi gửi yêu cầu.');
-                    });
+                if ($("#myForm").valid()) {
+                    if (this.dropzone.files.length > 0) {
+                        this.dropzone.processQueue();
+                    } else {
+                        const formData = new FormData(form);
+                        fetch('/Admin/MedicineCategories/Create', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                notyf.success("Thêm loại thuốc thành công!");
+
+                            } else {
+                                response.text().then(text => {
+                                    notyf.error("Có lỗi xảy ra khi thêm loại thuốc: " + text);
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu.");
+                        });
+                    }
                 }
             },
 
