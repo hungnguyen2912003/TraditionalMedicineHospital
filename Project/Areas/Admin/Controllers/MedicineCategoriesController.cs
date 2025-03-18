@@ -1,7 +1,7 @@
-﻿using AspNetCoreHero.ToastNotification.Abstractions;
-using AutoMapper;
+﻿using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Repositories.Interfaces;
@@ -22,8 +22,7 @@ namespace Project.Areas.Admin.Controllers
             IMedicineCategoryRepository repository, 
             IMapper mapper, 
             ImageValidator imageValidator, 
-            IValidator<MedicineCategoryDto> validator,
-            INotyfService notify
+            IValidator<MedicineCategoryDto> validator
         )
         {
             _repository = repository;
@@ -35,8 +34,7 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAsync();
-            var dtos = _mapper.Map<IEnumerable<MedicineCategoryDto>>(list);
-            return View(dtos);
+            return View(list);
         }
 
         public async Task<IActionResult> Details(Guid id)

@@ -67,6 +67,7 @@
     <script src="~/Public/assets/js/custom.js"></script>
     <script defer="" src="~/Public/assets/js/apexcharts.js"></script>
     <script src="~/public/assets/js/notyf.min.js"></script>
+    <script src="~/Public/assets/js/simple-datatables.js"></script>
 
     <script>
         document.addEventListener('alpine:init', () => {
@@ -121,6 +122,7 @@
         });
         const notyf = new Notyf({
             duration: 5000,
+            ripple: true,
             position: { x: 'right', y: 'top' },
             dismissible: true,
         });
