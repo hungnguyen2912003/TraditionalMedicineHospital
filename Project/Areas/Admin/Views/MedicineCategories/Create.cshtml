@@ -142,7 +142,7 @@
                         });
                         this.on('success', () => {
                             new Notyf().success("Thêm loại thuốc thành công!");
-                            window.location.href = '/Admin/MedicineCategories/Index';
+                            window.location.href = '/Admin/MedicineCategories/';
                         });
                         this.on('error', (file, errorMessage) => {
                             new Notyf().error("Có lỗi xảy ra khi thêm loại thuốc: " + errorMessage);
@@ -221,7 +221,7 @@
             },
 
             goBack() {
-                window.location.href = '/Admin/MedicineCategories/Index';
+                window.location.href = '/Admin/MedicineCategories/';
             }
         }));
     });

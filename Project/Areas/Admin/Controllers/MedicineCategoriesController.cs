@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Repositories.Interfaces;
@@ -42,8 +41,7 @@ namespace Project.Areas.Admin.Controllers
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null)
                 return NotFound();
-            var dto = _mapper.Map<MedicineCategoryDto>(entity);
-            return View(dto);
+            return View(entity);
         }
 
         [HttpGet]
@@ -108,6 +106,12 @@ namespace Project.Areas.Admin.Controllers
             await _repository.UpdateAsync(entity);
             TempData["SuccessMessage"] = "Cập nhật loại thuốc thành công!";
             return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Trash()
+        {
+            var list = await _repository.GetAllAsync();
+            return View(list);
         }
 
         [HttpPost]
