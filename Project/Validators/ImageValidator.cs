@@ -28,7 +28,8 @@ namespace Project.Validators
             }
 
             var fileName = Guid.NewGuid().ToString() + extension;
-            var filePath = Path.Combine(_environment.WebRootPath, entity, fileName);
+            var folder = "Images";
+            var filePath = Path.Combine(_environment.WebRootPath, folder, entity, fileName);
             var directoryPath = Path.GetDirectoryName(filePath);
             if (directoryPath == null)
             {
@@ -41,7 +42,7 @@ namespace Project.Validators
                 await imageFile.CopyToAsync(stream);
             }
 
-            return $"/{entity}/{fileName}";
+            return $"{fileName}";
         }
 
         public void DeleteImage(string imagePath)
