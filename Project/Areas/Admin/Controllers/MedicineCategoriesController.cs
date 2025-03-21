@@ -33,7 +33,8 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAsync();
-            return View(list);
+            var activeList = list.Where(x => x.Status == true).ToList();
+            return View(activeList);
         }
 
         public async Task<IActionResult> Details(Guid id)
@@ -139,14 +140,76 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Trash()
         {
             var list = await _repository.GetAllAsync();
-            return View(list);
+            var trashList = list.Where(x => x.Status == false).ToList();
+            return View(trashList);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(List<Guid> Ids)
         {
-            await _repository.DeleteAsync(id);
+            if (Ids == null || !Ids.Any())
+            {
+                return RedirectToAction("Trash");
+            }
+
+            foreach (var id in Ids)
+            {
+                var entity = await _repository.GetByIdAsync(id);
+                if (entity != null && !string.IsNullOrEmpty(entity.Images))
+                {
+                    _imageValidator.DeleteImage(entity.Images, "MedicineCategories");
+                }
+                await _repository.DeleteAsync(id);
+            }
+
+            return RedirectToAction("Trash");
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MoveToTrash(List<Guid> Ids)
+        {
+            if (Ids == null || !Ids.Any())
+            {
+                return RedirectToAction("Index");
+            }
+
+            foreach (var id in Ids)
+            {
+                var entity = await _repository.GetByIdAsync(id);
+                if (entity != null)
+                {
+                    entity.Status = false;
+                    entity.UpdatedBy = "Admin";
+                    entity.UpdatedDate = DateTime.UtcNow;
+                    await _repository.UpdateAsync(entity);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Restore(List<Guid> Ids)
+        {
+            if (Ids == null || !Ids.Any())
+            {
+                return RedirectToAction("Index");
+            }
+            foreach (var id in Ids)
+            {
+                var entity = await _repository.GetByIdAsync(id);
+                if (entity != null)
+                {
+                    entity.Status = true;
+                    entity.UpdatedBy = "Admin";
+                    entity.UpdatedDate = DateTime.UtcNow;
+                    await _repository.UpdateAsync(entity);
+                }
+            }
             return RedirectToAction("Index");
         }
     }

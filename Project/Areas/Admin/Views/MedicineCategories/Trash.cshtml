@@ -1,8 +1,207 @@
-﻿
+﻿@model IEnumerable<Project.Areas.Admin.Models.Entities.MedicineCategory>
+
 @{
     ViewData["Title"] = "Trash";
     Layout = "~/Areas/Admin/Views/Shared/_mainLayout.cshtml";
 }
 
-<h1>Trash</h1>
+
+<div x-data="{ tab: 'trash' }">
+    <form id="trashForm" method="post" :action="tab === 'trash' ? '/Admin/MedicineCategories/Delete' : '/Admin/MedicineCategories/Restore'">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="selectedIds" id="selectedIds" />
+
+        <ul class="flex space-x-2 rtl:space-x-reverse">
+            <li>
+                <a href="javascript:;" class="text-primary hover:underline">Loại thuốc</a>
+            </li>
+            <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                <span>Thùng rác</span>
+            </li>
+        </ul>
+
+        <div x-data="list">
+            <div class="panel border-[#e0e6ed] px-0 dark:border-[#1b2e4b] mt-3">
+                <div class="px-5">
+                    <div class="md:absolute md:top-5 ltr:md:left-5 rtl:md:right-5">
+                        <div class="mb-5 flex items-center gap-2">
+                            <button type="button" @@click ="tab = 'trash'; deleteSelected()" class="btn btn-danger">
+                                <svg class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- SVG content (giữ nguyên từ Index.cshtml) -->
+                                </svg>
+                                Xóa
+                            </button>
+                            <button type="button" @@click ="tab = 'restore'; restoreSelected()" class="btn btn-success">
+                                <svg class="h-5 w-5 ltr:mr-2 rtl:ml-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 4V20M20 12H4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                Khôi phục
+                            </button>
+                            <div class="relative">
+                                <div class="theme-dropdown relative" x-data="{ columnDropdown: false }" @@click.outside ="columnDropdown = false">
+                                    <a href="javascript:;" class="btn btn-info items-center rounded-md border border-[#e0e6ed] px-4 py-2 text-sm font-semibold dark:border-[#253b5c] dark:bg-[#1b2e4b] dark:text-white-dark" @@click ="columnDropdown = !columnDropdown">
+                                        <svg class="h-5 w-5 ltr:mr-2 rtl:ml-2" width="24" height="24" viewBox="-25.1 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="#000000">
+                                            <!-- SVG content (giữ nguyên từ Index.cshtml) -->
+                                        </svg>
+                                        Cột
+                                    </a>
+                                    <div class="absolute top-11 z-[10] hidden w-[100px] min-w-[150px] rounded bg-white py-2 text-dark shadow ltr:left-0 rtl:right-0 dark:bg-[#1b2e4b] dark:text-white-light" :class="columnDropdown && '!block'">
+                                        <ul class="space-y-2 px-4 font-semibold">
+                                            <template x-for="(col, i) in columns" :key="i">
+                                                <li>
+                                                    <div class="flex items-center">
+                                                        <label class="cursor-pointer flex items-center">
+                                                            <input type="checkbox" class="form-checkbox" :id="`chk-col-${i}`" :value="i" @@change ="showHideColumns(i, $event.target.checked)" :checked="!col.hidden">
+                                                            <span class="ltr:ml-2 rtl:mr-2 whitespace-nowrap" x-text="col.name"></span>
+                                                        </label>
+                                                    </div>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="medicineTable" class="table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" class="form-checkbox" @@change ="checkAll($event.target.checked)" /></th>
+                                    <th>Mã loại thuốc</th>
+                                    <th>Tên loại thuốc</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="category in filteredCategoriesList" :key="category.id">
+                                    <tr>
+                                        <td><input type="checkbox" class="form-checkbox" :value="category.id" x-model="selectedRows" /></td>
+                                        <td x-text="category.code"></td>
+                                        <td x-text="category.name"></td>
+                                        <td>
+                                            <span class="badge" :class="category.status ? 'badge-outline-success' : 'badge-outline-danger'" x-text="category.status ? 'Active' : 'Inactive'"></span>
+                                        </td>
+                                        <td>
+                                            <div class="flex gap-3 items-center justify-center">
+                                                <a :href="'/Admin/MedicineCategories/Edit/' + category.id" class="hover:text-info" x-tooltip="Chỉnh sửa">
+                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <!-- SVG content (giữ nguyên từ Index.cshtml) -->
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="~/Public/assets/js/simple-datatables.js"></script>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('list', () => ({
+            params: {
+                id: null,
+                code: '',
+                name: '',
+                status: false,
+            },
+            categoryList: @Html.Raw(Json.Serialize(Model)),
+            filteredCategoriesList: [],
+            selectedRows: [],
+            datatable: null,
+            columns: [
+                { name: 'Hộp chọn', hidden: false },
+                { name: 'Mã loại thuốc', hidden: false },
+                { name: 'Tên loại thuốc', hidden: false },
+                { name: 'Trạng thái', hidden: false },
+                { name: 'Thao tác', hidden: false }
+            ],
+            hideCols: [],
+            showCols: [0, 1, 2, 3, 4],
+
+            init() {
+                if (!Array.isArray(this.categoryList)) {
+                    this.categoryList = [];
+                }
+                this.filteredCategoriesList = [...this.categoryList];
+                this.initializeTable();
+            },
+
+            initializeTable() {
+                const tableData = this.filteredCategoriesList.map(category => [
+                    `<input type="checkbox" class="form-checkbox" value="${category.id}" />`,
+                    category.code,
+                    category.name,
+                    category.status ? '<span class="badge badge-outline-success">Active</span>' : '<span class="badge badge-outline-danger">Inactive</span>',
+                    `<div class="flex gap-3 items-center justify-center">
+                        <a href="/Admin/MedicineCategories/Edit/${category.id}" class="hover:text-info" x-tooltip="Chỉnh sửa">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- SVG content -->
+                            </svg>
+                        </a>
+                    </div>`
+                ]);
+                this.datatable = new simpleDatatables.DataTable('#medicineTable', {
+                    data: {
+                        headings: ['Hộp chọn', 'Mã loại thuốc', 'Tên loại thuốc', 'Trạng thái', 'Thao tác'],
+                        data: tableData
+                    },
+                    searchable: true,
+                    perPage: 10,
+                    perPageSelect: [5, 10, 15, 20],
+                    columns: this.columns.map((col, index) => ({
+                        select: index,
+                        hidden: col.hidden
+                    }))
+                });
+            },
+
+            checkAll(checked) {
+                this.selectedRows = checked ? this.filteredCategoriesList.map(category => category.id) : [];
+                const checkboxes = document.querySelectorAll('#medicineTable tbody input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = checked;
+                });
+            },
+
+            showHideColumns(index, checked) {
+                this.columns[index].hidden = !checked;
+                if (checked) {
+                    this.showCols.push(index);
+                } else {
+                    this.showCols = this.showCols.filter(col => col !== index);
+                }
+                this.datatable.columns().show(this.showCols);
+                this.datatable.columns().hide(this.hideCols);
+            },
+
+            deleteSelected() {
+                if (this.selectedRows.length === 0) {
+                    new Notyf().error("Vui lòng chọn ít nhất một loại thuốc để xóa.");
+                    return;
+                }
+                document.getElementById('selectedIds').value = this.selectedRows;
+                document.getElementById('trashForm').submit();
+            },
+
+            restoreSelected() {
+                if (this.selectedRows.length === 0) {
+                    new Notyf().error("Vui lòng chọn ít nhất một loại thuốc để khôi phục.");
+                    return;
+                }
+                document.getElementById('selectedIds').value = this.selectedRows;
+                document.getElementById('trashForm').submit();
+            }
+        }));
+    });
+</script>
 
