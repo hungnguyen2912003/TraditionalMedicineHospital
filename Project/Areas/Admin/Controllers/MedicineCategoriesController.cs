@@ -74,7 +74,6 @@ namespace Project.Areas.Admin.Controllers
             }
 
             await _repository.CreateAsync(entity);
-            TempData["SuccessMessage"] = "Thêm loại thuốc thành công!";
             return RedirectToAction("Index");
         }
 
@@ -84,11 +83,16 @@ namespace Project.Areas.Admin.Controllers
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null) return NotFound();
             var dto = _mapper.Map<MedicineCategoryDto>(entity);
+
+            ViewBag.MedicineCategoryId = entity.Id;
+            ViewBag.ExistingImage = entity.Images;
+
             return View(dto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit([FromForm] MedicineCategoryDto inputDto)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit([FromForm] MedicineCategoryDto inputDto, Guid Id, [FromForm] bool IsImageRemoved)
         {
             var validationResult = await _validator.ValidateAsync(inputDto);
             if (!validationResult.IsValid)
@@ -97,14 +101,38 @@ namespace Project.Areas.Admin.Controllers
                 {
                     ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                 }
+                ViewBag.MedicineCategoryId = Id;
+                ViewBag.ExistingImage = (await _repository.GetByIdAsync(Id))?.Images;
                 return View(inputDto);
             }
-
-            var entity = _mapper.Map<MedicineCategory>(inputDto);
+            var entity = await _repository.GetByIdAsync(Id);
+            if (entity == null)
+            {
+                return NotFound();
+            }
+            entity.Code = inputDto.Code;
+            entity.Name = inputDto.Name;
+            entity.Description = inputDto.Description;
             entity.UpdatedBy = "Admin";
             entity.UpdatedDate = DateTime.UtcNow;
+
+            if (IsImageRemoved && inputDto.ImageFile == null)
+            {
+                if (!string.IsNullOrEmpty(entity.Images))
+                {
+                    _imageValidator.DeleteImage(entity.Images, "MedicineCategories");
+                    entity.Images = null;
+                }
+            }
+            else if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
+            {
+                if (!string.IsNullOrEmpty(entity.Images))
+                {
+                    _imageValidator.DeleteImage(entity.Images, "MedicineCategories");
+                }
+                entity.Images = await _imageValidator.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
+            }
             await _repository.UpdateAsync(entity);
-            TempData["SuccessMessage"] = "Cập nhật loại thuốc thành công!";
             return RedirectToAction("Index");
         }
 
@@ -119,7 +147,6 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             await _repository.DeleteAsync(id);
-            TempData["SuccessMessage"] = "Xóa loại thuốc thành công!";
             return RedirectToAction("Index");
         }
     }

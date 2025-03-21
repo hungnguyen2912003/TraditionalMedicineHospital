@@ -45,11 +45,12 @@ namespace Project.Validators
             return $"{fileName}";
         }
 
-        public void DeleteImage(string imagePath)
+        public void DeleteImage(string imagePath, string entity)
         {
             if (string.IsNullOrEmpty(imagePath)) return;
 
-            var fullPath = Path.Combine(_environment.WebRootPath, imagePath.TrimStart('/'));
+            var folder = "Images";
+            var fullPath = Path.Combine(_environment.WebRootPath, folder, entity, imagePath.TrimStart('/'));
             if (File.Exists(fullPath))
             {
                 File.Delete(fullPath);
