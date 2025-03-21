@@ -23,7 +23,6 @@
     <script src="~/public/assets/js/jquery-3.7.1.min.js"></script>
     <script src="~/public/assets/js/jquery.validate.min.js"></script>
     <script src="~/public/assets/js/jquery.validate.unobtrusive.min.js"></script>
-
 </head>
 
 <body x-data="main" class="relative overflow-x-hidden font-nunito text-sm font-normal antialiased" :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout,$store.app.rtlClass]">
@@ -68,6 +67,7 @@
     <script defer="" src="~/Public/assets/js/apexcharts.js"></script>
     <script src="~/public/assets/js/notyf.min.js"></script>
     <script src="~/Public/assets/js/simple-datatables.js"></script>
+
 
     <script>
         document.addEventListener('alpine:init', () => {
@@ -121,21 +121,9 @@
             }));
         });
         const notyf = new Notyf({
-            duration: 5000,
-            ripple: true,
+            duration: 2000,
             position: { x: 'right', y: 'top' },
-            dismissible: true,
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            @if (TempData["SuccessMessage"] != null)
-            {
-                @:notyf.success("@TempData["SuccessMessage"]");
-            }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                @:notyf.error("@TempData["ErrorMessage"]");
-            }
+            dismissible: false,
         });
     </script>
 </body>
