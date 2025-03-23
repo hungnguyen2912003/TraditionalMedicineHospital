@@ -169,14 +169,30 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MoveToTrash(List<Guid> Ids)
+        public async Task<IActionResult> MoveToTrash([FromForm] string selectedIds)
         {
-            if (Ids == null || !Ids.Any())
+            Console.WriteLine($"Received selectedIds: {selectedIds}");
+            if (selectedIds == null || !selectedIds.Any())
             {
                 return RedirectToAction("Index");
             }
 
-            foreach (var id in Ids)
+            var ids = new List<Guid>();
+
+            foreach (var id in selectedIds.Split(','))
+            {
+                if (Guid.TryParse(id, out var parsedId))
+                {
+                    ids.Add(parsedId);
+                }
+            }
+
+            if (!ids.Any())
+            {
+                return RedirectToAction("Index");
+            }
+
+            foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
                 if (entity != null)
