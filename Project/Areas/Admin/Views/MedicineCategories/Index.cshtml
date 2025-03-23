@@ -96,7 +96,6 @@
 <script src="~/Public/assets/js/simple-datatables.js"></script>
 
 <script>
-
     document.addEventListener('alpine:init', () => {
         Alpine.data('list', () => ({
             params: {
@@ -125,6 +124,45 @@
                 }
                 this.filteredCategoriesList = [...this.categoryList];
                 this.initializeTable();
+
+                // Xử lý checkbox chính (chọn tất cả)
+                document.querySelector('#medicineTable thead').addEventListener('change', (e) => {
+                    if (e.target.type === 'checkbox') {
+                        this.selectedRows = []; // Reset selectedRows trước khi cập nhật
+                        const checkboxes = document.querySelectorAll('#medicineTable tbody input[type="checkbox"]');
+                        checkboxes.forEach(checkbox => {
+                            checkbox.checked = e.target.checked;
+                            if (e.target.checked) {
+                                if (!this.selectedRows.includes(checkbox.value)) {
+                                    this.selectedRows.push(checkbox.value);
+                                }
+                            }
+                        });
+                        console.log('Selected Rows (Main Checkbox):', this.selectedRows); // Debug
+                    }
+                });
+
+                // Xử lý checkbox từng hàng
+                document.querySelector('#medicineTable tbody').addEventListener('change', (e) => {
+                    if (e.target.type === 'checkbox') {
+                        const checkbox = e.target;
+                        const id = checkbox.value;
+                        if (checkbox.checked) {
+                            if (!this.selectedRows.includes(id)) {
+                                this.selectedRows.push(id);
+                            }
+                        } else {
+                            this.selectedRows = this.selectedRows.filter(rowId => rowId !== id);
+                        }
+                        console.log('Selected Rows (Row Checkbox):', this.selectedRows); // Debug
+
+                        // Cập nhật trạng thái của checkbox header
+                        const allCheckboxes = document.querySelectorAll('#medicineTable tbody input[type="checkbox"]');
+                        const allChecked = Array.from(allCheckboxes).every(chk => chk.checked);
+                        const mainCheckbox = document.querySelector('#medicineTable thead input[type="checkbox"]');
+                        mainCheckbox.checked = allChecked;
+                    }
+                });
             },
 
             initializeTable() {
@@ -200,8 +238,6 @@
                 let cols = this.datatable.columns();
                 cols.hide(this.hideCols);
                 cols.show(this.showCols);
-
-                this.attachCheckboxEvents();
             },
 
             showHideColumns(col, isChecked) {
@@ -218,43 +254,16 @@
                 headers.show(this.showCols);
             },
 
-            attachCheckboxEvents() {
-                const _this = this;
-                document.querySelectorAll('.row-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        const id = this.value;
-                        if (this.checked) {
-                            if (!_this.selectedRows.includes(id)) {
-                                _this.selectedRows.push(id);
-                            }
-                        } else {
-                            _this.selectedRows = _this.selectedRows.filter(rowId => rowId !== id);
-                        }
-                    });
-                });
-
-                document.querySelector('#medicineTable thead input[type="checkbox"]').addEventListener('change', function() {
-                    _this.checkAll(this.checked);
-                });
-            },
-
-            checkAll(checked) {
-                this.selectedRows = checked ? this.filteredCategoriesList.map(category => category.id) : [];
-                const checkboxes = document.querySelectorAll('#medicineTable tbody input[type="checkbox"]');
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = checked;
-                });
-            },
-
             moveToTrash() {
+                console.log('Selected Rows before submit:', this.selectedRows); // Debug
                 if (this.selectedRows.length === 0) {
-                    notyf.war("Vui lòng chọn ít nhất một loại thuốc để đưa vào thùng rác.");
+                    new Notyf().error("Vui lòng chọn ít nhất một loại thuốc để đưa vào thùng rác.");
                     return;
                 }
-                document.getElementById('selectedIds').value = this.selectedRows;
+                document.getElementById('selectedIds').value = this.selectedRows.join(',');
+                console.log('Selected IDs to submit:', document.getElementById('selectedIds').value); // Debug
                 document.getElementById('indexForm').submit();
             }
-
         }));
     });
 </script>
