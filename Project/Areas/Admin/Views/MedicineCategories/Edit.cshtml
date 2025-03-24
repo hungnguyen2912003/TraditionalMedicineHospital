@@ -22,20 +22,10 @@
         background-color: #fff5f5;
     }
 
-        input:invalid + .text-danger {
-            display: block;
-            color: #dc3545;
-            font-size: 0.875rem;
-        }
-
-    .dropzone {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 150px;
-        border: 2px dashed #d1d5db;
-        border-radius: 0.375rem;
-        background-color: #f9fafb;
+    input:invalid + .text-danger {
+        display: block;
+        color: #dc3545;
+        font-size: 0.875rem;
     }
 
     .overlay {
@@ -94,14 +84,6 @@
             <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
                 <div class="px-6">
                     <div class="text-lg font-semibold mb-6">Chỉnh sửa thông tin loại thuốc</div>
-
-                    @if (!ViewData.ModelState.IsValid)
-                    {
-                        <div class="alert alert-danger mb-4">
-                            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
-                        </div>
-                    }
-
                     <div class="flex flex-col lg:flex-row gap-6">
                         <div class="w-full lg:max-w-full p-4 border rounded-lg shadow-sm">
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">

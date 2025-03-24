@@ -27,7 +27,20 @@
             color: #dc3545;
             font-size: 0.875rem;
         }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        display: none;
+    }
 </style>
+
+<div class="overlay" id="loadingOverlay"></div>
 
 <form id="myForm" method="post" enctype="multipart/form-data" asp-action="Create">
     @Html.AntiForgeryToken()
@@ -45,14 +58,6 @@
             <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
                 <div class="px-6">
                     <div class="text-lg font-semibold mb-6">Thêm thông tin loại thuốc</div>
-
-                    @if (!ViewData.ModelState.IsValid)
-                    {
-                        <div class="alert alert-danger mb-4">
-                            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
-                        </div>
-                    }
-
                     <div class="flex flex-col lg:flex-row gap-6">
                         <div class="w-full lg:max-w-full p-4 border rounded-lg shadow-sm">
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
@@ -140,8 +145,18 @@
                             const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
                             formData.append('__RequestVerificationToken', token);
                         });
-                        this.on('success', () => {
-                            notyf.success("Thêm loại thuốc thành công!");
+                        this.on('success', (file, response) => {
+                            if (response.success) {
+                                // Hiển thị notyf thành công và khóa giao diện
+                                document.getElementById('loadingOverlay').style.display = 'block';
+                                notyf.success(response.message);
+                                // Chuyển về Index sau 2 giây
+                                setTimeout(() => {
+                                    window.location.href = '/Admin/MedicineCategories/';
+                                }, 2000);
+                            } else {
+                                notyf.error(response.message);
+                            }
                         });
                         this.on('error', (file, errorMessage) => {
                             notyf.error("Có lỗi xảy ra khi thêm loại thuốc: " + errorMessage);
@@ -191,27 +206,32 @@
             },
 
             add() {
-                const form = document.getElementById('myForm');
                 if ($("#myForm").valid()) {
                     if (this.dropzone.files.length > 0) {
                         this.dropzone.processQueue();
                     } else {
+                        const form = document.getElementById('myForm');
                         const formData = new FormData(form);
                         fetch('/Admin/MedicineCategories/Create', {
                             method: 'POST',
                             body: formData
                         })
-                        .then(response => {
-                            if (response.ok) {
-                                notyf.success("Thêm loại thuốc thành công!");
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Hiển thị notyf thành công và khóa giao diện
+                                document.getElementById('loadingOverlay').style.display = 'block';
+                                notyf.success(data.message);
+                                // Chuyển về Index sau 2 giây
+                                setTimeout(() => {
+                                    window.location.href = '/Admin/MedicineCategories/';
+                                }, 2000);
                             } else {
-                                response.text().then(text => {
-                                    notyf.error("Có lỗi xảy ra khi thêm loại thuốc: " + text);
-                                });
+                                notyf.error(data.message);
                             }
                         })
                         .catch(error => {
-                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu.");
+                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
                         });
                     }
                 }

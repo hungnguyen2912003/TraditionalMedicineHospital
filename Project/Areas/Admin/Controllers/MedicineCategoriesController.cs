@@ -58,12 +58,10 @@ namespace Project.Areas.Admin.Controllers
             var validationResult = await _validator.ValidateAsync(inputDto);
             if (!validationResult.IsValid)
             {
-                foreach (var error in validationResult.Errors)
-                {
-                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-                }
-                return View(inputDto);
+                var errors = validationResult.Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}").ToList();
+                return Json(new { success = false, message = "Thêm loại thuốc thất bại. Vui lòng kiểm tra lại thông tin.", errors });
             }
+
             var entity = _mapper.Map<MedicineCategory>(inputDto);
             entity.CreatedBy = "Admin";
             entity.CreatedDate = DateTime.UtcNow;
@@ -74,8 +72,15 @@ namespace Project.Areas.Admin.Controllers
                 entity.Images = await _imageValidator.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
             }
 
-            await _repository.CreateAsync(entity);
-            return RedirectToAction("Index");
+            try
+            {
+                await _repository.CreateAsync(entity);
+                return Json(new { success = true, message = "Thêm loại thuốc thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra khi thêm loại thuốc: " + ex.Message });
+            }
         }
 
         [HttpGet]
@@ -171,14 +176,12 @@ namespace Project.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MoveToTrash([FromForm] string selectedIds)
         {
-            Console.WriteLine($"Received selectedIds: {selectedIds}");
-            if (selectedIds == null || !selectedIds.Any())
+            if (string.IsNullOrEmpty(selectedIds))
             {
-                return RedirectToAction("Index");
+                TempData["ErrorMessage"] = "Vui lòng chọn ít nhất một loại thuốc để đưa vào thùng rác.";
             }
 
             var ids = new List<Guid>();
-
             foreach (var id in selectedIds.Split(','))
             {
                 if (Guid.TryParse(id, out var parsedId))
@@ -189,9 +192,10 @@ namespace Project.Areas.Admin.Controllers
 
             if (!ids.Any())
             {
-                return RedirectToAction("Index");
+                TempData["ErrorMessage"] = "Danh sách ID không hợp lệ.";
             }
 
+            var movedCategories = new List<MedicineCategory>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -201,7 +205,21 @@ namespace Project.Areas.Admin.Controllers
                     entity.UpdatedBy = "Admin";
                     entity.UpdatedDate = DateTime.UtcNow;
                     await _repository.UpdateAsync(entity);
+                    movedCategories.Add(entity);
                 }
+            }
+
+            if (movedCategories.Any())
+            {
+                var names = string.Join(", ", movedCategories.Select(c => $"\"{c.Name}\""));
+                var message = movedCategories.Count == 1
+                    ? $"Đã đưa loại thuốc {names} thành công vào thùng rác"
+                    : $"Đã đưa các loại thuốc {names} thành công vào thùng rác";
+                TempData["SuccessMessage"] = message;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy loại thuốc nào để đưa vào thùng rác.";
             }
 
             return RedirectToAction("Index");
