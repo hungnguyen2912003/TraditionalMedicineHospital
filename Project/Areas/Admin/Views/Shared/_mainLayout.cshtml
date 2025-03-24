@@ -23,7 +23,18 @@
     <script src="~/public/assets/js/jquery-3.7.1.min.js"></script>
     <script src="~/public/assets/js/jquery.validate.min.js"></script>
     <script src="~/public/assets/js/jquery.validate.unobtrusive.min.js"></script>
+    <style>
+        .dropzone {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 150px;
+            border: 2px dashed #d1d5db;
+            border-radius: 0.375rem;
+        }
+    </style>
 </head>
+
 
 <body x-data="main" class="relative overflow-x-hidden font-nunito text-sm font-normal antialiased" :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout,$store.app.rtlClass]">
     <!-- sidebar menu overlay -->
