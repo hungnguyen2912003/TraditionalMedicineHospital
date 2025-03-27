@@ -5,7 +5,7 @@ namespace Project.Repositories
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
-        private readonly TraditionalMedicineHospitalDbContext _context;
+        protected readonly TraditionalMedicineHospitalDbContext _context;
         private readonly DbSet<T> _dbSet;
 
         public BaseRepository(TraditionalMedicineHospitalDbContext context)

@@ -37,6 +37,8 @@
         background: rgba(0, 0, 0, 0.5);
         z-index: 9999;
         display: none;
+        justify-content: center;
+        align-items: center;
     }
 
     #fileInput {
@@ -64,12 +66,13 @@
     }
 </style>
 
-<div class="overlay" id="loadingOverlay"></div>
+<div class="overlay" id="loadingOverlay">
+    <span class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
+</div>
 
 <form id="myForm" method="post" enctype="multipart/form-data" asp-action="Edit">
     @Html.AntiForgeryToken()
     <input type="hidden" name="Id" value="@ViewBag.MedicineCategoryId" />
-    <input type="hidden" name="IsImageRemoved" id="IsImageRemoved" value="false" />
 
     <div x-data="editData">
         <ul class="flex space-x-2 rtl:space-x-reverse">
@@ -88,19 +91,19 @@
                         <div class="w-full lg:max-w-full p-4 border rounded-lg shadow-sm">
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Code" class="block text-sm font-medium text-gray-700 form-label">Mã loại thuốc</label>
-                                    <input id="Code" type="text" name="Code" value="@Model.Code" class="form-input w-full mt-1 p-2 border rounded form-control" x-model="params.Code" placeholder="Nhập mã loại thuốc" />
+                                    <label for="Code" class="block text-sm font-medium text-gray-700">Mã loại thuốc</label>
+                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập mã loại thuốc" oninput="this.value = this.value.toUpperCase()" value="@Model.Code" />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Name" class="block text-sm font-medium text-gray-700 form-label">Tên loại thuốc</label>
-                                    <input id="Name" type="text" name="Name" value="@Model.Name" class="form-input w-full mt-1 p-2 border rounded form-control" x-model="params.name" placeholder="Nhập tên loại thuốc" />
+                                    <label for="Name" class="block text-sm font-medium text-gray-700">Tên loại thuốc</label>
+                                    <input id="Name" type="text" name="Name" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập tên loại thuốc" value="@Model.Name" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class="mt-4">
-                                <label for="description" class="block text-sm font-medium text-gray-700 form-label">Mô tả loại thuốc</label>
-                                <textarea id="description" name="Description" class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" placeholder="Nhập mô tả loại thuốc...">@Model.Description</textarea>
+                                <label for="description" class="block text-sm font-medium text-gray-700">Mô tả loại thuốc</label>
+                                <textarea id="Description" name="Description" class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" placeholder="Nhập mô tả loại thuốc...">@Model.Description</textarea>
                                 @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
                             </div>
                         </div>
@@ -148,16 +151,36 @@
 
 <script>
     Dropzone.autoDiscover = false;
+
+    $.validator.addMethod("customPattern", function(value, element, regex) {
+        return this.optional(element) || regex.test(value);
+    }, "Giá trị không hợp lệ.");
+
     document.addEventListener('alpine:init', () => {
         Alpine.data('editData', () => ({
             params: {
                 Code: '@Model.Code',
-                name: '@Model.Name'
+                Name: '@Model.Name'
             },
             dropzone: null,
-            validator: null,
 
             init() {
+                const fileInput = document.getElementById('fileInput');
+                fileInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        if (this.dropzone.files.length > 0) {
+                            this.dropzone.removeAllFiles();
+                        }
+                        this.dropzone.addFile(file);
+                    }
+                });
+
+                this.setupDropzone();
+                this.setupValidation();
+            },
+
+            setupDropzone() {
                 this.dropzone = new Dropzone('#imageDropzone', {
                     url: '/Admin/MedicineCategories/Edit',
                     autoProcessQueue: false,
@@ -179,85 +202,65 @@
                             if (this.files.length > 1) {
                                 this.removeFile(this.files[0]);
                             }
-                            document.getElementById('IsImageRemoved').value = 'false';
                         });
 
                         this.on('sending', (file, xhr, formData) => {
-                            formData.append('Id', document.querySelector('input[name="Id"]').value);
-                            formData.append('Code', document.getElementById('Code').value);
-                            formData.append('Name', document.getElementById('Name').value);
-                            formData.append('Description', document.getElementById('description').value);
-                            formData.append('IsImageRemoved', document.getElementById('IsImageRemoved').value);
-                            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-                            formData.append('__RequestVerificationToken', token);
+                            this.appendFormData(formData);
                         });
-
-                        this.on('success', () => {
-                            document.getElementById('loadingOverlay').style.display = 'block';
-
-                            notyf.success("Cập nhật loại thuốc thành công!");
-
-                            setTimeout(() => {
-                                window.location.href = '/Admin/MedicineCategories/';
-                            }, 2000);
+                        this.on('success', (file, response) => {
+                            this.handleResponse(response);
                         });
-
                         this.on('error', (file, errorMessage) => {
-                            new Notyf().error("Có lỗi xảy ra khi cập nhật loại thuốc: " + errorMessage);
-                            console.error('Server error:', errorMessage);
-                        });
-
-                        this.on('removedfile', (file) => {
-                            document.getElementById('IsImageRemoved').value = 'true';
+                            notyf.error("Có lỗi xảy ra: " + errorMessage);
                         });
                     }
                 });
+            },
 
-                const fileInput = document.getElementById('fileInput');
-                fileInput.addEventListener('change', (event) => {
-                    const file = event.target.files[0];
-                    if (file) {
-                        if (this.dropzone.files.length > 0) {
-                            this.dropzone.removeAllFiles();
-                            document.getElementById('IsImageRemoved').value = 'true';
-                        }
-                        this.dropzone.addFile(file);
-                    }
-                });
-
-                this.validator = $("#myForm").validate({
+            setupValidation() {
+                $("#myForm").validate({
                     rules: {
                         Code: {
                             required: true,
-                            maxlength: 10
+                            minlength: 4,
+                            maxlength: 10,
+                            customPattern: /^[A-Za-z][A-Za-z0-9]*$/
+
                         },
                         Name: {
                             required: true,
-                            maxlength: 50
+                            minlength: 6,
+                            maxlength: 20,
+                            customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/
+
                         }
                     },
                     messages: {
                         Code: {
                             required: "Mã loại thuốc không được bỏ trống.",
-                            maxlength: "Mã loại thuốc không được vượt quá 10 ký tự."
+                            minlength: "Mã phải có ít nhất 4 ký tự.",
+                            maxlength: "Mã không được vượt quá 10 ký tự.",
+                            customPattern: "Mã phải bắt đầu bằng chữ cái và chỉ chứa chữ cái hoặc số."
                         },
                         Name: {
                             required: "Tên loại thuốc không được bỏ trống.",
-                            maxlength: "Tên loại thuốc không được vượt quá 50 ký tự."
+                            minlength: "Tên phải có ít nhất 6 ký tự.",
+                            maxlength: "Tên không được vượt quá 50 ký tự.",
+                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng."
                         }
                     },
                     errorElement: "div",
                     errorClass: "text-danger",
-                    highlight: function(element) {
+                    highlight: function (element) {
                         $(element).addClass("border-red-500");
                     },
-                    unhighlight: function(element) {
+                    unhighlight: function (element) {
                         $(element).removeClass("border-red-500");
                     },
-                    errorPlacement: function(error, element) {
+                    errorPlacement: function (error, element) {
                         error.insertAfter(element);
                     },
-                    onfocusout: function(element) {
+                    onfocusout: function (element) {
                         if ($(element).val() === '' || $(element).val().length > 0) {
                             this.element(element);
                         }
@@ -266,36 +269,57 @@
                 });
             },
 
+            appendFormData(formData) {
+                formData.append('Id', document.querySelector('input[name="Id"]').value);
+                formData.append('Code', document.getElementById('Code').value);
+                formData.append('Name', document.getElementById('Name').value);
+                formData.append('Description', document.getElementById('description').value);
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                formData.append('__RequestVerificationToken', token);
+            },
+
+            handleResponse(response) {
+                const overlay = document.getElementById('loadingOverlay');
+                if (response.success) {
+                    overlay.style.display = 'flex';
+                    notyf.success(response.message);
+                    setTimeout(() => {
+                        window.location.href = '/Admin/MedicineCategories/';
+                    }, 2000);
+                } else {
+                    overlay.style.display = 'none';
+                    notyf.error(response.message);
+                    if (response.errors) {
+                        response.errors.forEach(error => notyf.error(error));
+                    }
+                }
+            },
+
             update() {
                 const form = document.getElementById('myForm');
                 if ($("#myForm").valid()) {
+                    const overlay = document.getElementById('loadingOverlay');
+                    overlay.style.display = 'flex';
+
+                    const id = document.querySelector('input[name="Id"]').value;
+                    const code = document.getElementById('Code').value;
+                    const name = document.getElementById('Name').value;
+                    const description = document.getElementById('Description').value;
+
                     if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
                         this.dropzone.processQueue();
                     } else {
                         const formData = new FormData(form);
-                        const id = document.querySelector('input[name="Id"]').value;
                         formData.append('Id', id);
-                        formData.append('IsImageRemoved', document.getElementById('IsImageRemoved').value);
                         fetch('/Admin/MedicineCategories/Edit', {
                             method: 'POST',
                             body: formData
                         })
-                        .then(response => {
-                            if (response.ok) {
-                                document.getElementById('loadingOverlay').style.display = 'block';
-
-                                notyf.success("Cập nhật loại thuốc thành công!");
-                                setTimeout(() => {
-                                    window.location.href = '/Admin/MedicineCategories/';
-                                }, 2000);
-                            } else {
-                                response.text().then(text => {
-                                    notyf.error("Có lỗi xảy ra khi cập nhật loại thuốc: " + text);
-                                });
-                            }
-                        })
+                        .then(response => response.json())
+                        .then(this.handleResponse)
                         .catch(error => {
-                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu.");
+                            overlay.style.display = 'none';
+                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
                         });
                     }
                 }

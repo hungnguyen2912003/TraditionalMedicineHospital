@@ -7,8 +7,8 @@
 
 <style>
     #description {
-        overflow-y: auto;
-        resize: none;
+    overflow-y: auto;
+    resize: none;
     }
 </style>
 
@@ -76,7 +76,14 @@
             <h6 class="mb-5 text-lg font-bold">Thông Tin Chung</h6>
             <div class="flex flex-col sm:flex-row">
                 <div class="mb-5 w-full sm:w-2/12 ltr:sm:mr-4 rtl:sm:ml-4">
-                    <img src="~/Images/MedicineCategories/@Model.Images" alt="image" class="mx-auto h-20 w-20 rounded-full object-cover md:h-32 md:w-32">
+                    @if (Model.Images != null)
+                    {
+                        <img src="~/Images/MedicineCategories/@Model.Images" alt="image" class="mx-auto h-20 w-20 rounded-full object-cover md:h-32 md:w-32">
+                    }
+                    else
+                    {
+                        <img src="~/Public/assets/images/no_image.png" alt="image" class="mx-auto h-20 w-20 rounded-full object-cover md:h-32 md:w-32">
+                    }
                 </div>
                 <div class="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2">
                     <div>
