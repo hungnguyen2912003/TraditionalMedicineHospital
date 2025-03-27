@@ -9,8 +9,8 @@ namespace Project.Areas.Admin.Data
         {
         }
 
-        DbSet<MedicineCategory> medicineCategories { get; set; }
-        DbSet<Medicine> medicines { get; set; }
+        public DbSet<MedicineCategory> medicineCategories { get; set; }
+        public DbSet<Medicine> medicines { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

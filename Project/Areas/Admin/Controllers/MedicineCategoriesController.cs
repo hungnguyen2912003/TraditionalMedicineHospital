@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Repositories.Interfaces;
+using Project.Services.Interfaces;
 using Project.Validators;
 
 namespace Project.Areas.Admin.Controllers
@@ -13,20 +14,20 @@ namespace Project.Areas.Admin.Controllers
     {
         private readonly IMedicineCategoryRepository _repository;
         private readonly IMapper _mapper;
-        private readonly ImageValidator _imageValidator;
+        private readonly IImageService _service;
         private readonly IValidator<MedicineCategoryDto> _validator;
 
         public MedicineCategoriesController
         (
             IMedicineCategoryRepository repository, 
-            IMapper mapper, 
-            ImageValidator imageValidator, 
+            IMapper mapper,
+            IImageService service, 
             IValidator<MedicineCategoryDto> validator
         )
         {
             _repository = repository;
             _mapper = mapper;
-            _imageValidator = imageValidator;
+            _service = service;
             _validator = validator;
         }
 
@@ -55,25 +56,25 @@ namespace Project.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromForm] MedicineCategoryDto inputDto)
         {
-            var validationResult = await _validator.ValidateAsync(inputDto);
-            if (!validationResult.IsValid)
-            {
-                var errors = validationResult.Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}").ToList();
-                return Json(new { success = false, message = "Thêm loại thuốc thất bại. Vui lòng kiểm tra lại thông tin.", errors });
-            }
-
-            var entity = _mapper.Map<MedicineCategory>(inputDto);
-            entity.CreatedBy = "Admin";
-            entity.CreatedDate = DateTime.UtcNow;
-            entity.Status = true;
-
-            if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
-            {
-                entity.Images = await _imageValidator.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
-            }
-
             try
             {
+                var validationResult = await _validator.ValidateAsync(inputDto);
+                if (!validationResult.IsValid)
+                {
+                    var errors = validationResult.Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}").ToList();
+                    return Json(new { success = false, message = "Thêm loại thuốc thất bại. Vui lòng kiểm tra lại thông tin.", errors });
+                }
+
+                var entity = _mapper.Map<MedicineCategory>(inputDto);
+
+                entity.CreatedBy = "Admin";
+                entity.CreatedDate = DateTime.UtcNow;
+                entity.Status = true;
+
+                if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
+                {
+                    entity.Images = await _service.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
+                }
                 await _repository.CreateAsync(entity);
                 return Json(new { success = true, message = "Thêm loại thuốc thành công!" });
             }
@@ -98,48 +99,42 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromForm] MedicineCategoryDto inputDto, Guid Id, [FromForm] bool IsImageRemoved)
+        public async Task<IActionResult> Edit([FromForm] MedicineCategoryDto inputDto, Guid Id)
         {
-            var validationResult = await _validator.ValidateAsync(inputDto);
-            if (!validationResult.IsValid)
+            try
             {
-                foreach (var error in validationResult.Errors)
+                var validator = new MedicineCategoryValidator(_repository, Id);
+                var validationResult = await validator.ValidateAsync(inputDto);
+                if (!validationResult.IsValid)
                 {
-                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                    var errors = validationResult.Errors.Select(e => $"{e.ErrorMessage}").ToList();
+                    ViewBag.MedicineCategoryId = Id;
+                    ViewBag.ExistingImage = (await _repository.GetByIdAsync(Id))?.Images;
+                    return Json(new { success = false, message = "Cập nhật loại thuốc thất bại. Vui lòng kiểm tra lại thông tin.", errors });
                 }
-                ViewBag.MedicineCategoryId = Id;
-                ViewBag.ExistingImage = (await _repository.GetByIdAsync(Id))?.Images;
-                return View(inputDto);
-            }
-            var entity = await _repository.GetByIdAsync(Id);
-            if (entity == null)
-            {
-                return NotFound();
-            }
-            entity.Code = inputDto.Code;
-            entity.Name = inputDto.Name;
-            entity.Description = inputDto.Description;
-            entity.UpdatedBy = "Admin";
-            entity.UpdatedDate = DateTime.UtcNow;
+                var entity = await _repository.GetByIdAsync(Id);
+                if (entity == null)
+                {
+                    return NotFound();
+                }
+                entity.Code = inputDto.Code;
+                entity.Name = inputDto.Name;
+                entity.Description = inputDto.Description;
+                entity.UpdatedBy = "Admin";
+                entity.UpdatedDate = DateTime.UtcNow;
 
-            if (IsImageRemoved && inputDto.ImageFile == null)
-            {
-                if (!string.IsNullOrEmpty(entity.Images))
+                if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
-                    _imageValidator.DeleteImage(entity.Images, "MedicineCategories");
-                    entity.Images = null;
+                    entity.Images = await _service.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
                 }
+
+                await _repository.UpdateAsync(entity);
+                return Json(new { success = true, message = "Cập nhật loại thuốc thành công!" });
             }
-            else if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
+            catch (Exception ex)
             {
-                if (!string.IsNullOrEmpty(entity.Images))
-                {
-                    _imageValidator.DeleteImage(entity.Images, "MedicineCategories");
-                }
-                entity.Images = await _imageValidator.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
+                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật loại thuốc: " + ex.Message });
             }
-            await _repository.UpdateAsync(entity);
-            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Trash()
@@ -151,21 +146,49 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(List<Guid> Ids)
+        public async Task<IActionResult> Delete([FromForm] string selectedIds)
         {
-            if (Ids == null || !Ids.Any())
+            var ids = new List<Guid>();
+            foreach (var id in selectedIds.Split(',', StringSplitOptions.RemoveEmptyEntries))
             {
+                if (Guid.TryParse(id, out var parsedId))
+                {
+                    ids.Add(parsedId);
+                }
+            }
+
+            if (_repository == null)
+            {
+                TempData["ErrorMessage"] = "Hệ thống gặp lỗi, vui lòng thử lại sau.";
                 return RedirectToAction("Trash");
             }
 
-            foreach (var id in Ids)
+            var deletedCategories = new List<MedicineCategory>();
+            foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
-                if (entity != null && !string.IsNullOrEmpty(entity.Images))
+                if (entity != null)
                 {
-                    _imageValidator.DeleteImage(entity.Images, "MedicineCategories");
+                    if (!string.IsNullOrEmpty(entity.Images))
+                    {
+                        _service.DeleteImage(entity.Images, "MedicineCategories");
+                    }
+                    await _repository.DeleteAsync(id);
+                    deletedCategories.Add(entity);
                 }
-                await _repository.DeleteAsync(id);
+            }
+
+            if (deletedCategories.Any())
+            {
+                var names = string.Join(", ", deletedCategories.Select(c => $"\"{c.Name}\""));
+                var message = deletedCategories.Count == 1
+                    ? $"Đã xóa vĩnh viễn loại thuốc {names} thành công"
+                    : $"Đã xóa vĩnh viễn các loại thuốc {names} thành công";
+                TempData["SuccessMessage"] = message;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy loại thuốc nào để xóa.";
             }
 
             return RedirectToAction("Trash");
@@ -176,11 +199,6 @@ namespace Project.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MoveToTrash([FromForm] string selectedIds)
         {
-            if (string.IsNullOrEmpty(selectedIds))
-            {
-                TempData["ErrorMessage"] = "Vui lòng chọn ít nhất một loại thuốc để đưa vào thùng rác.";
-            }
-
             var ids = new List<Guid>();
             foreach (var id in selectedIds.Split(','))
             {
@@ -188,11 +206,6 @@ namespace Project.Areas.Admin.Controllers
                 {
                     ids.Add(parsedId);
                 }
-            }
-
-            if (!ids.Any())
-            {
-                TempData["ErrorMessage"] = "Danh sách ID không hợp lệ.";
             }
 
             var movedCategories = new List<MedicineCategory>();
@@ -227,13 +240,18 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Restore(List<Guid> Ids)
+        public async Task<IActionResult> Restore([FromForm] string selectedIds)
         {
-            if (Ids == null || !Ids.Any())
+            var ids = new List<Guid>();
+            foreach (var id in selectedIds.Split(','))
             {
-                return RedirectToAction("Index");
+                if (Guid.TryParse(id, out var parsedId))
+                {
+                    ids.Add(parsedId);
+                }
             }
-            foreach (var id in Ids)
+            var movedCategories = new List<MedicineCategory>();
+            foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
                 if (entity != null)
@@ -242,9 +260,24 @@ namespace Project.Areas.Admin.Controllers
                     entity.UpdatedBy = "Admin";
                     entity.UpdatedDate = DateTime.UtcNow;
                     await _repository.UpdateAsync(entity);
+                    movedCategories.Add(entity);
                 }
             }
-            return RedirectToAction("Index");
+
+            if (movedCategories.Any())
+            {
+                var names = string.Join(", ", movedCategories.Select(c => $"\"{c.Name}\""));
+                var message = movedCategories.Count == 1
+                    ? $"Đã khôi phục loại thuốc {names} thành công."
+                    : $"Đã khôi phục các loại thuốc {names} thành công.";
+                TempData["SuccessMessage"] = message;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy loại thuốc nào để khôi phục.";
+            }
+
+            return RedirectToAction("Trash");
         }
     }
 }
