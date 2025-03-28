@@ -1,11 +1,16 @@
-﻿namespace Project.Areas.Admin.Models.Enums
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Project.Areas.Admin.Models.Enums
 {
     public enum UnitType
     {
-        mg = 1,
-        g = 2,
-        ml = 3,
-        l = 4,
-        mcg = 5
+        [Display(Name = "Chai")]
+        Chai = 1,
+        [Display(Name = "Ống")]
+        Ong = 2,
+        [Display(Name = "Hộp")]
+        Hop = 3,
+        [Display(Name = "Gói")]
+        Goi = 4
     }
 }
