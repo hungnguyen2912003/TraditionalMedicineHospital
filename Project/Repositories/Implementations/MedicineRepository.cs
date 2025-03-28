@@ -11,6 +11,13 @@ namespace Project.Repositories.Implementations
         {
         }
 
+        public async Task<IEnumerable<Medicine>> GetAllWithCategoryAsync()
+        {
+            return await _context.medicines
+                .Include(m => m.MedicineCategory)
+                .ToListAsync();
+        }
+
         public async Task<Medicine?> GetByCodeAsync(string code)
         {
             return await _context.medicines
