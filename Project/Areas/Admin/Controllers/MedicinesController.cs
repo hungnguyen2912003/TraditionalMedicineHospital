@@ -39,9 +39,10 @@ namespace Project.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var list = await _repository.GetAllAsync();
-            var activeList =  list.Where(x => x.IsActive == true).ToList();
-            return View(activeList);
+            var list = await _repository.GetAllWithCategoryAsync();
+            var activeList = list.Where(x => x.IsActive == true).ToList();
+            var dtoList = _mapper.Map<List<MedicineDto>>(activeList);
+            return View(dtoList);
         }
 
         public async Task<IActionResult> Details(Guid id)

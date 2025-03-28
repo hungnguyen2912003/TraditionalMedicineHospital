@@ -8,7 +8,10 @@ namespace Project.Mappers
     {
         public MedicineProfile()
         {
-            CreateMap<Medicine, MedicineDto>();
+            CreateMap<Medicine, MedicineDto>()
+                .ForMember(dest => dest.MedicineCategoryName,
+                            opt => opt.MapFrom(src => src.MedicineCategory != null ? src.MedicineCategory.Name : "N/A"))
+                .ForMember(dest => dest.ImageFile, opt => opt.Ignore());
             CreateMap<MedicineDto, Medicine>()
                 .ForMember(dest => dest.Images, opt => opt.Ignore());
         }

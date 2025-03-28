@@ -216,7 +216,7 @@
             appendFormData(formData) {
                 formData.append('Code', $('#Code').val());
                 formData.append('Name', $('#Name').val());
-                formData.append('Description', $('#description').val());
+                formData.append('Description', $('#Description').val());
                 const token = $('input[name="__RequestVerificationToken"]').val();
                 formData.append('__RequestVerificationToken', token);
             },
