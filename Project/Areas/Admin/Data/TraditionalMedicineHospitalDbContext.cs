@@ -17,10 +17,6 @@ namespace Project.Areas.Admin.Data
             modelBuilder.Entity<Medicine>()
                 .Property(e => e.Price)
                 .HasPrecision(18, 2);
-
-            modelBuilder.Entity<Medicine>()
-                .Property(e => e.DosageQuantity)
-                .HasPrecision(18, 2);
         }
     }
 }
