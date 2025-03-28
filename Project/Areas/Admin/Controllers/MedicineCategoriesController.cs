@@ -34,7 +34,7 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAsync();
-            var activeList = list.Where(x => x.Status == true).ToList();
+            var activeList = list.Where(x => x.IsActive == true).ToList();
             return View(activeList);
         }
 
@@ -69,7 +69,7 @@ namespace Project.Areas.Admin.Controllers
 
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
-                entity.Status = true;
+                entity.IsActive = true;
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
@@ -140,7 +140,7 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Trash()
         {
             var list = await _repository.GetAllAsync();
-            var trashList = list.Where(x => x.Status == false).ToList();
+            var trashList = list.Where(x => x.IsActive == false).ToList();
             return View(trashList);
         }
 
@@ -214,7 +214,7 @@ namespace Project.Areas.Admin.Controllers
                 var entity = await _repository.GetByIdAsync(id);
                 if (entity != null)
                 {
-                    entity.Status = false;
+                    entity.IsActive = false;
                     entity.UpdatedBy = "Admin";
                     entity.UpdatedDate = DateTime.UtcNow;
                     await _repository.UpdateAsync(entity);
@@ -256,7 +256,7 @@ namespace Project.Areas.Admin.Controllers
                 var entity = await _repository.GetByIdAsync(id);
                 if (entity != null)
                 {
-                    entity.Status = true;
+                    entity.IsActive = true;
                     entity.UpdatedBy = "Admin";
                     entity.UpdatedDate = DateTime.UtcNow;
                     await _repository.UpdateAsync(entity);

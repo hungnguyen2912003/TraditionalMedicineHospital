@@ -21,17 +21,10 @@ namespace Project.Areas.Admin.Models.Entities
         [Required]
         public decimal Price { get; set; }
         [Required]
-        public int InStock { get; set; }
-        [Required]
-        public int UnitQuantity { get; set; }
+        public int StockQuantity { get; set; }
         [Required]
         [StringLength(10)]
-        public UnitType UnitType { get; set; }
-        [Required]
-        public decimal DosageQuantity { get; set; }
-        [Required]
-        [StringLength(10)]
-        public DosageUnit DosageUnit { get; set; }
+        public string StockUnit { get; set; }
         [Required]
         [StringLength(50)]
         public string Manufacturer { get; set; }

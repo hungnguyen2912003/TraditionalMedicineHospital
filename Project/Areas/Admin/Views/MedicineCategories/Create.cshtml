@@ -135,6 +135,7 @@
             },
 
             setupDropzone() {
+                const self = this;
                 this.dropzone = new Dropzone('#imageDropzone', {
                     url: '/Admin/MedicineCategories/Create',
                     autoProcessQueue: false,
@@ -150,10 +151,10 @@
                             }
                         });
                         this.on('sending', (file, xhr, formData) => {
-                            this.appendFormData(formData);
+                            self.appendFormData(formData);
                         });
                         this.on('success', (file, response) => {
-                            this.handleResponse(response);
+                            self.handleResponse(response);
                         });
                         this.on('error', (file, errorMessage) => {
                             notyf.error("Có lỗi xảy ra: " + errorMessage);
