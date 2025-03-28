@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Admin.Models.Enums;
+using Project.Extensions;
 using Project.Repositories.Interfaces;
 using Project.Services.Interfaces;
 using Project.Validators;
@@ -39,7 +40,7 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAsync();
-            var activeList = list.Where(x => x.IsActive == true).ToList();
+            var activeList =  list.Where(x => x.IsActive == true).ToList();
             return View(activeList);
         }
 
@@ -64,12 +65,10 @@ namespace Project.Areas.Admin.Controllers
 
             ViewBag.StockUnit = Enum.GetValues(typeof(UnitType))
                 .Cast<UnitType>()
-                .Select(ut => new
+                .Select(e => new
                 {
-                    Value = ut.ToString(),
-                    Text = ut.GetType()
-                            .GetMember(ut.ToString())[0]
-                            .GetCustomAttribute<DisplayAttribute>()?.Name ?? ut.ToString()
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
                 })
                 .ToList();
             return View();
@@ -81,8 +80,8 @@ namespace Project.Areas.Admin.Controllers
         {
             try
             {
-                var validationResult = _validator.Validate(inputDto);
-                if (validationResult != null)
+                var validationResult = await _validator.ValidateAsync(inputDto);
+                if (!validationResult.IsValid)
                 {
                     var errors = validationResult.Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}").ToList();
                     return Json(new { success = false, message = "Thêm thuốc thất bại. Vui lòng kiểm tra lại thông tin.", errors });

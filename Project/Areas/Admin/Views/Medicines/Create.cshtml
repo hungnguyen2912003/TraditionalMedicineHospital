@@ -64,7 +64,6 @@
                     <div class="text-lg font-semibold mb-6">Thêm thông tin thuốc</div>
                     <div class="flex flex-col lg:flex-row gap-6">
                         <div class="w-full lg:max-w-full p-4 border rounded-lg shadow-sm">
-                            <div class="text-lg font-semibold mb-6">Thông tin chung</div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Code" class="block text-sm font-medium text-gray-700">Mã thuốc</label>
@@ -148,7 +147,8 @@
                     </div>
                     <div class="mt-4">
                         <label for="Price" class="block text-sm font-medium text-gray-700">Giá bán</label>
-                        <input id="Price" type="text" name="Price" class="form-input w-full mt-1 p-2 border rounded price-input" placeholder="Nhập giá bán" />
+                        <input id="Price" type="text" class="form-input w-full mt-1 p-2 border rounded price-input" placeholder="Nhập giá bán" />
+                        <input id="PriceRaw" type="hidden" name="Price" />
                         @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
                     </div>
                 </div>
@@ -212,7 +212,12 @@
                     numeral: true,
                     numeralThousandsGroupStyle: 'thousand',
                     numeralDecimalScale: 0,
-                    numeralPositiveOnly: true
+                    numeralPositiveOnly: true,
+                    onValueChanged: function(e) {
+                        var rawValue = e.target.rawValue;
+                        $('#PriceRaw').val(rawValue);
+                        $('#PriceRaw').trigger('change');
+                    }
                 });
             },
 
@@ -229,6 +234,7 @@
             },
 
             setupDropzone() {
+                const self = this;
                 this.dropzone = new Dropzone('#imageDropzone', {
                     url: '/Admin/Medicines/Create',
                     autoProcessQueue: false,
@@ -244,10 +250,10 @@
                             }
                         });
                         this.on('sending', (file, xhr, formData) => {
-                            this.appendFormData(formData);
+                            self.appendFormData(formData);
                         });
                         this.on('success', (file, response) => {
-                            this.handleResponse(response);
+                            self.handleResponse(response);
                         });
                         this.on('error', (file, errorMessage) => {
                             notyf.error("Có lỗi xảy ra: " + errorMessage);
@@ -257,6 +263,16 @@
             },
 
             setupValidation() {
+                $.validator.addMethod("numberWithComma", function(value, element) {
+                    var cleanValue = value.replace(/,/g, '');
+                    return this.optional(element) || !isNaN(cleanValue) && cleanValue >= 0;
+                }, "Giá bán phải là số.");
+
+                $.validator.addMethod("minWithComma", function(value, element, param) {
+                    var cleanValue = value.replace(/,/g, '');
+                    return this.optional(element) || !isNaN(cleanValue) && Number(cleanValue) >= param;
+                }, "Giá bán phải lớn hơn 0.");
+
                 $("#myForm").validate({
                     rules: {
                         Code: {
@@ -297,8 +313,8 @@
                         },
                         Price: {
                             required: true,
-                            number: true,
-                            min: 1
+                            numberWithComma: true,
+                            minWithComma: 1
                         },
                         ActiveIngredient: {
                             required: true,
@@ -345,13 +361,8 @@
                         },
                         Price: {
                             required: "Giá bán không được bỏ trống.",
-                            number: "Giá bán phải là số.",
-                            min: "Giá bán phải lớn hơn 0."
-                        },
-                        InStock: {
-                            required: "Số lượng tồn kho không được bỏ trống.",
-                            number: "Số lượng tồn kho phải là số.",
-                            min: "Số lượng tồn kho không được âm."
+                            numberWithComma: "Giá bán phải là số.",
+                            minWithComma: "Giá bán phải lớn hơn 0."
                         },
                         ActiveIngredient: {
                             required: "Thành phần hoạt chất không được bỏ trống.",
@@ -362,13 +373,25 @@
                     errorElement: "div",
                     errorClass: "text-danger",
                     highlight: function (element) {
-                        $(element).addClass("border-red-500");
+                        if ($(element).attr('id') === 'PriceRaw') {
+                            $('#Price').addClass("border-red-500");
+                        } else {
+                            $(element).addClass("border-red-500");
+                        }
                     },
                     unhighlight: function (element) {
-                        $(element).removeClass("border-red-500");
+                        if ($(element).attr('id') === 'PriceRaw') {
+                            $('#Price').removeClass("border-red-500");
+                        } else {
+                            $(element).removeClass("border-red-500");
+                        }
                     },
                     errorPlacement: function (error, element) {
-                        error.insertAfter(element);
+                        if (element.attr('id') === 'PriceRaw') {
+                            error.insertAfter('#Price');
+                        } else {
+                            error.insertAfter(element);
+                        }
                     },
                     onfocusout: function(element) {
                         if ($(element).val() === '' || $(element).val().length > 0) {
@@ -393,20 +416,41 @@
             },
 
             appendFormData(formData) {
-                formData.append('Code', $('#Code').val());
-                formData.append('Name', $('#Name').val());
-                formData.append('Description', $('#Description').val());
-                formData.append('MedicineCategoryId', $('#MedicineCategoryId').val());
-                formData.append('StockQuantity', $('#StockQuantity').val());
-                formData.append('StockUnit', $('#StockUnit').val());
-                var priceValue = $('#Price').val().replace(/,/g, '');
-                formData.append('Price', priceValue);
-                formData.append('Manufacturer', $('#Manufacturer').val());
-                formData.append('ManufacturedDate', $('#ManufacturedDate').val());
-                formData.append('ExpiryDate', $('#ExpiryDate').val());
-                formData.append('ActiveIngredient', $('#ActiveIngredient').val());
-                const token = $('input[name="__RequestVerificationToken"]').val();
-                formData.append('__RequestVerificationToken', token);
+                // Tạo một object để log dữ liệu
+                const formDataObject = {
+                    Code: $('#Code').val(),
+                    Name: $('#Name').val(),
+                    Description: $('#Description').val(),
+                    MedicineCategoryId: $('#MedicineCategoryId').val(),
+                    StockQuantity: $('#StockQuantity').val(),
+                    StockUnit: $('#StockUnit').val(),
+                    Price: $('#PriceRaw').val() || "0", // Nếu PriceRaw là undefined, gán mặc định là "0"
+                    Manufacturer: $('#Manufacturer').val(),
+                    ManufacturedDate: $('#ManufacturedDate').val(),
+                    ExpiryDate: $('#ExpiryDate').val(),
+                    ActiveIngredient: $('#ActiveIngredient').val(),
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                };
+
+                // Log giá trị của #PriceRaw để kiểm tra
+                console.log("Giá trị của #PriceRaw:", $('#PriceRaw').val());
+
+                // Log dữ liệu gửi đi
+                console.log("Dữ liệu gửi đi (appendFormData):", formDataObject);
+
+                // Thêm dữ liệu vào FormData
+                formData.append('Code', formDataObject.Code);
+                formData.append('Name', formDataObject.Name);
+                formData.append('Description', formDataObject.Description);
+                formData.append('MedicineCategoryId', formDataObject.MedicineCategoryId);
+                formData.append('StockQuantity', formDataObject.StockQuantity);
+                formData.append('StockUnit', formDataObject.StockUnit);
+                formData.append('Price', formDataObject.Price);
+                formData.append('Manufacturer', formDataObject.Manufacturer);
+                formData.append('ManufacturedDate', formDataObject.ManufacturedDate);
+                formData.append('ExpiryDate', formDataObject.ExpiryDate);
+                formData.append('ActiveIngredient', formDataObject.ActiveIngredient);
+                formData.append('__RequestVerificationToken', formDataObject.__RequestVerificationToken);
             },
 
             handleResponse(response) {
@@ -435,7 +479,15 @@
                     } else {
                         const form = document.getElementById('myForm');
                         const formData = new FormData(form);
-                        fetch('/Admin/MedicineCategories/Create', {
+                        // Tạo một object để log dữ liệu
+                        const formDataObject = {};
+                        for (let [key, value] of formData.entries()) {
+                            formDataObject[key] = value;
+                        }
+
+                        // Log dữ liệu ra console
+                        console.log("Dữ liệu gửi đi (không có file):", formDataObject);
+                        fetch('/Admin/Medicines/Create', {
                             method: 'POST',
                             body: formData
                         })

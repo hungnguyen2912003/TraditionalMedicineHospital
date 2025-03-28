@@ -24,7 +24,7 @@ namespace Project.Areas.Admin.Models.Entities
         public int StockQuantity { get; set; }
         [Required]
         [StringLength(10)]
-        public string StockUnit { get; set; }
+        public UnitType StockUnit { get; set; }
         [Required]
         [StringLength(50)]
         public string Manufacturer { get; set; }
