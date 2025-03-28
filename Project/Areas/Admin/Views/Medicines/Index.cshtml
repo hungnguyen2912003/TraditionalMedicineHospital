@@ -109,8 +109,8 @@
                         <tr class="text-center">
                             <th><input type="checkbox" class="form-checkbox" /></th>
                             <th>Mã thuốc</th>
+                            <th>Loại thuốc</th>
                             <th>Tên thuốc</th>
-                            <th>Liều lượng</th>
                             <th>Đơn vị</th>
                             <th>Giá bán</th>
                             <th>Tồn kho</th>
@@ -132,19 +132,29 @@
 <script src="~/Public/assets/js/simple-datatables.js"></script>
 
 <script>
+
+    function getUnitTypeName(unitValue) {
+        switch (unitValue) {
+            case 1: return 'Chai';
+            case 2: return 'Ống';
+            case 3: return 'Hộp';
+            case 4: return 'Gói';
+            default: return 'Không xác định';
+        }
+    };
+
     document.addEventListener('alpine:init', () => {
         Alpine.data('list', () => ({
             params: {
                 id: null,
                 code: '',
+                category: '',
                 name: '',
                 price: '',
-                instock: '',
+                stock: '',
                 manufacturer: '',
                 manufacturedDate: '',
-                expiredDate: '',
-                unit: '',
-                dosage: '',
+                expiryDate: '',
                 isActive: true,
             },
             entityList: @Html.Raw(Json.Serialize(Model)),
@@ -154,9 +164,8 @@
             columns: [
                 { name: 'Hộp chọn', hidden: false },
                 { name: 'Mã thuốc', hidden: false },
+                { name: 'Loại thuốc', hidden: false },
                 { name: 'Tên thuốc', hidden: false },
-                { name: 'Đơn vị', hidden: false },
-                { name: 'Liều lượng', hidden: false },
                 { name: 'Giá bán', hidden: false },
                 { name: 'Tồn kho', hidden: false },
                 { name: 'Nhà sản xuất', hidden: false },
@@ -166,7 +175,7 @@
                 { name: 'Thao tác', hidden: false }
             ],
             hideCols: [],
-            showCols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+            showCols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
 
             init() {
                 if (!Array.isArray(this.entityList)) {
@@ -221,15 +230,14 @@
                 const tableData = this.filteredList.map(entity => [
                     `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
                     entity.code,
+                    entity.medicineCategory && entity.medicineCategory.name ? entity.medicineCategory.name : 'N/A',
                     entity.name,
-                    entity.unit,
-                    entity.dosage,
-                    entity.price,
-                    entity.instock,
+                    entity.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
+                    `${entity.stockQuantity} ${getUnitTypeName(entity.stockUnit)}`,
                     entity.manufacturer,
-                    entity.manufacturedDate,
-                    entity.expiredDate,
-                    entity.status ? '<span class="badge badge-outline-success">Đang hoạt động</span>' : '<span class="badge badge-outline-danger">Không hoạt động</span>',
+                    new Date(entity.manufacturedDate).toLocaleDateString('vi-VN'),
+                    new Date(entity.expiryDate).toLocaleDateString('vi-VN'),
+                    entity.isActive ? '<span class="badge badge-outline-success">Đang hoạt động</span>' : '<span class="badge badge-outline-danger">Không hoạt động</span>',
                     `<div class="flex gap-4">
                         <a href="/Admin/Medicines/Edit/${entity.id}" class="hover:text-info" x-tooltip="Chỉnh sửa">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5">
@@ -260,17 +268,17 @@
                     data: {
                         headings: [
                             '<input type="checkbox" class="form-checkbox" />', 
-                            'Mã loại thuốc',
-                            'Tên loại thuốc',
-                            'Đơn vị',
-                            'Liều lượng',
-                            'Giá',
+                            'Mã thuốc',
+                            'Loại thuốc',
+                            'Tên thuốc',
+                            'Giá bán',
                             'Tồn kho',
                             'Nhà sản xuất',
                             'Ngày sản xuất',
                             'Ngày hết hạn',
                             'Trạng thái',
-                            'Thao tác'],
+                            'Thao tác'
+                        ],
                         data: tableData
                     },
                     perPage: 10,
@@ -298,7 +306,14 @@
                             }
                         },
                         {
-                            select: 11,
+                            select: 9,
+                            sortable: false,
+                            render: (data, cell, row) => {
+                                return data;
+                            }
+                        },
+                        {
+                            select: 10,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;

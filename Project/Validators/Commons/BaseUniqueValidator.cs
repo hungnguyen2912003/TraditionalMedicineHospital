@@ -27,5 +27,17 @@ namespace Project.Validators
             var existing = await getByValueAsync(value);
             return existing == null || (CurrentId.HasValue && existing.GetType().GetProperty("Id")?.GetValue(existing)?.Equals(CurrentId.Value) == true);
         }
+
+        protected Task<bool> BeAValidDate(DateTime date)
+        {
+            return Task.FromResult(date != DateTime.MinValue);
+        }
+
+        protected Task<bool> BeAfterManufacturedDate(DateTime manufacturedDate, DateTime expiryDate)
+        {
+            if (manufacturedDate == DateTime.MinValue || expiryDate == DateTime.MinValue)
+                return Task.FromResult(true);
+            return Task.FromResult(expiryDate > manufacturedDate);
+        }
     }
 }
