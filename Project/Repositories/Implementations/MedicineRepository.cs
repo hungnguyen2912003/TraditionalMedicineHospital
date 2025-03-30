@@ -18,6 +18,13 @@ namespace Project.Repositories.Implementations
                 .ToListAsync();
         }
 
+        public async Task<Medicine?> GetByIdWithCategoryAsync(Guid id)
+        {
+            return await _context.medicines
+                .Include(m => m.MedicineCategory)
+                .FirstOrDefaultAsync(m => m.Id == id);
+        }
+
         public async Task<Medicine?> GetByCodeAsync(string code)
         {
             return await _context.medicines

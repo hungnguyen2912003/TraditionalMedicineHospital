@@ -18,7 +18,6 @@ namespace Project.Areas.Admin.Models.DTOs
         public string ActiveIngredient { get; set; }
         public DateTime ExpiryDate { get; set; }
         public Guid MedicineCategoryId { get; set; }
-        public string? MedicineCategoryName { get; set; }
-        public bool IsActive { get; set; }
+        public string CategoryName { get; set; }
     }
 }

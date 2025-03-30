@@ -1,7 +1,7 @@
 ﻿@model Project.Areas.Admin.Models.DTOs.MedicineDto
 
 @{
-    ViewData["Title"] = "Trang thêm mới";
+    ViewData["Title"] = "Trang thêm mới thuốc";
     Layout = "~/Areas/Admin/Views/Shared/_mainLayout.cshtml";
 }
 
@@ -147,7 +147,10 @@
                     </div>
                     <div class="mt-4">
                         <label for="Price" class="block text-sm font-medium text-gray-700">Giá bán</label>
-                        <input id="Price" type="text" class="form-input w-full mt-1 p-2 border rounded price-input" placeholder="Nhập giá bán" />
+                        <div class="flex items-center">
+                            <input id="Price" type="text" class="form-input w-full mt-1 p-2 border rounded price-input" placeholder="Nhập giá bán" />
+                            <span class="ml-2 text-gray-700" style="font-weight: 900">VND</span>
+                        </div>
                         <input id="PriceRaw" type="hidden" name="Price" />
                         @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
                     </div>
@@ -416,41 +419,19 @@
             },
 
             appendFormData(formData) {
-                // Tạo một object để log dữ liệu
-                const formDataObject = {
-                    Code: $('#Code').val(),
-                    Name: $('#Name').val(),
-                    Description: $('#Description').val(),
-                    MedicineCategoryId: $('#MedicineCategoryId').val(),
-                    StockQuantity: $('#StockQuantity').val(),
-                    StockUnit: $('#StockUnit').val(),
-                    Price: $('#PriceRaw').val() || "0", // Nếu PriceRaw là undefined, gán mặc định là "0"
-                    Manufacturer: $('#Manufacturer').val(),
-                    ManufacturedDate: $('#ManufacturedDate').val(),
-                    ExpiryDate: $('#ExpiryDate').val(),
-                    ActiveIngredient: $('#ActiveIngredient').val(),
-                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                };
-
-                // Log giá trị của #PriceRaw để kiểm tra
-                console.log("Giá trị của #PriceRaw:", $('#PriceRaw').val());
-
-                // Log dữ liệu gửi đi
-                console.log("Dữ liệu gửi đi (appendFormData):", formDataObject);
-
-                // Thêm dữ liệu vào FormData
-                formData.append('Code', formDataObject.Code);
-                formData.append('Name', formDataObject.Name);
-                formData.append('Description', formDataObject.Description);
-                formData.append('MedicineCategoryId', formDataObject.MedicineCategoryId);
-                formData.append('StockQuantity', formDataObject.StockQuantity);
-                formData.append('StockUnit', formDataObject.StockUnit);
-                formData.append('Price', formDataObject.Price);
-                formData.append('Manufacturer', formDataObject.Manufacturer);
-                formData.append('ManufacturedDate', formDataObject.ManufacturedDate);
-                formData.append('ExpiryDate', formDataObject.ExpiryDate);
-                formData.append('ActiveIngredient', formDataObject.ActiveIngredient);
-                formData.append('__RequestVerificationToken', formDataObject.__RequestVerificationToken);
+                formData.append('Code', $('#Code').val());
+                formData.append('Name', $('#Name').val());
+                formData.append('Description', $('#Description').val());
+                formData.append('MedicineCategoryId', $('#MedicineCategoryId').val());
+                formData.append('StockQuantity', $('#StockQuantity').val());
+                formData.append('StockUnit', $('#StockUnit').val());
+                formData.append('Price', $('#Price').val());
+                formData.append('Manufacturer', $('#Manufacturer').val());
+                formData.append('ManufacturedDate', $('#ManufacturedDate').val());
+                formData.append('ExpiryDate', $('#ExpiryDate').val());
+                formData.append('ActiveIngredient', $('#ActiveIngredient').val());
+                const token = $('input[name="__RequestVerificationToken"]').val();
+                formData.append('__RequestVerificationToken', token);
             },
 
             handleResponse(response) {
@@ -479,14 +460,6 @@
                     } else {
                         const form = document.getElementById('myForm');
                         const formData = new FormData(form);
-                        // Tạo một object để log dữ liệu
-                        const formDataObject = {};
-                        for (let [key, value] of formData.entries()) {
-                            formDataObject[key] = value;
-                        }
-
-                        // Log dữ liệu ra console
-                        console.log("Dữ liệu gửi đi (không có file):", formDataObject);
                         fetch('/Admin/Medicines/Create', {
                             method: 'POST',
                             body: formData

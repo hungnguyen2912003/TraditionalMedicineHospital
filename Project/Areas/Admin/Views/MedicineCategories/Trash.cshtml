@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Project.Areas.Admin.Models.Entities.MedicineCategory>
 
 @{
-    ViewData["Title"] = "Trash";
+    ViewData["Title"] = "Thùng rác loại thuốc";
     Layout = "~/Areas/Admin/Views/Shared/_mainLayout.cshtml";
 }
 
@@ -100,7 +100,7 @@
                     </div>
                 </div>
                 <div class="table-responsive">
-                    <table id="medicineTable" class="table-striped table-hover">
+                    <table id="myTable" class="table-striped table-hover">
                         <thead>
                             <tr>
                                 <th><input type="checkbox" class="form-checkbox" /></th>
@@ -129,8 +129,8 @@
                 name: '',
                 status: false,
             },
-            categoryList: @Html.Raw(Json.Serialize(Model)),
-            filteredCategoriesList: [],
+            entityList: @Html.Raw(Json.Serialize(Model)),
+            filteredList: [],
             selectedRows: [],
             datatable: null,
             columns: [
@@ -144,16 +144,16 @@
             showCols: [0, 1, 2, 3, 4],
 
             init() {
-                if (!Array.isArray(this.categoryList)) {
-                    this.categoryList = [];
+                if (!Array.isArray(this.entityList)) {
+                    this.entityList = [];
                 }
-                this.filteredCategoriesList = [...this.categoryList];
+                this.filteredList = [...this.entityList];
                 this.initializeTable();
 
-                document.querySelector('#medicineTable thead').addEventListener('change', (e) => {
+                document.querySelector('#myTable thead').addEventListener('change', (e) => {
                     if (e.target.type === 'checkbox') {
                         this.selectedRows = [];
-                        const checkboxes = document.querySelectorAll('#medicineTable tbody input[type="checkbox"]');
+                        const checkboxes = document.querySelectorAll('#myTable tbody input[type="checkbox"]');
                         checkboxes.forEach(checkbox => {
                             checkbox.checked = e.target.checked;
                             if (e.target.checked) {
@@ -165,7 +165,7 @@
                     }
                 });
 
-                document.querySelector('#medicineTable tbody').addEventListener('change', (e) => {
+                document.querySelector('#myTable tbody').addEventListener('change', (e) => {
                     if (e.target.type === 'checkbox') {
                         const checkbox = e.target;
                         const id = checkbox.value;
@@ -176,14 +176,14 @@
                         } else {
                             this.selectedRows = this.selectedRows.filter(rowId => rowId !== id);
                         }
-                        const allCheckboxes = document.querySelectorAll('#medicineTable tbody input[type="checkbox"]');
+                        const allCheckboxes = document.querySelectorAll('#myTable tbody input[type="checkbox"]');
                         const allChecked = Array.from(allCheckboxes).every(chk => chk.checked);
-                        const mainCheckbox = document.querySelector('#medicineTable thead input[type="checkbox"]');
+                        const mainCheckbox = document.querySelector('#myTable thead input[type="checkbox"]');
                         mainCheckbox.checked = allChecked;
                     }
                 });
 
-                document.querySelector('#medicineTable tbody').addEventListener('click', (e) => {
+                document.querySelector('# tbody').addEventListener('click', (e) => {
                     const deleteBtn = e.target.closest('.delete-btn');
                     if (deleteBtn) {
                         const id = deleteBtn.getAttribute('data-id');
@@ -193,7 +193,7 @@
             },
 
             initializeTable() {
-                const tableData = this.filteredCategoriesList.map(category => [
+                const tableData = this.filteredList.map(category => [
                     `<input type="checkbox" class="form-checkbox" value="${category.id}" />`,
                     category.code,
                     category.name,
@@ -224,7 +224,7 @@
                     </div>`
                 ]);
 
-                this.datatable = new simpleDatatables.DataTable('#medicineTable', {
+                this.datatable = new simpleDatatables.DataTable('#myTable', {
                     data: {
                         headings: ['<input type="checkbox" class="form-checkbox" />', 'Mã loại thuốc', 'Tên loại thuốc', 'Trạng thái', 'Thao tác'],
                         data: tableData
