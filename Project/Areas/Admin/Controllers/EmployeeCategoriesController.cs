@@ -10,30 +10,28 @@ using Project.Validators;
 namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class MedicineCategoriesController : Controller
+    public class EmployeeCategoriesController : Controller
     {
-        private readonly IMedicineCategoryRepository _repository;
-        private readonly IMedicineRepository _medicineRepository;
+        private readonly IEmployeeCategoryRepository _repository;
+        private readonly IEmployeeRepository _employeeRepository;
         private readonly IMapper _mapper;
         private readonly IImageService _service;
-        private readonly IValidator<MedicineCategoryDto> _validator;
-
-        public MedicineCategoriesController
+        private readonly IValidator<EmployeeCategoryDto> _validator;
+        public EmployeeCategoriesController
         (
-            IMedicineCategoryRepository repository,
-            IMedicineRepository medicineRepository,
+            IEmployeeCategoryRepository repository,
+            IEmployeeRepository employeeRepository,
             IMapper mapper,
-            IImageService service, 
-            IValidator<MedicineCategoryDto> validator
-        )
+            IImageService service,
+            IValidator<EmployeeCategoryDto> validator
+        ) 
         {
             _repository = repository;
-            _medicineRepository = medicineRepository;
+            _employeeRepository = employeeRepository;
             _mapper = mapper;
             _service = service;
             _validator = validator;
         }
-
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAsync();
@@ -57,7 +55,7 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromForm] MedicineCategoryDto inputDto)
+        public async Task<IActionResult> Create([FromForm] EmployeeCategoryDto inputDto)
         {
             try
             {
@@ -65,25 +63,21 @@ namespace Project.Areas.Admin.Controllers
                 if (!validationResult.IsValid)
                 {
                     var errors = validationResult.Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}").ToList();
-                    return Json(new { success = false, message = "Thêm loại thuốc thất bại. Vui lòng kiểm tra lại thông tin.", errors });
+                    return Json(new { success = false, message = "Thêm loại nhân sự thất bại. Vui lòng kiểm tra lại thông tin.", errors });
                 }
 
-                var entity = _mapper.Map<MedicineCategory>(inputDto);
+                var entity = _mapper.Map<EmployeeCategory>(inputDto);
 
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
                 entity.IsActive = true;
 
-                if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
-                {
-                    entity.Images = await _service.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
-                }
                 await _repository.CreateAsync(entity);
-                return Json(new { success = true, message = "Thêm loại thuốc thành công!" });
+                return Json(new { success = true, message = "Thêm loại nhân sự thành công!" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi thêm loại thuốc: " + ex.Message });
+                return Json(new { success = false, message = "Có lỗi xảy ra khi thêm loại nhân sự: " + ex.Message });
             }
         }
 
@@ -92,47 +86,39 @@ namespace Project.Areas.Admin.Controllers
         {
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null) return NotFound();
-            var dto = _mapper.Map<MedicineCategoryDto>(entity);
-
-            ViewBag.MedicineCategoryId = entity.Id;
-            ViewBag.ExistingImage = entity.Images;
+            var dto = _mapper.Map<EmployeeCategoryDto>(entity);
 
             return View(dto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromForm] MedicineCategoryDto inputDto, Guid Id)
+        public async Task<IActionResult> Edit([FromForm] EmployeeCategoryDto inputDto, Guid Id)
         {
             try
             {
-                var validator = new MedicineCategoryValidator(_repository, Id);
+                var validator = new EmployeeCategoryValidator(_repository, Id);
                 var validationResult = await validator.ValidateAsync(inputDto);
                 if (!validationResult.IsValid)
                 {
                     var errors = validationResult.Errors.Select(e => $"{e.ErrorMessage}").ToList();
-                    return Json(new { success = false, message = "Cập nhật loại thuốc thất bại. Vui lòng kiểm tra lại thông tin.", errors });
+                    return Json(new { success = false, message = "Cập nhật loại nhân sự thất bại. Vui lòng kiểm tra lại thông tin.", errors });
                 }
                 var entity = await _repository.GetByIdAsync(Id);
                 if (entity == null)
                 {
                     return NotFound();
                 }
-
                 entity.UpdatedBy = "Admin";
                 entity.UpdatedDate = DateTime.UtcNow;
 
-                if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
-                {
-                    entity.Images = await _service.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
-                }
 
                 await _repository.UpdateAsync(entity);
-                return Json(new { success = true, message = "Cập nhật loại thuốc thành công!" });
+                return Json(new { success = true, message = "Cập nhật loại nhân sự thành công!" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật loại thuốc: " + ex.Message });
+                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật loại nhân sự: " + ex.Message });
             }
         }
 
@@ -162,16 +148,12 @@ namespace Project.Areas.Admin.Controllers
                 return RedirectToAction("Trash");
             }
 
-            var deletedCategories = new List<MedicineCategory>();
+            var deletedCategories = new List<EmployeeCategory>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
                 if (entity != null)
                 {
-                    if (!string.IsNullOrEmpty(entity.Images))
-                    {
-                        _service.DeleteImage(entity.Images, "MedicineCategories");
-                    }
                     await _repository.DeleteAsync(id);
                     deletedCategories.Add(entity);
                 }
@@ -181,18 +163,17 @@ namespace Project.Areas.Admin.Controllers
             {
                 var names = string.Join(", ", deletedCategories.Select(c => $"\"{c.Name}\""));
                 var message = deletedCategories.Count == 1
-                    ? $"Đã xóa vĩnh viễn loại thuốc {names} thành công"
-                    : $"Đã xóa vĩnh viễn các loại thuốc {names} thành công";
+                    ? $"Đã xóa vĩnh viễn loại nhân sự {names} thành công"
+                    : $"Đã xóa vĩnh viễn các loại nhân sự {names} thành công";
                 TempData["SuccessMessage"] = message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy loại thuốc nào để xóa.";
+                TempData["ErrorMessage"] = "Không tìm thấy loại nhân sự nào để xóa.";
             }
 
             return RedirectToAction("Trash");
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -207,36 +188,34 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            // Kiểm tra xem có Medicine nào đang sử dụng MedicineCategory không
-            var categoriesWithMedicines = new List<MedicineCategory>();
+            var categories = new List<EmployeeCategory>();
             foreach (var id in ids)
             {
                 var category = await _repository.GetByIdAsync(id);
                 if (category == null) continue;
 
-                // Lấy danh sách Medicine có MedicineCategoryId trỏ đến category.Id
-                var medicines = await _medicineRepository.GetAllWithCategoryAsync();
-                var hasMedicines = medicines.Any(m => m.MedicineCategoryId == id && m.IsActive == true);
+                var employees = await _employeeRepository.GetAllWithCategoryAsync();
+                var hasEmployees = employees.Any(m => m.EmployeeCategoryId == id && m.IsActive == true);
 
-                if (hasMedicines)
+                if (hasEmployees)
                 {
-                    categoriesWithMedicines.Add(category);
+                    categories.Add(category);
                 }
             }
 
             // Nếu có MedicineCategory đang được sử dụng, trả về thông báo lỗi
-            if (categoriesWithMedicines.Any())
+            if (categories.Any())
             {
-                var names = string.Join(", ", categoriesWithMedicines.Select(c => $"\"{c.Name}\""));
-                var message = categoriesWithMedicines.Count == 1
-                    ? $"Không thể đưa loại thuốc {names} vào thùng rác vì vẫn còn thuốc đang sử dụng loại này."
-                    : $"Không thể đưa các loại thuốc {names} vào thùng rác vì vẫn còn thuốc đang sử dụng các loại này.";
+                var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
+                var message = categories.Count == 1
+                    ? $"Không thể đưa loại nhân sự {names} vào thùng rác vì vẫn còn nhân sự đang sử dụng loại này."
+                    : $"Không thể đưa các loại nhân sự {names} vào thùng rác vì vẫn còn nhân sự đang sử dụng các loại này.";
                 TempData["ErrorMessage"] = message;
                 return RedirectToAction("Index");
             }
 
 
-            var movedCategories = new List<MedicineCategory>();
+            var movedEntity = new List<EmployeeCategory>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -246,15 +225,15 @@ namespace Project.Areas.Admin.Controllers
                     entity.UpdatedBy = "Admin";
                     entity.UpdatedDate = DateTime.UtcNow;
                     await _repository.UpdateAsync(entity);
-                    movedCategories.Add(entity);
+                    movedEntity.Add(entity);
                 }
             }
 
-            if (movedCategories.Any())
+            if (movedEntity.Any())
             {
-                var names = string.Join(", ", movedCategories.Select(c => $"\"{c.Name}\""));
-                var message = movedCategories.Count == 1
-                    ? $"Đã đưa loại thuốc {names} thành công vào thùng rác"
+                var names = string.Join(", ", movedEntity.Select(c => $"\"{c.Name}\""));
+                var message = movedEntity.Count == 1
+                    ? $"Đã đưa loại nhân sự {names} thành công vào thùng rác"
                     : $"Đã đưa các loại thuốc {names} thành công vào thùng rác";
                 TempData["SuccessMessage"] = message;
             }
@@ -264,48 +243,6 @@ namespace Project.Areas.Admin.Controllers
             }
 
             return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Restore([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-            var movedCategories = new List<MedicineCategory>();
-            foreach (var id in ids)
-            {
-                var entity = await _repository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = true;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _repository.UpdateAsync(entity);
-                    movedCategories.Add(entity);
-                }
-            }
-
-            if (movedCategories.Any())
-            {
-                var names = string.Join(", ", movedCategories.Select(c => $"\"{c.Name}\""));
-                var message = movedCategories.Count == 1
-                    ? $"Đã khôi phục loại thuốc {names} thành công."
-                    : $"Đã khôi phục các loại thuốc {names} thành công.";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy loại thuốc nào để khôi phục.";
-            }
-
-            return RedirectToAction("Trash");
         }
     }
 }

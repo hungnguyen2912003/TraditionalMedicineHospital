@@ -10,7 +10,8 @@ namespace Project.Mappers
         {
             CreateMap<Medicine, MedicineDto>()
                 .ForMember(dest => dest.ImageFile, opt => opt.Ignore())
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.MedicineCategory.Name));
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.MedicineCategory.Name))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
             CreateMap<MedicineDto, Medicine>()
                 .ForMember(dest => dest.Images, opt => opt.Ignore());
         }

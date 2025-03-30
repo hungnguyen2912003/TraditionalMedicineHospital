@@ -11,6 +11,8 @@ namespace Project.Configurations
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped<IMedicineCategoryRepository, MedicineCategoryRepository>();
             builder.Services.AddScoped<IMedicineRepository, MedicineRepository>();
+            builder.Services.AddScoped<IEmployeeCategoryRepository, EmployeeCategoryRepository>();
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
             return builder;
         }

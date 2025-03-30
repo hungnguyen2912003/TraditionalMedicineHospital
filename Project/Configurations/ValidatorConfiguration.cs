@@ -10,6 +10,8 @@ namespace Project.Configurations
         {
             builder.Services.AddScoped<IValidator<MedicineCategoryDto>, MedicineCategoryValidator>();
             builder.Services.AddScoped<IValidator<MedicineDto>, MedicineValidator>();
+            builder.Services.AddScoped<IValidator<EmployeeCategoryDto>, EmployeeCategoryValidator>();
+            builder.Services.AddScoped<IValidator<EmployeeDto>, EmployeeValidator>();
             return builder;
         }
     }
