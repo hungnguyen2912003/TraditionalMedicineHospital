@@ -1,4 +1,4 @@
-﻿using Project.Areas.Admin.Models.Enums;
+﻿using Project.Areas.Admin.Models.Enums.Medicines;
 
 namespace Project.Areas.Admin.Models.DTOs
 {
@@ -19,5 +19,6 @@ namespace Project.Areas.Admin.Models.DTOs
         public DateTime ExpiryDate { get; set; }
         public Guid MedicineCategoryId { get; set; }
         public string CategoryName { get; set; }
+        public bool IsActive { get; set; }
     }
 }

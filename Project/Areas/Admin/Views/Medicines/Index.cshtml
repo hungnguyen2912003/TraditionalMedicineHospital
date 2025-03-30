@@ -225,7 +225,7 @@
                     entity.manufacturer,
                     new Date(entity.manufacturedDate).toLocaleDateString('vi-VN'),
                     new Date(entity.expiryDate).toLocaleDateString('vi-VN'),
-                    entity.isActive ? '<span class="badge badge-outline-success">Đang hoạt động</span>' : '<span class="badge badge-outline-danger">Không hoạt động</span>',
+                    entity.isActive === true ? '<span class="badge badge-outline-success">Đang hoạt động</span>' : '<span class="badge badge-outline-danger">Không hoạt động</span>',
                     `<div class="flex gap-4">
                         <a href="/Admin/Medicines/Edit/${entity.id}" class="hover:text-info" x-tooltip="Chỉnh sửa">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5">
