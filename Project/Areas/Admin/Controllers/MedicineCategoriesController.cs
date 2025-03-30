@@ -13,19 +13,22 @@ namespace Project.Areas.Admin.Controllers
     public class MedicineCategoriesController : Controller
     {
         private readonly IMedicineCategoryRepository _repository;
+        private readonly IMedicineRepository _medicineRepository;
         private readonly IMapper _mapper;
         private readonly IImageService _service;
         private readonly IValidator<MedicineCategoryDto> _validator;
 
         public MedicineCategoriesController
         (
-            IMedicineCategoryRepository repository, 
+            IMedicineCategoryRepository repository,
+            IMedicineRepository medicineRepository,
             IMapper mapper,
             IImageService service, 
             IValidator<MedicineCategoryDto> validator
         )
         {
             _repository = repository;
+            _medicineRepository = medicineRepository;
             _mapper = mapper;
             _service = service;
             _validator = validator;
@@ -207,6 +210,35 @@ namespace Project.Areas.Admin.Controllers
                     ids.Add(parsedId);
                 }
             }
+
+            // Kiểm tra xem có Medicine nào đang sử dụng MedicineCategory không
+            var categoriesWithMedicines = new List<MedicineCategory>();
+            foreach (var id in ids)
+            {
+                var category = await _repository.GetByIdAsync(id);
+                if (category == null) continue;
+
+                // Lấy danh sách Medicine có MedicineCategoryId trỏ đến category.Id
+                var medicines = await _medicineRepository.GetAllWithCategoryAsync();
+                var hasMedicines = medicines.Any(m => m.MedicineCategoryId == id && m.IsActive == true);
+
+                if (hasMedicines)
+                {
+                    categoriesWithMedicines.Add(category);
+                }
+            }
+
+            // Nếu có MedicineCategory đang được sử dụng, trả về thông báo lỗi
+            if (categoriesWithMedicines.Any())
+            {
+                var names = string.Join(", ", categoriesWithMedicines.Select(c => $"\"{c.Name}\""));
+                var message = categoriesWithMedicines.Count == 1
+                    ? $"Không thể đưa loại thuốc {names} vào thùng rác vì vẫn còn thuốc đang sử dụng loại này."
+                    : $"Không thể đưa các loại thuốc {names} vào thùng rác vì vẫn còn thuốc đang sử dụng các loại này.";
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction("Index");
+            }
+
 
             var movedCategories = new List<MedicineCategory>();
             foreach (var id in ids)

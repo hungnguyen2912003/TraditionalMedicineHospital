@@ -127,12 +127,6 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('list', () => ({
-            params: {
-                id: null,
-                code: '',
-                name: '',
-                isActive: true,
-            },
             entityList: @Html.Raw(Json.Serialize(Model)),
             filteredList: [],
             selectedRows: [],

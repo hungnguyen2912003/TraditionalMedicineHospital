@@ -17,6 +17,12 @@ namespace Project.Areas.Admin.Data
             modelBuilder.Entity<Medicine>()
                 .Property(e => e.Price)
                 .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Medicine>()
+                .HasOne(m => m.MedicineCategory)
+                .WithMany(mc => mc.Medicines)
+                .HasForeignKey(m => m.MedicineCategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

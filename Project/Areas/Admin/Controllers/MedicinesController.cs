@@ -8,8 +8,6 @@ using Project.Extensions;
 using Project.Repositories.Interfaces;
 using Project.Services.Interfaces;
 using Project.Validators;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
 
 namespace Project.Areas.Admin.Controllers
 {
@@ -47,7 +45,7 @@ namespace Project.Areas.Admin.Controllers
 
         public async Task<IActionResult> Details(Guid id)
         {
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await _repository.GetByIdWithCategoryAsync(id);
             if (entity == null)
             {
                 return NotFound();
@@ -113,9 +111,23 @@ namespace Project.Areas.Admin.Controllers
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null) return NotFound();
             var dto = _mapper.Map<MedicineDto>(entity);
-
             ViewBag.MedicineId = entity.Id;
             ViewBag.ExistingImage = entity.Images;
+
+
+            var medicineCategories = await _categoryRepository.GetAllActiveAsync();
+            ViewBag.MedicineCategories = medicineCategories
+                .Select(mc => new { mc.Id, mc.Name })
+                .ToList();
+
+            ViewBag.StockUnit = Enum.GetValues(typeof(UnitType))
+                .Cast<UnitType>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
 
             return View(dto);
         }
@@ -131,8 +143,6 @@ namespace Project.Areas.Admin.Controllers
                 if (!validationResult.IsValid)
                 {
                     var errors = validationResult.Errors.Select(e => $"{e.ErrorMessage}").ToList();
-                    ViewBag.MedicineId = Id;
-                    ViewBag.ExistingImage = (await _repository.GetByIdAsync(Id))?.Images;
                     return Json(new { success = false, message = "Cập nhật thuốc thất bại. Vui lòng kiểm tra lại thông tin.", errors });
                 }
 
@@ -160,9 +170,10 @@ namespace Project.Areas.Admin.Controllers
 
         public async Task<IActionResult> Trash()
         {
-            var list = await _repository.GetAllAsync();
+            var list = await _repository.GetAllWithCategoryAsync();
             var trashList = list.Where(x => x.IsActive == false).ToList();
-            return View(trashList);
+            var dtoList = _mapper.Map<List<MedicineDto>>(trashList);
+            return View(dtoList);
         }
 
         [HttpPost]

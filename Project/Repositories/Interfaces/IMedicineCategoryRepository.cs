@@ -6,5 +6,6 @@ namespace Project.Repositories.Interfaces
     {
         Task<MedicineCategory?> GetByNameAsync(string name);
         Task<MedicineCategory?> GetByCodeAsync(string code);
+        Task<IEnumerable<MedicineCategory>> GetAllActiveAsync();
     }
 }

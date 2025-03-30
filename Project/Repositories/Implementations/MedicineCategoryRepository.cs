@@ -11,6 +11,13 @@ namespace Project.Repositories.Implementations
         {
         }
 
+        public async Task<IEnumerable<MedicineCategory>> GetAllActiveAsync()
+        {
+            return await _context.medicineCategories
+                .Where(mc => mc.IsActive)
+                .ToListAsync();
+        }
+
         public async Task<MedicineCategory?> GetByNameAsync(string name)
         {
             return await _context.medicineCategories
