@@ -148,7 +148,7 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
         {
             var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            foreach (var id in selectedIds.Split(','))
             {
                 if (Guid.TryParse(id, out var parsedId))
                 {
@@ -156,13 +156,34 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            if (_repository == null)
+            // Kiểm tra xem có Medicine nào đang sử dụng MedicineCategory không
+            var categories = new List<MedicineCategory>();
+            foreach (var id in ids)
             {
-                TempData["ErrorMessage"] = "Hệ thống gặp lỗi, vui lòng thử lại sau.";
-                return RedirectToAction("Trash");
+                var category = await _repository.GetByIdAsync(id);
+                if (category == null) continue;
+                // Lấy danh sách Medicine có MedicineCategoryId trỏ đến category.Id
+                var medicines = await _medicineRepository.GetAllWithCategoryAsync();
+                var hasMedicines = medicines.Any(m => m.MedicineCategoryId == id);
+                if (hasMedicines)
+                {
+                    categories.Add(category);
+                }
             }
 
-            var deletedCategories = new List<MedicineCategory>();
+            // Nếu có MedicineCategory đang được sử dụng, trả về thông báo lỗi
+            if (categories.Any())
+            {
+                var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
+                var message = categories.Count == 1
+                    ? $"Không thể xóa loại thuốc {names} vì vẫn còn thuốc đang sử dụng loại này."
+                    : $"Không thể xóa các loại thuốc {names} vì vẫn còn thuốc đang sử dụng các loại này.";
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction("Index");
+            }
+
+            // Nếu không có Medicine nào => Xóa
+            var delList = new List<MedicineCategory>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -173,16 +194,16 @@ namespace Project.Areas.Admin.Controllers
                         _service.DeleteImage(entity.Images, "MedicineCategories");
                     }
                     await _repository.DeleteAsync(id);
-                    deletedCategories.Add(entity);
+                    delList.Add(entity);
                 }
             }
 
-            if (deletedCategories.Any())
+            if (delList.Any())
             {
-                var names = string.Join(", ", deletedCategories.Select(c => $"\"{c.Name}\""));
-                var message = deletedCategories.Count == 1
-                    ? $"Đã xóa vĩnh viễn loại thuốc {names} thành công"
-                    : $"Đã xóa vĩnh viễn các loại thuốc {names} thành công";
+                var names = string.Join(", ", delList.Select(c => $"\"{c.Name}\""));
+                var message = delList.Count == 1
+                    ? $"Đã xóa loại thuốc {names} thành công"
+                    : $"Đã xóa các loại thuốc {names} thành công";
                 TempData["SuccessMessage"] = message;
             }
             else
@@ -192,7 +213,6 @@ namespace Project.Areas.Admin.Controllers
 
             return RedirectToAction("Trash");
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -208,7 +228,7 @@ namespace Project.Areas.Admin.Controllers
             }
 
             // Kiểm tra xem có Medicine nào đang sử dụng MedicineCategory không
-            var categoriesWithMedicines = new List<MedicineCategory>();
+            var categories = new List<MedicineCategory>();
             foreach (var id in ids)
             {
                 var category = await _repository.GetByIdAsync(id);
@@ -216,27 +236,27 @@ namespace Project.Areas.Admin.Controllers
 
                 // Lấy danh sách Medicine có MedicineCategoryId trỏ đến category.Id
                 var medicines = await _medicineRepository.GetAllWithCategoryAsync();
-                var hasMedicines = medicines.Any(m => m.MedicineCategoryId == id && m.IsActive == true);
+                var hasMedicines = medicines.Any(m => m.MedicineCategoryId == id);
 
                 if (hasMedicines)
                 {
-                    categoriesWithMedicines.Add(category);
+                    categories.Add(category);
                 }
             }
 
             // Nếu có MedicineCategory đang được sử dụng, trả về thông báo lỗi
-            if (categoriesWithMedicines.Any())
+            if (categories.Any())
             {
-                var names = string.Join(", ", categoriesWithMedicines.Select(c => $"\"{c.Name}\""));
-                var message = categoriesWithMedicines.Count == 1
+                var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
+                var message = categories.Count == 1
                     ? $"Không thể đưa loại thuốc {names} vào thùng rác vì vẫn còn thuốc đang sử dụng loại này."
                     : $"Không thể đưa các loại thuốc {names} vào thùng rác vì vẫn còn thuốc đang sử dụng các loại này.";
                 TempData["ErrorMessage"] = message;
                 return RedirectToAction("Index");
             }
 
-
-            var movedCategories = new List<MedicineCategory>();
+            // Nếu không có Medicine nào => Chuyển vào thùng rác
+            var movedList = new List<MedicineCategory>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -246,14 +266,14 @@ namespace Project.Areas.Admin.Controllers
                     entity.UpdatedBy = "Admin";
                     entity.UpdatedDate = DateTime.UtcNow;
                     await _repository.UpdateAsync(entity);
-                    movedCategories.Add(entity);
+                    movedList.Add(entity);
                 }
             }
 
-            if (movedCategories.Any())
+            if (movedList.Any())
             {
-                var names = string.Join(", ", movedCategories.Select(c => $"\"{c.Name}\""));
-                var message = movedCategories.Count == 1
+                var names = string.Join(", ", movedList.Select(c => $"\"{c.Name}\""));
+                var message = movedList.Count == 1
                     ? $"Đã đưa loại thuốc {names} thành công vào thùng rác"
                     : $"Đã đưa các loại thuốc {names} thành công vào thùng rác";
                 TempData["SuccessMessage"] = message;
@@ -278,7 +298,7 @@ namespace Project.Areas.Admin.Controllers
                     ids.Add(parsedId);
                 }
             }
-            var movedCategories = new List<MedicineCategory>();
+            var restoredEntity = new List<MedicineCategory>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -288,14 +308,14 @@ namespace Project.Areas.Admin.Controllers
                     entity.UpdatedBy = "Admin";
                     entity.UpdatedDate = DateTime.UtcNow;
                     await _repository.UpdateAsync(entity);
-                    movedCategories.Add(entity);
+                    restoredEntity.Add(entity);
                 }
             }
 
-            if (movedCategories.Any())
+            if (restoredEntity.Any())
             {
-                var names = string.Join(", ", movedCategories.Select(c => $"\"{c.Name}\""));
-                var message = movedCategories.Count == 1
+                var names = string.Join(", ", restoredEntity.Select(c => $"\"{c.Name}\""));
+                var message = restoredEntity.Count == 1
                     ? $"Đã khôi phục loại thuốc {names} thành công."
                     : $"Đã khôi phục các loại thuốc {names} thành công.";
                 TempData["SuccessMessage"] = message;

@@ -111,9 +111,9 @@ namespace Project.Areas.Admin.Controllers
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null) return NotFound();
             var dto = _mapper.Map<MedicineDto>(entity);
+
             ViewBag.MedicineId = entity.Id;
             ViewBag.ExistingImage = entity.Images;
-
 
             var medicineCategories = await _categoryRepository.GetAllActiveAsync();
             ViewBag.MedicineCategories = medicineCategories
@@ -148,17 +148,15 @@ namespace Project.Areas.Admin.Controllers
 
                 var entity = await _repository.GetByIdAsync(Id);
                 if (entity == null) return NotFound();
-                entity = _mapper.Map(inputDto, entity);
+
                 entity.UpdatedBy = "Admin";
                 entity.UpdatedDate = DateTime.UtcNow;
+
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
-                    if (!string.IsNullOrEmpty(entity.Images))
-                    {
-                        _service.DeleteImage(entity.Images, "Medicines");
-                    }
                     entity.Images = await _service.SaveImageAsync(inputDto.ImageFile, "Medicines");
                 }
+
                 await _repository.UpdateAsync(entity);
                 return Json(new { success = true, message = "Cập nhật thuốc thành công!" });
             }

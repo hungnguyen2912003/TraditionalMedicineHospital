@@ -4,13 +4,13 @@ namespace Project.Areas.Admin.Models.DTOs
 {
     public class EmployeeDto
     {
-        public string? Code { get; set; }
-        public string? FullName { get; set; }
+        public string Code { get; set; }
+        public string FullName { get; set; }
         public GenderType Gender { get; set; }
-        public string? IdentityCard { get; set; }
-        public string? Email { get; set; }
-        public string? PhoneNumber { get; set; }
-        public string? Address { get; set; }
+        public string IdentityCard { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Address { get; set; }
         public DateTime DateOfBirth { get; set; }
         public DegreeType Degree { get; set; }
         public ProfessionalQualificationType ProfessionalQualification { get; set; }

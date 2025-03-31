@@ -1,7 +1,7 @@
 ﻿@model Project.Areas.Admin.Models.DTOs.MedicineCategoryDto
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Trang thêm mới loại thuốc";
     Layout = "~/Areas/Admin/Views/Shared/_mainLayout.cshtml";
 }
 
@@ -122,11 +122,6 @@
 
     document.addEventListener('alpine:init', () => {
         Alpine.data('addData', () => ({
-            params: {
-                Code: '',
-                Name: '',
-                Description: ''
-            },
             dropzone: null,
 
             init() {

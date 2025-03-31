@@ -60,6 +60,48 @@
         .badge {
             white-space: nowrap;
         }
+
+        .dz-preview {
+            border-radius: 0 !important;
+            overflow: visible !important;
+        }
+
+        .dz-preview .dz-image {
+            border-radius: 0 !important;
+            overflow: visible !important;
+        }
+
+        .dz-preview .dz-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0 !important; 
+        }
+
+        #myTable th,
+        td {
+            text-align: center !important;
+            vertical-align: middle !important;
+        }
+
+        #myTable tbody td:last-child:not(.dataTables-empty) {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #myTable .dataTables-empty td {
+            text-align: center !important;
+            padding: 1rem !important;
+        }
+
+        #myTable td:last-child .flex {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+
     </style>
 </head>
 

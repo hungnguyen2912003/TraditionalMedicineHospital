@@ -61,6 +61,33 @@
                                 </li>
                             </ul>
                         </li>
+
+                        <li class="menu nav-item">
+                            <button type="button" class="nav-link group" :class="{'active' : activeDropdown === 'medicine'}" @@click="activeDropdown === 'employee' ? activeDropdown = null : activeDropdown = 'employee'">
+                                <div class="flex items-center">
+                                    <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle opacity="0.5" cx="15" cy="6" r="3" fill="currentColor"></circle>
+                                        <ellipse opacity="0.5" cx="16" cy="17" rx="5" ry="3" fill="currentColor"></ellipse>
+                                        <circle cx="9.00098" cy="6" r="4" fill="currentColor"></circle>
+                                        <ellipse cx="9.00098" cy="17.001" rx="7" ry="4" fill="currentColor"></ellipse>
+                                    </svg>
+                                    <span class="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Quản lý nhân sự</span>
+                                </div>
+                                <div class="rtl:rotate-180" :class="{'!rotate-90' : activeDropdown === 'employee'}">
+                                    <svg width="16" height="16" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </svg>
+                                </div>
+                            </button>
+                            <ul x-cloak="" x-show="activeDropdown === 'employee'" x-collapse="" class="sub-menu text-gray-500">
+                                <li>
+                                    <a asp-area="Admin" asp-controller="EmployeeCategories" asp-action="Index">Loại nhân sự</a>
+                                </li>
+                                <li>
+                                    <a asp-area="Admin" asp-controller="Employees" asp-action="Index">Nhân sự</a>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
                 </li>
 

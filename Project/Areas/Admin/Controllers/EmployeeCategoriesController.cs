@@ -15,7 +15,6 @@ namespace Project.Areas.Admin.Controllers
         private readonly IEmployeeCategoryRepository _repository;
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IMapper _mapper;
-        private readonly IImageService _service;
         private readonly IValidator<EmployeeCategoryDto> _validator;
         public EmployeeCategoriesController
         (
@@ -24,12 +23,11 @@ namespace Project.Areas.Admin.Controllers
             IMapper mapper,
             IImageService service,
             IValidator<EmployeeCategoryDto> validator
-        ) 
+        )
         {
             _repository = repository;
             _employeeRepository = employeeRepository;
             _mapper = mapper;
-            _service = service;
             _validator = validator;
         }
         public async Task<IActionResult> Index()
@@ -88,6 +86,8 @@ namespace Project.Areas.Admin.Controllers
             if (entity == null) return NotFound();
             var dto = _mapper.Map<EmployeeCategoryDto>(entity);
 
+            ViewBag.EmployeeCategoryId = entity.Id;
+
             return View(dto);
         }
 
@@ -109,6 +109,8 @@ namespace Project.Areas.Admin.Controllers
                 {
                     return NotFound();
                 }
+
+
                 entity.UpdatedBy = "Admin";
                 entity.UpdatedDate = DateTime.UtcNow;
 
@@ -142,27 +144,47 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            if (_repository == null)
+            // Kiểm tra xem có Employee nào đang được sử dụng hay không
+            var categories = new List<EmployeeCategory>();
+            foreach (var id in ids)
             {
-                TempData["ErrorMessage"] = "Hệ thống gặp lỗi, vui lòng thử lại sau.";
+                var category = await _repository.GetByIdAsync(id);
+                if (category == null) continue;
+                var employees = await _employeeRepository.GetAllWithCategoryAsync();
+                var hasEmployees = employees.Any(m => m.EmployeeCategoryId == id);
+                if (hasEmployees)
+                {
+                    categories.Add(category);
+                }
+            }
+
+            // Nếu có EmployeeCategory đang được sử dụng, trả về thông báo lỗi
+            if (categories.Any())
+            {
+                var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
+                var message = categories.Count == 1
+                    ? $"Không thể xóa vĩnh viễn loại nhân sự {names} vì vẫn còn nhân sự đang sử dụng loại này."
+                    : $"Không thể xóa vĩnh viễn các loại nhân sự {names} vì vẫn còn nhân sự đang sử dụng các loại này.";
+                TempData["ErrorMessage"] = message;
                 return RedirectToAction("Trash");
             }
 
-            var deletedCategories = new List<EmployeeCategory>();
+            // Xóa vĩnh viễn các EmployeeCategory
+            var deletedList = new List<EmployeeCategory>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
                 if (entity != null)
                 {
                     await _repository.DeleteAsync(id);
-                    deletedCategories.Add(entity);
+                    deletedList.Add(entity);
                 }
             }
 
-            if (deletedCategories.Any())
+            if (deletedList.Any())
             {
-                var names = string.Join(", ", deletedCategories.Select(c => $"\"{c.Name}\""));
-                var message = deletedCategories.Count == 1
+                var names = string.Join(", ", deletedList.Select(c => $"\"{c.Name}\""));
+                var message = deletedList.Count == 1
                     ? $"Đã xóa vĩnh viễn loại nhân sự {names} thành công"
                     : $"Đã xóa vĩnh viễn các loại nhân sự {names} thành công";
                 TempData["SuccessMessage"] = message;
@@ -188,6 +210,7 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
+            // Kiểm tra xem có Employee nào đang được sử dụng hay không
             var categories = new List<EmployeeCategory>();
             foreach (var id in ids)
             {
@@ -203,7 +226,7 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            // Nếu có MedicineCategory đang được sử dụng, trả về thông báo lỗi
+            // Nếu có EmployeeCategory đang được sử dụng, trả về thông báo lỗi
             if (categories.Any())
             {
                 var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
@@ -214,7 +237,7 @@ namespace Project.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-
+            // Di chuyển các Employee vào thùng rác
             var movedEntity = new List<EmployeeCategory>();
             foreach (var id in ids)
             {
@@ -243,6 +266,46 @@ namespace Project.Areas.Admin.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Restore([FromForm] string selectedIds)
+        {
+            var ids = new List<Guid>();
+            foreach (var id in selectedIds.Split(','))
+            {
+                if (Guid.TryParse(id, out var parsedId))
+                {
+                    ids.Add(parsedId);
+                }
+            }
+            var restoredEntity = new List<EmployeeCategory>();
+            foreach (var id in ids)
+            {
+                var entity = await _repository.GetByIdAsync(id);
+                if (entity != null)
+                {
+                    entity.IsActive = true;
+                    entity.UpdatedBy = "Admin";
+                    entity.UpdatedDate = DateTime.UtcNow;
+                    await _repository.UpdateAsync(entity);
+                    restoredEntity.Add(entity);
+                }
+            }
+            if (restoredEntity.Any())
+            {
+                var names = string.Join(", ", restoredEntity.Select(c => $"\"{c.Name}\""));
+                var message = restoredEntity.Count == 1
+                    ? $"Đã khôi phục loại nhân sự {names} thành công"
+                    : $"Đã khôi phục các loại nhân sự {names} thành công";
+                TempData["SuccessMessage"] = message;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy loại nhân sự nào để khôi phục.";
+            }
+            return RedirectToAction("Trash");
         }
     }
 }

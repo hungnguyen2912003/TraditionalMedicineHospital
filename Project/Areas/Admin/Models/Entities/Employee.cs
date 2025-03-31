@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Project.Areas.Admin.Models.Entities
 {
+    [Table("Employee")]
     public class Employee : BaseEntity
     {
         [Key]
