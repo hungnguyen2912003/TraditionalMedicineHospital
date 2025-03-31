@@ -9,23 +9,28 @@ namespace Project.Validators
         where TDto : class
         where TEntity : class
     {
-        protected Guid? CurrentId { get; }
+        protected readonly Guid? _currentId;
 
         protected BaseUniqueValidator(Guid? currentId = null)
         {
-            CurrentId = currentId;
+            _currentId = currentId;
         }
 
-        protected async Task<bool> BeUniqueAsync<TValue>(
-            TDto dto,
-            TValue value,
-            Func<TValue, Task<TEntity?>> getByValueAsync,
-            CancellationToken cancellationToken)
+        protected async Task<bool> BeUniqueAsync<TValue>(TDto dto, TValue value, Func<TValue, Task<TEntity>> getByValueAsync, CancellationToken ct)
         {
-            if (value == null) return true;
+            var existingEntity = await getByValueAsync(value);
+            if (existingEntity == null)
+            {
+                return true;
+            }
 
-            var existing = await getByValueAsync(value);
-            return existing == null || (CurrentId.HasValue && existing.GetType().GetProperty("Id")?.GetValue(existing)?.Equals(CurrentId.Value) == true);
+            if (_currentId.HasValue)
+            {
+                var existingId = existingEntity.GetType().GetProperty("Id")?.GetValue(existingEntity)?.ToString();
+                return existingId == _currentId.ToString();
+            }
+
+            return false;
         }
 
         protected Task<bool> BeAValidDate(DateTime date)

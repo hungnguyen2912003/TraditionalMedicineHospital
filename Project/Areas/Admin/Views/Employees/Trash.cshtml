@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Project.Areas.Admin.Models.Entities.MedicineCategory>
+﻿@model IEnumerable<Project.Areas.Admin.Models.DTOs.EmployeeDto>
 
 @{
-    ViewData["Title"] = "Thùng rác loại thuốc";
+    ViewData["Title"] = "Thùng rác nhân sự";
     Layout = "~/Areas/Admin/Views/Shared/_mainLayout.cshtml";
 }
 
@@ -11,7 +11,7 @@
 
     <ul class="flex space-x-2 rtl:space-x-reverse">
         <li>
-            <a href="javascript:;" class="text-primary hover:underline">Loại thuốc</a>
+            <a href="javascript:;" class="text-primary hover:underline">Thuốc</a>
         </li>
         <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
             <span>Thùng rác</span>
@@ -102,10 +102,18 @@
                 <div class="table-responsive">
                     <table id="myTable" class="table-striped table-hover">
                         <thead>
-                            <tr>
+                            <tr class="text-center">
                                 <th><input type="checkbox" class="form-checkbox" /></th>
-                                <th>Mã loại thuốc</th>
-                                <th>Tên loại thuốc</th>
+                                <th>Mã nhân sự</th>
+                                <th>Loại nhân sự</th>
+                                <th>Họ tên nhân sự</th>
+                                <th>Giới tính</th>
+                                <th>Email</th>
+                                <th>Số điện thoại</th>
+                                <th>Ngày sinh</th>
+                                <th>Địa chỉ</th>
+                                <th>Ngày bắt đầu làm</th>
+                                <th>Trạng thái</th>
                                 <th>Hoạt động</th>
                                 <th>Thao tác</th>
                             </tr>
@@ -129,13 +137,21 @@
             datatable: null,
             columns: [
                 { name: 'Hộp chọn', hidden: false },
-                { name: 'Mã loại thuốc', hidden: false },
-                { name: 'Tên loại thuốc', hidden: false },
+                { name: 'Mã nhân sự', hidden: false },
+                { name: 'Loại nhân sự', hidden: false },
+                { name: 'Họ tên nhân sự', hidden: false },
+                { name: 'Giới tính', hidden: false },
+                { name: 'Email', hidden: false },
+                { name: 'Số điện thoại', hidden: false },
+                { name: 'Ngày sinh', hidden: false },
+                { name: 'Địa chỉ', hidden: false },
+                { name: 'Ngày bắt đầu làm', hidden: false },
+                { name: 'Trạng thái', hidden: false },
                 { name: 'Hoạt động', hidden: false },
                 { name: 'Thao tác', hidden: false }
             ],
             hideCols: [],
-            showCols: [0, 1, 2, 3, 4],
+            showCols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
 
             init() {
                 if (!Array.isArray(this.entityList)) {
@@ -190,20 +206,28 @@
                 const tableData = this.filteredList.map(entity => [
                     `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
                     entity.code,
-                    entity.name,
+                    entity.categoryName,
+                    entity.fullName,
+                    entity.gender,
+                    entity.email,
+                    entity.PhoneNumber,
+                    entity.dateofbirth,
+                    entity.address,
+                    entity.startdate,
+                    entity.status,
                     entity.isActive ?
                     '<svg x-tooltip="Đang hoạt động" class="w-5 h-5 mx-auto" width="24" height="24" fill="#000000" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="green" d="M13 4.1974q0 .3097-.21677.5265L7.17806 10.329l-1.0529 1.0529q-.21677.2168-.52645.2168-.30968 0-.52645-.2168L4.01935 10.329 1.21677 7.5264Q1 7.3097 1 7t.21677-.5265l1.05291-1.0529q.21677-.2167.52645-.2167.30968 0 .52645.2167l2.27613 2.2839 5.07871-5.0864q.21677-.2168.52645-.2168.30968 0 .52645.2168l1.05291 1.0529Q13 3.8877 13 4.1974z"></path></g></svg>'
                     :
                     '<svg x-tooltip="Không hoạt động" class="w-5 h-5 mx-auto" width="24" height="24" fill="#000000" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="red" d="M13 10.65657q0 .40404-.28283.68686l-1.37374 1.37374Q11.06061 13 10.65657 13t-.68687-.28283L7 9.74747l-2.9697 2.9697Q3.74747 13 3.34343 13q-.40404 0-.68686-.28283l-1.37374-1.37374Q1 11.06061 1 10.65657t.28283-.68687L4.25253 7l-2.9697-2.9697Q1 3.74747 1 3.34343q0-.40404.28283-.68686l1.37374-1.37374Q2.93939 1 3.34343 1t.68687.28283L7 4.25253l2.9697-2.9697Q10.25253 1 10.65657 1q.40404 0 .68686.28283l1.37374 1.37374Q13 2.93939 13 3.34343t-.28283.68687L9.74747 7l2.9697 2.9697Q13 10.25253 13 10.65657z"></path></g></svg>',
                     `<div class="flex gap-4">
-                        <a href="/Admin/MedicineCategories/Edit/${entity.id}" class="hover:text-info" x-tooltip="Chỉnh sửa">
+                        <a href="/Admin/Employees/Edit/${entity.id}" class="hover:text-info" x-tooltip="Chỉnh sửa">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5">
                                 <path opacity="0.5" d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
                                 <path d="M17.3009 2.80624L16.652 3.45506L10.6872 9.41993C10.2832 9.82394 10.0812 10.0259 9.90743 10.2487C9.70249 10.5114 9.52679 10.7957 9.38344 11.0965C9.26191 11.3515 9.17157 11.6225 8.99089 12.1646L8.41242 13.9L8.03811 15.0229C7.9492 15.2897 8.01862 15.5837 8.21744 15.7826C8.41626 15.9814 8.71035 16.0508 8.97709 15.9619L10.1 15.5876L11.8354 15.0091C12.3775 14.8284 12.6485 14.7381 12.9035 14.6166C13.2043 14.4732 13.4886 14.2975 13.7513 14.0926C13.9741 13.9188 14.1761 13.7168 14.5801 13.3128L20.5449 7.34795L21.1938 6.69914C22.2687 5.62415 22.2687 3.88124 21.1938 2.80624C20.1188 1.73125 18.3759 1.73125 17.3009 2.80624Z" stroke="currentColor" stroke-width="1.5"></path>
                                 <path opacity="0.5" d="M16.6522 3.45508C16.6522 3.45508 16.7333 4.83381 17.9499 6.05034C19.1664 7.26687 20.5451 7.34797 20.5451 7.34797M10.1002 15.5876L8.4126 13.9" stroke="currentColor" stroke-width="1.5"></path>
                             </svg>
                         </a>
-                        <a href="/Admin/MedicineCategories/Details/${entity.id}" class="hover:text-primary" x-tooltip="Xem chi tiết">
+                        <a href="/Admin/Employees/Details/${entity.id}" class="hover:text-primary" x-tooltip="Xem chi tiết">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
                                 <path opacity="0.5" d="M3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C4.97196 6.49956 7.81811 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957Z" stroke="currentColor" stroke-width="1.5"></path>
                                 <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" stroke-width="1.5"></path>
@@ -223,7 +247,21 @@
 
                 this.datatable = new simpleDatatables.DataTable('#myTable', {
                     data: {
-                        headings: ['<input type="checkbox" class="form-checkbox" />', 'Mã loại thuốc', 'Tên loại thuốc', 'Hoạt động', 'Thao tác'],
+                        headings: [
+                            '<input type="checkbox" class="form-checkbox" />',
+                            'Mã nhân sự',
+                            'Loại nhân sự',
+                            'Tên nhân sự',
+                            'Giới tính',
+                            'Email',
+                            'Số điện thoại',
+                            'Ngày sinh',
+                            'Địa chỉ',
+                            'Ngày bắt đầu làm',
+                            'Trạng thái',
+                            'Hoạt động',
+                            'Thao tác'
+                        ],
                         data: tableData
                     },
                     perPage: 10,
@@ -250,14 +288,7 @@
                             }
                         },
                         {
-                            select: 3,
-                            sortable: false,
-                            render: (data, cell, row) => {
-                                return data;
-                            }
-                        },
-                        {
-                            select: 4,
+                            select: 10,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;
@@ -287,12 +318,12 @@
 
             restore() {
                 if (this.selectedRows.length === 0) {
-                    notyf.error('Vui lòng chọn ít nhất một loại thuốc để khôi phục.');
+                    notyf.error('Vui lòng chọn ít nhất một nhân sự để khôi phục.');
                     return;
                 }
                 $.confirm({
                     title: 'Bạn có chắc chắn?',
-                    content: 'Bạn có muốn khôi phục các loại thuốc đã chọn không?',
+                    content: 'Bạn có muốn khôi phục các nhân sự đã chọn không?',
                     icon: 'fa fa-question-circle text-blue-500',
                     theme: 'modern',
                     type: 'blue',
@@ -304,7 +335,7 @@
                             btnClass: 'btn-success',
                             action: () => {
                                 document.getElementById('selectedIds').value = this.selectedRows.join(',');
-                                document.getElementById('trashForm').action = '/Admin/MedicineCategories/Restore';
+                                document.getElementById('trashForm').action = '/Admin/Employees/Restore';
                                 document.getElementById('trashForm').submit();
                             }
                         },
@@ -318,12 +349,12 @@
 
             deletePermanently() {
                 if (this.selectedRows.length === 0) {
-                    notyf.error('Vui lòng chọn ít nhất một loại thuốc để xóa vĩnh viễn.');
+                    notyf.error('Vui lòng chọn ít nhất một nhân sự để xóa vĩnh viễn.');
                     return;
                 }
                 $.confirm({
                     title: 'Bạn có chắc chắn?',
-                    content: 'Bạn có muốn xóa vĩnh viễn các loại thuốc đã chọn không? Hành động này không thể hoàn tác!',
+                    content: 'Bạn có muốn xóa vĩnh viễn các nhân sự đã chọn không? Hành động này không thể hoàn tác!',
                     icon: 'fa fa-exclamation-triangle text-yellow-500',
                     theme: 'modern',
                     type: 'red',
@@ -335,7 +366,7 @@
                             btnClass: 'btn-danger',
                             action: () => {
                                 document.getElementById('selectedIds').value = this.selectedRows.join(',');
-                                document.getElementById('trashForm').action = '/Admin/MedicineCategories/Delete';
+                                document.getElementById('trashForm').action = '/Admin/Employees/Delete';
                                 document.getElementById('trashForm').submit();
                             }
                         },
@@ -350,7 +381,7 @@
             deletePermanentlySingle(id) {
                 $.confirm({
                     title: 'Bạn có chắc chắn?',
-                    content: 'Bạn có muốn xóa vĩnh viễn loại thuốc này không? Hành động này không thể hoàn tác!',
+                    content: 'Bạn có muốn xóa vĩnh viễn nhân sự này không? Hành động này không thể hoàn tác!',
                     icon: 'fa fa-exclamation-triangle text-yellow-500',
                     theme: 'modern',
                     type: 'red',
@@ -362,7 +393,7 @@
                             btnClass: 'btn-danger',
                             action: () => {
                                 document.getElementById('selectedIds').value = id;
-                                document.getElementById('trashForm').action = '/Admin/MedicineCategories/Delete';
+                                document.getElementById('trashForm').action = '/Admin/Employees/Delete';
                                 document.getElementById('trashForm').submit();
                             }
                         },
@@ -375,7 +406,7 @@
             },
 
             goBack() {
-                window.location.href = '/Admin/MedicineCategories/';
+                window.location.href = '/Admin/Employees/';
             }
         }));
     });
