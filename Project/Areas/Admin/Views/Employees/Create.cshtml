@@ -1,7 +1,7 @@
 ﻿@model Project.Areas.Admin.Models.DTOs.EmployeeDto
 
 @{
-    ViewData["Title"] = "Trang thêm mới nhân sự";
+    ViewData["Title"] = "Thêm mới nhân sự";
     Layout = "~/Areas/Admin/Views/Shared/_mainLayout.cshtml";
 }
 
@@ -63,11 +63,11 @@
                 <div class="px-6">
                     <div class="text-lg font-semibold mb-6">Thêm thông tin nhân sự</div>
                     <div class="flex flex-col lg:flex-row gap-6">
-                        <div class="w-full lg:max-w-full p-4 border rounded-lg shadow-sm">
+                        <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Code" class="block text-sm font-medium text-gray-700">Mã nhân sự</label>
-                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập mã nhân sự" oninput="this.value = this.value.toUpperCase()" />
+                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập mã nhân sự" value="@ViewBag.RandomCode" oninput="this.value = this.value.toUpperCase()" readonly />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -81,37 +81,47 @@
                                     </select>
                                     @Html.ValidationMessageFor(model => model.EmployeeCategoryId, "", new { @class = "text-danger" })
                                 </div>
-                            </div>
-                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="FullName" class="block text-sm font-medium text-gray-700">Tên nhân sự</label>
                                     <input id="FullName" type="text" name="FullName" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập họ tên nhân sự" />
                                     @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
                                 </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+
                                 <div class="w-full sm:w-1/2">
                                     <label for="Gender" class="block text-sm font-medium text-gray-700">Giới tính</label>
                                     <select id="Gender" name="Gender" class="form-input w-full mt-1 p-2 border rounded">
-                                        <option value="">Chọn loại giới tính</option>
-                                        @foreach (var gender in ViewBag.GenderType)
+                                        <option value="">Chọn giới tính</option>
+                                        @foreach (var gender in ViewBag.GenderOptions)
                                         {
-                                            <option value="@gender.Id">@gender.Name</option>
+                                            <option value="@gender.Value">@gender.Text</option>
                                         }
                                     </select>
                                     @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="DateOfBirth" class="block text-sm font-medium text-gray-700">Ngày sinh</label>
-                                    <input id="DateOfBirth" type="text" name="DateOfBirth" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập ngày sinh" />
+                                    <input id="DateOfBirth" type="text" name="DateOfBirth" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập sinh" />
                                     @Html.ValidationMessageFor(model => model.DateOfBirth, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
+                                    <label for="IdentityCard" class="block text-sm font-medium text-gray-700">Căn cước công dân</label>
+                                    <input id="IdentityCard" type="text" name="IdentityCard" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập căn cước công dân" />
+                                    @Html.ValidationMessageFor(model => model.IdentityCard, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                <div class="w-full">
                                     <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ</label>
                                     <input id="Address" type="text" name="Address" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập địa chỉ" />
                                     @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
                                 </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Phone" class="block text-sm font-medium text-gray-700">Số điện thoại</label>
-                                    <input id="Phone" type="text" name="Phone" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số điện thoại" />
+                                    <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Số điện thoại</label>
+                                    <input id="PhoneNumber" type="text" name="PhoneNumber" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số điện thoại" />
                                     @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -119,10 +129,29 @@
                                     <input id="Email" type="text" name="Email" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập email" />
                                     @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
                                 </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="IdentityCard" class="block text-sm font-medium text-gray-700">Căn cước công dân</label>
-                                    <input id="IdentityCard" type="text" name="IdentityCard" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập căn cước công dân" />
-                                    @Html.ValidationMessageFor(model => model.IdentityCard, "", new { @class = "text-danger" })
+                                    <label class="block text-sm font-medium text-gray-700">Thông tin bằng cấp</label>
+                                    <select id="Degree" name="Degree" class="form-input w-full mt-1 p-2 border rounded">
+                                        <option value="">Chọn bằng cấp</option>
+                                        @foreach (var degree in ViewBag.DegreeOptions)
+                                        {
+                                            <option value="@degree.Value">@degree.Text</option>
+                                        }
+                                    </select>
+                                    @Html.ValidationMessageFor(model => model.Degree, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="w-full sm:w-1/2">
+                                    <label class="block text-sm font-medium text-gray-700">Thông tin trình độ chuyên môn</label>
+                                    <select id="ProfessionalQualification" name="ProfessionalQualification" class="form-input w-full mt-1 p-2 border rounded">
+                                        <option value="">Chọn trình độ chuyên môn</option>
+                                        @foreach (var qualification in ViewBag.ProfessionalQualificationOptions)
+                                        {
+                                            <option value="@qualification.Value">@qualification.Text</option>
+                                        }
+                                    </select>
+                                    @Html.ValidationMessageFor(model => model.ProfessionalQualification, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                         </div>
@@ -136,53 +165,9 @@
                         <div class="dropzone flex-1" id="imageDropzone"></div>
                     </div>
                     <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700">Thông tin bằng cấp</label>
-                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-2">
-                            <div>
-                                <select id="Degree" name="Degree" class="form-input w-full mt-1 p-2 border rounded">
-                                    <option value="">Chọn bằng cấp</option>
-                                    @foreach (var unit in ViewBag.DegreeType)
-                                    {
-                                        <option value="@unit.Value">@unit.Text</option>
-                                    }
-                                </select>
-                                @Html.ValidationMessageFor(model => model.Degree, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700">Thông tin trình độ chuyên môn</label>
-                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-2">
-                            <div>
-                                <select id="StockUnit" name="StockUnit" class="form-input w-full mt-1 p-2 border rounded">
-                                    <option value="">Chọn trình độ chuyên môn</option>
-                                    @foreach (var unit in ViewBag.ProfessionalQualificationType)
-                                    {
-                                        <option value="@unit.Value">@unit.Text</option>
-                                    }
-                                </select>
-                                @Html.ValidationMessageFor(model => model.ProfessionalQualification, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700">Tình trạng làm việc</label>
-                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-2">
-                            <div>
-                                <input id="StartDate" type="number" name="StartDate" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập ngày bắt đầu làm" />
-                                @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
-                            </div>
-                            <div>
-                                <select id="Status" name="Status" class="form-input w-full mt-1 p-2 border rounded">
-                                    <option value="">Chọn tình trạng</option>
-                                    @foreach (var unit in ViewBag.EmployeeStatus)
-                                    {
-                                        <option value="@unit.Value">@unit.Text</option>
-                                    }
-                                </select>
-                                @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
+                        <label class="block text-sm font-medium text-gray-700">Ngày bắt đầu làm việc</label>
+                        <input id="StartDate" type="text" name="StartDate" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập ngày bắt đầu làm" />
+                        @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
                     </div>
                 </div>
                 <div class="panel">
@@ -215,15 +200,33 @@
         return this.optional(element) || regex.test(value);
     }, "Giá trị không hợp lệ.");
 
+    $.validator.addMethod("over18", function(value, element) {
+        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+            return false;
+        }
+        var dob = new Date(value.split("/").reverse().join("-"));
+        var today = new Date();
+        var age = today.getFullYear() - dob.getFullYear();
+        var monthDiff = today.getMonth() - dob.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        return age >= 18;
+    }, "Nhân sự phải trên 18 tuổi.");
+
     document.addEventListener('alpine:init', () => {
         Alpine.data('addData', () => ({
             dropzone: null,
+            // sessionToken: crypto.randomUUID(),
 
             init() {
                 this.setupDropzone();
                 this.setupValidation();
                 this.setupDateTimePicker();
+                // this.setupAddressAutocomplete();
             },
+
+
 
             setupDateTimePicker() {
                 $('.picker').datetimepicker({
@@ -273,7 +276,6 @@
                             required: true,
                             minlength: 4,
                             maxlength: 10,
-                            customPattern: /^[A-Za-z][A-Za-z0-9]*$/
                         },
                         FullName: {
                             required: true,
@@ -284,12 +286,10 @@
                         EmployeeCategoryId: {
                             required: true
                         },
-                        Gender: {
-                            required: true
-                        },
                         DateOfBirth: {
                             required: true,
-                            dateFormat: true
+                            dateFormat: true,
+                            over18: true
                         },
                         Email: {
                             required: true,
@@ -310,17 +310,13 @@
                         Address: {
                             required: true
                         },
+                        Gender: {
+                            required: true
+                        },
                         Degree: {
                             required: true
                         },
                         ProfessionalQualification: {
-                            required: true
-                        },
-                        StartDate: {
-                            required: true,
-                            dateFormat: true
-                        },
-                        Status: {
                             required: true
                         }
                     },
@@ -328,8 +324,7 @@
                         Code: {
                             required: "Mã nhân sự không được bỏ trống.",
                             minlength: "Mã phải có ít nhất 4 ký tự.",
-                            maxlength: "Mã không được vượt quá 10 ký tự.",
-                            customPattern: "Mã phải bắt đầu bằng chữ cái và chỉ chứa chữ cái hoặc số."
+                            maxlength: "Mã không được vượt quá 10 ký tự."
                         },
                         FullName: {
                             required: "Tên nhân sự không được bỏ trống.",
@@ -341,11 +336,13 @@
                             required: "Loại nhân sự không được bỏ trống."
                         },
                         Gender: {
-                            required: "Giới tính không được bỏ trống."  
+                            required: "Giới tính không được bỏ trống.",
+                            min: "Vui lòng chọn một giá trị hợp lệ."
                         },
                         DateOfBirth: {
                             required: "Ngày sinh không được bỏ trống.",
-                            dateFormat: "Ngày sinh không hợp lệ."
+                            dateFormat: "Ngày sinh không hợp lệ.",
+                            over18: "Nhân sự phải trên 18 tuổi."
                         },
                         Email: {
                             required: "Email không được bỏ trống.",
@@ -373,11 +370,7 @@
                             required: "Trình độ chuyên môn không được bỏ trống."
                         },
                         StartDate: {
-                            required: "Ngày bắt đầu làm không được bỏ trống.",
-                            dateFormat: "Ngày bắt đầu làm không hợp lệ."
-                        },
-                        Status: {
-                            required: "Tình trạng làm việc không được bỏ trống."
+                            required: "Ngày bắt đầu làm không được bỏ trống."
                         }
 
                     },
@@ -418,21 +411,19 @@
                 formData.append('Degree', $('#Degree').val());
                 formData.append('ProfessionalQualification', $('#ProfessionalQualification').val());
                 formData.append('StartDate', $('#StartDate').val());
-                formData.append('Status', $('#Status').val());
                 const token = $('input[name="__RequestVerificationToken"]').val();
                 formData.append('__RequestVerificationToken', token);
             },
 
             handleResponse(response) {
                 const overlay = document.getElementById('loadingOverlay');
+                overlay.style.display = 'none';
                 if (response.success) {
-                    overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
                         window.location.href = '/Admin/Employees/';
                     }, 2000);
                 } else {
-                    overlay.style.display = 'none';
                     notyf.error(response.message);
                     if (response.errors) {
                         response.errors.forEach(error => notyf.error(error));
@@ -441,8 +432,8 @@
             },
 
             add() {
+                const overlay = document.getElementById('loadingOverlay');
                 if ($("#myForm").valid()) {
-                    const overlay = document.getElementById('loadingOverlay');
                     overlay.style.display = 'flex';
                     if (this.dropzone.files.length > 0) {
                         this.dropzone.processQueue();
@@ -461,6 +452,9 @@
                         });
                     }
                 }
+                else {
+                    overlay.style.display = 'none';
+                }
             },
 
             goBack() {
@@ -469,4 +463,3 @@
         }));
     });
 </script>
-

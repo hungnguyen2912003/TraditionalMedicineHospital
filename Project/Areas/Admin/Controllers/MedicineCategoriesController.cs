@@ -114,11 +114,9 @@ namespace Project.Areas.Admin.Controllers
                     return Json(new { success = false, message = "Cập nhật loại thuốc thất bại. Vui lòng kiểm tra lại thông tin.", errors });
                 }
                 var entity = await _repository.GetByIdAsync(Id);
-                if (entity == null)
-                {
-                    return NotFound();
-                }
+                if (entity == null) return NotFound();
 
+                _mapper.Map(inputDto, entity);
                 entity.UpdatedBy = "Admin";
                 entity.UpdatedDate = DateTime.UtcNow;
 

@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Admin.Models.Enums.Employee;
 using Project.Extensions;
+using Project.Helpers;
 using Project.Repositories.Interfaces;
 using Project.Services.Interfaces;
 using Project.Validators;
@@ -19,13 +21,15 @@ namespace Project.Areas.Admin.Controllers
         private readonly IMapper _mapper;
         private readonly IImageService _service;
         private readonly IValidator<EmployeeDto> _validator;
+        private readonly CodeGeneratorHelper _helper;
         public EmployeesController
         (
             IEmployeeRepository repository,
             IMapper mapper,
             IImageService service,
             IValidator<EmployeeDto> validator,
-            IEmployeeCategoryRepository categoryRepository
+            IEmployeeCategoryRepository categoryRepository,
+            CodeGeneratorHelper helper
         )
         {
             _repository = repository;
@@ -33,6 +37,7 @@ namespace Project.Areas.Admin.Controllers
             _service = service;
             _validator = validator;
             _categoryRepository = categoryRepository;
+            _helper = helper;
         }
         public async Task<IActionResult> Index()
         {
@@ -55,44 +60,42 @@ namespace Project.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            string randomCode = await _helper.GenerateUniqueCodeAsync();
+            ViewBag.RandomCode = randomCode;
+
             var employeeCategories = await _categoryRepository.GetAllActiveAsync();
             ViewBag.EmployeeCategories = employeeCategories
                 .Where(mc => mc.IsActive)
                 .Select(mc => new { mc.Id, mc.Name })
                 .ToList();
 
-            ViewBag.GenderType = Enum.GetValues(typeof(GenderType))
+            // Thêm danh sách Gender vào ViewBag
+            ViewBag.GenderOptions = Enum.GetValues(typeof(GenderType))
                 .Cast<GenderType>()
-                .Select(e => new
+                .Select(g => new SelectListItem
                 {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
-            ViewBag.EmployeeStatus = Enum.GetValues(typeof(EmployeeStatus))
-                .Cast<EmployeeStatus>()
-                .Select(e => new
-                {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
-            ViewBag.DegreeType = Enum.GetValues(typeof(DegreeType))
+                    Value = ((int)g).ToString(),
+                    Text = g.GetDisplayName()
+                }).ToList();
+
+            // Thêm danh sách Degree vào ViewBag
+            ViewBag.DegreeOptions = Enum.GetValues(typeof(DegreeType))
                 .Cast<DegreeType>()
-                .Select(e => new
+                .Select(d => new SelectListItem
                 {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
-            ViewBag.ProfessionalQualificationType = Enum.GetValues(typeof(ProfessionalQualificationType))
+                    Value = ((int)d).ToString(),
+                    Text = d.GetDisplayName()
+                }).ToList();
+
+            // Thêm danh sách ProfessionalQualification vào ViewBag
+            ViewBag.ProfessionalQualificationOptions = Enum.GetValues(typeof(ProfessionalQualificationType))
                 .Cast<ProfessionalQualificationType>()
-                .Select(e => new
+                .Select(p => new SelectListItem
                 {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
+                    Value = ((int)p).ToString(),
+                    Text = p.GetDisplayName()
+                }).ToList();
+
             return View();
         }
 
@@ -112,6 +115,7 @@ namespace Project.Areas.Admin.Controllers
                 var entity = _mapper.Map<Employee>(inputDto);
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
+                entity.Status = (EmployeeStatus)1;
                 entity.IsActive = true;
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
