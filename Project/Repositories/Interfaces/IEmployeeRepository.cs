@@ -8,5 +8,7 @@ namespace Project.Repositories.Interfaces
         Task<Employee?> GetByCodeAsync(string code);
         Task<IEnumerable<Employee>> GetAllWithCategoryAsync();
         Task<Employee?> GetByIdWithCategoryAsync(Guid id);
+        Task<bool> IsCodeExistsAsync(string code);
+        Task<bool> IsIdentityCardExistsAsync(string identityCard);
     }
 }

@@ -49,77 +49,10 @@
                                 Xóa
                             </button>
                         </div>
-                        <div class="relative">
-                            <div class="theme-dropdown relative" x-data="{ columnDropdown: false }" @@click.outside="columnDropdown = false">
-                                <a href="javascript:;" class="btn btn-info items-center rounded-md px-4 py-2 text-sm font-semibold" @@click="columnDropdown = !columnDropdown">
-                                    <svg class="h-5 w-5 ltr:mr-2 rtl:ml-2" width="24" height="24" viewBox="-25.1 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="#000000">
-                                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                                        <g id="SVGRepo_iconCarrier">
-                                            <defs>
-                                                <style>
-                                                    .cls-1 {
-                                                        fill: none;
-                                                        stroke: #ffffff;
-                                                        stroke-linecap: round;
-                                                        stroke-linejoin: round;
-                                                        stroke-width: 20px;
-                                                    }
-                                                </style>
-                                            </defs>
-                                            <g data-name="Layer 2" id="Layer_2">
-                                                <g data-name="E456, Column, data, search" id="E456_Column_data_search">
-                                                    <rect class="cls-1" height="492" width="164.48" x="10" y="10"></rect>
-                                                    <rect class="cls-1" height="213.91" width="164.48" x="10" y="149.04"></rect>
-                                                    <polyline class="cls-1" points="341.35 249.53 341.35 502 176.87 502 176.87 10 341.35 10 341.35 82.16"></polyline>
-                                                    <polyline class="cls-1" points="341.35 249.53 341.35 362.95 176.87 362.95 176.87 149.04 239.54 149.04"></polyline>
-                                                    <circle class="cls-1" cx="323.45" cy="165.85" r="85.57"></circle>
-                                                    <line class="cls-1" x1="387.62" x2="451.8" y1="230.02" y2="304.89"></line>
-                                                </g>
-                                            </g>
-                                        </g>
-                                    </svg>
-                                    Cột
-                                </a>
-                                <div class="absolute top-11 z-[10] hidden w-[100px] min-w-[150px] rounded bg-white py-2 text-dark shadow ltr:left-0 rtl:right-0 " :class="columnDropdown && '!block'">
-                                    <ul class="space-y-2 px-4 font-semibold">
-                                        <template x-for="(col, i) in columns" :key="i">
-                                            <li>
-                                                <div class="flex items-center">
-                                                    <label class="cursor-pointer flex items-center">
-                                                        <input type="checkbox" class="form-checkbox" :id="`chk-col-${i}`" :value="i" @@change="showHideColumns(i, $event.target.checked)" :checked="!col.hidden">
-                                                        <span class="ltr:ml-2 rtl:mr-2 whitespace-nowrap" x-text="col.name"></span>
-                                                    </label>
-                                                </div>
-                                            </li>
-                                        </template>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="table-responsive">
-                    <table id="myTable" class="table-striped table-hover">
-                        <thead>
-                            <tr class="text-center">
-                                <th><input type="checkbox" class="form-checkbox" /></th>
-                                <th>Mã nhân sự</th>
-                                <th>Loại nhân sự</th>
-                                <th>Họ tên nhân sự</th>
-                                <th>Giới tính</th>
-                                <th>Email</th>
-                                <th>Số điện thoại</th>
-                                <th>Ngày sinh</th>
-                                <th>Địa chỉ</th>
-                                <th>Ngày bắt đầu làm</th>
-                                <th>Trạng thái</th>
-                                <th>Hoạt động</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                    <table id="myTable" class="table-striped table-hover"></table>
                 </div>
             </div>
         </div>
@@ -135,23 +68,6 @@
             filteredList: [],
             selectedRows: [],
             datatable: null,
-            columns: [
-                { name: 'Hộp chọn', hidden: false },
-                { name: 'Mã nhân sự', hidden: false },
-                { name: 'Loại nhân sự', hidden: false },
-                { name: 'Họ tên nhân sự', hidden: false },
-                { name: 'Giới tính', hidden: false },
-                { name: 'Email', hidden: false },
-                { name: 'Số điện thoại', hidden: false },
-                { name: 'Ngày sinh', hidden: false },
-                { name: 'Địa chỉ', hidden: false },
-                { name: 'Ngày bắt đầu làm', hidden: false },
-                { name: 'Trạng thái', hidden: false },
-                { name: 'Hoạt động', hidden: false },
-                { name: 'Thao tác', hidden: false }
-            ],
-            hideCols: [],
-            showCols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
 
             init() {
                 if (!Array.isArray(this.entityList)) {
@@ -288,7 +204,14 @@
                             }
                         },
                         {
-                            select: 10,
+                            select: 11,
+                            sortable: false,
+                            render: (data, cell, row) => {
+                                return data;
+                            }
+                        },
+                        {
+                            select: 12,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;
@@ -296,24 +219,6 @@
                         }
                     ],
                 });
-
-                let cols = this.datatable.columns();
-                cols.hide(this.hideCols);
-                cols.show(this.showCols);
-            },
-
-            showHideColumns(col, isChecked) {
-                this.columns[col].hidden = !isChecked;
-                if (isChecked) {
-                    this.showCols.push(col);
-                    this.hideCols = this.hideCols.filter(d => d !== col);
-                } else {
-                    this.hideCols.push(col);
-                    this.showCols = this.showCols.filter(d => d !== col);
-                }
-                let headers = this.datatable.columns();
-                headers.hide(this.hideCols);
-                headers.show(this.showCols);
             },
 
             restore() {

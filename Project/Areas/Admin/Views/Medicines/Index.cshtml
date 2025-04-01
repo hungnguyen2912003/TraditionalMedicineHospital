@@ -35,43 +35,6 @@
                         <svg class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 10V17M8 10V17M19 9H22M19 14H22M19 19H21M16 6V16.2C16 17.8802 16 18.7202 15.673 19.362C15.3854 19.9265 14.9265 20.3854 14.362 20.673C13.7202 21 12.8802 21 11.2 21H8.8C7.11984 21 6.27976 21 5.63803 20.673C5.07354 20.3854 4.6146 19.9265 4.32698 19.362C4 18.7202 4 17.8802 4 16.2V6M2 6H18M14 6L13.7294 5.18807C13.4671 4.40125 13.3359 4.00784 13.0927 3.71698C12.8779 3.46013 12.6021 3.26132 12.2905 3.13878C11.9376 3 11.523 3 10.6936 3H9.30643C8.47705 3 8.06236 3 7.70951 3.13878C7.39792 3.26132  7.12208 3.46013 6.90729 3.71698C6.66405 4.00784 6.53292 4.40125 6.27064 5.18807L6 6" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
                         Đưa vào thùng rác
                     </button>
-                    <div class="relative">
-                        <div class="theme-dropdown relative" x-data="{ columnDropdown: false }" @@click.outside="columnDropdown = false">
-                            <a href="javascript:;" class="btn btn-info items-center rounded-md px-4 py-2 text-sm font-semibold" @@click="columnDropdown = !columnDropdown">
-                                <svg class="h-5 w-5 ltr:mr-2 rtl:ml-2" width="24" height="24" viewBox="-25.1 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="#000000">
-                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                                    <g id="SVGRepo_iconCarrier">
-                                        <defs>
-                                            <style>
-                                                .cls-1 {
-                                                    fill: none;
-                                                    stroke: #ffffff;
-                                                    stroke-linecap: round;
-                                                    stroke-linejoin: round;
-                                                    stroke-width: 20px;
-                                                }</style>
-                                        </defs> <g data-name="Layer 2" id="Layer_2"> <g data-name="E456, Column, data, search" id="E456_Column_data_search"> <rect class="cls-1" height="492" width="164.48" x="10" y="10"></rect> <rect class="cls-1" height="213.91" width="164.48" x="10" y="149.04"></rect> <polyline class="cls-1" points="341.35 249.53 341.35 502 176.87 502 176.87 10 341.35 10 341.35 82.16"></polyline> <polyline class="cls-1" points="341.35 249.53 341.35 362.95 176.87 362.95 176.87 149.04 239.54 149.04"></polyline> <circle class="cls-1" cx="323.45" cy="165.85" r="85.57"></circle> <line class="cls-1" x1="387.62" x2="451.8" y1="230.02" y2="304.89"></line> </g> </g>
-                                    </g>
-                                </svg>
-                                Cột
-                            </a>
-                            <div class="absolute top-11 z-[10] hidden w-[100px] min-w-[150px] rounded bg-white py-2 text-dark shadow ltr:left-0 rtl:right-0 dark:bg-[#1b2e4b] dark:text-white-light" :class="columnDropdown && '!block'">
-                                <ul class="space-y-2 px-4 font-semibold">
-                                    <template x-for="(col, i) in columns" :key="i">
-                                        <li>
-                                            <div class="flex items-center">
-                                                <label class="cursor-pointer flex items-center">
-                                                    <input type="checkbox" class="form-checkbox" :id="`chk-col-${i}`" :value="i" @@change="showHideColumns(i, $event.target.checked)" :checked="!col.hidden">
-                                                    <span class="ltr:ml-2 rtl:mr-2 whitespace-nowrap" x-text="col.name"></span>
-                                                </label>
-                                            </div>
-                                        </li>
-                                    </template>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <div class="flex w-1/2 flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
                     <div class="flex gap-3">
@@ -104,27 +67,9 @@
                     </div>
                 </div>
             </div>
-            <div class="table-responsive">
-                <table id="myTable" class="table-striped table-hover">
-                    <thead>
-                        <tr class="text-center">
-                            <th><input type="checkbox" class="form-checkbox" /></th>
-                            <th>Mã thuốc</th>
-                            <th>Loại thuốc</th>
-                            <th>Tên thuốc</th>
-                            <th>Đơn vị</th>
-                            <th>Giá bán</th>
-                            <th>Tồn kho</th>
-                            <th>Nhà sản xuất</th>
-                            <th>Ngày sản xuất</th>
-                            <th>Ngày hết hạn</th>
-                            <th>Hoạt động</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+                <div class="table-responsive">
+                    <table id="myTable" class="table-striped table-hover"></table>
+                </div>
         </div>
     </div>
 </div>
@@ -150,21 +95,6 @@
             filteredList: [],
             selectedRows: [],
             datatable: null,
-            columns: [
-                { name: 'Hộp chọn', hidden: false },
-                { name: 'Mã thuốc', hidden: false },
-                { name: 'Loại thuốc', hidden: false },
-                { name: 'Tên thuốc', hidden: false },
-                { name: 'Giá bán', hidden: false },
-                { name: 'Tồn kho', hidden: false },
-                { name: 'Nhà sản xuất', hidden: false },
-                { name: 'Ngày sản xuất', hidden: false },
-                { name: 'Ngày hết hạn', hidden: false },
-                { name: 'Hoạt động', hidden: false },
-                { name: 'Thao tác', hidden: false }
-            ],
-            hideCols: [],
-            showCols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
 
             init() {
                 if (!Array.isArray(this.entityList)) {
@@ -313,24 +243,6 @@
                         }
                     ],
                 });
-
-                let cols = this.datatable.columns();
-                cols.hide(this.hideCols);
-                cols.show(this.showCols);
-            },
-
-            showHideColumns(col, isChecked) {
-                this.columns[col].hidden = !isChecked;
-                if (isChecked) {
-                    this.showCols.push(col);
-                    this.hideCols = this.hideCols.filter(d => d !== col);
-                } else {
-                    this.hideCols.push(col);
-                    this.showCols = this.showCols.filter(d => d !== col);
-                }
-                let headers = this.datatable.columns();
-                headers.hide(this.hideCols);
-                headers.show(this.showCols);
             },
 
             moveToTrash() {

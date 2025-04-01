@@ -11,7 +11,7 @@ namespace Project.Extensions
                 .GetMember(enumValue.ToString())
                 .First()
                 .GetCustomAttribute<DisplayAttribute>()
-                ?.GetName() ?? enumValue.ToString();
+                ?.Name ?? enumValue.ToString();
         }
     }
 }

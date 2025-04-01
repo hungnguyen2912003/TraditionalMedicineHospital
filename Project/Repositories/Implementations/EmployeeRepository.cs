@@ -11,6 +11,11 @@ namespace Project.Repositories.Implementations
         {
         }
 
+        public async Task<bool> IsIdentityCardExistsAsync(string identityCard)
+        {
+            return await _context.employees.AnyAsync(e => e.IdentityCard == identityCard);
+        }
+
         public async Task<IEnumerable<Employee>> GetAllWithCategoryAsync()
         {
             return await _context.employees
@@ -37,6 +42,11 @@ namespace Project.Repositories.Implementations
             return await _context.employees
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.FullName == name);
+        }
+
+        public async Task<bool> IsCodeExistsAsync(string code)
+        {
+            return await _context.employees.AnyAsync(e => e.Code == code);
         }
     }
 }

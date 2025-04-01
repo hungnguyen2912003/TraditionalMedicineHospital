@@ -5,33 +5,33 @@ namespace Project.Areas.Admin.Models.Enums.Employee
     public enum ProfessionalQualificationType
     {
         [Display(Name = "Bác sĩ y học cổ truyền")]
-        BacSiYHocCoTruyen = 0,
+        BacSiYHocCoTruyen = 1,
 
         [Display(Name = "Dược sĩ đông y")]
-        DuocSiDongY = 1,
+        DuocSiDongY = 2,
 
         [Display(Name = "Chuyên viên châm cứu")]
-        ChuyenVienChamCuu = 2,
+        ChuyenVienChamCuu = 3,
 
         [Display(Name = "Chuyên viên vật lý trị liệu")]
-        ChuyenVienVatLyTriLieu = 3,
+        ChuyenVienVatLyTriLieu = 4,
 
         [Display(Name = "Chuyên viên phục hồi chức năng")]
-        ChuyenVienPhucHoiChucNang = 4,
+        ChuyenVienPhucHoiChucNang = 5,
 
         [Display(Name = "Lương y")]
-        LuongY = 5,
+        LuongY = 6,
 
         [Display(Name = "Điều dưỡng")]
-        DieuDuong = 6,
+        DieuDuong = 7,
 
         [Display(Name = "Y sĩ")]
-        YSi = 7,
+        YSi = 8,
 
         [Display(Name = "Y tá")]
-        YTa = 8,
+        YTa = 9,
 
         [Display(Name = "Dược sĩ")]
-        DuocSi = 9
+        DuocSi = 10
     }
 }

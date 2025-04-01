@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Globalization;
 
 namespace Project.Validators
 {
@@ -33,16 +31,29 @@ namespace Project.Validators
             return false;
         }
 
-        protected Task<bool> BeAValidDate(DateTime date)
+        protected async Task<bool> BeAValidDate(DateTime date, CancellationToken cancellationToken)
         {
-            return Task.FromResult(date != DateTime.MinValue);
+            return await Task.FromResult(date != DateTime.MinValue);
         }
 
-        protected Task<bool> BeAfterManufacturedDate(DateTime manufacturedDate, DateTime expiryDate)
+        protected async Task<bool> BeAfterManufacturedDate(DateTime manufacturedDate, DateTime expiryDate)
         {
             if (manufacturedDate == DateTime.MinValue || expiryDate == DateTime.MinValue)
-                return Task.FromResult(true);
-            return Task.FromResult(expiryDate > manufacturedDate);
+                return await Task.FromResult(true);
+            return await Task.FromResult(expiryDate > manufacturedDate);
+        }
+
+        protected async Task<bool> BeOver18YearsOld(DateTime dateOfBirth)
+        {
+            var today = DateTime.UtcNow;
+            var age = today.Year - dateOfBirth.Year;
+
+            if (dateOfBirth.Date > today.AddYears(-age))
+            {
+                age--;
+            }
+
+            return await Task.FromResult(age >= 18);
         }
     }
 }

@@ -5,10 +5,10 @@ namespace Project.Areas.Admin.Models.Enums.Employee
     public enum EmployeeStatus
     {
         [Display(Name = "Đang làm việc")]
-        Working = 0,
+        DangLamViec = 1,
         [Display(Name = "Đã nghỉ việc")]
-        Resigned = 1,
+        DaNghiViec = 2,
         [Display(Name = "Nghỉ hưu")]
-        Retired = 2
+        NghiHuu = 3
     }
 }

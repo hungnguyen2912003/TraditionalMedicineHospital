@@ -149,6 +149,7 @@ namespace Project.Areas.Admin.Controllers
                 var entity = await _repository.GetByIdAsync(Id);
                 if (entity == null) return NotFound();
 
+                _mapper.Map(inputDto, entity);
                 entity.UpdatedBy = "Admin";
                 entity.UpdatedDate = DateTime.UtcNow;
 

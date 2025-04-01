@@ -110,7 +110,7 @@ namespace Project.Areas.Admin.Controllers
                     return NotFound();
                 }
 
-
+                _mapper.Map(inputDto, entity);
                 entity.UpdatedBy = "Admin";
                 entity.UpdatedDate = DateTime.UtcNow;
 
