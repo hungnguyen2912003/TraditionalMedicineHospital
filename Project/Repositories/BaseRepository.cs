@@ -15,14 +15,23 @@ namespace Project.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
+
+        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
         {
-            IQueryable<T> query = _dbSet;
-            foreach (var include in includes)
-            {
-                query = query.Include(include);
-            }
-            return await query.ToListAsync();
+            return await _dbSet.FirstOrDefaultAsync(predicate);
+        }
+        public async Task<T> FindAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.FirstOrDefaultAsync(predicate);
+        }
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.AnyAsync(predicate);
+        }
+
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await _dbSet.ToListAsync();
         }
 
         public async Task<T?> GetByIdAsync(Guid id)

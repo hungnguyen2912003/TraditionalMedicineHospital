@@ -108,7 +108,7 @@
                     </div>
                     <div>
                         <label for="UpdatedDate">Ngày chỉnh sửa</label>
-                        <input id="UpdatedDate" type="text" value="@(Model.UpdatedDate.ToString("dd/MM/yyyy") ?? "Không có")" readonly class="form-input">
+                        <input id="UpdatedDate" type="text" value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy") ?? "Không có")" readonly class="form-input">
                     </div>
                     <div>
                         <label for="UpdatedBy">Nguời chỉnh sửa</label>

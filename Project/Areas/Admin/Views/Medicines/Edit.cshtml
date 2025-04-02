@@ -72,7 +72,7 @@
 
 <form id="myForm" method="post" enctype="multipart/form-data" asp-action="Edit">
     @Html.AntiForgeryToken()
-    <input type="hidden" name="Id" value="@ViewBag.MedicineId" />
+    <input type="hidden" id="Id" name="Id" value="@ViewBag.MedicineId" />
 
     <div x-data="editData">
         <ul class="flex space-x-2 rtl:space-x-reverse">
@@ -281,6 +281,7 @@
             },
 
             setupDropzone() {
+                const self = this;
                 this.dropzone = new Dropzone('#imageDropzone', {
                     url: '/Admin/Medicines/Edit',
                     autoProcessQueue: false,
@@ -305,10 +306,10 @@
                         });
 
                         this.on('sending', (file, xhr, formData) => {
-                            this.appendFormData(formData);
+                            self.appendFormData(formData);
                         });
                         this.on('success', (file, response) => {
-                            this.handleResponse(response);
+                            self.handleResponse(response);
                         });
                         this.on('error', (file, errorMessage) => {
                             notyf.error("Có lỗi xảy ra: " + errorMessage);
@@ -334,13 +335,31 @@
                             required: true,
                             minlength: 4,
                             maxlength: 10,
-                            customPattern: /^[A-Za-z][A-Za-z0-9]*$/
+                            customPattern: /^[A-Za-z][A-Za-z0-9]*$/,
+                            remote: {
+                                url: "/api/validation/medicine/check-code",
+                                type: "GET",
+                                data: {
+                                    entityType: "medicine",
+                                    code: function() { return $("#Code").val(); },
+                                    id: function() { return $("#Id").val(); }
+                                }
+                            }
                         },
                         Name: {
                             required: true,
                             minlength: 6,
                             maxlength: 20,
-                            customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/
+                            customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
+                            remote: {
+                                url: "/api/validation/medicine/check-name",
+                                type: "GET",
+                                data: {
+                                    entityType: "medicine",
+                                    name: function() { return $("#Name").val(); },
+                                    id: function() { return $("#Id").val(); }
+                                }
+                            }
                         },
                         MedicineCategoryId: {
                             required: true
@@ -382,13 +401,15 @@
                             required: "Mã thuốc không được bỏ trống.",
                             minlength: "Mã phải có ít nhất 4 ký tự.",
                             maxlength: "Mã không được vượt quá 10 ký tự.",
-                            customPattern: "Mã phải bắt đầu bằng chữ cái và chỉ chứa chữ cái hoặc số."
+                            customPattern: "Mã phải bắt đầu bằng chữ cái và chỉ chứa chữ cái hoặc số.",
+                            remote: "Mã thuốc này đã tồn tại."
                         },
                         Name: {
                             required: "Tên thuốc không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 6 ký tự.",
                             maxlength: "Tên không được vượt quá 50 ký tự.",
-                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng."
+                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng.",
+                            remote: "Tên thuốc này đã tồn tại."
                         },
                         MedicineCategoryId: {
                             required: "Vui lòng chọn loại thuốc."
@@ -538,6 +559,9 @@
                             notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
                         });
                     }
+                }
+                else {
+                    notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
                 }
             },
 

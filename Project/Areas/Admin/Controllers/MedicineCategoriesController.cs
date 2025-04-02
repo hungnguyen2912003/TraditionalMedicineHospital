@@ -5,7 +5,6 @@ using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Repositories.Interfaces;
 using Project.Services.Interfaces;
-using Project.Validators;
 
 namespace Project.Areas.Admin.Controllers
 {
@@ -15,23 +14,20 @@ namespace Project.Areas.Admin.Controllers
         private readonly IMedicineCategoryRepository _repository;
         private readonly IMedicineRepository _medicineRepository;
         private readonly IMapper _mapper;
-        private readonly IImageService _service;
-        private readonly IValidator<MedicineCategoryDto> _validator;
+        private readonly IImageService _imgService;
 
         public MedicineCategoriesController
         (
             IMedicineCategoryRepository repository,
             IMedicineRepository medicineRepository,
             IMapper mapper,
-            IImageService service, 
-            IValidator<MedicineCategoryDto> validator
+            IImageService imgService
         )
         {
             _repository = repository;
             _medicineRepository = medicineRepository;
             _mapper = mapper;
-            _service = service;
-            _validator = validator;
+            _imgService = imgService;
         }
 
         public async Task<IActionResult> Index()
@@ -61,13 +57,6 @@ namespace Project.Areas.Admin.Controllers
         {
             try
             {
-                var validationResult = await _validator.ValidateAsync(inputDto);
-                if (!validationResult.IsValid)
-                {
-                    var errors = validationResult.Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}").ToList();
-                    return Json(new { success = false, message = "Thêm loại thuốc thất bại. Vui lòng kiểm tra lại thông tin.", errors });
-                }
-
                 var entity = _mapper.Map<MedicineCategory>(inputDto);
 
                 entity.CreatedBy = "Admin";
@@ -76,7 +65,7 @@ namespace Project.Areas.Admin.Controllers
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
-                    entity.Images = await _service.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
+                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
                 }
                 await _repository.CreateAsync(entity);
                 return Json(new { success = true, message = "Thêm loại thuốc thành công!" });
@@ -106,13 +95,6 @@ namespace Project.Areas.Admin.Controllers
         {
             try
             {
-                var validator = new MedicineCategoryValidator(_repository, Id);
-                var validationResult = await validator.ValidateAsync(inputDto);
-                if (!validationResult.IsValid)
-                {
-                    var errors = validationResult.Errors.Select(e => $"{e.ErrorMessage}").ToList();
-                    return Json(new { success = false, message = "Cập nhật loại thuốc thất bại. Vui lòng kiểm tra lại thông tin.", errors });
-                }
                 var entity = await _repository.GetByIdAsync(Id);
                 if (entity == null) return NotFound();
 
@@ -122,7 +104,7 @@ namespace Project.Areas.Admin.Controllers
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
-                    entity.Images = await _service.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
+                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
                 }
 
                 await _repository.UpdateAsync(entity);
@@ -189,7 +171,7 @@ namespace Project.Areas.Admin.Controllers
                 {
                     if (!string.IsNullOrEmpty(entity.Images))
                     {
-                        _service.DeleteImage(entity.Images, "MedicineCategories");
+                        _imgService.DeleteImage(entity.Images, "MedicineCategories");
                     }
                     await _repository.DeleteAsync(id);
                     delList.Add(entity);
