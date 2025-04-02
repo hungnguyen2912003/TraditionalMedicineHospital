@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project.Areas.Admin.Data;
 
@@ -11,9 +12,11 @@ using Project.Areas.Admin.Data;
 namespace Project.Migrations
 {
     [DbContext(typeof(TraditionalMedicineHospitalDbContext))]
-    partial class TraditionalMedicineHospitalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250402185232_Initial Employee Category Tbl")]
+    partial class InitialEmployeeCategoryTbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,7 +102,7 @@ namespace Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EmployeeCategory");
+                    b.ToTable("employeeCategories");
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Medicine", b =>
