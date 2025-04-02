@@ -8,6 +8,7 @@ namespace Project.Configurations
         {
             builder.Services.AddAutoMapper(typeof(MedicineCategoryProfile));
             builder.Services.AddAutoMapper(typeof(MedicineProfile));
+            builder.Services.AddAutoMapper(typeof(DepartmentProfile));
 
             return builder;
         }
