@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Admin.Models.Enums.Medicines;
+using Project.Areas.Admin.Models.ViewModels;
 using Project.Extensions;
 using Project.Repositories.Interfaces;
 using Project.Services.Interfaces;
-using Project.Validators;
 
 namespace Project.Areas.Admin.Controllers
 {
@@ -17,21 +17,19 @@ namespace Project.Areas.Admin.Controllers
         private readonly IMedicineRepository _repository;
         private readonly IMedicineCategoryRepository _categoryRepository;
         private readonly IMapper _mapper;
-        private readonly IImageService _service;
-        private readonly IValidator<MedicineDto> _validator;
+        private readonly IImageService _imgService;
+
         public MedicinesController
         (
             IMedicineRepository repository,
             IMapper mapper,
-            IImageService service,
-            IValidator<MedicineDto> validator,
+            IImageService imgService,
             IMedicineCategoryRepository categoryRepository
         )
         {
             _repository = repository;
             _mapper = mapper;
-            _service = service;
-            _validator = validator;
+            _imgService = imgService;
             _categoryRepository = categoryRepository;
         }
 
@@ -39,8 +37,8 @@ namespace Project.Areas.Admin.Controllers
         {
             var list = await _repository.GetAllWithCategoryAsync();
             var activeList = list.Where(x => x.IsActive == true).ToList();
-            var dtoList = _mapper.Map<List<MedicineDto>>(activeList);
-            return View(dtoList);
+            var viewModelList = _mapper.Map<List<MedicineViewModel>>(activeList);
+            return View(viewModelList);
         }
 
         public async Task<IActionResult> Details(Guid id)
@@ -79,13 +77,6 @@ namespace Project.Areas.Admin.Controllers
         {
             try
             {
-                var validationResult = await _validator.ValidateAsync(inputDto);
-                if (!validationResult.IsValid)
-                {
-                    var errors = validationResult.Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}").ToList();
-                    return Json(new { success = false, message = "Thêm thuốc thất bại. Vui lòng kiểm tra lại thông tin.", errors });
-                }
-
                 var entity = _mapper.Map<Medicine>(inputDto);
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
@@ -93,7 +84,7 @@ namespace Project.Areas.Admin.Controllers
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
-                    entity.Images = await _service.SaveImageAsync(inputDto.ImageFile, "Medicines");
+                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "Medicines");
                 }
 
                 await _repository.CreateAsync(entity);
@@ -108,7 +99,7 @@ namespace Project.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await _repository.GetByIdWithCategoryAsync(id);
             if (entity == null) return NotFound();
             var dto = _mapper.Map<MedicineDto>(entity);
 
@@ -138,14 +129,6 @@ namespace Project.Areas.Admin.Controllers
         {
             try
             {
-                var validator = new MedicineValidator(_repository, Id);
-                var validationResult = await validator.ValidateAsync(inputDto);
-                if (!validationResult.IsValid)
-                {
-                    var errors = validationResult.Errors.Select(e => $"{e.ErrorMessage}").ToList();
-                    return Json(new { success = false, message = "Cập nhật thuốc thất bại. Vui lòng kiểm tra lại thông tin.", errors });
-                }
-
                 var entity = await _repository.GetByIdAsync(Id);
                 if (entity == null) return NotFound();
 
@@ -155,7 +138,7 @@ namespace Project.Areas.Admin.Controllers
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
-                    entity.Images = await _service.SaveImageAsync(inputDto.ImageFile, "Medicines");
+                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "Medicines");
                 }
 
                 await _repository.UpdateAsync(entity);
@@ -170,9 +153,9 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Trash()
         {
             var list = await _repository.GetAllWithCategoryAsync();
-            var trashList = list.Where(x => x.IsActive == false).ToList();
-            var dtoList = _mapper.Map<List<MedicineDto>>(trashList);
-            return View(dtoList);
+            var activeList = list.Where(x => x.IsActive == false).ToList();
+            var viewModelList = _mapper.Map<List<MedicineViewModel>>(activeList);
+            return View(viewModelList);
         }
 
         [HttpPost]
@@ -202,7 +185,7 @@ namespace Project.Areas.Admin.Controllers
                 {
                     if (!string.IsNullOrEmpty(entity.Images))
                     {
-                        _service.DeleteImage(entity.Images, "Medicines");
+                        _imgService.DeleteImage(entity.Images, "Medicines");
                     }
                     await _repository.DeleteAsync(id);
                     deletedMedicines.Add(entity);
