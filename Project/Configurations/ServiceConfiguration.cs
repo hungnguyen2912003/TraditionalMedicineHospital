@@ -15,6 +15,7 @@ namespace Project.Configurations
             builder.Services.AddScoped<CodeGeneratorHelper>();
             builder.Services.AddScoped<IBaseService<Medicine>, MedicineService>();
             builder.Services.AddScoped<IBaseService<MedicineCategory>, MedicineCategoryService>();
+            builder.Services.AddScoped<IBaseService<Department>, DepartmentService>();
 
             builder.Services.AddControllersWithViews();
             return builder;
