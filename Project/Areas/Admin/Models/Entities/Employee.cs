@@ -38,5 +38,14 @@ namespace Project.Areas.Admin.Models.Entities
         public DateTime StartDate { get; set; }
         [Required]
         public EmployeeStatus Status { get; set; }
+
+        // Foreign Key
+        public Guid EmployeeCategoryId { get; set; }
+
+        /////////////////////////////////////////////////////
+        /// Relationships
+        ///
+        [ForeignKey("EmployeeCategoryId")]
+        public virtual EmployeeCategory? EmployeeCategory { get; set; }
     }
 }
