@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
+using Project.Repositories.Implementations;
 using Project.Repositories.Interfaces;
 
 namespace Project.Areas.Admin.Controllers
@@ -10,14 +11,17 @@ namespace Project.Areas.Admin.Controllers
     public class EmployeeCategoriesController : Controller
     {
         private readonly IEmployeeCategoryRepository _repository;
+        private readonly IEmployeeRepository _employeeRepository;
         private readonly IMapper _mapper;
         public EmployeeCategoriesController
         (
             IEmployeeCategoryRepository repository,
+            IEmployeeRepository employeeRepository,
             IMapper mapper
         )
         {
             _repository = repository;
+            _employeeRepository = employeeRepository;
             _mapper = mapper;
         }
 
@@ -117,6 +121,29 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
+            var categories = new List<EmployeeCategory>();
+            foreach (var id in ids)
+            {
+                var category = await _repository.GetByIdAsync(id);
+                if (category == null) continue;
+                var employees = await _employeeRepository.GetAllWithCategoryAsync();
+                var hasMedicines = employees.Any(m => m.EmployeeCategoryId == id);
+                if (hasMedicines)
+                {
+                    categories.Add(category);
+                }
+            }
+
+            if (categories.Any())
+            {
+                var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
+                var message = categories.Count == 1
+                    ? $"Không thể xóa loại nhân sự {names} vì vẫn còn nhân sự đang sử dụng loại này."
+                    : $"Không thể xóa các loại nhân sự: {names} vì vẫn còn nhân sự đang sử dụng các loại này.";
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction("Index");
+            }
+
             var delList = new List<EmployeeCategory>();
             foreach (var id in ids)
             {
@@ -155,6 +182,31 @@ namespace Project.Areas.Admin.Controllers
                 {
                     ids.Add(parsedId);
                 }
+            }
+
+            var categories = new List<EmployeeCategory>();
+            foreach (var id in ids)
+            {
+                var category = await _repository.GetByIdAsync(id);
+                if (category == null) continue;
+
+                var employees = await _employeeRepository.GetAllWithCategoryAsync();
+                var hasMedicines = employees.Any(m => m.EmployeeCategoryId == id);
+
+                if (hasMedicines)
+                {
+                    categories.Add(category);
+                }
+            }
+
+            if (categories.Any())
+            {
+                var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
+                var message = categories.Count == 1
+                    ? $"Không thể đưa loại nhân sự {names} vào thùng rác vì vẫn còn nhân sự đang sử dụng loại này."
+                    : $"Không thể đưa các loại nhân sự: {names} vào thùng rác vì vẫn còn nhân sự đang sử dụng các loại này.";
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction("Index");
             }
 
             var movedList = new List<EmployeeCategory>();

@@ -24,12 +24,15 @@ namespace Project.Areas.Admin.Models.Entities
         [StringLength(12, MinimumLength = 9)]
         public string IdentityNumber { get; set; }
         [Required]
+        [StringLength(500)]
+        public string Address { get; set; }
+        [Required]
         [EmailAddress]
         public string EmailAddress { get; set; }
         [Required]
         [Phone]
         public string PhoneNumber { get; set; }
-        public string? Image { get; set; }
+        public string? Images { get; set; }
         [Required]
         public DegreeType Degree { get; set; }
         [Required]

@@ -157,7 +157,7 @@ namespace Project.Areas.Admin.Controllers
                 var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
                 var message = categories.Count == 1
                     ? $"Không thể xóa loại thuốc {names} vì vẫn còn thuốc đang sử dụng loại này."
-                    : $"Không thể xóa các loại thuốc {names} vì vẫn còn thuốc đang sử dụng các loại này.";
+                    : $"Không thể xóa các loại thuốc: {names} vì vẫn còn thuốc đang sử dụng các loại này.";
                 TempData["ErrorMessage"] = message;
                 return RedirectToAction("Index");
             }
@@ -230,7 +230,7 @@ namespace Project.Areas.Admin.Controllers
                 var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
                 var message = categories.Count == 1
                     ? $"Không thể đưa loại thuốc {names} vào thùng rác vì vẫn còn thuốc đang sử dụng loại này."
-                    : $"Không thể đưa các loại thuốc {names} vào thùng rác vì vẫn còn thuốc đang sử dụng các loại này.";
+                    : $"Không thể đưa các loại thuốc: {names} vào thùng rác vì vẫn còn thuốc đang sử dụng các loại này.";
                 TempData["ErrorMessage"] = message;
                 return RedirectToAction("Index");
             }
@@ -278,7 +278,7 @@ namespace Project.Areas.Admin.Controllers
                     ids.Add(parsedId);
                 }
             }
-            var restoredEntity = new List<MedicineCategory>();
+            var restoredList = new List<MedicineCategory>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -288,16 +288,16 @@ namespace Project.Areas.Admin.Controllers
                     entity.UpdatedBy = "Admin";
                     entity.UpdatedDate = DateTime.UtcNow;
                     await _repository.UpdateAsync(entity);
-                    restoredEntity.Add(entity);
+                    restoredList.Add(entity);
                 }
             }
 
-            if (restoredEntity.Any())
+            if (restoredList.Any())
             {
-                var names = string.Join(", ", restoredEntity.Select(c => $"\"{c.Name}\""));
-                var message = restoredEntity.Count == 1
+                var names = string.Join(", ", restoredList.Select(c => $"\"{c.Name}\""));
+                var message = restoredList.Count == 1
                     ? $"Đã khôi phục loại thuốc {names} thành công."
-                    : $"Đã khôi phục các loại thuốc {names} thành công.";
+                    : $"Đã khôi phục các loại thuốc: {names} thành công.";
                 TempData["SuccessMessage"] = message;
             }
             else

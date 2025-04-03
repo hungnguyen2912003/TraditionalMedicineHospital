@@ -1,43 +1,45 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
-using Project.Areas.Admin.Models.Enums.Medicines;
+using Project.Areas.Admin.Models.Enums.Employee;
 using Project.Areas.Admin.Models.ViewModels;
 using Project.Extensions;
+using Project.Helpers;
 using Project.Repositories.Interfaces;
 using Project.Services.Interfaces;
 
 namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class MedicinesController : Controller
+    public class EmployeesController : Controller
     {
-        private readonly IMedicineRepository _repository;
-        private readonly IMedicineCategoryRepository _categoryRepository;
+        private readonly IEmployeeRepository _repository;
+        private readonly IEmployeeCategoryRepository _categoryRepository;
         private readonly IMapper _mapper;
         private readonly IImageService _imgService;
-
-        public MedicinesController
+        private readonly CodeGeneratorHelper _helper;
+        public EmployeesController
         (
-            IMedicineRepository repository,
+            IEmployeeRepository repository,
+            IEmployeeCategoryRepository categoryRepository,
             IMapper mapper,
             IImageService imgService,
-            IMedicineCategoryRepository categoryRepository
+            CodeGeneratorHelper helper
         )
         {
             _repository = repository;
+            _categoryRepository = categoryRepository;
             _mapper = mapper;
             _imgService = imgService;
-            _categoryRepository = categoryRepository;
+            _helper = helper;
         }
 
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllWithCategoryAsync();
             var activeList = list.Where(x => x.IsActive == true).ToList();
-            var viewModelList = _mapper.Map<List<MedicineViewModel>>(activeList);
+            var viewModelList = _mapper.Map<List<EmployeeViewModel>>(activeList);
             return View(viewModelList);
         }
 
@@ -54,45 +56,76 @@ namespace Project.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var medicineCategories = await _categoryRepository.GetAllAsync();
-            ViewBag.MedicineCategories = medicineCategories
+            string randomCode = await _helper.GenerateUniqueCodeAsync();
+            ViewBag.RandomCode = randomCode;
+
+            var employeeCategories = await _categoryRepository.GetAllAsync();
+            ViewBag.EmployeeCategories = employeeCategories
                 .Where(mc => mc.IsActive)
                 .Select(mc => new { mc.Id, mc.Name })
                 .ToList();
 
-            ViewBag.StockUnit = Enum.GetValues(typeof(UnitType))
-                .Cast<UnitType>()
+            ViewBag.GenderOptions = Enum.GetValues(typeof(GenderType))
+                .Cast<GenderType>()
                 .Select(e => new
                 {
                     Value = (int)e,
                     Text = e.GetDisplayName()
                 })
                 .ToList();
+
+            ViewBag.StatusOptions = Enum.GetValues(typeof(EmployeeStatus))
+                .Cast<EmployeeStatus>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
+
+            ViewBag.DegreeOptions = Enum.GetValues(typeof(DegreeType))
+                .Cast<DegreeType>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
+
+            ViewBag.ProfessionalOptions = Enum.GetValues(typeof(ProfessionalQualificationType))
+                .Cast<ProfessionalQualificationType>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
+
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromForm] MedicineDto inputDto)
+        public async Task<IActionResult> Create([FromForm] EmployeeDto inputDto)
         {
             try
             {
-                var entity = _mapper.Map<Medicine>(inputDto);
+                var entity = _mapper.Map<Employee>(inputDto);
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
                 entity.IsActive = true;
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
-                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "Medicines");
+                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "Employees");
                 }
 
                 await _repository.CreateAsync(entity);
-                return Json(new { success = true, message = "Thêm thuốc thành công!" });
+                return Json(new { success = true, message = "Thêm nhân sự thành công!" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi thêm thuốc: " + ex.Message });
+                return Json(new { success = false, message = "Có lỗi xảy ra khi thêm nhân sự: " + ex.Message });
             }
         }
 
@@ -101,18 +134,46 @@ namespace Project.Areas.Admin.Controllers
         {
             var entity = await _repository.GetByIdWithCategoryAsync(id);
             if (entity == null) return NotFound();
-            var dto = _mapper.Map<MedicineDto>(entity);
+            var dto = _mapper.Map<EmployeeDto>(entity);
 
-            ViewBag.MedicineId = entity.Id;
+            ViewBag.EmployeeId = entity.Id;
             ViewBag.ExistingImage = entity.Images;
 
-            var medicineCategories = await _categoryRepository.GetAllAsync();
-            ViewBag.MedicineCategories = medicineCategories
+            var employeeCategories = await _categoryRepository.GetAllAsync();
+            ViewBag.EmployeeCategories = employeeCategories
+                .Where(mc => mc.IsActive)
                 .Select(mc => new { mc.Id, mc.Name })
                 .ToList();
 
-            ViewBag.StockUnit = Enum.GetValues(typeof(UnitType))
-                .Cast<UnitType>()
+            ViewBag.GenderOptions = Enum.GetValues(typeof(GenderType))
+                .Cast<GenderType>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
+
+            ViewBag.StatusOptions = Enum.GetValues(typeof(EmployeeStatus))
+                .Cast<EmployeeStatus>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
+
+            ViewBag.DegreeOptions = Enum.GetValues(typeof(DegreeType))
+                .Cast<DegreeType>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
+
+            ViewBag.ProfessionalOptions = Enum.GetValues(typeof(ProfessionalQualificationType))
+                .Cast<ProfessionalQualificationType>()
                 .Select(e => new
                 {
                     Value = (int)e,
@@ -125,7 +186,7 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromForm] MedicineDto inputDto, Guid Id)
+        public async Task<IActionResult> Edit([FromForm] EmployeeDto inputDto, Guid Id)
         {
             try
             {
@@ -138,15 +199,25 @@ namespace Project.Areas.Admin.Controllers
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
-                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "Medicines");
+                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "Employees");
                 }
 
                 await _repository.UpdateAsync(entity);
-                return Json(new { success = true, message = "Cập nhật thuốc thành công!" });
+                return Json(new { success = true, message = "Cập nhật nhân sự thành công!" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật thuốc: " + ex.Message });
+                // Ghi log chi tiết lỗi
+                var errorMessage = ex.Message;
+                if (ex.InnerException != null)
+                {
+                    errorMessage += " Inner Exception: " + ex.InnerException.Message;
+                    if (ex.InnerException.InnerException != null)
+                    {
+                        errorMessage += " Inner Inner Exception: " + ex.InnerException.InnerException.Message;
+                    }
+                }
+                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật thuốc: " + errorMessage });
             }
         }
 
@@ -154,7 +225,7 @@ namespace Project.Areas.Admin.Controllers
         {
             var list = await _repository.GetAllWithCategoryAsync();
             var activeList = list.Where(x => x.IsActive == false).ToList();
-            var viewModelList = _mapper.Map<List<MedicineViewModel>>(activeList);
+            var viewModelList = _mapper.Map<List<EmployeeViewModel>>(activeList);
             return View(viewModelList);
         }
 
@@ -177,7 +248,7 @@ namespace Project.Areas.Admin.Controllers
                 return RedirectToAction("Trash");
             }
 
-            var delList = new List<Medicine>();
+            var delList = new List<Employee>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -185,7 +256,7 @@ namespace Project.Areas.Admin.Controllers
                 {
                     if (!string.IsNullOrEmpty(entity.Images))
                     {
-                        _imgService.DeleteImage(entity.Images, "Medicines");
+                        _imgService.DeleteImage(entity.Images, "Employees");
                     }
                     await _repository.DeleteAsync(id);
                     delList.Add(entity);
@@ -196,13 +267,13 @@ namespace Project.Areas.Admin.Controllers
             {
                 var names = string.Join(", ", delList.Select(c => $"\"{c.Name}\""));
                 var message = delList.Count == 1
-                    ? $"Đã xóa vĩnh viễn thuốc {names} thành công"
-                    : $"Đã xóa vĩnh viễn các thuốc: {names} thành công";
+                    ? $"Đã xóa vĩnh viễn nhân sự {names} thành công"
+                    : $"Đã xóa vĩnh viễn các nhân sự: {names} thành công";
                 TempData["SuccessMessage"] = message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy thuốc nào để xóa.";
+                TempData["ErrorMessage"] = "Không tìm thấy nhân sự nào để xóa.";
             }
 
             return RedirectToAction("Trash");
@@ -221,7 +292,7 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            var movedList = new List<Medicine>();
+            var movedList = new List<Employee>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -239,13 +310,13 @@ namespace Project.Areas.Admin.Controllers
             {
                 var names = string.Join(", ", movedList.Select(c => $"\"{c.Name}\""));
                 var message = movedList.Count == 1
-                    ? $"Đã đưa thuốc {names} thành công vào thùng rác"
-                    : $"Đã đưa các thuốc: {names} thành công vào thùng rác";
+                    ? $"Đã đưa nhân sự {names} thành công vào thùng rác"
+                    : $"Đã đưa các nhân sự: {names} thành công vào thùng rác";
                 TempData["SuccessMessage"] = message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy thuốc nào để đưa vào thùng rác.";
+                TempData["ErrorMessage"] = "Không tìm thấy nhân sự nào để đưa vào thùng rác.";
             }
 
             return RedirectToAction("Index");
@@ -263,7 +334,7 @@ namespace Project.Areas.Admin.Controllers
                     ids.Add(parsedId);
                 }
             }
-            var restoredList = new List<Medicine>();
+            var restoredList = new List<Employee>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -281,13 +352,13 @@ namespace Project.Areas.Admin.Controllers
             {
                 var names = string.Join(", ", restoredList.Select(c => $"\"{c.Name}\""));
                 var message = restoredList.Count == 1
-                    ? $"Đã khôi phục thuốc {names} thành công."
-                    : $"Đã khôi phục các thuốc: {names} thành công.";
+                    ? $"Đã khôi phục nhân sự {names} thành công."
+                    : $"Đã khôi phục các nhân sự: {names} thành công.";
                 TempData["SuccessMessage"] = message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy thuốc nào để khôi phục.";
+                TempData["ErrorMessage"] = "Không tìm thấy nhân sự nào để khôi phục.";
             }
 
             return RedirectToAction("Trash");
