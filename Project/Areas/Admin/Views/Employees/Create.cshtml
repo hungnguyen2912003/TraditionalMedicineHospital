@@ -91,7 +91,7 @@
                                 <div class="w-full sm:w-1/2">
                                     <label for="Gender" class="block text-sm font-medium text-gray-700">Giới tính</label>
                                     <select id="Gender" name="Gender" class="form-input w-full mt-1 p-2 border rounded">
-                                        <option value="">Chọn giới tính</option>
+                                        <option value="">Chọn loại giới tính</option>
                                         @foreach (var gender in ViewBag.GenderOptions)
                                         {
                                             <option value="@gender.Value">@gender.Text</option>
@@ -101,7 +101,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="DateOfBirth" class="block text-sm font-medium text-gray-700">Ngày sinh</label>
-                                    <input id="DateOfBirth" type="text" name="DateOfBirth" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập sinh" />
+                                    <input id="DateOfBirth" type="text" name="DateOfBirth" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập ngày sinh" />
                                     @Html.ValidationMessageFor(model => model.DateOfBirth, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -231,299 +231,278 @@
         return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
     }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
 
-    Alpine.data('editData', () => ({
-        dropzone: null,
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('addData', () => ({
+            dropzone: null,
 
-        init() {
-            const fileInput = document.getElementById('fileInput');
-            fileInput.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    if (this.dropzone.files.length > 0) {
-                        this.dropzone.removeAllFiles();
-                    }
-                    this.dropzone.addFile(file);
-                }
-            });
+            init() {
+                this.setupDropzone();
+                this.setupValidation();
+                this.setupDateTimePicker();
+            },
 
-            this.setupDropzone();
-            this.setupValidation();
-            this.setupDateTimePicker();
-        },
+            setupDateTimePicker() {
+                $('.picker').datetimepicker({
+                    autoclose: true,
+                    timepicker: false,
+                    datepicker: true,
+                    format: "d/m/Y",
+                    weeks: true
+                });
 
-        setupDateTimePicker() {
-            $('.picker').datetimepicker({
-                autoclose: true,
-                timepicker: false,
-                datepicker: true,
-                format: "d/m/Y",
-                weeks: true
-            });
+                $.datetimepicker.setLocale('vi');
+            },
 
-            $.datetimepicker.setLocale('vi');
-        },
-
-        setupDropzone() {
-            const self = this;
-            this.dropzone = new Dropzone('#imageDropzone', {
-                url: '/Admin/Employees/Edit',
-                autoProcessQueue: false,
-                maxFiles: 1,
-                acceptedFiles: 'image/*',
-                addRemoveLinks: false,
-                dictDefaultMessage: 'Kéo thả hoặc nhấp để chọn ảnh',
-                paramName: 'ImageFile',
-                init: function () {
-                    const existingImage = '@ViewBag.ExistingImage';
-                    if (existingImage) {
-                        const mockFile = { name: existingImage, size: 12345, accepted: true };
-                        this.emit('addedfile', mockFile);
-                        this.emit('thumbnail', mockFile, `/Images/Employees/${existingImage}`);
-                        this.files.push(mockFile);
-                    }
-
-                    this.on('addedfile', (file) => {
-                        if (this.files.length > 1) {
-                            this.removeFile(this.files[0]);
-                        }
-                    });
-
-                    this.on('sending', (file, xhr, formData) => {
-                        self.appendFormData(formData);
-                    });
-                    this.on('success', (file, response) => {
-                        self.handleResponse(response);
-                    });
-                    this.on('error', (file, errorMessage) => {
-                        notyf.error("Có lỗi xảy ra: " + errorMessage);
-                    });
-                }
-            });
-        },
-
-        setupValidation() {
-            $("#myForm").validate({
-                rules: {
-                    Code: {
-                        required: true,
-                        minlength: 4,
-                        maxlength: 10,
-                        remote: {
-                            url: "/api/validation/employee/check-code",
-                            type: "GET",
-                            data: {
-                                entityType: "employee",
-                                code: function() { return $("#Code").val(); },
-                                id: function() { return $("#Id").val(); }
+            setupDropzone() {
+                const self = this;
+                this.dropzone = new Dropzone('#imageDropzone', {
+                    url: '/Admin/Employees/Create',
+                    autoProcessQueue: false,
+                    maxFiles: 1,
+                    acceptedFiles: 'image/*',
+                    addRemoveLinks: true,
+                    dictDefaultMessage: 'Kéo thả hoặc nhấp để chọn ảnh',
+                    paramName: 'ImageFile',
+                    init: function () {
+                        this.on('addedfile', (file) => {
+                            if (this.files.length > 1) {
+                                this.removeFile(this.files[0]);
                             }
-                        }
-                    },
-                    Name: {
-                        required: true,
-                        minlength: 6,
-                        maxlength: 20,
-                        customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
-                        remote: {
-                            url: "/api/validation/employee/check-name",
-                            type: "GET",
-                            data: {
-                                entityType: "employee",
-                                name: function() { return $("#Name").val(); },
-                                id: function() { return $("#Id").val(); }
+                        });
+
+                        this.on('sending', (file, xhr, formData) => {
+                            self.appendFormData(formData);
+                        });
+
+                        this.on('success', (file, response) => {
+                            self.handleResponse(response);
+                        });
+
+                        this.on('error', (file, errorMessage) => {
+                            notyf.error("Có lỗi xảy ra: " + errorMessage);
+                        });
+                    }
+                });
+            },
+
+            setupValidation() {
+                $("#myForm").validate({
+                    rules: {
+                        Code: {
+                            required: true,
+                            minlength: 4,
+                            maxlength: 10,
+                            remote: {
+                                url: "/api/validation/employee/check-code",
+                                type: "GET",
+                                data: {
+                                    entityType: "employee",
+                                    code: function() { return $("#Code").val(); }
+                                }
                             }
+                        },
+                        Name: {
+                            required: true,
+                            minlength: 6,
+                            maxlength: 20,
+                            customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
+                            remote: {
+                                url: "/api/validation/employee/check-name",
+                                type: "GET",
+                                data: {
+                                    entityType: "employee",
+                                    name: function() { return $("#Name").val(); }
+                                }
+                            }
+                        },
+                        Gender: {
+                            required: true,
+                        },
+                        DateOfBirth: {
+                            required: true,
+                            dateFormat: true,
+                            over18: true
+                        },
+                        IdentityNumber: {
+                            required: true,
+                            minlength: 9,
+                            maxlength: 12,
+                            customPattern: /^[0-9]*$/
+                        },
+                        Address: {
+                            required: true,
+                            maxlength: 500
+                        },
+                        EmailAddress: {
+                            required: true,
+                            email: true
+                        },
+                        PhoneNumber: {
+                            required: true,
+                            minlength: 10,
+                            maxlength: 15,
+                            customPattern: /^[0-9]*$/
+                        },
+                        Degree: {
+                            required: true
+                        },
+                        ProfessionalQualification: {
+                            required: true
+                        },
+                        Status: {
+                            required: true
+                        },
+                        StartDate: {
+                            required: true,
+                            dateFormat: true
+                        },
+                        EmployeeCategoryId: {
+                            required: true
                         }
                     },
-                    Gender: {
-                        required: true,
+                    messages: {
+                        Code: {
+                            required: "Mã nhân sự không được bỏ trống.",
+                            minlength: "Mã phải có ít nhất 4 ký tự.",
+                            maxlength: "Mã không được vượt quá 10 ký tự.",
+                            remote: "Mã nhân sự này đã tồn tại."
+                        },
+                        Name: {
+                            required: "Tên nhân sự không được bỏ trống.",
+                            minlength: "Tên phải có ít nhất 6 ký tự.",
+                            maxlength: "Tên không được vượt quá 20 ký tự.",
+                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng.",
+                            remote: "Tên nhân sự này đã tồn tại."
+                        },
+                        Gender: {
+                            required: "Giới tính không được bỏ trống",
+                        },
+                        DateOfBirth: {
+                            required: "Ngày sinh không được bỏ trống.",
+                            dateFormat: "Ngày sinh không hợp lệ.",
+                            over18: "Nhân sự phải trên 18 tuổi."
+                        },
+                        IdentityNumber: {
+                            required: "Căn cước công dân không được bỏ trống",
+                            minlength: "Căn cước công dân có ít nhất 9 số",
+                            maxlength: "Căn cước công dân không vượt quá 12 số",
+                            customPattern: "Căn cước công dân không hợp lệ."
+                        },
+                        Address: {
+                            required: "Địa chỉ không được bỏ trống",
+                            maxlength: "Địa chỉ không được vượt quá 500 ký tự"
+                        },
+                        EmailAddress: {
+                            required: "Email không được bỏ trống.",
+                            email: "Email không hợp lệ."
+                        },
+                        PhoneNumber: {
+                            required: "Số điện thoại không được bỏ trống.",
+                            minlength: "Số điện thoại phải có ít nhất 10 ký tự.",
+                            maxlength: "Số điện thoại không được vượt quá 15 ký tự.",
+                            customPattern: "Số điện thoại không hợp lệ."
+                        },
+                        Degree: {
+                            required: "Bằng cấp không được bỏ trống."
+                        },
+                        ProfessionalQualification: {
+                            required: "Trình độ chuyên môn không được bỏ trống."
+                        },
+                        Status: {
+                            required: "Trạng thái làm việc không được bỏ trống."
+                        },
+                        StartDate: {
+                            required: "Ngày bắt đầu làm không được bỏ trống.",
+                            dateFormat: "Ngày bắt đầu làm không hợp lệ."
+                        },
+                        EmployeeCategoryId: {
+                            required: "Loại nhân sự không được bỏ trống."
+                        }
                     },
-                    DateOfBirth: {
-                        required: true,
-                        dateFormat: true,
-                        over18: true
+                    errorElement: "div",
+                    errorClass: "text-danger",
+                    highlight: function (element) {
+                        $(element).addClass("border-red-500");
                     },
-                    IdentityNumber: {
-                        required: true,
-                        minlength: 9,
-                        maxlength: 12,
-                        customPattern: /^[0-9]*$/
+                    unhighlight: function (element) {
+                        $(element).removeClass("border-red-500");
                     },
-                    Address: {
-                        required: true,
-                        maxlength: 500
+                    errorPlacement: function (error, element) {
+                        error.insertAfter(element);
                     },
-                    EmailAddress: {
-                        required: true,
-                        email: true
+                    onfocusout: function(element) {
+                        if ($(element).val() === '' || $(element).val().length > 0) {
+                            this.element(element);
+                        }
                     },
-                    PhoneNumber: {
-                        required: true,
-                        minlength: 10,
-                        maxlength: 15,
-                        customPattern: /^[0-9]*$/
-                    },
-                    Degree: {
-                        required: true
-                    },
-                    ProfessionalQualification: {
-                        required: true
-                    },
-                    Status: {
-                        required: true
-                    },
-                    StartDate: {
-                        required: true,
-                        dateFormat: true
-                    },
-                    EmployeeCategoryId: {
-                        required: true
-                    }
-                },
-                messages: {
-                    Code: {
-                        required: "Mã thuốc không được bỏ trống.",
-                        minlength: "Mã phải có ít nhất 4 ký tự.",
-                        maxlength: "Mã không được vượt quá 10 ký tự.",
-                        remote: "Mã thuốc này đã tồn tại."
-                    },
-                    Name: {
-                        required: "Tên thuốc không được bỏ trống.",
-                        minlength: "Tên phải có ít nhất 6 ký tự.",
-                        maxlength: "Tên không được vượt quá 50 ký tự.",
-                        customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng.",
-                        remote: "Tên thuốc này đã tồn tại."
-                    },
-                    Gender: {
-                        required: "Giới tính không được bỏ trống",
-                    },
-                    DateOfBirth: {
-                        required: "Ngày sinh không được bỏ trống.",
-                        dateFormat: "Ngày sinh không hợp lệ.",
-                        over18: "Nhân sự phải trên 18 tuổi."
-                    },
-                    IdentityNumber: {
-                        required: "Căn cước công dân không được bỏ trống",
-                        minlength: "Căn cước công dân có ít nhất 9 số",
-                        maxlength: "Căn cước công dân không vượt quá 12 số",
-                        customPattern: "Căn cước công dân không hợp lệ."
-                    },
-                    Address: {
-                        required: "Địa chỉ không được bỏ trống",
-                        maxlength: "Địa chỉ không được vượt quá 500 ký tự"
-                    },
-                    EmailAddress: {
-                        required: "Email không được bỏ trống.",
-                        email: "Email không hợp lệ."
-                    },
-                    PhoneNumber: {
-                        required: "Số điện thoại không được bỏ trống.",
-                        minlength: "Số điện thoại phải có ít nhất 10 ký tự.",
-                        maxlength: "Số điện thoại không được vượt quá 15 ký tự.",
-                        customPattern: "Số điện thoại không hợp lệ."
-                    },
-                    Degree: {
-                        required: "Bằng cấp không được bỏ trống."
-                    },
-                    ProfessionalQualification: {
-                        required: "Trình độ chuyên môn không được bỏ trống."
-                    },
-                    Status: {
-                        required: "Trạng thái làm việc không được bỏ trống."
-                    },
-                    StartDate: {
-                        required: "Ngày bắt đầu làm không được bỏ trống.",
-                        dateFormat: "Ngày bắt đầu làm không hợp lệ."
-                    },
-                    EmployeeCategoryId: {
-                        required: "Loại nhân sự không được bỏ trống."
-                    }
-                },
-                errorElement: "div",
-                errorClass: "text-danger",
-                highlight: function (element) {
-                    $(element).addClass("border-red-500");
-                },
-                unhighlight: function (element) {
-                    $(element).removeClass("border-red-500");
-                },
-                errorPlacement: function (error, element) {
-                    error.insertAfter(element);
-                },
-                onfocusout: function(element) {
-                    if ($(element).val() === '' || $(element).val().length > 0) {
-                        this.element(element);
-                    }
-                },
-                onkeyup: false
-            });
-        },
+                    onkeyup: false
+                });
+            },
 
-        appendFormData(formData) {
-            formData.append('Id', document.querySelector('input[name="Id"]').value);
-            formData.append('Code', document.getElementById('Code').value);
-            formData.append('Name', document.getElementById('Name').value);
-            formData.append('DateOfBirth', document.getElementById('DateOfBirth').value);
-            formData.append('IdentityNumber', document.getElementById('IdentityNumber').value);
-            formData.append('Address', document.getElementById('Address').value);
-            formData.append('EmailAddress', document.getElementById('Email').value);
-            formData.append('PhoneNumber', document.getElementById('PhoneNumber').value);
-            formData.append('Degree', document.getElementById('Degree').value);
-            formData.append('ProfessionalQualification', document.getElementById('ProfessionalQualification').value);
-            formData.append('Status', document.getElementById('Status').value);
-            formData.append('StartDate', document.getElementById('StartDate').value);
-            formData.append('EmployeeCategoryId', document.getElementById('EmployeeCategoryId').value);
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-            formData.append('__RequestVerificationToken', token);
-        },
+            appendFormData(formData) {
+                formData.append('Code', document.getElementById('Code').value);
+                formData.append('Name', document.getElementById('Name').value);
+                formData.append('DateOfBirth', document.getElementById('DateOfBirth').value);
+                formData.append('IdentityNumber', document.getElementById('IdentityNumber').value);
+                formData.append('Address', document.getElementById('Address').value);
+                formData.append('Gender', document.getElementById('Gender').value);
+                formData.append('EmailAddress', document.getElementById('Email').value);
+                formData.append('PhoneNumber', document.getElementById('PhoneNumber').value);
+                formData.append('Degree', document.getElementById('Degree').value);
+                formData.append('ProfessionalQualification', document.getElementById('ProfessionalQualification').value);
+                formData.append('Status', document.getElementById('Status').value);
+                formData.append('StartDate', document.getElementById('StartDate').value);
+                formData.append('EmployeeCategoryId', document.getElementById('EmployeeCategoryId').value);
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                formData.append('__RequestVerificationToken', token);
+            },
 
-        handleResponse(response) {
-            const overlay = document.getElementById('loadingOverlay');
-            if (response.success) {
-                overlay.style.display = 'flex';
-                notyf.success(response.message);
-                setTimeout(() => {
-                    window.location.href = '/Admin/Employees/';
-                }, 2000);
-            } else {
-                overlay.style.display = 'none';
-                notyf.error(response.message);
-                if (response.errors) {
-                    response.errors.forEach(error => notyf.error(error));
-                }
-            }
-        },
-
-        update() {
-            const form = document.getElementById('myForm');
-            if ($("#myForm").valid()) {
+            handleResponse(response) {
                 const overlay = document.getElementById('loadingOverlay');
-                overlay.style.display = 'flex';
-
-                const id = document.querySelector('input[name="Id"]').value;
-
-                if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
-                    this.dropzone.processQueue();
+                if (response.success) {
+                    overlay.style.display = 'flex';
+                    notyf.success(response.message);
+                    setTimeout(() => {
+                        window.location.href = '/Admin/Employees/';
+                    }, 2000);
                 } else {
-                    const formData = new FormData(form);
-                    formData.append('Id', id);
-                    fetch('/Admin/Employees/Edit', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(this.handleResponse)
-                    .catch(error => {
-                        overlay.style.display = 'none';
-                        notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
-                    });
+                    overlay.style.display = 'none';
+                    notyf.error(response.message);
+                    if (response.errors) {
+                        response.errors.forEach(error => notyf.error(error));
+                    }
                 }
-            }
-            else {
-                notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
-            }
-        },
+            },
 
-        goBack() {
-            window.location.href = '/Admin/Employees/';
-        }
-    }));
+            add() {
+                const form = document.getElementById('myForm');
+                if ($("#myForm").valid()) {
+                    const overlay = document.getElementById('loadingOverlay');
+                    overlay.style.display = 'flex';
+
+                    if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
+                        this.dropzone.processQueue();
+                    } else {
+                        const formData = new FormData(form);
+                        fetch('/Admin/Employees/Create', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(this.handleResponse)
+                        .catch(error => {
+                            overlay.style.display = 'none';
+                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                        });
+                    }
+                } else {
+                    notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
+                }
+            },
+
+            goBack() {
+                window.location.href = '/Admin/Employees/';
+            }
+        }));
+    });
 </script>
