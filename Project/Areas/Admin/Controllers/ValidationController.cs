@@ -39,6 +39,7 @@ namespace Project.Areas.Admin.Controllers
                 "medicinecategory" => typeof(IBaseService<MedicineCategory>),
                 "department" => typeof(IBaseService<Department>),
                 "employeecategory" => typeof(IBaseService<EmployeeCategory>),
+                "employee" => typeof(IBaseService<Employee>),
                 _ => throw new ArgumentException($"Invalid entity type: {entityType}")
             };
 

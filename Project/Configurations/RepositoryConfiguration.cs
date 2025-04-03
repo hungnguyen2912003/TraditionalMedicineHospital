@@ -15,6 +15,7 @@ namespace Project.Configurations
             builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 
             builder.Services.AddScoped<IEmployeeCategoryRepository, EmployeeCategoryRepository>();
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
             return builder;
         }
