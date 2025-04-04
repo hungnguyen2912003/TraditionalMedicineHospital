@@ -143,7 +143,7 @@ namespace Project.Areas.Admin.Controllers
                 var category = await _repository.GetByIdAsync(id);
                 if (category == null) continue;
                 // Lấy danh sách Medicine có MedicineCategoryId trỏ đến category.Id
-                var medicines = await _medicineRepository.GetAllWithCategoryAsync();
+                var medicines = await _medicineRepository.GetAllAdvancedAsync();
                 var hasMedicines = medicines.Any(m => m.MedicineCategoryId == id);
                 if (hasMedicines)
                 {
@@ -215,7 +215,7 @@ namespace Project.Areas.Admin.Controllers
                 if (category == null) continue;
 
                 // Lấy danh sách Medicine có MedicineCategoryId trỏ đến category.Id
-                var medicines = await _medicineRepository.GetAllWithCategoryAsync();
+                var medicines = await _medicineRepository.GetAllAdvancedAsync();
                 var hasMedicines = medicines.Any(m => m.MedicineCategoryId == id);
 
                 if (hasMedicines)

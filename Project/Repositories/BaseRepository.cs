@@ -64,5 +64,27 @@ namespace Project.Repositories
             await _context.SaveChangesAsync();
             return entity;
         }
+
+        public async Task<T?> GetByNameAsync(string name)
+        {
+            return await _dbSet.AsNoTracking()
+                .FirstOrDefaultAsync(e => EF.Property<string>(e, "Name") == name);
+        }
+
+        public async Task<T?> GetByCodeAsync(string code)
+        {
+            return await _dbSet.AsNoTracking()
+                .FirstOrDefaultAsync(e => EF.Property<string>(e, "Code") == code);
+        }
+
+        public async Task<bool> IsCodeExistsAsync(string code)
+        {
+            if (string.IsNullOrEmpty(code))
+            {
+                return false;
+            }
+
+            return await _dbSet.AnyAsync(e => EF.Property<string>(e, "Code") == code);
+        }
     }
 }

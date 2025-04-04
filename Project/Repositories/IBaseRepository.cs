@@ -12,5 +12,10 @@ namespace Project.Repositories
         Task<T> CreateAsync(T entity);
         Task<T> UpdateAsync(T entity);
         Task<T?> DeleteAsync(Guid id);
+
+        Task<T?> GetByNameAsync(string name);
+        Task<T?> GetByCodeAsync(string code);
+
+        Task<bool> IsCodeExistsAsync(string code);
     }
 }

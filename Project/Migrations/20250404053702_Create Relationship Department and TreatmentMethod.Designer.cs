@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project.Areas.Admin.Data;
 
@@ -11,9 +12,11 @@ using Project.Areas.Admin.Data;
 namespace Project.Migrations
 {
     [DbContext(typeof(TraditionalMedicineHospitalDbContext))]
-    partial class TraditionalMedicineHospitalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250404053702_Create Relationship Department and TreatmentMethod")]
+    partial class CreateRelationshipDepartmentandTreatmentMethod
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,9 +94,6 @@ namespace Project.Migrations
                     b.Property<int>("Degree")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -140,8 +140,6 @@ namespace Project.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("EmployeeCategoryId");
 
@@ -356,19 +354,11 @@ namespace Project.Migrations
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Employee", b =>
                 {
-                    b.HasOne("Project.Areas.Admin.Models.Entities.Department", "Department")
-                        .WithMany("Employees")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Project.Areas.Admin.Models.Entities.EmployeeCategory", "EmployeeCategory")
                         .WithMany("Employees")
                         .HasForeignKey("EmployeeCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Department");
 
                     b.Navigation("EmployeeCategory");
                 });
@@ -397,8 +387,6 @@ namespace Project.Migrations
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Department", b =>
                 {
-                    b.Navigation("Employees");
-
                     b.Navigation("TreatmentMethods");
                 });
 

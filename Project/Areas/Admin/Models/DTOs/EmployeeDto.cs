@@ -18,7 +18,7 @@ namespace Project.Areas.Admin.Models.DTOs
         public DateTime StartDate { get; set; }
         public EmployeeStatus Status { get; set; }
         public Guid EmployeeCategoryId { get; set; }
-        public string CategoryName { get; set; }
+        public Guid DepartmentId { get; set; }
         public bool IsActive { get; set; }
     }
 }

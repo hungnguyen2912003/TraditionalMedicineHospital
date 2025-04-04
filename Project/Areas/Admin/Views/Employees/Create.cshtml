@@ -70,6 +70,13 @@
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
+                                    <label for="Name" class="block text-sm font-medium text-gray-700">Tên nhân sự</label>
+                                    <input id="Name" type="text" name="Name" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập họ tên nhân sự"/>
+                                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                <div class="w-full sm:w-1/2">
                                     <label for="EmployeeCategoryId" class="block text-sm font-medium text-gray-700">Loại nhân sự</label>
                                     <select id="EmployeeCategoryId" name="EmployeeCategoryId" class="form-input w-full mt-1 p-2 border rounded">
                                         <option value="">Chọn loại nhân sự</option>
@@ -81,9 +88,15 @@
                                     @Html.ValidationMessageFor(model => model.EmployeeCategoryId, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Name" class="block text-sm font-medium text-gray-700">Tên nhân sự</label>
-                                    <input id="Name" type="text" name="Name" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập họ tên nhân sự"/>
-                                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                                    <label for="DepartmentId" class="block text-sm font-medium text-gray-700">Nhân sự thuộc Khoa</label>
+                                    <select id="DepartmentId" name="DepartmentId" class="form-input w-full mt-1 p-2 border rounded">
+                                        <option value="">Chọn khoa</option>
+                                        @foreach (var dep in ViewBag.Departments)
+                                        {
+                                            <option value="@dep.Id">@dep.Name</option>
+                                        }
+                                    </select>
+                                    @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
@@ -358,6 +371,9 @@
                         },
                         EmployeeCategoryId: {
                             required: true
+                        },
+                        DepartmentId: {
+                            required: true
                         }
                     },
                     messages: {
@@ -417,6 +433,9 @@
                         },
                         EmployeeCategoryId: {
                             required: "Loại nhân sự không được bỏ trống."
+                        },
+                        DepartmentId: {
+                            required: "Khoa không được bỏ trống."
                         }
                     },
                     errorElement: "div",
@@ -453,6 +472,7 @@
                 formData.append('Status', document.getElementById('Status').value);
                 formData.append('StartDate', document.getElementById('StartDate').value);
                 formData.append('EmployeeCategoryId', document.getElementById('EmployeeCategoryId').value);
+                formData.append('DepartmentId', document.getElementById('DepartmentId').value);
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
                 formData.append('__RequestVerificationToken', token);
             },

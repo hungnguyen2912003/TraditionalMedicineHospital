@@ -16,6 +16,7 @@ namespace Project.Areas.Admin.Controllers
     {
         private readonly IEmployeeRepository _repository;
         private readonly IEmployeeCategoryRepository _categoryRepository;
+        private readonly IDepartmentRepository _depRepository;
         private readonly IMapper _mapper;
         private readonly IImageService _imgService;
         private readonly CodeGeneratorHelper _helper;
@@ -23,6 +24,7 @@ namespace Project.Areas.Admin.Controllers
         (
             IEmployeeRepository repository,
             IEmployeeCategoryRepository categoryRepository,
+            IDepartmentRepository depRepository,
             IMapper mapper,
             IImageService imgService,
             CodeGeneratorHelper helper
@@ -30,6 +32,7 @@ namespace Project.Areas.Admin.Controllers
         {
             _repository = repository;
             _categoryRepository = categoryRepository;
+            _depRepository = depRepository;
             _mapper = mapper;
             _imgService = imgService;
             _helper = helper;
@@ -37,7 +40,7 @@ namespace Project.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var list = await _repository.GetAllWithCategoryAsync();
+            var list = await _repository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive == true).ToList();
             var viewModelList = _mapper.Map<List<EmployeeViewModel>>(activeList);
             return View(viewModelList);
@@ -45,7 +48,7 @@ namespace Project.Areas.Admin.Controllers
 
         public async Task<IActionResult> Details(Guid id)
         {
-            var entity = await _repository.GetByIdWithCategoryAsync(id);
+            var entity = await _repository.GetByIdAdvancedAsync(id);
             if (entity == null)
             {
                 return NotFound();
@@ -61,6 +64,12 @@ namespace Project.Areas.Admin.Controllers
 
             var employeeCategories = await _categoryRepository.GetAllAsync();
             ViewBag.EmployeeCategories = employeeCategories
+                .Where(mc => mc.IsActive)
+                .Select(mc => new { mc.Id, mc.Name })
+                .ToList();
+
+            var departments = await _depRepository.GetAllAsync();
+            ViewBag.Departments = departments
                 .Where(mc => mc.IsActive)
                 .Select(mc => new { mc.Id, mc.Name })
                 .ToList();
@@ -132,7 +141,7 @@ namespace Project.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var entity = await _repository.GetByIdWithCategoryAsync(id);
+            var entity = await _repository.GetByIdAdvancedAsync(id);
             if (entity == null) return NotFound();
             var dto = _mapper.Map<EmployeeDto>(entity);
 
@@ -141,6 +150,12 @@ namespace Project.Areas.Admin.Controllers
 
             var employeeCategories = await _categoryRepository.GetAllAsync();
             ViewBag.EmployeeCategories = employeeCategories
+                .Where(mc => mc.IsActive)
+                .Select(mc => new { mc.Id, mc.Name })
+                .ToList();
+
+            var departments = await _depRepository.GetAllAsync();
+            ViewBag.Departments = departments
                 .Where(mc => mc.IsActive)
                 .Select(mc => new { mc.Id, mc.Name })
                 .ToList();
@@ -207,23 +222,13 @@ namespace Project.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                // Ghi log chi tiết lỗi
-                var errorMessage = ex.Message;
-                if (ex.InnerException != null)
-                {
-                    errorMessage += " Inner Exception: " + ex.InnerException.Message;
-                    if (ex.InnerException.InnerException != null)
-                    {
-                        errorMessage += " Inner Inner Exception: " + ex.InnerException.InnerException.Message;
-                    }
-                }
-                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật thuốc: " + errorMessage });
+                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật nhân sự: " + ex });
             }
         }
 
         public async Task<IActionResult> Trash()
         {
-            var list = await _repository.GetAllWithCategoryAsync();
+            var list = await _repository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive == false).ToList();
             var viewModelList = _mapper.Map<List<EmployeeViewModel>>(activeList);
             return View(viewModelList);

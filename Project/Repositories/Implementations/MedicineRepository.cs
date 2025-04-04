@@ -11,32 +11,18 @@ namespace Project.Repositories.Implementations
         {
         }
 
-        public async Task<IEnumerable<Medicine>> GetAllWithCategoryAsync()
+        public async Task<IEnumerable<Medicine>> GetAllAdvancedAsync()
         {
             return await _context.medicines
                 .Include(m => m.MedicineCategory)
                 .ToListAsync();
         }
 
-        public async Task<Medicine?> GetByIdWithCategoryAsync(Guid id)
+        public async Task<Medicine?> GetByIdAdvancedAsync(Guid id)
         {
             return await _context.medicines
                 .Include(m => m.MedicineCategory)
                 .FirstOrDefaultAsync(m => m.Id == id);
-        }
-
-        public async Task<Medicine?> GetByCodeAsync(string code)
-        {
-            return await _context.medicines
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Code == code);
-        }
-
-        public async Task<Medicine?> GetByNameAsync(string name)
-        {
-            return await _context.medicines
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Name == name);
         }
     }
 }
