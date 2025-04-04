@@ -15,6 +15,7 @@ namespace Project.Areas.Admin.Data
         public DbSet<EmployeeCategory> employeeCategories { get; set; }
         public DbSet<Employee> employees { get; set; }
         public DbSet<TreatmentMethod> treatments { get; set; }
+        public DbSet<Room> rooms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
