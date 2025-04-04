@@ -185,6 +185,7 @@
                     `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
                     entity.code,
                     entity.categoryName,
+                    entity.depName,
                     entity.name,
                     `${getGenderName(entity.gender)}`,
                     entity.dateOfBirth ? new Date(entity.dateOfBirth).toLocaleDateString('vi-VN') : 'Không xác định',
@@ -231,6 +232,7 @@
                             '<input type="checkbox" class="form-checkbox" />',
                             'Mã nhân sự',
                             'Loại nhân sự',
+                            'Thuộc Khoa',
                             'Họ tên nhân sự',
                             'Giới tính',
                             'Ngày sinh',
@@ -271,14 +273,14 @@
                             }
                         },
                         {
-                            select: 13,
+                            select: 14,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;
                             }
                         },
                         {
-                            select: 14,
+                            select: 15,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;
