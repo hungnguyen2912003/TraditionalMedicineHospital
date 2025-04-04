@@ -4,9 +4,9 @@ using Project.Repositories.Interfaces;
 
 namespace Project.Repositories.Implementations
 {
-    public class DepartmentRepository : BaseRepository<Department>, IDepartmentRepository
+    public class RegulationRepository : BaseRepository<Regulation>, IRegulationRepository
     {
-        public DepartmentRepository(TraditionalMedicineHospitalDbContext context) : base(context)
+        public RegulationRepository(TraditionalMedicineHospitalDbContext context) : base(context)
         {
         }
     }
