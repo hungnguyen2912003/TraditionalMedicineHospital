@@ -8,8 +8,10 @@ RepositoryConfiguration.ConfigureRepository(builder);
 AutoMapperConfiguration.ConfigureMappers(builder);
 
 var app = builder.Build();
+app.UseRouting();
 
 EnvironmentConfiguration.ConfigureEnvironment(app);
+MiddlewareConfiguration.ConfigureMiddleware(app);
 PipelineConfiguration.ConfigurePipeline(app);
 RoutingConfiguration.ConfigureRouting(app);
 
