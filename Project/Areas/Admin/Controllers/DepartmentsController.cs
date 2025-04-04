@@ -197,7 +197,7 @@ namespace Project.Areas.Admin.Controllers
                 var e = await _employeeRepository.GetAllAdvancedAsync();
                 var t = await _treatmentRepository.GetAllAdvancedAsync();
                 var hasEmployees = e.Any(m => m.DepartmentId == id);
-                var hasTreatments = e.Any(m => m.DepartmentId == id);
+                var hasTreatments = t.Any(m => m.DepartmentId == id);
                 if (hasEmployees || hasTreatments)
                 {
                     departments.Add(dep);
