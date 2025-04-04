@@ -12,6 +12,7 @@ namespace Project.Configurations
             builder.Services.AddAutoMapper(typeof(EmployeeCategoryProfile));
             builder.Services.AddAutoMapper(typeof(EmployeeProfile));
             builder.Services.AddAutoMapper(typeof(TreatmentMethodProfile));
+            builder.Services.AddAutoMapper(typeof(RoomProfile));
 
             return builder;
         }

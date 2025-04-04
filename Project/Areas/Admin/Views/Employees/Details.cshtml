@@ -56,7 +56,7 @@
             </button>
 
             <a href="/Admin/Employees/Create" class="btn btn-primary">
-                <svg class="h-5 w-5 ltr:mr-2 rtl:ml-2" height="24" width="24" fill="#000000" viewBox="0 0 24 24" id="add-user-left-6" data-name="Line Color" xmlns="http://www.w3.org/2000/svg" class="icon line-color"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path id="secondary" d="M7,5H3M5,7V3" style="fill: none; stroke: #ffffff; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path><path id="primary" d="M11,3.41A5.11,5.11,0,0,1,13,3a5,5,0,1,1-4.59,7" style="fill: none; stroke: #ffffff; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path><path id="primary-2" data-name="primary" d="M12,13h2a7,7,0,0,1,7,7v0a1,1,0,0,1-1,1H6a1,1,0,0,1-1-1v0A7,7,0,0,1,12,13Z" style="fill: none; stroke: #ffffff; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path></g></svg>
+                <svg width="24" height="24" class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Edit / Add_Plus_Circle"> <path id="Vector" d="M8 12H12M12 12H16M12 12V16M12 12V8M12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
                 Thêm nhân sự
             </a>
 
@@ -84,77 +84,86 @@
                         <img src="~/Public/assets/images/no_image.png" alt="image" class="mx-auto h-20 w-20 rounded-full object-cover md:h-32 md:w-32">
                     }
                 </div>
-                <div class="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2">
-                    <div>
-                        <label for="code">Mã nhân viên</label>
-                        <input id="code" type="text" class="form-input" value="@Model.Code" readonly>
-                    </div>
-                    <div>
-                        <label for="EmployeeCategory">Loại nhân viên</label>
-                        <input id="EmployeeCategory" type="text" value="@Model.EmployeeCategory?.Name" readonly class="form-input">
-                    </div>
-                    <div>
-                        <label for="FullName">Họ tên nhân viên</label>
-                        <input id="FullName" type="text" value="@Model.Name" readonly class="form-input">
-                    </div>
-                    <div>
-                        <label for="stock">Số căn cước công dân</label>
-                        <input id="stock" type="text" value="@Model.IdentityNumber " readonly class="form-input">
-                    </div>
-                    <div>
-                        <label for="Gender">Giới tính</label>
-                        <input id="Gender" type="text" class="form-input" value="@EnumExtensions.GetDisplayName(Model.Gender)" readonly>
+                <div class="flex-1">
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+                        <div>
+                            <label for="code">Mã nhân viên</label>
+                            <input id="code" type="text" class="form-input" value="@Model.Code" readonly>
+                        </div>
+                        <div>
+                            <label for="EmployeeCategory">Loại nhân viên</label>
+                            <input id="EmployeeCategory" type="text" value="@Model.EmployeeCategory?.Name" readonly class="form-input">
+                        </div>
+                        <div>
+                            <label for="FullName">Họ tên nhân viên</label>
+                            <input id="FullName" type="text" value="@Model.Name" readonly class="form-input">
+                        </div>
                     </div>
 
-                    <div>
-                        <label for="DateOfBirth">Ngày sinh</label>
-                        <input id="DateOfBirth" type="text" class="form-input" value="@Model.DateOfBirth.ToString("dd/MM/yyyy")" readonly>
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3 mt-5">
+                        <div>
+                            <label for="stock">Số căn cước công dân</label>
+                            <input id="stock" type="text" value="@Model.IdentityNumber" readonly class="form-input">
+                        </div>
+                        <div>
+                            <label for="Gender">Giới tính</label>
+                            <input id="Gender" type="text" class="form-input" value="@EnumExtensions.GetDisplayName(Model.Gender)" readonly>
+                        </div>
+                        <div>
+                            <label for="DateOfBirth">Ngày sinh</label>
+                            <input id="DateOfBirth" type="text" class="form-input" value="@Model.DateOfBirth.ToString("dd/MM/yyyy")" readonly>
+                        </div>
                     </div>
 
-                    <div>
-                        <label for="Address">Địa chỉ</label>
-                        <input id="Address" type="text" class="form-input" value="@Model.Address" readonly>
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3 mt-5">
+                        <div>
+                            <label for="Address">Địa chỉ</label>
+                            <input id="Address" type="text" class="form-input" value="@Model.Address" readonly>
+                        </div>
+                        <div>
+                            <label for="Email">Email</label>
+                            <input id="Email" type="text" value="@Model.EmailAddress" readonly class="form-input">
+                        </div>
+                        <div>
+                            <label for="PhoneNumber">Số điện thoại</label>
+                            <input id="PhoneNumber" type="text" value="@Model.PhoneNumber" readonly class="form-input">
+                        </div>
                     </div>
 
-                    <div>
-                        <label for="Email">Email</label>
-                        <input id="Email" type="text" value="@Model.EmailAddress" readonly class="form-input">
-                    </div>
-                    <div>
-                        <label for="PhoneNumber">Số điện thoại</label>
-                        <input id="PhoneNumber" type="text" value="@Model.PhoneNumber" readonly class="form-input">
-                    </div>
-                    <div>
-                        <label for="Degree">Bằng cấp</label>
-                        <input id="Degree" type="text" value="@EnumExtensions.GetDisplayName(Model.Degree)" readonly class="form-input">
-                    </div>
-                    <div>
-                        <label for="ProfessionalQualification">Trình độ chuyên môn</label>
-                        <input id="ProfessionalQualification" type="text" value="@EnumExtensions.GetDisplayName(Model.ProfessionalQualification)" readonly class="form-input">
-                    </div>
-                    <div>
-                        <label for="StartDate">Ngày bắt đầu làm việc</label>
-                        <input id="StartDate" type="text" value="@Model.StartDate.ToString("dd/MM/yyyy")" readonly class="form-input">
-                    </div>
-                    <div>
-                        <label for="Status">Tình trạng làm việc</label>
-                        <input id="Status" type="text" value="@EnumExtensions.GetDisplayName(Model.Status)" readonly class="form-input">
-                    </div>
-                    <div>
-                        <label for="createdDate">Ngày tạo</label>
-                        <input id="createdDate" type="text" value="@Model.CreatedDate.ToString("dd/MM/yyyy")" readonly class="form-input">
-                    </div>
-                    <div>
-                        <label for="createdBy">Nguời tạo</label>
-                        <input id="createdBy" type="text" value="@Model.CreatedBy" readonly class="form-input">
-                    </div>
-                    <div>
-                        <label for="UpdatedDate">Ngày chỉnh sửa</label>
-                        <input id="UpdatedDate" type="text" value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy") ?? "Không có")" readonly class="form-input">
-                    </div>
-                    <div>
-                        <label for="UpdatedBy">Nguời chỉnh sửa</label>
-                        <input id="UpdatedBy" type="text" value="@(Model.UpdatedBy ?? "Không có")" readonly class="form-input">
+
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 mt-5">
+                        <div>
+                            <label for="Degree">Bằng cấp</label>
+                            <input id="Degree" type="text" value="@EnumExtensions.GetDisplayName(Model.Degree)" readonly class="form-input">
+                        </div>
+                        <div>
+                            <label for="ProfessionalQualification">Trình độ chuyên môn</label>
+                            <input id="ProfessionalQualification" type="text" value="@EnumExtensions.GetDisplayName(Model.ProfessionalQualification)" readonly class="form-input">
+                        </div>
+                        <div>
+                            <label for="StartDate">Ngày bắt đầu làm việc</label>
+                            <input id="StartDate" type="text" value="@Model.StartDate.ToString("dd/MM/yyyy")" readonly class="form-input">
+                        </div>
+                        <div>
+                            <label for="Status">Tình trạng làm việc</label>
+                            <input id="Status" type="text" value="@EnumExtensions.GetDisplayName(Model.Status)" readonly class="form-input">
+                        </div>
+                        <div>
+                            <label for="createdDate">Ngày tạo</label>
+                            <input id="createdDate" type="text" value="@Model.CreatedDate.ToString("dd/MM/yyyy")" readonly class="form-input">
+                        </div>
+                        <div>
+                            <label for="createdBy">Nguời tạo</label>
+                            <input id="createdBy" type="text" value="@Model.CreatedBy" readonly class="form-input">
+                        </div>
+                        <div>
+                            <label for="UpdatedDate">Ngày chỉnh sửa</label>
+                            <input id="UpdatedDate" type="text" value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy") ?? "Không có")" readonly class="form-input">
+                        </div>
+                        <div>
+                            <label for="UpdatedBy">Nguời chỉnh sửa</label>
+                            <input id="UpdatedBy" type="text" value="@(Model.UpdatedBy ?? "Không có")" readonly class="form-input">
+                        </div>
                     </div>
                 </div>
             </div>

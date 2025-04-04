@@ -16,5 +16,13 @@ namespace Project.Areas.Admin.Models.Entities
         [StringLength(20)]
         public string Name { get; set; }
         public string? Description { get; set; }
+
+        // ForeignKey
+        public Guid TreatmentMethodId { get; set; }
+
+        /////////////////////////////////////////////////////
+        /// Relationships
+        [ForeignKey("TreatmentMethodId")]
+        public virtual TreatmentMethod? TreatmentMethod { get; set; }
     }
 }
