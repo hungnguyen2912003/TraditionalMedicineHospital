@@ -19,6 +19,7 @@ namespace Project.Configurations
             builder.Services.AddScoped<IBaseService<EmployeeCategory>, EmployeeCategoryService>();
             builder.Services.AddScoped<IBaseService<Employee>, EmployeeService>();
             builder.Services.AddScoped<IBaseService<Room>, RoomService>();
+            builder.Services.AddScoped<IBaseService<Regulation>, RegulationService>();
 
             builder.Services.AddControllersWithViews();
             return builder;

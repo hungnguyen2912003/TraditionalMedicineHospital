@@ -20,6 +20,8 @@ namespace Project.Configurations
             builder.Services.AddScoped<ITreatmentMethodRepository, TreatmentMethodRepository>();
             builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 
+            builder.Services.AddScoped<IRegulationRepository, RegulationRepository>();
+
             return builder;
         }
     }

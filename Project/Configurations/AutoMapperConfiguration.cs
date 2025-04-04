@@ -13,6 +13,7 @@ namespace Project.Configurations
             builder.Services.AddAutoMapper(typeof(EmployeeProfile));
             builder.Services.AddAutoMapper(typeof(TreatmentMethodProfile));
             builder.Services.AddAutoMapper(typeof(RoomProfile));
+            builder.Services.AddAutoMapper(typeof(RegulationProfile));
 
             return builder;
         }

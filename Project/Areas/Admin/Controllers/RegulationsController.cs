@@ -7,20 +7,18 @@ using Project.Repositories.Interfaces;
 namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class EmployeeCategoriesController : Controller
+    public class RegulationsController : Controller
     {
-        private readonly IEmployeeCategoryRepository _repository;
-        private readonly IEmployeeRepository _employeeRepository;
+        private readonly IRegulationRepository _repository;
         private readonly IMapper _mapper;
-        public EmployeeCategoriesController
+
+        public RegulationsController
         (
-            IEmployeeCategoryRepository repository,
-            IEmployeeRepository employeeRepository,
+            IRegulationRepository repository,
             IMapper mapper
         )
         {
             _repository = repository;
-            _employeeRepository = employeeRepository;
             _mapper = mapper;
         }
 
@@ -47,22 +45,22 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromForm] EmployeeCategoryDto inputDto)
+        public async Task<IActionResult> Create([FromForm] RegulationDto inputDto)
         {
             try
             {
-                var entity = _mapper.Map<EmployeeCategory>(inputDto);
+                var entity = _mapper.Map<Regulation>(inputDto);
 
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
                 entity.IsActive = true;
 
                 await _repository.CreateAsync(entity);
-                return Json(new { success = true, message = "Thêm loại nhân sự thành công!" });
+                return Json(new { success = true, message = "Thêm quy định thành công!" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi thêm loại nhân sự: " + ex.Message });
+                return Json(new { success = false, message = "Có lỗi xảy ra khi thêm quy định: " + ex.Message });
             }
         }
 
@@ -71,16 +69,16 @@ namespace Project.Areas.Admin.Controllers
         {
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null) return NotFound();
-            var dto = _mapper.Map<EmployeeCategoryDto>(entity);
+            var dto = _mapper.Map<RegulationDto>(entity);
 
-            ViewBag.EmployeeCategoryId = entity.Id;
+            ViewBag.RegulationId = entity.Id;
 
             return View(dto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromForm] EmployeeCategoryDto inputDto, Guid Id)
+        public async Task<IActionResult> Edit([FromForm] RegulationDto inputDto, Guid Id)
         {
             try
             {
@@ -92,11 +90,11 @@ namespace Project.Areas.Admin.Controllers
                 entity.UpdatedDate = DateTime.UtcNow;
 
                 await _repository.UpdateAsync(entity);
-                return Json(new { success = true, message = "Cập nhật loại nhân sự thành công!" });
+                return Json(new { success = true, message = "Cập nhật quy định thành công!" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật loại nhân sự: " + ex.Message });
+                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật quy định: " + ex.Message });
             }
         }
 
@@ -120,30 +118,7 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            var categories = new List<EmployeeCategory>();
-            foreach (var id in ids)
-            {
-                var category = await _repository.GetByIdAsync(id);
-                if (category == null) continue;
-                var employees = await _employeeRepository.GetAllAdvancedAsync();
-                var hasMedicines = employees.Any(m => m.EmployeeCategoryId == id);
-                if (hasMedicines)
-                {
-                    categories.Add(category);
-                }
-            }
-
-            if (categories.Any())
-            {
-                var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
-                var message = categories.Count == 1
-                    ? $"Không thể xóa loại nhân sự {names} vì vẫn còn nhân sự đang sử dụng loại này."
-                    : $"Không thể xóa các loại nhân sự: {names} vì vẫn còn nhân sự đang sử dụng các loại này.";
-                TempData["ErrorMessage"] = message;
-                return RedirectToAction("Index");
-            }
-
-            var delList = new List<EmployeeCategory>();
+            var delList = new List<Regulation>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -158,13 +133,13 @@ namespace Project.Areas.Admin.Controllers
             {
                 var names = string.Join(", ", delList.Select(c => $"\"{c.Name}\""));
                 var message = delList.Count == 1
-                    ? $"Đã xóa loại nhân sự {names} thành công"
-                    : $"Đã xóa các loại nhân sự: {names} thành công";
+                    ? $"Đã xóa quy định {names} thành công"
+                    : $"Đã xóa các quy định: {names} thành công";
                 TempData["SuccessMessage"] = message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy loại nhân sự nào để xóa.";
+                TempData["ErrorMessage"] = "Không tìm thấy quy định nào để xóa.";
             }
 
             return RedirectToAction("Trash");
@@ -183,32 +158,7 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            var categories = new List<EmployeeCategory>();
-            foreach (var id in ids)
-            {
-                var category = await _repository.GetByIdAsync(id);
-                if (category == null) continue;
-
-                var employees = await _employeeRepository.GetAllAdvancedAsync();
-                var hasMedicines = employees.Any(m => m.EmployeeCategoryId == id);
-
-                if (hasMedicines)
-                {
-                    categories.Add(category);
-                }
-            }
-
-            if (categories.Any())
-            {
-                var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
-                var message = categories.Count == 1
-                    ? $"Không thể đưa loại nhân sự {names} vào thùng rác vì vẫn còn nhân sự đang sử dụng loại này."
-                    : $"Không thể đưa các loại nhân sự: {names} vào thùng rác vì vẫn còn nhân sự đang sử dụng các loại này.";
-                TempData["ErrorMessage"] = message;
-                return RedirectToAction("Index");
-            }
-
-            var movedList = new List<EmployeeCategory>();
+            var movedList = new List<Regulation>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -226,13 +176,13 @@ namespace Project.Areas.Admin.Controllers
             {
                 var names = string.Join(", ", movedList.Select(c => $"\"{c.Name}\""));
                 var message = movedList.Count == 1
-                    ? $"Đã đưa loại nhân sự {names} thành công vào thùng rác"
-                    : $"Đã đưa các loại nhân sự: {names} thành công vào thùng rác";
+                    ? $"Đã đưa quy định {names} thành công vào thùng rác"
+                    : $"Đã đưa các quy định: {names} thành công vào thùng rác";
                 TempData["SuccessMessage"] = message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy loại nhân sự nào để đưa vào thùng rác.";
+                TempData["ErrorMessage"] = "Không tìm thấy quy định nào để đưa vào thùng rác.";
             }
 
             return RedirectToAction("Index");
@@ -250,7 +200,7 @@ namespace Project.Areas.Admin.Controllers
                     ids.Add(parsedId);
                 }
             }
-            var restoredEntity = new List<EmployeeCategory>();
+            var restoredEntity = new List<Regulation>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -268,13 +218,13 @@ namespace Project.Areas.Admin.Controllers
             {
                 var names = string.Join(", ", restoredEntity.Select(c => $"\"{c.Name}\""));
                 var message = restoredEntity.Count == 1
-                    ? $"Đã khôi phục loại nhân sự {names} thành công."
-                    : $"Đã khôi phục các loại nhân sự: {names} thành công.";
+                    ? $"Đã khôi phục quy định {names} thành công."
+                    : $"Đã khôi phục các quy định: {names} thành công.";
                 TempData["SuccessMessage"] = message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy loại nhân sự nào để khôi phục.";
+                TempData["ErrorMessage"] = "Không tìm thấy quy định nào để khôi phục.";
             }
 
             return RedirectToAction("Trash");
