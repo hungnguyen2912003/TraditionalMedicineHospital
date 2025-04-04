@@ -8,24 +8,21 @@ using Project.Repositories.Interfaces;
 namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class TreatmentMethodsController : Controller
+    public class RoomsController : Controller
     {
-        private readonly ITreatmentMethodRepository _repository;
-        private readonly IDepartmentRepository _departmentRepository;
-        private readonly IRoomRepository _roomRepository;
+        private readonly IRoomRepository _repository;
+        private readonly ITreatmentMethodRepository _treatmentRepository;
         private readonly IMapper _mapper;
 
-        public TreatmentMethodsController
+        public RoomsController
         (
-            ITreatmentMethodRepository repository,
-            IDepartmentRepository departmentRepository,
-            IRoomRepository roomRepository,
+            IRoomRepository repository,
+            ITreatmentMethodRepository treatmentRepository,
             IMapper mapper
         )
         {
             _repository = repository;
-            _departmentRepository = departmentRepository;
-            _roomRepository = roomRepository;
+            _treatmentRepository = treatmentRepository;
             _mapper = mapper;
         }
 
@@ -33,7 +30,7 @@ namespace Project.Areas.Admin.Controllers
         {
             var list = await _repository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive == true).ToList();
-            var viewModelList = _mapper.Map<List<TreatmentMethodViewModel>>(activeList);
+            var viewModelList = _mapper.Map<List<RoomViewModel>>(activeList);
             return View(viewModelList);
         }
 
@@ -50,8 +47,8 @@ namespace Project.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var departments = await _departmentRepository.GetAllAsync();
-            ViewBag.Departments = departments
+            var treatments = await _treatmentRepository.GetAllAsync();
+            ViewBag.Treatments = treatments
                 .Where(mc => mc.IsActive)
                 .Select(mc => new { mc.Id, mc.Name })
                 .ToList();
@@ -61,21 +58,21 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromForm] TreatmentMethodDto inputDto)
+        public async Task<IActionResult> Create([FromForm] RoomDto inputDto)
         {
             try
             {
-                var entity = _mapper.Map<TreatmentMethod>(inputDto);
+                var entity = _mapper.Map<Room>(inputDto);
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
                 entity.IsActive = true;
 
                 await _repository.CreateAsync(entity);
-                return Json(new { success = true, message = "Thêm phương pháp điều trị thành công!" });
+                return Json(new { success = true, message = "Thêm phòng thành công!" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi thêm phương pháp điều trị: " + ex.Message });
+                return Json(new { success = false, message = "Có lỗi xảy ra khi thêm phòng: " + ex.Message });
             }
         }
 
@@ -84,12 +81,12 @@ namespace Project.Areas.Admin.Controllers
         {
             var entity = await _repository.GetByIdAdvancedAsync(id);
             if (entity == null) return NotFound();
-            var dto = _mapper.Map<TreatmentMethodDto>(entity);
+            var dto = _mapper.Map<RoomDto>(entity);
 
-            ViewBag.DepId = entity.Id;
+            ViewBag.RoomId = entity.Id;
 
-            var departments = await _departmentRepository.GetAllAsync();
-            ViewBag.Departments = departments
+            var treatments = await _treatmentRepository.GetAllAsync();
+            ViewBag.Treatments = treatments
                 .Where(mc => mc.IsActive)
                 .Select(mc => new { mc.Id, mc.Name })
                 .ToList();
@@ -99,7 +96,7 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromForm] TreatmentMethodDto inputDto, Guid Id)
+        public async Task<IActionResult> Edit([FromForm] RoomDto inputDto, Guid Id)
         {
             try
             {
@@ -111,11 +108,11 @@ namespace Project.Areas.Admin.Controllers
                 entity.UpdatedDate = DateTime.UtcNow;
 
                 await _repository.UpdateAsync(entity);
-                return Json(new { success = true, message = "Cập nhật phương pháp điều trị thành công!" });
+                return Json(new { success = true, message = "Cập nhật phòng thành công!" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật phương pháp điều trị: " + ex });
+                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật phòng: " + ex });
             }
         }
 
@@ -123,7 +120,7 @@ namespace Project.Areas.Admin.Controllers
         {
             var list = await _repository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive == false).ToList();
-            var viewModelList = _mapper.Map<List<TreatmentMethodViewModel>>(activeList);
+            var viewModelList = _mapper.Map<List<RoomViewModel>>(activeList);
             return View(viewModelList);
         }
 
@@ -140,30 +137,13 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            var treatments = new List<TreatmentMethod>();
-            foreach (var id in ids)
+            if (_repository == null)
             {
-                var tm = await _repository.GetByIdAsync(id);
-                if (tm == null) continue;
-                var r = await _roomRepository.GetAllAdvancedAsync();
-                var hasRooms = r.Any(m => m.TreatmentMethodId == id);
-                if (hasRooms)
-                {
-                    treatments.Add(tm);
-                }
+                TempData["ErrorMessage"] = "Hệ thống gặp lỗi, vui lòng thử lại sau.";
+                return RedirectToAction("Trash");
             }
 
-            if (treatments.Any())
-            {
-                var names = string.Join(", ", treatments.Select(c => $"\"{c.Name}\""));
-                var message = treatments.Count == 1
-                    ? $"Không thể xóa phương pháp điều trị {names} vì vẫn còn phòng đang sử dụng phương pháp này."
-                    : $"Không thể xóa các phương pháp điều trị: {names} vì vẫn còn các phòng đang sử dụng phương pháp này.";
-                TempData["ErrorMessage"] = message;
-                return RedirectToAction("Index");
-            }
-
-            var delList = new List<TreatmentMethod>();
+            var delList = new List<Room>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -178,13 +158,13 @@ namespace Project.Areas.Admin.Controllers
             {
                 var names = string.Join(", ", delList.Select(c => $"\"{c.Name}\""));
                 var message = delList.Count == 1
-                    ? $"Đã xóa vĩnh viễn phương pháp điều trị {names} thành công"
-                    : $"Đã xóa vĩnh viễn các phương pháp điều trị: {names} thành công";
+                    ? $"Đã xóa vĩnh viễn phòng {names} thành công"
+                    : $"Đã xóa vĩnh viễn các phòng: {names} thành công";
                 TempData["SuccessMessage"] = message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy phương pháp điều trị nào để xóa.";
+                TempData["ErrorMessage"] = "Không tìm thấy phòng nào để xóa.";
             }
 
             return RedirectToAction("Trash");
@@ -203,30 +183,7 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            var treatments = new List<TreatmentMethod>();
-            foreach (var id in ids)
-            {
-                var tm = await _repository.GetByIdAsync(id);
-                if (tm == null) continue;
-                var r = await _roomRepository.GetAllAdvancedAsync();
-                var hasRooms = r.Any(m => m.TreatmentMethodId == id);
-                if (hasRooms)
-                {
-                    treatments.Add(tm);
-                }
-            }
-
-            if (treatments.Any())
-            {
-                var names = string.Join(", ", treatments.Select(c => $"\"{c.Name}\""));
-                var message = treatments.Count == 1
-                    ? $"Không thể đưa phương pháp điều trị {names} vào thùng rác vì vẫn còn phòng đang sử dụng phương pháp này."
-                    : $"Không thể đưa các phương pháp điều trị: {names} vào thùng rác vì vẫn còn các phòng đang sử dụng phương pháp này.";
-                TempData["ErrorMessage"] = message;
-                return RedirectToAction("Index");
-            }
-
-            var movedList = new List<TreatmentMethod>();
+            var movedList = new List<Room>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -244,13 +201,13 @@ namespace Project.Areas.Admin.Controllers
             {
                 var names = string.Join(", ", movedList.Select(c => $"\"{c.Name}\""));
                 var message = movedList.Count == 1
-                    ? $"Đã đưa phương pháp điều trị {names} thành công vào thùng rác"
-                    : $"Đã đưa các phương pháp điều trị: {names} thành công vào thùng rác";
+                    ? $"Đã đưa phòng {names} thành công vào thùng rác"
+                    : $"Đã đưa các phòng: {names} thành công vào thùng rác";
                 TempData["SuccessMessage"] = message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy phương pháp điều trị nào để đưa vào thùng rác.";
+                TempData["ErrorMessage"] = "Không tìm thấy phòng nào để đưa vào thùng rác.";
             }
 
             return RedirectToAction("Index");
@@ -268,7 +225,7 @@ namespace Project.Areas.Admin.Controllers
                     ids.Add(parsedId);
                 }
             }
-            var restoredList = new List<TreatmentMethod>();
+            var restoredList = new List<Room>();
             foreach (var id in ids)
             {
                 var entity = await _repository.GetByIdAsync(id);
@@ -286,13 +243,13 @@ namespace Project.Areas.Admin.Controllers
             {
                 var names = string.Join(", ", restoredList.Select(c => $"\"{c.Name}\""));
                 var message = restoredList.Count == 1
-                    ? $"Đã khôi phục phương pháp điều trị {names} thành công."
-                    : $"Đã khôi phục các phương pháp điều trị: {names} thành công.";
+                    ? $"Đã khôi phục phòng {names} thành công."
+                    : $"Đã khôi phục các phòng: {names} thành công.";
                 TempData["SuccessMessage"] = message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy phương pháp điều trị nào để khôi phục.";
+                TempData["ErrorMessage"] = "Không tìm thấy phòng nào để khôi phục.";
             }
 
             return RedirectToAction("Trash");
