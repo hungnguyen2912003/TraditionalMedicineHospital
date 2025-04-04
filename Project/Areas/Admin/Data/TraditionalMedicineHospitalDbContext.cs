@@ -14,11 +14,16 @@ namespace Project.Areas.Admin.Data
         public DbSet<Department> departments { get; set; }
         public DbSet<EmployeeCategory> employeeCategories { get; set; }
         public DbSet<Employee> employees { get; set; }
+        public DbSet<TreatmentMethod> treatments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Medicine>()
                 .Property(e => e.Price)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<TreatmentMethod>()
+                .Property(e => e.Cost)
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<Medicine>()
