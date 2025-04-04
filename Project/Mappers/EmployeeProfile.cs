@@ -11,12 +11,14 @@ namespace Project.Mappers
         {
             CreateMap<Employee, EmployeeViewModel>()
                 .ForMember(dest => dest.CategoryName,
-                    opt => opt.MapFrom(src => src.EmployeeCategory != null ? src.EmployeeCategory.Name : "Không xác định"));
+                    opt => opt.MapFrom(src => src.EmployeeCategory != null ? src.EmployeeCategory.Name : "Không xác định"))
+                .ForMember(dest => dest.DepName,
+                    opt => opt.MapFrom(src => src.Department != null ? src.Department.Name : "Không xác định"));
             CreateMap<Employee, EmployeeDto>()
-                .ForMember(dest => dest.CategoryName,
-                          opt => opt.MapFrom(src => src.EmployeeCategory != null ? src.EmployeeCategory.Name : "Không xác định"))
                 .ForMember(dest => dest.EmployeeCategoryId,
                           opt => opt.MapFrom(src => src.EmployeeCategory != null ? src.EmployeeCategory.Id : Guid.Empty))
+                .ForMember(dest => dest.DepartmentId,
+                          opt => opt.MapFrom(src => src.Department != null ? src.Department.Id : Guid.Empty))
                 .ForMember(dest => dest.ImageFile, opt => opt.Ignore());
             CreateMap<EmployeeDto, Employee>()
                 .ForMember(dest => dest.EmployeeCategory, opt => opt.Ignore())

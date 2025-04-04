@@ -16,5 +16,11 @@ namespace Project.Areas.Admin.Models.Entities
         [StringLength(50)]
         public string Name { get; set; }
         public string? Description { get; set; }
+
+        /////////////////////////////////////////////////////
+        /// Relationships
+        /// 
+        public virtual ICollection<TreatmentMethod>? TreatmentMethods { get; set; }
+        public virtual ICollection<Employee>? Employees { get; set; }
     }
 }

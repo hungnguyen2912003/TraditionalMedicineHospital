@@ -10,14 +10,20 @@ namespace Project.Areas.Admin.Controllers
     public class DepartmentsController : Controller
     {
         private readonly IDepartmentRepository _repository;
+        private readonly IEmployeeRepository _employeeRepository;
+        private readonly ITreatmentMethodRepository _treatmentRepository;
         private readonly IMapper _mapper;
         public DepartmentsController
         (
             IDepartmentRepository repository,
+            IEmployeeRepository employeeRepository,
+            ITreatmentMethodRepository treatmentRepository,
             IMapper mapper
         )
         {
             _repository = repository;
+            _employeeRepository = employeeRepository;
+            _treatmentRepository = treatmentRepository;
             _mapper = mapper;
         }
 
@@ -118,6 +124,31 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
+            var departments = new List<Department>();
+            foreach (var id in ids)
+            {
+                var dep = await _repository.GetByIdAsync(id);
+                if (dep == null) continue;
+                var e = await _employeeRepository.GetAllAdvancedAsync();
+                var t = await _treatmentRepository.GetAllAdvancedAsync();
+                var hasEmployees = e.Any(m => m.DepartmentId == id);
+                var hasTreatments = e.Any(m => m.DepartmentId == id);
+                if (hasEmployees || hasTreatments)
+                {
+                    departments.Add(dep);
+                }
+            }
+
+            if (departments.Any())
+            {
+                var names = string.Join(", ", departments.Select(c => $"\"{c.Name}\""));
+                var message = departments.Count == 1
+                    ? $"Không thể xóa Khoa {names} vì vẫn còn nhân sự hoặc phương pháp điều trị đang sử dụng Khoa này."
+                    : $"Không thể xóa các Khoa: {names} vì vẫn còn các nhân sự hoặc phương pháp điều trị đang sử dụng Khoa này.";
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction("Index");
+            }
+
             var delList = new List<Department>();
             foreach (var id in ids)
             {
@@ -156,6 +187,31 @@ namespace Project.Areas.Admin.Controllers
                 {
                     ids.Add(parsedId);
                 }
+            }
+
+            var departments = new List<Department>();
+            foreach (var id in ids)
+            {
+                var dep = await _repository.GetByIdAsync(id);
+                if (dep == null) continue;
+                var e = await _employeeRepository.GetAllAdvancedAsync();
+                var t = await _treatmentRepository.GetAllAdvancedAsync();
+                var hasEmployees = e.Any(m => m.DepartmentId == id);
+                var hasTreatments = e.Any(m => m.DepartmentId == id);
+                if (hasEmployees || hasTreatments)
+                {
+                    departments.Add(dep);
+                }
+            }
+
+            if (departments.Any())
+            {
+                var names = string.Join(", ", departments.Select(c => $"\"{c.Name}\""));
+                var message = departments.Count == 1
+                    ? $"Không thể đưa Khoa {names} vào thùng rác vì vẫn còn nhân sự hoặc phương pháp điều trị đang sử dụng Khoa này."
+                    : $"Không thể đưa các Khoa: {names} vào thùng rác vì vẫn còn các nhân sự hoặc phương pháp điều trị đang sử dụng Khoa này.";
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction("Index");
             }
 
             var movedList = new List<Department>();

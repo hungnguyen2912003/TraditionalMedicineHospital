@@ -195,10 +195,9 @@
                     <div class="mt-4">
                         <label for="Price" class="block text-sm font-medium text-gray-700">Giá bán</label>
                         <div class="flex items-center">
-                            <input id="Price" type="text" class="form-input w-full mt-1 p-2 border rounded price-input" placeholder="Nhập giá bán" value="@Model.Price" />
+                            <input id="Price" type="text" name="Price" class="form-input w-full mt-1 p-2 border rounded price-input" placeholder="Nhập giá bán" value="@Model.Price" />
                             <span class="ml-2 text-gray-700" style="font-weight: 900">VND</span>
                         </div>
-                        <input id="PriceRaw" type="hidden" name="Price" />
                         @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
                     </div>
                 </div>
@@ -261,9 +260,7 @@
                     numeralDecimalScale: 0,
                     numeralPositiveOnly: true,
                     onValueChanged: function(e) {
-                        var rawValue = e.target.rawValue;
-                        $('#PriceRaw').val(rawValue);
-                        $('#PriceRaw').trigger('change');
+                        $('#Price').trigger('change');
                     }
                 });
             },
@@ -449,22 +446,22 @@
                     errorElement: "div",
                     errorClass: "text-danger",
                     highlight: function (element) {
-                        if ($(element).attr('id') === 'PriceRaw') {
+                        if ($(element).attr('id') === 'Price') {
                             $('#Price').addClass("border-red-500");
                         } else {
                             $(element).addClass("border-red-500");
                         }
                     },
                     unhighlight: function (element) {
-                        if ($(element).attr('id') === 'PriceRaw') {
+                        if ($(element).attr('id') === 'Price') {
                             $('#Price').removeClass("border-red-500");
                         } else {
                             $(element).removeClass("border-red-500");
                         }
                     },
                     errorPlacement: function (error, element) {
-                        if (element.attr('id') === 'PriceRaw') {
-                            error.insertAfter('#Price');
+                        if (element.attr('id') === 'Price') {
+                            error.insertAfter(element.closest('.flex'));
                         } else {
                             error.insertAfter(element);
                         }
@@ -498,7 +495,7 @@
                 formData.append('MedicineCategoryId', document.getElementById('MedicineCategoryId').value);
                 formData.append('StockQuantity', document.getElementById('StockQuantity').value);
                 formData.append('StockUnit', document.getElementById('StockUnit').value);
-                formData.append('Price', document.getElementById('PriceRaw').value);
+                formData.append('Price', document.getElementById('Price').value);
                 formData.append('Manufacturer', document.getElementById('Manufacturer').value);
                 formData.append('ManufacturedDate', document.getElementById('ManufacturedDate').value);
                 formData.append('ExpiryDate', document.getElementById('ExpiryDate').value);

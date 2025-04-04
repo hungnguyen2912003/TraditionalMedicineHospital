@@ -44,11 +44,14 @@ namespace Project.Areas.Admin.Models.Entities
 
         // Foreign Key
         public Guid EmployeeCategoryId { get; set; }
+        public Guid DepartmentId { get; set; }
 
         /////////////////////////////////////////////////////
         /// Relationships
         ///
         [ForeignKey("EmployeeCategoryId")]
         public virtual EmployeeCategory? EmployeeCategory { get; set; }
+        [ForeignKey("DepartmentId")]
+        public virtual Department? Department { get; set; }
     }
 }

@@ -126,7 +126,7 @@ namespace Project.Areas.Admin.Controllers
             {
                 var category = await _repository.GetByIdAsync(id);
                 if (category == null) continue;
-                var employees = await _employeeRepository.GetAllWithCategoryAsync();
+                var employees = await _employeeRepository.GetAllAdvancedAsync();
                 var hasMedicines = employees.Any(m => m.EmployeeCategoryId == id);
                 if (hasMedicines)
                 {
@@ -190,7 +190,7 @@ namespace Project.Areas.Admin.Controllers
                 var category = await _repository.GetByIdAsync(id);
                 if (category == null) continue;
 
-                var employees = await _employeeRepository.GetAllWithCategoryAsync();
+                var employees = await _employeeRepository.GetAllAdvancedAsync();
                 var hasMedicines = employees.Any(m => m.EmployeeCategoryId == id);
 
                 if (hasMedicines)

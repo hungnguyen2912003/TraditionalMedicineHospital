@@ -11,42 +11,20 @@ namespace Project.Repositories.Implementations
         {
         }
 
-        public async Task<IEnumerable<Employee>> GetAllWithCategoryAsync()
+        public async Task<IEnumerable<Employee>> GetAllAdvancedAsync()
         {
             return await _context.employees
                 .Include(m => m.EmployeeCategory)
+                .Include(m => m.Department)
                 .ToListAsync();
         }
 
-        public async Task<Employee?> GetByIdWithCategoryAsync(Guid id)
+        public async Task<Employee?> GetByIdAdvancedAsync(Guid id)
         {
             return await _context.employees
                 .Include(m => m.EmployeeCategory)
+                .Include (m => m.Department)
                 .FirstOrDefaultAsync(m => m.Id == id);
-        }
-
-        public async Task<Employee?> GetByCodeAsync(string code)
-        {
-            return await _context.employees
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Code == code);
-        }
-
-        public async Task<Employee?> GetByNameAsync(string name)
-        {
-            return await _context.employees
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Name == name);
-        }
-
-        public async Task<bool> IsCodeExistsAsync(string code)
-        {
-            if (string.IsNullOrEmpty(code))
-            {
-                return false;
-            }
-
-            return await _context.employees.AnyAsync(e => e.Code == code);
         }
     }
 }
