@@ -19,6 +19,7 @@ namespace Project.Areas.Admin.Models.DTOs
         public EmployeeStatus Status { get; set; }
         public Guid EmployeeCategoryId { get; set; }
         public Guid DepartmentId { get; set; }
+        public string? PasswordHash { get; set; }
         public bool IsActive { get; set; }
     }
 }
