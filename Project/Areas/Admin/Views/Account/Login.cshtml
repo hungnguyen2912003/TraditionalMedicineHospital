@@ -1,0 +1,122 @@
+﻿
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = "~/Areas/Admin/Views/Shared/_loginLayout.cshtml";
+}
+
+<div x-data="auth">
+    <div class="absolute inset-0">
+        <img src="~/Public/assets/images/auth/bg-gradient.png" alt="image" class="h-full w-full object-cover">
+    </div>
+
+    <div class="relative flex min-h-screen items-center justify-center bg-[url(../images/auth/map.png)] bg-cover bg-center bg-no-repeat px-6 py-10 dark:bg-[#060818] sm:px-16">
+        <img src="~/Public/assets/images/auth/coming-soon-object1.png" alt="image" class="absolute left-0 top-1/2 h-full max-h-[893px] -translate-y-1/2">
+        <img src="~/Public/assets/images/auth/coming-soon-object2.png" alt="image" class="absolute left-24 top-0 h-40 md:left-[30%]">
+        <img src="~/Public/assets/images/auth/coming-soon-object3.png" alt="image" class="absolute right-0 top-0 h-[300px]">
+        <img src="~/Public/assets/images/auth/polygon-object.svg" alt="image" class="absolute bottom-0 end-[28%]">
+        <div class="relative w-full max-w-[870px] rounded-md bg-[linear-gradient(45deg,#fff9f9_0%,rgba(255,255,255,0)_25%,rgba(255,255,255,0)_75%,_#fff9f9_100%)] p-2 dark:bg-[linear-gradient(52.22deg,#0E1726_0%,rgba(14,23,38,0)_18.66%,rgba(14,23,38,0)_51.04%,rgba(14,23,38,0)_80.07%,#0E1726_100%)]">
+            <div class="relative flex flex-col justify-center rounded-md bg-white/60 backdrop-blur-lg dark:bg-black/50 px-6 lg:min-h-[758px] py-20">
+                <div class="absolute top-6 left-6 flex items-center">
+                    <img src="~/Public/assets/images/logo/logo_official.png" alt="logo" class="h-24 w-24 mr-6">
+                    <div class="font-bold text-lg md:text-xl leading-tight" style="font-weight: 900;background: linear-gradient(to right, #FF0000, #800080, #00008B); -webkit-background-clip: text; background-clip: text; color: transparent;">
+                        Hệ thống quản lý<br>Bệnh viện Y học cổ truyền Nha Trang
+                    </div>
+                </div>
+                <div class="mx-auto w-full max-w-[440px]">
+                    <div class="mb-10">
+                        <h1 class="text-3xl uppercase !leading-snug md:text-4xl font-black" style="font-weight: 900;background: linear-gradient(to right, #FF0000, #800080, #00008B); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
+                            Đăng nhập
+                        </h1>
+                        <p class="text-base font-bold leading-normal text-white-dark">Hãy nhập mã nhân viên và mật khẩu để đăng nhập</p>
+                    </div>
+                    <form id="loginForm" class="space-y-5 dark:text-white">
+                        <div>
+                            <label for="Code">Mã nhân viên</label>
+                            <div class="relative text-white-dark">
+                                <input id="Code" type="text" name="code" placeholder="Nhập mã nhân viên" class="form-input ps-10 placeholder:text-white-dark">
+                                <span class="absolute start-4 top-1/2 -translate-y-1/2">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                        <circle cx="10" cy="6" r="4" fill="currentColor" />
+                                        <ellipse opacity="0.5" cx="10" cy="14" rx="7" ry="4" fill="currentColor" />
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="Password">Mật khẩu</label>
+                            <div class="relative text-white-dark">
+                                <input id="Password" type="password" name="password" placeholder="Nhập mật khẩu" class="form-input ps-10 placeholder:text-white-dark">
+                                <span class="absolute start-4 top-1/2 -translate-y-1/2">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                        <path opacity="0.5" d="M1.5 12C1.5 9.87868 1.5 8.81802 2.15901 8.15901C2.81802 7.5 3.87868 7.5 6 7.5H12C14.1213 7.5 15.182 7.5 15.841 8.15901C16.5 8.81802 16.5 9.87868 16.5 12C16.5 14.1213 16.5 15.182 15.841 15.841C15.182 16.5 14.1213 16.5 12 16.5H6C3.87868 16.5 2.81802 16.5 2.15901 15.841C1.5 15.182 1.5 14.1213 1.5 12Z" fill="currentColor"></path>
+                                        <path d="M6 12.75C6.41421 12.75 6.75 12.4142 6.75 12C6.75 11.5858 6.41421 11.25 6 11.25C5.58579 11.25 5.25 11.5858 5.25 12C5.25 12.4142 5.58579 12.75 6 12.75Z" fill="currentColor"></path>
+                                        <path d="M9 12.75C9.41421 12.75 9.75 12.4142 9.75 12C9.75 11.5858 9.41421 11.25 9 11.25C8.58579 11.25 8.25 11.5858 8.25 12C8.25 12.4142 8.58579 12.75 9 12.75Z" fill="currentColor"></path>
+                                        <path d="M12.75 12C12.75 12.4142 12.4142 12.75 12 12.75C11.5858 12.75 11.25 12.4142 11.25 12C11.25 11.5858 11.5858 11.25 12 11.25C12.4142 11.25 12.75 11.5858 12.75 12Z" fill="currentColor"></path>
+                                        <path d="M5.0625 6C5.0625 3.82538 6.82538 2.0625 9 2.0625C11.1746 2.0625 12.9375 3.82538 12.9375 6V7.50268C13.363 7.50665 13.7351 7.51651 14.0625 7.54096V6C14.0625 3.20406 11.7959 0.9375 9 0.9375C6.20406 0.9375 3.9375 3.20406 3.9375 6V7.54096C4.26488 7.51651 4.63698 7.50665 5.0625 7.50268V6Z" fill="currentColor"></path>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="@Url.Action("ForgotPassword", "Account", new { area = "Admin" })" class="text-primary hover:underline" style="text-decoration: none; font-weight: 700;">Quên mật khẩu?</a>
+                        </div>
+                        <button type="submit" class="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
+                            Đăng nhập
+                        </button>
+                    </form>
+                </div>
+
+                <div class="absolute bottom-6 left-0 right-2 text-center dark:text-white">
+                    <p class="text-black dark:text-white">
+                        © <span id="footer-year"></span>. Hưng Nguyễn All Rights Reserved.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('auth', () => ({}));
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const code = document.getElementById('Code').value.trim();
+        const password = document.getElementById('Password').value.trim();
+
+        if (!code && !password) {
+            notyf.error("Mã nhân viên và mật khẩu không được bỏ trống!");
+            return;
+        } else if (!code) {
+            notyf.error("Mã nhân viên không được bỏ trống!");
+            return;
+        } else if (!password) {
+            notyf.error("Mật khẩu không được bỏ trống!");
+            return;
+        }
+
+        const formData = new FormData(this);
+
+        fetch('/Admin/Account/Login', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                notyf.success(data.message);
+                setTimeout(() => {
+                    window.location.href = data.redirectUrl;
+                }, 3000);
+            } else {
+                notyf.error(data.message);
+            }
+        })
+        .catch(error => {
+            notyf.error("Có lỗi xảy ra: " + error);
+        });
+    });
+
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+</script>
