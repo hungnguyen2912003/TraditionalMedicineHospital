@@ -21,6 +21,14 @@
         <script src="~/public/assets/js/jquery-3.7.1.min.js"></script>
         <script src="~/public/assets/js/jquery.validate.min.js"></script>
         <script src="~/public/assets/js/jquery.validate.unobtrusive.min.js"></script>
+
+        <style>
+            .error {
+                color: red;
+                font-size: 0.875rem;
+                margin-top: 0.25rem;
+            }
+        </style>
     </head>
 
     <body x-data="main" class="relative overflow-x-hidden font-nunito text-sm font-normal antialiased" :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout,$store.app.rtlClass]">

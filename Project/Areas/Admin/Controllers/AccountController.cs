@@ -93,7 +93,6 @@ namespace Project.Areas.Admin.Controllers
             var employeeCode = _jwtManager.GetEmployeeCodeFromToken(token);
             if (string.IsNullOrEmpty(employeeCode))
             {
-                // Token is invalid or expired
                 Response.Cookies.Delete("AuthToken");
                 return RedirectToAction("Login", "Account", new { area = "Admin" });
             }

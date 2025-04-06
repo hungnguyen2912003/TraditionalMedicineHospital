@@ -75,46 +75,57 @@
         </div>
     </div>
 </div>
+
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('auth', () => ({}));
     });
 
-    document.getElementById('loginForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const code = document.getElementById('Code').value.trim();
-        const password = document.getElementById('Password').value.trim();
+    $(document).ready(function () {
+        $("#loginForm").validate({
+            rules: {
+                code: {
+                    required: true
+                },
+                password: {
+                    required: true
+                }
+            },
+            messages: {
+                code: {
+                    required: "Mã nhân viên không được bỏ trống!"
+                },
+                password: {
+                    required: "Mật khẩu không được bỏ trống!"
+                }
+            },
+            errorElement: "div",
+            errorPlacement: function (error, element) {
+                error.addClass("error");
+                error.insertAfter(element.parent());
+            },
+            submitHandler: function (form) {
+                const formData = new FormData(form);
 
-        if (!code && !password) {
-            notyf.error("Mã nhân viên và mật khẩu không được bỏ trống!");
-            return;
-        } else if (!code) {
-            notyf.error("Mã nhân viên không được bỏ trống!");
-            return;
-        } else if (!password) {
-            notyf.error("Mật khẩu không được bỏ trống!");
-            return;
-        }
-
-        const formData = new FormData(this);
-
-        fetch('/Admin/Account/Login', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                notyf.success(data.message);
-                setTimeout(() => {
-                    window.location.href = data.redirectUrl;
-                }, 3000);
-            } else {
-                notyf.error(data.message);
+                fetch('/Admin/Account/Login', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        notyf.success(data.message);
+                        setTimeout(() => {
+                            window.location.href = data.redirectUrl;
+                        }, 3000);
+                    } else {
+                        notyf.error(data.message);
+                    }
+                })
+                .catch(error => {
+                    notyf.error("Có lỗi xảy ra: " + error);
+                });
             }
-        })
-        .catch(error => {
-            notyf.error("Có lỗi xảy ra: " + error);
         });
     });
 

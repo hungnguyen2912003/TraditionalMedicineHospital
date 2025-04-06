@@ -34,9 +34,17 @@
 
         public ValidationResult ValidateChangePassword(string oldPassword, string newPassword, string confirmPassword, string currentPasswordHash)
         {
-            if (string.IsNullOrWhiteSpace(oldPassword) || string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmPassword))
+            if (string.IsNullOrWhiteSpace(oldPassword))
             {
-                return new ValidationResult(false, "Mật khẩu cũ, mật khẩu mới và xác nhận mật khẩu không được bỏ trống!");
+                return new ValidationResult(false, "Mật khẩu cũ không được bỏ trống!");
+            }
+            if (string.IsNullOrWhiteSpace(newPassword))
+            {
+                return new ValidationResult(false, "Mật khẩu mới không được bỏ trống!");
+            }
+            if (string.IsNullOrWhiteSpace(confirmPassword))
+            {
+                return new ValidationResult(false, "Xác nhận mật khẩu không được bỏ trống!");
             }
 
             if (!BCrypt.Net.BCrypt.Verify(oldPassword, currentPasswordHash))
@@ -57,6 +65,11 @@
             if (oldPassword == newPassword)
             {
                 return new ValidationResult(false, "Mật khẩu mới không được trùng với mật khẩu cũ!");
+            }
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(newPassword, @"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$"))
+            {
+                return new ValidationResult(false, "Mật khẩu mới phải chứa ít nhất 1 chữ cái và 1 số!");
             }
 
             return new ValidationResult(true);

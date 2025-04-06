@@ -111,6 +111,15 @@ namespace Project.Areas.Admin.Controllers
                 })
                 .ToList();
 
+            ViewBag.RoleOptions = Enum.GetValues(typeof(RoleType))
+                .Cast<RoleType>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
+
             return View();
         }
 
@@ -192,6 +201,15 @@ namespace Project.Areas.Admin.Controllers
 
             ViewBag.ProfessionalOptions = Enum.GetValues(typeof(ProfessionalQualificationType))
                 .Cast<ProfessionalQualificationType>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
+
+            ViewBag.RoleOptions = Enum.GetValues(typeof(RoleType))
+                .Cast<RoleType>()
                 .Select(e => new
                 {
                     Value = (int)e,
