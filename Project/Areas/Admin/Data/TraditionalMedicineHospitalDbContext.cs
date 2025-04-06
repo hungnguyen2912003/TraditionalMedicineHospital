@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project.Areas.Admin.Models.Entities;
+using Project.Areas.Admin.Models.Enums.Employee;
 
 namespace Project.Areas.Admin.Data
 {
@@ -39,7 +40,7 @@ namespace Project.Areas.Admin.Data
                 .HasOne(e => e.User)
                 .WithOne(u => u.Employee)
                 .HasForeignKey<User>(u => u.EmployeeId)
-                .IsRequired();
+                .IsRequired(false);
         }
     }
 }

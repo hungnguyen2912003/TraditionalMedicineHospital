@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Admin.Models.ViewModels;
+using Project.Helpers;
 using Project.Repositories.Interfaces;
 
 namespace Project.Areas.Admin.Controllers
@@ -11,19 +12,19 @@ namespace Project.Areas.Admin.Controllers
     public class RoomsController : Controller
     {
         private readonly IRoomRepository _repository;
-        private readonly ITreatmentMethodRepository _treatmentRepository;
         private readonly IMapper _mapper;
+        private readonly ViewBagHelper _viewBagHelper;
 
         public RoomsController
         (
             IRoomRepository repository,
-            ITreatmentMethodRepository treatmentRepository,
-            IMapper mapper
+            IMapper mapper,
+            ViewBagHelper viewBagHelper
         )
         {
             _repository = repository;
-            _treatmentRepository = treatmentRepository;
             _mapper = mapper;
+            _viewBagHelper = viewBagHelper;
         }
 
         public async Task<IActionResult> Index()
@@ -47,11 +48,7 @@ namespace Project.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var treatments = await _treatmentRepository.GetAllAsync();
-            ViewBag.Treatments = treatments
-                .Where(mc => mc.IsActive)
-                .Select(mc => new { mc.Id, mc.Name })
-                .ToList();
+            await _viewBagHelper.BaseViewBag(ViewData);
 
             return View();
         }
@@ -85,11 +82,7 @@ namespace Project.Areas.Admin.Controllers
 
             ViewBag.RoomId = entity.Id;
 
-            var treatments = await _treatmentRepository.GetAllAsync();
-            ViewBag.Treatments = treatments
-                .Where(mc => mc.IsActive)
-                .Select(mc => new { mc.Id, mc.Name })
-                .ToList();
+            await _viewBagHelper.BaseViewBag(ViewData);
 
             return View(dto);
         }

@@ -14,13 +14,13 @@
             }
         }
 
-        public ValidationResult ValidateLogin(string code, string password)
+        public ValidationResult ValidateLogin(string username, string password)
         {
-            if (string.IsNullOrWhiteSpace(code) && string.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(username) && string.IsNullOrWhiteSpace(password))
             {
                 return new ValidationResult(false, "Mã nhân viên và mật khẩu không được bỏ trống!");
             }
-            if (string.IsNullOrWhiteSpace(code))
+            if (string.IsNullOrWhiteSpace(username))
             {
                 return new ValidationResult(false, "Mã nhân viên không được bỏ trống!");
             }
@@ -75,9 +75,9 @@
             return new ValidationResult(true);
         }
 
-        public ValidationResult ValidateForgotPassword(string code)
+        public ValidationResult ValidateForgotPassword(string username)
         {
-            if (string.IsNullOrWhiteSpace(code))
+            if (string.IsNullOrWhiteSpace(username))
             {
                 return new ValidationResult(false, "Mã nhân viên không được bỏ trống!");
             }

@@ -3,9 +3,8 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
-using Project.Areas.Admin.Models.Enums.Medicines;
 using Project.Areas.Admin.Models.ViewModels;
-using Project.Extensions;
+using Project.Helpers;
 using Project.Repositories.Interfaces;
 using Project.Services.Interfaces;
 
@@ -18,19 +17,22 @@ namespace Project.Areas.Admin.Controllers
         private readonly IMedicineCategoryRepository _categoryRepository;
         private readonly IMapper _mapper;
         private readonly IImageService _imgService;
+        private readonly ViewBagHelper _viewBagHelper;
 
         public MedicinesController
         (
             IMedicineRepository repository,
             IMapper mapper,
             IImageService imgService,
-            IMedicineCategoryRepository categoryRepository
+            IMedicineCategoryRepository categoryRepository,
+            ViewBagHelper viewBagHelper
         )
         {
             _repository = repository;
             _mapper = mapper;
             _imgService = imgService;
             _categoryRepository = categoryRepository;
+            _viewBagHelper = viewBagHelper;
         }
 
         public async Task<IActionResult> Index()
@@ -54,20 +56,7 @@ namespace Project.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var medicineCategories = await _categoryRepository.GetAllAsync();
-            ViewBag.MedicineCategories = medicineCategories
-                .Where(mc => mc.IsActive)
-                .Select(mc => new { mc.Id, mc.Name })
-                .ToList();
-
-            ViewBag.StockUnit = Enum.GetValues(typeof(UnitType))
-                .Cast<UnitType>()
-                .Select(e => new
-                {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View();
         }
 
@@ -106,19 +95,7 @@ namespace Project.Areas.Admin.Controllers
             ViewBag.MedicineId = entity.Id;
             ViewBag.ExistingImage = entity.Images;
 
-            var medicineCategories = await _categoryRepository.GetAllAsync();
-            ViewBag.MedicineCategories = medicineCategories
-                .Select(mc => new { mc.Id, mc.Name })
-                .ToList();
-
-            ViewBag.StockUnit = Enum.GetValues(typeof(UnitType))
-                .Cast<UnitType>()
-                .Select(e => new
-                {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
+            await _viewBagHelper.BaseViewBag(ViewData);
 
             return View(dto);
         }

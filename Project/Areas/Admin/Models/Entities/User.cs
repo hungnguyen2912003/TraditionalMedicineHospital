@@ -11,21 +11,19 @@ namespace Project.Areas.Admin.Models.Entities
         [Key]
         public Guid Id { get; set; }
         [Required]
-        [StringLength(10)]
-        public string Code { get; set; }
-        [Required]
         [StringLength(20)]
         public string Username { get; set; }
         [Required]
         public string PasswordHash { get; set; }
         [Required]
         public RoleType Role { get; set; }
+        public bool IsFirstLogin { get; set; }
 
         // Foreign Key
-        public Guid EmployeeId { get; set; }
+        public Guid? EmployeeId { get; set; }
 
         // Relationship
         [ForeignKey("EmployeeId")]
-        public virtual Employee Employee { get; set; }
+        public virtual Employee? Employee { get; set; }
     }
 }

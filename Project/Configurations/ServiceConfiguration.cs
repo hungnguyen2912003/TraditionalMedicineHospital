@@ -12,7 +12,6 @@ namespace Project.Configurations
         {
             builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddScoped(typeof(IBaseService<>), typeof(BaseService<>));
-            builder.Services.AddScoped<CodeGeneratorHelper>();
             builder.Services.AddScoped<IBaseService<Medicine>, MedicineService>();
             builder.Services.AddScoped<IBaseService<MedicineCategory>, MedicineCategoryService>();
             builder.Services.AddScoped<IBaseService<Department>, DepartmentService>();
@@ -21,7 +20,12 @@ namespace Project.Configurations
             builder.Services.AddScoped<IBaseService<Room>, RoomService>();
             builder.Services.AddScoped<IBaseService<Regulation>, RegulationService>();
 
+            builder.Services.AddScoped<EmailService>();
+
+
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddHttpClient();
             return builder;
         }
     }

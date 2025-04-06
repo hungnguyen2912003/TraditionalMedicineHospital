@@ -4,7 +4,6 @@ using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Admin.Models.Enums.Employee;
 using Project.Areas.Admin.Models.ViewModels;
-using Project.Extensions;
 using Project.Helpers;
 using Project.Repositories.Interfaces;
 using Project.Services.Interfaces;
@@ -15,27 +14,24 @@ namespace Project.Areas.Admin.Controllers
     public class EmployeesController : Controller
     {
         private readonly IEmployeeRepository _repository;
-        private readonly IEmployeeCategoryRepository _categoryRepository;
-        private readonly IDepartmentRepository _depRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IImageService _imgService;
-        private readonly CodeGeneratorHelper _helper;
+        private readonly ViewBagHelper _viewBagHelper;
         public EmployeesController
         (
             IEmployeeRepository repository,
-            IEmployeeCategoryRepository categoryRepository,
-            IDepartmentRepository depRepository,
+            IUserRepository userRepository,
             IMapper mapper,
             IImageService imgService,
-            CodeGeneratorHelper helper
+            ViewBagHelper viewBagHelper
         )
         {
             _repository = repository;
-            _categoryRepository = categoryRepository;
-            _depRepository = depRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
             _imgService = imgService;
-            _helper = helper;
+            _viewBagHelper = viewBagHelper;
         }
 
         public async Task<IActionResult> Index()
@@ -59,66 +55,7 @@ namespace Project.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            string randomCode = await _helper.GenerateUniqueCodeAsync();
-            ViewBag.RandomCode = randomCode;
-
-            var employeeCategories = await _categoryRepository.GetAllAsync();
-            ViewBag.EmployeeCategories = employeeCategories
-                .Where(mc => mc.IsActive)
-                .Select(mc => new { mc.Id, mc.Name })
-                .ToList();
-
-            var departments = await _depRepository.GetAllAsync();
-            ViewBag.Departments = departments
-                .Where(mc => mc.IsActive)
-                .Select(mc => new { mc.Id, mc.Name })
-                .ToList();
-
-            ViewBag.GenderOptions = Enum.GetValues(typeof(GenderType))
-                .Cast<GenderType>()
-                .Select(e => new
-                {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
-
-            ViewBag.StatusOptions = Enum.GetValues(typeof(EmployeeStatus))
-                .Cast<EmployeeStatus>()
-                .Select(e => new
-                {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
-
-            ViewBag.DegreeOptions = Enum.GetValues(typeof(DegreeType))
-                .Cast<DegreeType>()
-                .Select(e => new
-                {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
-
-            ViewBag.ProfessionalOptions = Enum.GetValues(typeof(ProfessionalQualificationType))
-                .Cast<ProfessionalQualificationType>()
-                .Select(e => new
-                {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
-
-            ViewBag.RoleOptions = Enum.GetValues(typeof(RoleType))
-                .Cast<RoleType>()
-                .Select(e => new
-                {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
-
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View();
         }
 
@@ -139,6 +76,23 @@ namespace Project.Areas.Admin.Controllers
                 }
 
                 await _repository.CreateAsync(entity);
+
+
+                var user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = entity.Code,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("11111111"),
+                    Role = RoleType.Nhanvien,
+                    CreatedDate = DateTime.UtcNow,
+                    CreatedBy = "Admin",
+                    IsActive = true,
+                    EmployeeId = entity.Id,
+                    IsFirstLogin = true
+                };
+
+                await _userRepository.CreateAsync(user);
+
                 return Json(new { success = true, message = "Thêm nhân sự thành công!" });
             }
             catch (Exception ex)
@@ -157,62 +111,7 @@ namespace Project.Areas.Admin.Controllers
             ViewBag.EmployeeId = entity.Id;
             ViewBag.ExistingImage = entity.Images;
 
-            var employeeCategories = await _categoryRepository.GetAllAsync();
-            ViewBag.EmployeeCategories = employeeCategories
-                .Where(mc => mc.IsActive)
-                .Select(mc => new { mc.Id, mc.Name })
-                .ToList();
-
-            var departments = await _depRepository.GetAllAsync();
-            ViewBag.Departments = departments
-                .Where(mc => mc.IsActive)
-                .Select(mc => new { mc.Id, mc.Name })
-                .ToList();
-
-            ViewBag.GenderOptions = Enum.GetValues(typeof(GenderType))
-                .Cast<GenderType>()
-                .Select(e => new
-                {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
-
-            ViewBag.StatusOptions = Enum.GetValues(typeof(EmployeeStatus))
-                .Cast<EmployeeStatus>()
-                .Select(e => new
-                {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
-
-            ViewBag.DegreeOptions = Enum.GetValues(typeof(DegreeType))
-                .Cast<DegreeType>()
-                .Select(e => new
-                {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
-
-            ViewBag.ProfessionalOptions = Enum.GetValues(typeof(ProfessionalQualificationType))
-                .Cast<ProfessionalQualificationType>()
-                .Select(e => new
-                {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
-
-            ViewBag.RoleOptions = Enum.GetValues(typeof(RoleType))
-                .Cast<RoleType>()
-                .Select(e => new
-                {
-                    Value = (int)e,
-                    Text = e.GetDisplayName()
-                })
-                .ToList();
+            await _viewBagHelper.BaseViewBag(ViewData);
 
             return View(dto);
         }

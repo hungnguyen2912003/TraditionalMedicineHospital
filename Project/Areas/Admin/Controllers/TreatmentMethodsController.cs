@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Admin.Models.ViewModels;
+using Project.Helpers;
 using Project.Repositories.Interfaces;
 
 namespace Project.Areas.Admin.Controllers
@@ -11,22 +12,22 @@ namespace Project.Areas.Admin.Controllers
     public class TreatmentMethodsController : Controller
     {
         private readonly ITreatmentMethodRepository _repository;
-        private readonly IDepartmentRepository _departmentRepository;
         private readonly IRoomRepository _roomRepository;
         private readonly IMapper _mapper;
+        private readonly ViewBagHelper _viewBagHelper;
 
         public TreatmentMethodsController
         (
             ITreatmentMethodRepository repository,
-            IDepartmentRepository departmentRepository,
             IRoomRepository roomRepository,
-            IMapper mapper
+            IMapper mapper,
+            ViewBagHelper viewBagHelper
         )
         {
             _repository = repository;
-            _departmentRepository = departmentRepository;
             _roomRepository = roomRepository;
             _mapper = mapper;
+            _viewBagHelper = viewBagHelper;
         }
 
         public async Task<IActionResult> Index()
@@ -50,11 +51,7 @@ namespace Project.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var departments = await _departmentRepository.GetAllAsync();
-            ViewBag.Departments = departments
-                .Where(mc => mc.IsActive)
-                .Select(mc => new { mc.Id, mc.Name })
-                .ToList();
+            await _viewBagHelper.BaseViewBag(ViewData);
 
             return View();
         }
@@ -88,11 +85,7 @@ namespace Project.Areas.Admin.Controllers
 
             ViewBag.DepId = entity.Id;
 
-            var departments = await _departmentRepository.GetAllAsync();
-            ViewBag.Departments = departments
-                .Where(mc => mc.IsActive)
-                .Select(mc => new { mc.Id, mc.Name })
-                .ToList();
+            await _viewBagHelper.BaseViewBag(ViewData);
 
             return View(dto);
         }

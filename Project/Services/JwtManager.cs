@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using Project.Areas.Admin.Models.Enums.Employee;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -17,14 +18,15 @@ namespace Project.Services
             _secretKey = "MCKxk26zBjrUSuD94ZeQ3Ww5Vbmf8sLdUq4ZFywJrujQp3CPXbYeA72KVL5fTGEMpyCkBEPKeXDRZbqF7TjwAnVLuxmGQcUSRYF7BjEQxJn2vkHTMSPgpL9VAcmWthzeFrjyvL4ext6CYVNhW2sfMXkQg9nARdKb";
         }
 
-        public string GenerateToken(string employeeCode)
+        public string GenerateToken(string username, RoleType role)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, employeeCode),
+                new Claim(JwtRegisteredClaimNames.Sub, username),
+                new Claim(ClaimTypes.Role, role.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64) 
             };
@@ -40,7 +42,7 @@ namespace Project.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string GetEmployeeCodeFromToken(string token)
+        public (string Username, string Role) GetClaimsFromToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
@@ -59,11 +61,13 @@ namespace Project.Services
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                return jwtToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value;
+                var username = jwtToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value;
+                var role = jwtToken.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+                return (username, role);
             }
             catch
             {
-                return null;
+                return (null, null);
             }
         }
     }
