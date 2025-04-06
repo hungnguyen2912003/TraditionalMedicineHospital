@@ -53,6 +53,6 @@ namespace Project.Areas.Admin.Models.Entities
         public virtual EmployeeCategory EmployeeCategory { get; set; }
         [ForeignKey("DepartmentId")]
         public virtual Department Department { get; set; }
-        public virtual User User { get; set; }
+        public virtual User? User { get; set; }
     }
 }
