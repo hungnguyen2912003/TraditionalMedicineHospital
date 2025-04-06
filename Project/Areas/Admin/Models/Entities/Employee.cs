@@ -50,8 +50,9 @@ namespace Project.Areas.Admin.Models.Entities
         /// Relationships
         ///
         [ForeignKey("EmployeeCategoryId")]
-        public virtual EmployeeCategory? EmployeeCategory { get; set; }
+        public virtual EmployeeCategory EmployeeCategory { get; set; }
         [ForeignKey("DepartmentId")]
-        public virtual Department? Department { get; set; }
+        public virtual Department Department { get; set; }
+        public virtual User User { get; set; }
     }
 }

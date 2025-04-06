@@ -19,6 +19,6 @@ namespace Project.Areas.Admin.Models.Entities
 
         /////////////////////////////////////////////////////
         /// Relationship
-        public virtual ICollection<Employee>? Employees { get; set; }
+        public virtual ICollection<Employee> Employees { get; set; }
     }
 }

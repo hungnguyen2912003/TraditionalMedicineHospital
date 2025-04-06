@@ -21,5 +21,11 @@ namespace Project.Areas.Admin.Models.Entities
         [Required]
         public RoleType Role { get; set; }
 
+        // Foreign Key
+        public Guid EmployeeId { get; set; }
+
+        // Relationship
+        [ForeignKey("EmployeeId")]
+        public virtual Employee Employee { get; set; }
     }
 }

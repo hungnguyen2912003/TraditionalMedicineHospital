@@ -34,6 +34,12 @@ namespace Project.Areas.Admin.Data
                 .WithMany(mc => mc.Medicines)
                 .HasForeignKey(m => m.MedicineCategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Employee>()
+                .HasOne(e => e.User)
+                .WithOne(u => u.Employee)
+                .HasForeignKey<User>(u => u.EmployeeId)
+                .IsRequired();
         }
     }
 }

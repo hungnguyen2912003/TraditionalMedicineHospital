@@ -39,6 +39,6 @@ namespace Project.Areas.Admin.Models.Entities
         /////////////////////////////////////////////////////
         /// Relationship
         [ForeignKey("MedicineCategoryId")]
-        public virtual MedicineCategory? MedicineCategory { get; set; }
+        public virtual MedicineCategory MedicineCategory { get; set; }
     }
 }

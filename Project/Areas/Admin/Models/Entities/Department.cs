@@ -20,7 +20,7 @@ namespace Project.Areas.Admin.Models.Entities
         /////////////////////////////////////////////////////
         /// Relationships
         /// 
-        public virtual ICollection<TreatmentMethod>? TreatmentMethods { get; set; }
-        public virtual ICollection<Employee>? Employees { get; set; }
+        public virtual ICollection<TreatmentMethod> TreatmentMethods { get; set; }
+        public virtual ICollection<Employee> Employees { get; set; }
     }
 }
