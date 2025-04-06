@@ -1,4 +1,5 @@
 ﻿@model Project.Areas.Admin.Models.DTOs.EmployeeDto
+
 @{
     ViewData["Title"] = "Thêm mới nhân sự";
     Layout = "~/Areas/Admin/Views/Shared/_mainLayout.cshtml";
@@ -195,6 +196,26 @@
                             </div>
                         </div>
                     </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700">Vai trò</label>
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <select id="Role" name="Role" class="form-input w-full mt-1 p-2 border rounded">
+                                <option value="">Chọn vai trò</option>
+                                @foreach (var role in ViewBag.RoleOptions)
+                                {
+                                    if (role.Value == (int)Project.Areas.Admin.Models.Enums.Employee.RoleType.Nhanvien)
+                                    {
+                                        <option value="@role.Value" selected>@role.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@role.Value">@role.Text</option>
+                                    }
+                                }
+                            </select>
+                            @Html.ValidationMessageFor(model => model.Role, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
                 </div>
                 <div class="panel">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
@@ -374,6 +395,9 @@
                         },
                         DepartmentId: {
                             required: true
+                        },
+                        Role: {
+                            required: true
                         }
                     },
                     messages: {
@@ -436,6 +460,9 @@
                         },
                         DepartmentId: {
                             required: "Khoa không được bỏ trống."
+                        },
+                        Role: {
+                            required: "Vai trò không được bỏ trống."
                         }
                     },
                     errorElement: "div",
@@ -473,6 +500,7 @@
                 formData.append('StartDate', document.getElementById('StartDate').value);
                 formData.append('EmployeeCategoryId', document.getElementById('EmployeeCategoryId').value);
                 formData.append('DepartmentId', document.getElementById('DepartmentId').value);
+                formData.append('Role', document.getElementById('Role').value);
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
                 formData.append('__RequestVerificationToken', token);
             },

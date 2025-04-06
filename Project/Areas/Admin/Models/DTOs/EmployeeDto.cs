@@ -21,5 +21,6 @@ namespace Project.Areas.Admin.Models.DTOs
         public Guid DepartmentId { get; set; }
         public string? PasswordHash { get; set; }
         public bool IsActive { get; set; }
+        public RoleType Role { get; set; }
     }
 }
