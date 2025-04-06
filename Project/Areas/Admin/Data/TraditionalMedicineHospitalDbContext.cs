@@ -17,6 +17,7 @@ namespace Project.Areas.Admin.Data
         public DbSet<TreatmentMethod> treatments { get; set; }
         public DbSet<Room> rooms { get; set; }
         public DbSet<Regulation> regulations { get; set; }
+        public DbSet<User> users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
