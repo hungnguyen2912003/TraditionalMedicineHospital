@@ -41,9 +41,6 @@ namespace Project.Areas.Admin.Models.Entities
         public DateTime StartDate { get; set; }
         [Required]
         public EmployeeStatus Status { get; set; }
-        public string PasswordHash { get; set; }
-        public bool IsFirstLogin { get; set; }
-        public RoleType Role { get; set; }
 
         // Foreign Key
         public Guid EmployeeCategoryId { get; set; }

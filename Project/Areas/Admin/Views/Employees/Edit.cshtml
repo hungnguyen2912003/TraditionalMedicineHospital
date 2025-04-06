@@ -271,26 +271,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700">Vai trò</label>
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <select id="Role" name="Role" class="form-input w-full mt-1 p-2 border rounded">
-                                <option value="">Chọn vai trò</option>
-                                @foreach (var role in ViewBag.RoleOptions)
-                                {
-                                    if (role.Value == (int)Model.Role)
-                                    {
-                                        <option value="@role.Value" selected>@role.Text</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@role.Value">@role.Text</option>
-                                    }
-                                }
-                            </select>
-                            @Html.ValidationMessageFor(model => model.Role, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
                 </div>
                 <div class="panel">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
