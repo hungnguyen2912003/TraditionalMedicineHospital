@@ -20,6 +20,6 @@ namespace Project.Areas.Admin.Models.Entities
 
         /////////////////////////////////////////////////////
         /// Relationship
-        public virtual ICollection<Medicine>? Medicines { get; set; }
+        public virtual ICollection<Medicine> Medicines { get; set; }
     }
 }

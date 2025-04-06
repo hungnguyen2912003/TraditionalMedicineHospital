@@ -23,6 +23,6 @@ namespace Project.Areas.Admin.Models.Entities
         /////////////////////////////////////////////////////
         /// Relationships
         [ForeignKey("TreatmentMethodId")]
-        public virtual TreatmentMethod? TreatmentMethod { get; set; }
+        public virtual TreatmentMethod TreatmentMethod { get; set; }
     }
 }

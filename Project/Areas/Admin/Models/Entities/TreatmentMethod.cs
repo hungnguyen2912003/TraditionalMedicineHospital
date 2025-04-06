@@ -25,7 +25,7 @@ namespace Project.Areas.Admin.Models.Entities
         /////////////////////////////////////////////////////
         /// Relationships
         [ForeignKey("DepartmentId")]
-        public virtual Department? Department { get; set; }
-        public virtual ICollection<Room>? Rooms { get; set; }
+        public virtual Department Department { get; set; }
+        public virtual ICollection<Room> Rooms { get; set; }
     }
 }

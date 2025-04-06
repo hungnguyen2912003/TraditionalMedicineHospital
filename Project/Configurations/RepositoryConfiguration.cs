@@ -22,6 +22,8 @@ namespace Project.Configurations
 
             builder.Services.AddScoped<IRegulationRepository, RegulationRepository>();
 
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+
             return builder;
         }
     }
