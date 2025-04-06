@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.Scripting;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Admin.Models.Enums.Employee;
@@ -133,8 +132,6 @@ namespace Project.Areas.Admin.Controllers
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
                 entity.IsActive = true;
-                entity.PasswordHash = BCrypt.Net.BCrypt.HashPassword("11111111");
-                entity.IsFirstLogin = true;
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
