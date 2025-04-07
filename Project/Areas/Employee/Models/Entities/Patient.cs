@@ -1,0 +1,36 @@
+﻿using Project.Models.Commons;
+using Project.Models.Enums;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Project.Areas.Employee.Models.Entities
+{
+    [Table("Patient")]
+    public class Patient : BaseEntity
+    {
+        [Key]
+        public Guid Id { get; set; }
+        [Required]
+        [StringLength(10)]
+        public string Code { get; set; }
+        [Required]
+        [StringLength(50)]
+        public string Name { get; set; }
+        [Required]
+        [StringLength(12, MinimumLength = 9)]
+        public string IdentityNumber { get; set; }
+        [Required]
+        public DateTime DateOfBirth { get; set; }
+        [Required]
+        public GenderType Gender { get; set; }
+        [Required]
+        [StringLength(500)]
+        public string Address { get; set; }
+        [Required]
+        [StringLength(50)]
+        public string Phone { get; set; }
+        [EmailAddress]
+        public string? EmailAddress { get; set; }
+        public string? Images { get; set; }
+    }
+}
