@@ -1,4 +1,6 @@
-﻿@model Project.Areas.Admin.Models.DTOs.EmployeeDto
+﻿@using Project.Models.Enums
+@using Project.Models.Enums.Employee
+@model Project.Areas.Admin.Models.DTOs.EmployeeDto
 
 @{
     ViewData["Title"] = "Thêm mới nhân sự";
@@ -375,7 +377,7 @@
                         },
                         DepartmentId: {
                             required: function () {
-                                return $("#Role").val() != '@((int)Project.Areas.Admin.Models.Enums.Employee.RoleType.Admin)';
+                                return $("#Role").val() != '@((int)RoleType.Admin)';
                             }
                         },
                         Role: {
