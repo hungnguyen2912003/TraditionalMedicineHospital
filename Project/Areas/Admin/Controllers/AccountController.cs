@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Repositories.Interfaces;
-using Project.Services;
+using Project.Services.Features;
 using Project.Validators;
 
 namespace Project.Areas.Admin.Controllers

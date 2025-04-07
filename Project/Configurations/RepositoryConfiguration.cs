@@ -23,6 +23,7 @@ namespace Project.Configurations
             builder.Services.AddScoped<IRegulationRepository, RegulationRepository>();
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 
             return builder;
         }

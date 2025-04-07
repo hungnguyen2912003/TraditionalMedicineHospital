@@ -23,9 +23,17 @@
             );
 
             app.MapControllerRoute(
+                name: "staff",
+                pattern: "staff",
+                defaults: new { area = "Staff", controller = "Home", action = "Index" }
+            );
+
+            app.MapControllerRoute(
                 name: "areas",
                 pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
             );
+
+
 
             app.MapControllerRoute(
                 name: "default",
