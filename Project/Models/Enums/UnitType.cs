@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Project.Areas.Admin.Models.Enums.Medicines
+namespace Project.Models.Enums
 {
     public enum UnitType
     {

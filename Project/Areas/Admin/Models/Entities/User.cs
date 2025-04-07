@@ -1,5 +1,5 @@
-﻿using Project.Areas.Admin.Models.Enums.Employee;
-using Project.Models.Commons;
+﻿using Project.Models.Commons;
+using Project.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

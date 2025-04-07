@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
-using Project.Areas.Admin.Models.Enums.Employee;
 using Project.Areas.Admin.Models.ViewModels;
 using Project.Helpers;
+using Project.Models.Enums;
 using Project.Repositories.Interfaces;
 using Project.Services.Interfaces;
 

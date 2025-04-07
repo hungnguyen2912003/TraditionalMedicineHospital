@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Project.Areas.Admin.Models.Enums.Employee;
-using Project.Areas.Admin.Models.Enums.Medicines;
 using Project.Extensions;
+using Project.Models.Enums;
 using Project.Repositories.Interfaces;
 
 namespace Project.Helpers

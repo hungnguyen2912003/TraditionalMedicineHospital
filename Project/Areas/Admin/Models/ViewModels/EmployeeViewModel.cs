@@ -1,4 +1,4 @@
-﻿using Project.Areas.Admin.Models.Enums.Employee;
+﻿using Project.Models.Enums;
 
 namespace Project.Areas.Admin.Models.ViewModels
 {
