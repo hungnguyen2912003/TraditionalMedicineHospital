@@ -14,6 +14,7 @@ namespace Project.Configurations
             builder.Services.AddAutoMapper(typeof(TreatmentMethodProfile));
             builder.Services.AddAutoMapper(typeof(RoomProfile));
             builder.Services.AddAutoMapper(typeof(RegulationProfile));
+            builder.Services.AddAutoMapper(typeof(PatientProfile));
 
             return builder;
         }

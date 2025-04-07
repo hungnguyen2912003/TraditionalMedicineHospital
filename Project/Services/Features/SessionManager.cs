@@ -1,4 +1,4 @@
-﻿namespace Project.Services
+﻿namespace Project.Services.Features
 {
     public class SessionManager
     {

@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.IdentityModel.Tokens;
-using Project.Areas.Admin.Models.Entities;
-using Project.Helpers;
+﻿using Project.Areas.Admin.Models.Entities;
+using Project.Areas.Staff.Models.Entities;
 using Project.Services;
+using Project.Services.Features;
 using Project.Services.Implementations;
 using Project.Services.Interfaces;
-using System.Text;
 
 namespace Project.Configurations
 {
@@ -24,6 +20,7 @@ namespace Project.Configurations
             builder.Services.AddScoped<IBaseService<Employee>, EmployeeService>();
             builder.Services.AddScoped<IBaseService<Room>, RoomService>();
             builder.Services.AddScoped<IBaseService<Regulation>, RegulationService>();
+            builder.Services.AddScoped<IBaseService<Patient>, PatientService>();
 
             builder.Services.AddScoped<EmailService>();
             builder.Services.AddScoped<JwtManager>();

@@ -1,9 +1,9 @@
 ﻿using Project.Models.Commons;
 using Project.Models.Enums;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
-namespace Project.Areas.Employee.Models.Entities
+namespace Project.Areas.Staff.Models.Entities
 {
     [Table("Patient")]
     public class Patient : BaseEntity
@@ -28,7 +28,7 @@ namespace Project.Areas.Employee.Models.Entities
         public string Address { get; set; }
         [Required]
         [StringLength(50)]
-        public string Phone { get; set; }
+        public string PhoneNumber { get; set; }
         [EmailAddress]
         public string? EmailAddress { get; set; }
         public string? Images { get; set; }

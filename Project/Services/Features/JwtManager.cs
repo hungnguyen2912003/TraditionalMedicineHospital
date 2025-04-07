@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Project.Services
+namespace Project.Services.Features
 {
     public class JwtManager
     {
