@@ -26,8 +26,8 @@ namespace Project.Areas.Staff.Models.Entities
         [Required]
         [StringLength(500)]
         public string Address { get; set; }
-        [Required]
-        [StringLength(50)]
+        [Required]  
+        [Phone]
         public string PhoneNumber { get; set; }
         [EmailAddress]
         public string? EmailAddress { get; set; }

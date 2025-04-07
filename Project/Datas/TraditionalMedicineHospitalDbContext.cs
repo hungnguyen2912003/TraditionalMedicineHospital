@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project.Areas.Admin.Models.Entities;
+using Project.Areas.Staff.Models.Entities;
 
 namespace Project.Datas
 {
@@ -18,6 +19,7 @@ namespace Project.Datas
         public DbSet<Room> rooms { get; set; }
         public DbSet<Regulation> regulations { get; set; }
         public DbSet<User> users { get; set; }
+        public DbSet<Patient> patients { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
