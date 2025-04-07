@@ -8,13 +8,13 @@ using Project.Services.Interfaces;
 namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
-    public class PatientController : Controller
+    public class PatientsController : Controller
     {
         private readonly IPatientRepository _patientRepository;
         private readonly IImageService _imgService;
         private readonly IMapper _mapper;
 
-        public PatientController
+        public PatientsController
         (
             IPatientRepository patientRepository,
             IImageService imgService,
