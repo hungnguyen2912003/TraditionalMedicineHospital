@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
@@ -11,6 +12,7 @@ using Project.Services.Interfaces;
 namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize]
     public class EmployeesController : Controller
     {
         private readonly IEmployeeRepository _repository;

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Project.Services;
 using System.Text;
 
 namespace Project.Configurations
@@ -9,6 +8,12 @@ namespace Project.Configurations
     {
         public static WebApplicationBuilder ConfigureJWT(this WebApplicationBuilder builder)
         {
+            var configuration = builder.Configuration;
+
+            var issuer = configuration["JwtSettings:Issuer"];
+            var audience = configuration["JwtSettings:Audience"];
+            var secretKey = configuration["JwtSettings:SecretKey"];
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -22,9 +27,9 @@ namespace Project.Configurations
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = "http://localhost:5285/",
-                    ValidAudience = "TraditionalMedicineHospital",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("MCKxk26zBjrUSuD94ZeQ3Ww5Vbmf8sLdUq4ZFywJrujQp3CPXbYeA72KVL5fTGEMpyCkBEPKeXDRZbqF7TjwAnVLuxmGQcUSRYF7BjEQxJn2vkHTMSPgpL9VAcmWthzeFrjyvL4ext6CYVNhW2sfMXkQg9nARdKb"))
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
                 };
                 options.Events = new JwtBearerEvents
                 {
@@ -32,11 +37,15 @@ namespace Project.Configurations
                     {
                         context.Token = context.Request.Cookies["AuthToken"];
                         return Task.CompletedTask;
+                    },
+                    OnChallenge = context =>
+                    {
+                        context.Response.Redirect("/login");
+                        context.HandleResponse();
+                        return Task.CompletedTask;
                     }
                 };
             });
-
-            builder.Services.AddScoped<JwtManager>();
 
             return builder;
         }

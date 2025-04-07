@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.Entities;
 using Project.Services;
 
@@ -6,6 +7,7 @@ namespace Project.Areas.Admin.Controllers
 {
     [Route("api/validation/{entityType}")]
     [ApiController]
+    [Authorize]
     public class ValidationController : ControllerBase
     {
         private readonly IServiceProvider _serviceProvider;

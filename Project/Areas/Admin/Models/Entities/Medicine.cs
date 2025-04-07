@@ -1,5 +1,5 @@
-﻿using Project.Areas.Admin.Models.Commons;
-using Project.Areas.Admin.Models.Enums.Medicines;
+﻿using Project.Areas.Admin.Models.Enums.Medicines;
+using Project.Models.Commons;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

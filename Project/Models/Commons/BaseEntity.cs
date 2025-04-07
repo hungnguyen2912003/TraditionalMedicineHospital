@@ -1,4 +1,4 @@
-﻿namespace Project.Areas.Admin.Models.Commons
+﻿namespace Project.Models.Commons
 {
     public abstract class BaseEntity
     {
