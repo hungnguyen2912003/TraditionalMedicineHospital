@@ -13,9 +13,9 @@ namespace Project.Services
         private readonly string _secretKey;
         public JwtManager(IConfiguration configuration)
         {
-            _issuer = "http://localhost:5285/";
-            _audience = "TraditionalMedicineHospital";
-            _secretKey = "MCKxk26zBjrUSuD94ZeQ3Ww5Vbmf8sLdUq4ZFywJrujQp3CPXbYeA72KVL5fTGEMpyCkBEPKeXDRZbqF7TjwAnVLuxmGQcUSRYF7BjEQxJn2vkHTMSPgpL9VAcmWthzeFrjyvL4ext6CYVNhW2sfMXkQg9nARdKb";
+            _issuer = configuration["JwtSettings:Issuer"];
+            _audience = configuration["JwtSettings:Audience"];
+            _secretKey = configuration["JwtSettings:SecretKey"];
         }
 
         public string GenerateToken(string username, RoleType role)

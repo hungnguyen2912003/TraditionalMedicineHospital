@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
@@ -9,6 +10,7 @@ using Project.Services.Interfaces;
 namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize]
     public class MedicineCategoriesController : Controller
     {
         private readonly IMedicineCategoryRepository _repository;

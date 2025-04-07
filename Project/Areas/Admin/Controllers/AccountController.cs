@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Project.Repositories.Interfaces;
 using Project.Services;
 using Project.Validators;
@@ -7,6 +7,7 @@ using Project.Validators;
 namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize]
     public class AccountController : Controller
     {
         private readonly IUserRepository _repository;
@@ -35,12 +36,14 @@ namespace Project.Areas.Admin.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(string username, string password)
         {
             try
@@ -105,20 +108,19 @@ namespace Project.Areas.Admin.Controllers
                 return RedirectToAction("Login", "Account", new { area = "Admin" });
             }
 
-            var (userCode, role) = _jwtManager.GetClaimsFromToken(token);
-            if (string.IsNullOrEmpty(userCode))
+            var (username, role) = _jwtManager.GetClaimsFromToken(token);
+            if (string.IsNullOrEmpty(username))
             {
                 Response.Cookies.Delete("AuthToken");
                 return RedirectToAction("Login", "Account", new { area = "Admin" });
             }
 
-            ViewData["UserCode"] = userCode;
-            ViewData["RecaptchaSiteKey"] = _configuration["RecaptchaSettings:SiteKey"];
+            ViewData["Username"] = username;
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> ChangePassword([FromForm] string oldPassword, string newPassword, string confirmPassword, string gRecaptchaResponse)
+        public async Task<IActionResult> ChangePassword([FromForm] string oldPassword, string newPassword, string confirmPassword)
         {
             try
             {
@@ -133,21 +135,8 @@ namespace Project.Areas.Admin.Controllers
                     });
                 }
 
-                // Validate reCAPTCHA
-                var secretKey = _configuration["RecaptchaSettings:SecretKey"];
-                var client = _httpClientFactory.CreateClient();
-                var response = await client.PostAsync(
-                    $"https://www.google.com/recaptcha/api/siteverify?secret={secretKey}&response={gRecaptchaResponse}",
-                    null);
-                var result = await response.Content.ReadAsStringAsync();
-                dynamic captchaResult = JsonConvert.DeserializeObject(result);
-                if (!(bool)captchaResult.success)
-                {
-                    return Json(new { success = false, message = "Xác minh mã bảo vệ thất bại!" });
-                }
-
-                var (code, role) = _jwtManager.GetClaimsFromToken(token);
-                if (string.IsNullOrEmpty(code))
+                var (username, role) = _jwtManager.GetClaimsFromToken(token);
+                if (string.IsNullOrEmpty(username))
                 {
                     Response.Cookies.Delete("AuthToken");
                     return Json(new
@@ -158,7 +147,7 @@ namespace Project.Areas.Admin.Controllers
                     });
                 }
 
-                var user = await _repository.GetByCodeAsync(code);
+                var user = await _repository.GetByUsernameAsync(username);
                 if (user == null)
                 {
                     return Json(new { success = false, message = "Không tìm thấy nhân viên." });
@@ -200,7 +189,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         public IActionResult Logout()
         {
             Response.Cookies.Delete("AuthToken");
@@ -213,7 +202,7 @@ namespace Project.Areas.Admin.Controllers
             return View();
         }
 
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> ForgotPassword(string code)
         {
             try
@@ -243,6 +232,5 @@ namespace Project.Areas.Admin.Controllers
                 return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
             }
         }
-
     }
 }

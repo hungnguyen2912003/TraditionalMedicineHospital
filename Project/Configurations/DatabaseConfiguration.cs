@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Project.Areas.Admin.Data;
+using Project.Datas;
 
 namespace Project.Configurations
 {

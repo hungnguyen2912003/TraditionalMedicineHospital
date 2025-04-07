@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project.Areas.Admin.Models.Entities;
-using Project.Areas.Admin.Models.Enums.Employee;
 
-namespace Project.Areas.Admin.Data
+namespace Project.Datas
 {
     public class TraditionalMedicineHospitalDbContext : DbContext
     {

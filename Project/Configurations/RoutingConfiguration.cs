@@ -4,8 +4,17 @@
     {
         public static WebApplication ConfigureRouting(this WebApplication app)
         {
-            app.UseAuthentication();
-            app.UseAuthorization();
+            app.MapControllerRoute(
+                name: "logout",
+                pattern: "logout",
+                defaults: new { area = "Admin", controller = "Account", action = "Logout" }
+            );
+
+            app.MapControllerRoute(
+                name: "change-password",
+                pattern: "change-password",
+                defaults: new { area = "Admin", controller = "Account", action = "ChangePassword" }
+            );
 
             app.MapControllerRoute(
                 name: "login",
