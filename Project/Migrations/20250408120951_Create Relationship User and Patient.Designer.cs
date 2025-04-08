@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project.Datas;
 
@@ -11,9 +12,11 @@ using Project.Datas;
 namespace Project.Migrations
 {
     [DbContext(typeof(TraditionalMedicineHospitalDbContext))]
-    partial class TraditionalMedicineHospitalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250408120951_Create Relationship User and Patient")]
+    partial class CreateRelationshipUserandPatient
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -624,13 +627,11 @@ namespace Project.Migrations
                 {
                     b.HasOne("Project.Areas.Admin.Models.Entities.Employee", "Employee")
                         .WithOne("User")
-                        .HasForeignKey("Project.Areas.Admin.Models.Entities.User", "EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("Project.Areas.Admin.Models.Entities.User", "EmployeeId");
 
                     b.HasOne("Project.Areas.Staff.Models.Entities.Patient", "Patient")
                         .WithOne("User")
-                        .HasForeignKey("Project.Areas.Admin.Models.Entities.User", "PatientId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("Project.Areas.Admin.Models.Entities.User", "PatientId");
 
                     b.Navigation("Employee");
 

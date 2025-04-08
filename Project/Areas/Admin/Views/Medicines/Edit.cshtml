@@ -66,12 +66,12 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="ManufacturedDate" class="block text-sm font-medium text-gray-700">Ngày sản xuất</label>
-                                    <input id="ManufacturedDate" type="text" name="ManufacturedDate" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập ngày sản xuất" value="@Model.ManufacturedDate.ToString("dd/MM/yyyy")" />
+                                    <input id="ManufacturedDate" type="text" name="ManufacturedDate" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập ngày sản xuất" value="@Model.ManufacturedDate.ToString("dd/MM/yyyy")" />
                                     @Html.ValidationMessageFor(model => model.ManufacturedDate, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="ExpiryDate" class="block text-sm font-medium text-gray-700">Ngày hết hạn</label>
-                                    <input id="ExpiryDate" type="text" name="ExpiryDate" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập ngày hết hạn" value="@Model.ExpiryDate.ToString("dd/MM/yyyy")" />
+                                    <input id="ExpiryDate" type="text" name="ExpiryDate" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập ngày hết hạn" value="@Model.ExpiryDate.ToString("dd/MM/yyyy")" />
                                     @Html.ValidationMessageFor(model => model.ExpiryDate, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -205,15 +205,11 @@
             },
 
             setupDateTimePicker() {
-                $('.picker').datetimepicker({
-                    autoclose: true,
-                    timepicker: false,
-                    datepicker: true,
-                    format: "d/m/Y",
-                    weeks: true
+                flatpickr('.flatpickr', {
+                    dateFormat: "d/m/Y",
+                    allowInput: true,
+                    locale: "vi"
                 });
-
-                $.datetimepicker.setLocale('vi');
             },
 
             setupDropzone() {

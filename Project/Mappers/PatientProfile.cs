@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Project.Areas.Staff.Models.Dtos;
+using Project.Areas.Staff.Models.DTOs;
 using Project.Areas.Staff.Models.Entities;
 
 namespace Project.Mappers

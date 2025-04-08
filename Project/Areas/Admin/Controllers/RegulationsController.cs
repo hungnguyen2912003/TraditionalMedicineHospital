@@ -57,6 +57,15 @@ namespace Project.Areas.Admin.Controllers
                 entity.CreatedDate = DateTime.UtcNow;
                 entity.IsActive = true;
 
+                if (entity.EffectiveDate == default(DateTime))
+                {
+                    entity.EffectiveDate = DateTime.UtcNow; // Gán giá trị mặc định nếu cần
+                }
+                if (entity.ExpirationDate == default(DateTime))
+                {
+                    entity.ExpirationDate = DateTime.UtcNow.AddDays(30); // Gán giá trị mặc định nếu cần
+                }
+
                 await _repository.CreateAsync(entity);
                 return Json(new { success = true, message = "Thêm quy định thành công!" });
             }

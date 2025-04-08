@@ -1,4 +1,5 @@
-﻿using Project.Models.Commons;
+﻿using Project.Areas.Staff.Models.Entities;
+using Project.Models.Commons;
 using Project.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -21,9 +22,12 @@ namespace Project.Areas.Admin.Models.Entities
 
         // Foreign Key
         public Guid? EmployeeId { get; set; }
+        public Guid? PatientId { get; set; }
 
         // Relationship
         [ForeignKey("EmployeeId")]
         public virtual Employee? Employee { get; set; }
+        [ForeignKey("PatientId")]
+        public virtual Patient? Patient { get; set; }
     }
 }

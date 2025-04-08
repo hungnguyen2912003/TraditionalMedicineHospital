@@ -41,7 +41,15 @@ namespace Project.Datas
                 .HasOne(e => e.User)
                 .WithOne(u => u.Employee)
                 .HasForeignKey<User>(u => u.EmployeeId)
-                .IsRequired(false);
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Patient>()
+                .HasOne(e => e.User)
+                .WithOne(u => u.Patient)
+                .HasForeignKey<User>(u => u.PatientId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
