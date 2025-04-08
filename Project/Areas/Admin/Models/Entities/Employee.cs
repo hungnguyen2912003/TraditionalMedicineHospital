@@ -12,26 +12,26 @@ namespace Project.Areas.Admin.Models.Entities
         public Guid Id { get; set; }
         [Required]
         [StringLength(10)]
-        public string Code { get; set; }
+        public string Code { get; set; } = string.Empty;
         [Required]
         [StringLength(50)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         [Required]
         public GenderType Gender { get; set; }
         [Required]
         public DateTime DateOfBirth { get; set; }
         [Required]
         [StringLength(12, MinimumLength = 9)]
-        public string IdentityNumber { get; set; }
+        public string IdentityNumber { get; set; } = string.Empty;
         [Required]
         [StringLength(500)]
-        public string Address { get; set; }
+        public string Address { get; set; } = string.Empty;
         [Required]
         [EmailAddress]
-        public string EmailAddress { get; set; }
+        public string EmailAddress { get; set; } = string.Empty;
         [Required]
         [Phone]
-        public string PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; } = string.Empty;
         public string? Images { get; set; }
         [Required]
         public DegreeType Degree { get; set; }
@@ -50,9 +50,9 @@ namespace Project.Areas.Admin.Models.Entities
         /// Relationships
         ///
         [ForeignKey("EmployeeCategoryId")]
-        public virtual EmployeeCategory EmployeeCategory { get; set; }
+        public required virtual EmployeeCategory EmployeeCategory { get; set; }
         [ForeignKey("DepartmentId")]
-        public virtual Department Department { get; set; }
+        public required virtual Department Department { get; set; }
         public virtual User? User { get; set; }
     }
 }

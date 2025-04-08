@@ -6,3 +6,372 @@
     Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
 }
 
+<div class="overlay" id="loadingOverlay">
+    <span class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
+</div>
+
+<form id="myForm" method="post" enctype="multipart/form-data" asp-action="Create">
+    @Html.AntiForgeryToken()
+
+    <div x-data="addData">
+        <ul class="flex space-x-2 rtl:space-x-reverse">
+            <li>
+                <a href="javascript:;" class="text-primary hover:underline">Bệnh nhân</a>
+            </li>
+            <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+                <span>Thêm mới</span>
+            </li>
+        </ul>
+        <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
+            <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
+                <div class="px-6">
+                    <div class="text-lg font-semibold mb-6">Thêm thông tin bệnh nhân</div>
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                <div class="w-full sm:w-1/2">
+                                    <label for="Code" class="block text-sm font-medium text-gray-700">Mã bệnh nhân</label>
+                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập mã bệnh nhân" value="@ViewBag.RandomCode" oninput="this.value = this.value.toUpperCase()" readonly />
+                                    @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="w-full sm:w-1/2">
+                                    <label for="Name" class="block text-sm font-medium text-gray-700">Tên bệnh nhân</label>
+                                    <input id="Name" type="text" name="Name" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập họ tên bệnh nhân" />
+                                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                <div class="w-full sm:w-1/2">
+                                    <label for="Gender" class="block text-sm font-medium text-gray-700">Giới tính</label>
+                                    <select id="Gender" name="Gender" class="form-input w-full mt-1 p-2 border rounded">
+                                        <option value="">Chọn loại giới tính</option>
+                                        @foreach (var gender in ViewBag.GenderOptions)
+                                        {
+                                            <option value="@gender.Value">@gender.Text</option>
+                                        }
+                                    </select>
+                                    @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="w-full sm:w-1/2">
+                                    <label for="DateOfBirth" class="block text-sm font-medium text-gray-700">Ngày sinh</label>
+                                    <input id="DateOfBirth" type="text" name="DateOfBirth" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập ngày sinh" />
+                                    @Html.ValidationMessageFor(model => model.DateOfBirth, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="w-full sm:w-1/2">
+                                    <label for="IdentityNumber" class="block text-sm font-medium text-gray-700">Căn cước công dân</label>
+                                    <input id="IdentityNumber" type="text" name="IdentityNumber" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập căn cước công dân" />
+                                    @Html.ValidationMessageFor(model => model.IdentityNumber, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                <div class="w-full">
+                                    <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ</label>
+                                    <input id="Address" type="text" name="Address" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập địa chỉ" />
+                                    @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                <div class="w-full sm:w-1/2">
+                                    <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Số điện thoại</label>
+                                    <input id="PhoneNumber" type="text" name="PhoneNumber" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số điện thoại" />
+                                    @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="w-full sm:w-1/2">
+                                    <label for="Email" class="block text-sm font-medium text-gray-700">Email</label>
+                                    <input id="Email" type="text" name="Email" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập email" />
+                                    @Html.ValidationMessageFor(model => model.EmailAddress, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 w-full xl:mt-0 xl:w-96">
+                <div class="panel mb-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 form-label">Hình ảnh bệnh nhân</label>
+                        <div class="dropzone flex-1" id="imageDropzone"></div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
+                        <button type="button" @@click="add()" class="btn btn-success py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 hover:bg-green-700">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
+                                <path d="M3.46447 20.5355C4.92893 22 7.28595 22 12 22C16.714 22 19.0711 22 20.5355 20.5355C22 19.0711 22 16.714 22 12C22 11.6585 22 11.4878 21.9848 11.3142C21.9142 10.5049 21.586 9.71257 21.0637 9.09034C20.9516 8.95687 20.828 8.83317 20.5806 8.58578L15.4142 3.41944C15.1668 3.17206 15.0431 3.04835 14.9097 2.93631C14.2874 2.414 13.4951 2.08581 12.6858 2.01515C12.5122 2 12.3415 2 12 2C7.28595 2 4.92893 2 3.46447 3.46447C2 4.92893 2 7.28595 2 12C2 16.714 2 19.0711 3.46447 20.5355Z" stroke="white" stroke-width="1.5"></path>
+                                <path d="M17 22V21C17 19.1144 17 18.1716 16.4142 17.5858C15.8284 17 14.8856 17 13 17H11C9.11438 17 8.17157 17 7.58579 17.5858C7 18.1716 7 19.1144 7 21V22" stroke="white" stroke-width="1.5"></path>
+                                <path opacity="0.5" d="M7 8H13" stroke="white" stroke-width="1.5" stroke-linecap="round"></path>
+                            </svg>
+                            Thêm mới
+                        </button>
+                        <button type="button" class="btn btn-secondary w-full py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600" @@click="goBack()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
+                                <path d="M4 10L3.29289 10.7071L2.58579 10L3.29289 9.29289L4 10ZM21 18C21 18.5523 20.5523 19 20 19C19.4477 19 19 18.5523 19 18L21 18ZM8.29289 15.7071L3.29289 10.7071L4.70711 9.29289L9.70711 14.2929L8.29289 15.7071ZM3.29289 9.29289L8.29289 4.29289L9.70711 5.70711L4.70711 10.7071L3.29289 9.29289ZM4 9L14 9L14 11L4 11L4 9ZM21 16L21 18L19 18L19 16L21 16ZM14 9C17.866 9 21 12.134 21 16L19 16C19 13.2386 16.7614 11 14 11L14 9Z" fill="white" />
+                            </svg>
+                            Trở về
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    Dropzone.autoDiscover = false;
+
+    $.validator.addMethod("customPattern", function(value, element, regex) {
+        return this.optional(element) || regex.test(value);
+    }, "Giá trị không hợp lệ.");
+
+    $.validator.addMethod("over18", function(value, element) {
+        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+            return false;
+        }
+        var dob = new Date(value.split("/").reverse().join("-"));
+        var today = new Date();
+        var age = today.getFullYear() - dob.getFullYear();
+        var monthDiff = today.getMonth() - dob.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        return age >= 18;
+    }, "Bệnh nhân phải trên 18 tuổi.");
+
+    $.validator.addMethod("dateFormat", function(value, element) {
+        return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
+    }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('addData', () => ({
+            dropzone: null,
+
+            init() {
+                this.setupDropzone();
+                this.setupValidation();
+                this.setupDateTimePicker();
+            },
+
+            setupDateTimePicker() {
+                flatpickr('.flatpickr', {
+                    dateFormat: "d/m/Y",
+                    allowInput: true,
+                    locale: "vi"
+                });
+            },
+
+            setupDropzone() {
+                const self = this;
+                this.dropzone = new Dropzone('#imageDropzone', {
+                    url: '/Staff/Patients/Create',
+                    autoProcessQueue: false,
+                    maxFiles: 1,
+                    acceptedFiles: 'image/*',
+                    addRemoveLinks: true,
+                    dictDefaultMessage: 'Kéo thả hoặc nhấp để chọn ảnh',
+                    paramName: 'ImageFile',
+                    init: function () {
+                        this.on('addedfile', (file) => {
+                            if (this.files.length > 1) {
+                                this.removeFile(this.files[0]);
+                            }
+                        });
+
+                        this.on('sending', (file, xhr, formData) => {
+                            self.appendFormData(formData);
+                        });
+
+                        this.on('success', (file, response) => {
+                            self.handleResponse(response);
+                        });
+
+                        this.on('error', (file, errorMessage) => {
+                            notyf.error("Có lỗi xảy ra: " + errorMessage);
+                        });
+                    }
+                });
+            },
+
+            setupValidation() {
+                $("#myForm").validate({
+                    rules: {
+                        Code: {
+                            required: true,
+                            minlength: 4,
+                            maxlength: 10,
+                            remote: {
+                                url: "/api/validation/patient/check-code",
+                                type: "GET",
+                                data: {
+                                    entityType: "patient",
+                                    code: function() { return $("#Code").val(); }
+                                }
+                            }
+                        },
+                        Name: {
+                            required: true,
+                            minlength: 6,
+                            maxlength: 20,
+                            customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
+                            remote: {
+                                url: "/api/validation/patient/check-name",
+                                type: "GET",
+                                data: {
+                                    entityType: "patient",
+                                    name: function() { return $("#Name").val(); }
+                                }
+                            }
+                        },
+                        Gender: {
+                            required: true,
+                        },
+                        DateOfBirth: {
+                            required: true,
+                            dateFormat: true,
+                            over18: true
+                        },
+                        IdentityNumber: {
+                            required: true,
+                            minlength: 9,
+                            maxlength: 12,
+                            customPattern: /^[0-9]*$/
+                        },
+                        Address: {
+                            required: true,
+                            maxlength: 500
+                        },
+                        Email: {
+                            required: true,
+                            email: true
+                        },
+                        PhoneNumber: {
+                            required: true,
+                            minlength: 10,
+                            maxlength: 15,
+                            customPattern: /^[0-9]*$/
+                        }
+                    },
+                    messages: {
+                        Code: {
+                            required: "Mã bệnh nhân không được bỏ trống.",
+                            minlength: "Mã phải có ít nhất 4 ký tự.",
+                            maxlength: "Mã không được vượt quá 10 ký tự.",
+                            remote: "Mã bệnh nhân này đã tồn tại."
+                        },
+                        Name: {
+                            required: "Tên bệnh nhân không được bỏ trống.",
+                            minlength: "Tên phải có ít nhất 6 ký tự.",
+                            maxlength: "Tên không được vượt quá 20 ký tự.",
+                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng.",
+                            remote: "Tên bệnh nhân này đã tồn tại."
+                        },
+                        Gender: {
+                            required: "Giới tính không được bỏ trống",
+                        },
+                        DateOfBirth: {
+                            required: "Ngày sinh không được bỏ trống.",
+                            dateFormat: "Ngày sinh không hợp lệ.",
+                            over18: "Nhân sự phải trên 18 tuổi."
+                        },
+                        IdentityNumber: {
+                            required: "Căn cước công dân không được bỏ trống",
+                            minlength: "Căn cước công dân có ít nhất 9 số",
+                            maxlength: "Căn cước công dân không vượt quá 12 số",
+                            customPattern: "Căn cước công dân không hợp lệ."
+                        },
+                        Address: {
+                            required: "Địa chỉ không được bỏ trống",
+                            maxlength: "Địa chỉ không được vượt quá 500 ký tự"
+                        },
+                        Email: {
+                            required: "Email không được bỏ trống.",
+                            email: "Email không hợp lệ."
+                        },
+                        PhoneNumber: {
+                            required: "Số điện thoại không được bỏ trống.",
+                            minlength: "Số điện thoại phải có ít nhất 10 ký tự.",
+                            maxlength: "Số điện thoại không được vượt quá 15 ký tự.",
+                            customPattern: "Số điện thoại không hợp lệ."
+                        }
+                    },
+                    errorElement: "div",
+                    errorClass: "text-danger",
+                    highlight: function (element) {
+                        $(element).addClass("border-red-500");
+                    },
+                    unhighlight: function (element) {
+                        $(element).removeClass("border-red-500");
+                    },
+                    errorPlacement: function (error, element) {
+                        error.insertAfter(element);
+                    },
+                    onfocusout: function(element) {
+                        if ($(element).val() === '' || $(element).val().length > 0) {
+                            this.element(element);
+                        }
+                    },
+                    onkeyup: false
+                });
+            },
+
+            appendFormData(formData) {
+                formData.append('Code', document.getElementById('Code').value);
+                formData.append('Name', document.getElementById('Name').value);
+                formData.append('DateOfBirth', document.getElementById('DateOfBirth').value);
+                formData.append('IdentityNumber', document.getElementById('IdentityNumber').value);
+                formData.append('Address', document.getElementById('Address').value);
+                formData.append('Gender', document.getElementById('Gender').value);
+                formData.append('EmailAddress', document.getElementById('Email').value);
+                formData.append('PhoneNumber', document.getElementById('PhoneNumber').value);
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                formData.append('__RequestVerificationToken', token);
+            },
+
+            handleResponse(response) {
+                const overlay = document.getElementById('loadingOverlay');
+                if (response.success) {
+                    overlay.style.display = 'flex';
+                    notyf.success(response.message);
+                    setTimeout(() => {
+                        window.location.href = '/Staff/Patients/';
+                    }, 2000);
+                } else {
+                    overlay.style.display = 'none';
+                    notyf.error(response.message);
+                    if (response.errors) {
+                        response.errors.forEach(error => notyf.error(error));
+                    }
+                }
+            },
+
+            add() {
+                const form = document.getElementById('myForm');
+                if ($("#myForm").valid()) {
+                    const overlay = document.getElementById('loadingOverlay');
+                    overlay.style.display = 'flex';
+
+                    if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
+                        this.dropzone.processQueue();
+                    } else {
+                        const formData = new FormData(form);
+                        fetch('/Staff/Patients/Create', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(this.handleResponse)
+                        .catch(error => {
+                            overlay.style.display = 'none';
+                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                        });
+                    }
+                } else {
+                    notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
+                }
+            },
+
+            goBack() {
+                window.location.href = '/Staff/Patients/';
+            }
+        }));
+    });
+</script>

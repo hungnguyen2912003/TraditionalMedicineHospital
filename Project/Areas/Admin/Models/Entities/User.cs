@@ -13,9 +13,9 @@ namespace Project.Areas.Admin.Models.Entities
         public Guid Id { get; set; }
         [Required]
         [StringLength(20)]
-        public string Username { get; set; }
+        public string Username { get; set; } = string.Empty;
         [Required]
-        public string PasswordHash { get; set; }
+        public string PasswordHash { get; set; } = string.Empty;
         [Required]
         public RoleType Role { get; set; }
         public bool IsFirstLogin { get; set; }

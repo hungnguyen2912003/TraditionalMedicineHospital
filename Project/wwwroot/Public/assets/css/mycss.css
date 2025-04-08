@@ -200,3 +200,27 @@ td {
     overflow-y: auto;
     resize: none;
 }
+
+#fileInput {
+    display: none;
+}
+
+.change-image-btn {
+    background-color: #e7515a;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+    cursor: pointer;
+}
+
+.change-image-btn:hover {
+    background-color: #ff6666;
+}

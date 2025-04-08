@@ -337,9 +337,6 @@
                             required: function () {
                                 return $("#Role").val() != '@((int)RoleType.Admin)';
                             }
-                        },
-                        Role: {
-                            required: true
                         }
                     },
                     messages: {
@@ -402,9 +399,6 @@
                         },
                         DepartmentId: {
                             required: "Khoa không được bỏ trống."
-                        },
-                        Role: {
-                            required: "Vai trò không được bỏ trống."
                         }
                     },
                     errorElement: "div",

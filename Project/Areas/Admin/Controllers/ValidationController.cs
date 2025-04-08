@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.Entities;
+using Project.Areas.Staff.Models.Entities;
 using Project.Services;
 
 namespace Project.Areas.Admin.Controllers
 {
     [Route("api/validation/{entityType}")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class ValidationController : ControllerBase
     {
         private readonly IServiceProvider _serviceProvider;
@@ -45,6 +46,7 @@ namespace Project.Areas.Admin.Controllers
                 "treatment" => typeof(IBaseService<TreatmentMethod>),
                 "room" => typeof(IBaseService<Room>),
                 "regulation" => typeof(IBaseService<Regulation>),
+                "patient" => typeof(IBaseService<Patient>),
                 _ => throw new ArgumentException($"Invalid entity type: {entityType}")
             };
 

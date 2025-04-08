@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Staff.Models.DTOs;
 using Project.Areas.Staff.Models.Entities;
+using Project.Helpers;
+using Project.Models.Enums;
 using Project.Repositories.Interfaces;
 using Project.Services.Interfaces;
 
@@ -11,19 +14,25 @@ namespace Project.Areas.Staff.Controllers
     public class PatientsController : Controller
     {
         private readonly IPatientRepository _patientRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IImageService _imgService;
         private readonly IMapper _mapper;
+        private readonly ViewBagHelper _viewBagHelper;
 
         public PatientsController
         (
             IPatientRepository patientRepository,
+            IUserRepository userRepository,
             IImageService imgService,
-            IMapper mapper
+            IMapper mapper,
+            ViewBagHelper viewBagHelper
         )
         {
             _patientRepository = patientRepository;
+            _userRepository = userRepository;
             _imgService = imgService;
             _mapper = mapper;
+            _viewBagHelper = viewBagHelper;
         }
 
         public async Task<IActionResult> Index()
@@ -46,6 +55,7 @@ namespace Project.Areas.Staff.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View();
         }
 
@@ -63,10 +73,26 @@ namespace Project.Areas.Staff.Controllers
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
-                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "Medicines");
+                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "Patients");
                 }
 
                 await _patientRepository.CreateAsync(entity);
+
+                var user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = entity.Code,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("11111111"),
+                    Role = RoleType.Benhnhan,
+                    CreatedDate = DateTime.UtcNow,
+                    CreatedBy = "Admin",
+                    IsActive = true,
+                    PatientId = entity.Id,
+                    IsFirstLogin = true
+                };
+
+                await _userRepository.CreateAsync(user);
+
                 return Json(new { success = true, message = "Thêm bệnh nhân thành công!" });
             }
             catch (Exception ex)
@@ -84,6 +110,8 @@ namespace Project.Areas.Staff.Controllers
 
             ViewBag.PatientId = entity.Id;
             ViewBag.ExistingImage = entity.Images;
+
+            await _viewBagHelper.BaseViewBag(ViewData);
 
             return View(dto);
         }
@@ -103,7 +131,7 @@ namespace Project.Areas.Staff.Controllers
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
-                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "Medicines");
+                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "Patients");
                 }
 
                 await _patientRepository.UpdateAsync(entity);
@@ -178,6 +206,7 @@ namespace Project.Areas.Staff.Controllers
             var movedList = new List<Patient>();
             foreach (var id in ids)
             {
+
                 var entity = await _patientRepository.GetByIdAsync(id);
                 if (entity != null)
                 {

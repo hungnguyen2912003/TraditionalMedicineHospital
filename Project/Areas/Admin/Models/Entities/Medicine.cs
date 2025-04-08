@@ -12,10 +12,10 @@ namespace Project.Areas.Admin.Models.Entities
         public Guid Id { get; set; }
         [Required]
         [StringLength(10)]
-        public string Code { get; set; }
+        public string Code { get; set; } = string.Empty;
         [Required]
         [StringLength(50)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? Images { get; set; }
         [Required]
@@ -27,11 +27,11 @@ namespace Project.Areas.Admin.Models.Entities
         public UnitType StockUnit { get; set; }
         [Required]
         [StringLength(50)]
-        public string Manufacturer { get; set; }
+        public string Manufacturer { get; set; } = string.Empty;
         [Required]
         public DateTime ManufacturedDate { get; set; }
         [Required]
-        public string ActiveIngredient { get; set; }
+        public string ActiveIngredient { get; set; } = string.Empty;
         [Required]
         public DateTime ExpiryDate { get; set; }
         public Guid MedicineCategoryId { get; set; }
@@ -39,6 +39,6 @@ namespace Project.Areas.Admin.Models.Entities
         /////////////////////////////////////////////////////
         /// Relationship
         [ForeignKey("MedicineCategoryId")]
-        public virtual MedicineCategory MedicineCategory { get; set; }
+        public required virtual MedicineCategory MedicineCategory { get; set; }
     }
 }
