@@ -11,6 +11,7 @@ namespace Project.Helpers
         private readonly IMedicineCategoryRepository _medicinecategoryRepository;
         private readonly IDepartmentRepository _depRepository;
         private readonly ITreatmentMethodRepository _treatmentRepository;
+        private readonly IPatientRepository _patientRepository;
         private readonly CodeGeneratorHelper _codeGenHelper;
         public ViewBagHelper
         (
@@ -18,6 +19,7 @@ namespace Project.Helpers
             IMedicineCategoryRepository medicinecategoryRepository,
             IDepartmentRepository depRepository,
             ITreatmentMethodRepository treatmentRepository,
+            IPatientRepository patientRepository,
             CodeGeneratorHelper codeGenHelper
 
         )
@@ -26,11 +28,18 @@ namespace Project.Helpers
             _medicinecategoryRepository = medicinecategoryRepository;
             _depRepository = depRepository;
             _treatmentRepository = treatmentRepository;
+            _patientRepository = patientRepository;
             _codeGenHelper = codeGenHelper;
         }
 
         public async Task BaseViewBag(ViewDataDictionary viewData)
         {
+            var patients = await _patientRepository.GetAllAsync();
+            viewData["Patients"] = patients
+                .Where(mc => mc.IsActive)
+                .Select(mc => new { mc.Id, mc.Name })
+                .ToList();
+
             var employeeCategories = await _employeecategoryRepository.GetAllAsync();
             viewData["EmployeeCategories"] = employeeCategories
                 .Where(mc => mc.IsActive)
@@ -102,6 +111,15 @@ namespace Project.Helpers
 
             viewData["StockUnit"] = Enum.GetValues(typeof(UnitType))
                 .Cast<UnitType>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
+
+            viewData["TreatmentStatus"] = Enum.GetValues(typeof(TreatmentStatus))
+                .Cast<TreatmentStatus>()
                 .Select(e => new
                 {
                     Value = (int)e,

@@ -20,6 +20,7 @@ namespace Project.Datas
         public DbSet<Regulation> regulations { get; set; }
         public DbSet<User> users { get; set; }
         public DbSet<Patient> patients { get; set; }
+        public DbSet<TreatmentRecord> treatmentRecords { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -21,6 +21,7 @@ namespace Project.Configurations
             builder.Services.AddScoped<IBaseService<Room>, RoomService>();
             builder.Services.AddScoped<IBaseService<Regulation>, RegulationService>();
             builder.Services.AddScoped<IBaseService<Patient>, PatientService>();
+            builder.Services.AddScoped<IBaseService<TreatmentRecord>, TreatmentRecordService>();
 
             builder.Services.AddScoped<EmailService>();
             builder.Services.AddScoped<JwtManager>();
