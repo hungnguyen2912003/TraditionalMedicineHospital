@@ -76,11 +76,19 @@ namespace Project.Areas.Admin.Controllers
                             redirectUrl = Url.Action("ChangePassword", "Account", new { area = "Admin" })
                         });
                     }
+
+                    string redirectURL = user.Role.ToString() switch
+                    {
+                        "Admin" => Url.Action("Index", "Home", new { area = "Admin" }) ?? "/Admin/Home/Index",
+                        "NhanVien" => Url.Action("Index", "Home", new { area = "" }) ?? "/Home/Index",
+                        _ => Url.Action("") ?? "",
+                    };
+
                     return Json(new
                     {
                         success = true,
                         message = "Đăng nhập thành công!",
-                        redirectUrl = Url.Action("Index", "Home", new { area = "Admin" })
+                        redirectUrl = redirectURL
                     });
                 }
                 return Json(new

@@ -11,15 +11,15 @@ namespace Project.Areas.Admin.Models.Entities
         public Guid Id { get; set; }
         [Required]
         [StringLength(10)]
-        public string Code { get; set; }
+        public string Code { get; set; } = string.Empty;
         [Required]
         [StringLength(50)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? Images { get; set; }
 
         /////////////////////////////////////////////////////
         /// Relationship
-        public virtual ICollection<Medicine> Medicines { get; set; }
+        public virtual ICollection<Medicine> Medicines { get; set; } = new HashSet<Medicine>();
     }
 }

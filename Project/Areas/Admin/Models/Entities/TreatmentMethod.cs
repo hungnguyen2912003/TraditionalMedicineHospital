@@ -11,10 +11,10 @@ namespace Project.Areas.Admin.Models.Entities
         public Guid Id { get; set; }
         [Required]
         [StringLength(10)]
-        public string Code { get; set; }
+        public string Code { get; set; } = string.Empty;
         [Required]
         [StringLength(50)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         [Required]
         public decimal Cost { get; set; }
@@ -25,7 +25,7 @@ namespace Project.Areas.Admin.Models.Entities
         /////////////////////////////////////////////////////
         /// Relationships
         [ForeignKey("DepartmentId")]
-        public virtual Department Department { get; set; }
-        public virtual ICollection<Room> Rooms { get; set; }
+        public required virtual Department Department { get; set; }
+        public virtual ICollection<Room> Rooms { get; set; } = new HashSet<Room>();
     }
 }

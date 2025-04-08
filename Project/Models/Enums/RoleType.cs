@@ -7,6 +7,8 @@ namespace Project.Models.Enums
         [Display(Name = "Admin")]
         Admin = 1,
         [Display(Name = "Nhân viên")]
-        Nhanvien = 2
+        Nhanvien = 2,
+        [Display(Name = "Bệnh nhân")]
+        Benhnhan = 3,
     }
 }

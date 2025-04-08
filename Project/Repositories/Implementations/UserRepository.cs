@@ -14,7 +14,7 @@ namespace Project.Repositories.Implementations
         public async Task<User?> GetEmailUserAsync(string email)
         {
             return await _context.users
-                .FirstOrDefaultAsync(u => u.Employee.EmailAddress == email);
+                .FirstOrDefaultAsync(u => u.Employee != null && u.Employee.EmailAddress == email);
         }
 
         public async Task<User?> GetByUsernameAsync(string username)

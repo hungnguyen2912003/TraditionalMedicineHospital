@@ -11,10 +11,10 @@ namespace Project.Areas.Admin.Models.Entities
         public Guid Id { get; set; }
         [Required]
         [StringLength(10)]
-        public string Code { get; set; }
+        public string Code { get; set; } = string.Empty;
         [Required]
         [StringLength(20)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
 
         // ForeignKey
@@ -23,6 +23,6 @@ namespace Project.Areas.Admin.Models.Entities
         /////////////////////////////////////////////////////
         /// Relationships
         [ForeignKey("TreatmentMethodId")]
-        public virtual TreatmentMethod TreatmentMethod { get; set; }
+        public required virtual TreatmentMethod TreatmentMethod { get; set; } 
     }
 }

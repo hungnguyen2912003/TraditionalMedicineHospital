@@ -10,7 +10,7 @@ using Project.Repositories.Interfaces;
 namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class TreatmentMethodsController : Controller
     {
         private readonly ITreatmentMethodRepository _repository;

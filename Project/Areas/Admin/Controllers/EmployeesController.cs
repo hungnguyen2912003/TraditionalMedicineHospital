@@ -12,7 +12,7 @@ using Project.Services.Interfaces;
 namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class EmployeesController : Controller
     {
         private readonly IEmployeeRepository _repository;
