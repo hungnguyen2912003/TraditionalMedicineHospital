@@ -1,57 +1,48 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Staff.Models.DTOs;
 using Project.Areas.Staff.Models.Entities;
+using Project.Areas.Staff.Models.ViewModels;
 using Project.Helpers;
-using Project.Models.Enums;
 using Project.Repositories.Interfaces;
-using Project.Services.Interfaces;
 
 namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
     [Authorize(Roles = "Admin, Nhanvien")]
-    public class PatientsController : Controller
+    public class TreatmentRecordsController : Controller
     {
-        private readonly IPatientRepository _patientRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly IImageService _imgService;
+        private readonly ITreatmentRecordRepository _treatmentRecordRepository;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
-
-        public PatientsController
+        public TreatmentRecordsController
         (
-            IPatientRepository patientRepository,
-            IUserRepository userRepository,
-            IImageService imgService,
+            ITreatmentRecordRepository treatmentRecordRepository,
             IMapper mapper,
             ViewBagHelper viewBagHelper
         )
         {
-            _patientRepository = patientRepository;
-            _userRepository = userRepository;
-            _imgService = imgService;
+            _treatmentRecordRepository = treatmentRecordRepository;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
         }
-
         public async Task<IActionResult> Index()
         {
-            var list = await _patientRepository.GetAllAsync();
+            var list = await _treatmentRecordRepository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive == true).ToList();
-            return View(activeList);
+            var viewModelList = _mapper.Map<List<TreatmentRecordViewModel>>(activeList);
+            return View(viewModelList);
         }
 
         public async Task<IActionResult> Details(Guid id)
         {
-            var patient = await _patientRepository.GetByIdAsync(id);
-            if (patient == null)
+            var treatmentRecord = await _treatmentRecordRepository.GetByIdAsync(id);
+            if (treatmentRecord == null)
             {
                 return NotFound();
             }
-            return View(patient);
+            return View(treatmentRecord);
         }
 
         [HttpGet]
@@ -63,55 +54,35 @@ namespace Project.Areas.Staff.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromForm] PatientDto inputDto)
+        public async Task<IActionResult> Create([FromForm] TreatmentRecordDto inputDto)
         {
             try
             {
-                var entity = _mapper.Map<Patient>(inputDto);
+                var entity = _mapper.Map<TreatmentRecord>(inputDto);
 
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
                 entity.IsActive = true;
+                entity.Status = Project.Models.Enums.TreatmentStatus.DangDieuTri;
 
-                if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
-                {
-                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "Patients");
-                }
+                await _treatmentRecordRepository.CreateAsync(entity);
 
-                await _patientRepository.CreateAsync(entity);
-
-                var user = new User
-                {
-                    Id = Guid.NewGuid(),
-                    Username = entity.Code,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("11111111"),
-                    Role = RoleType.Benhnhan,
-                    CreatedDate = DateTime.UtcNow,
-                    CreatedBy = "Admin",
-                    IsActive = true,
-                    PatientId = entity.Id,
-                    IsFirstLogin = true
-                };
-
-                await _userRepository.CreateAsync(user);
-
-                return Json(new { success = true, message = "Thêm bệnh nhân thành công!" });
+                return Json(new { success = true, message = "Thêm đợt điều trị thành công!" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi thêm bệnh nhân: " + ex.Message });
+                return Json(new { success = false, message = "Có lỗi xảy ra khi thêm đợt điều trị: " + ex.Message });
             }
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var entity = await _patientRepository.GetByIdAsync(id);
+            var entity = await _treatmentRecordRepository.GetByIdAsync(id);
             if (entity == null) return NotFound();
-            var dto = _mapper.Map<PatientDto>(entity);
+            var dto = _mapper.Map<TreatmentRecordDto>(entity);
 
-            ViewBag.PatientId = entity.Id;
-            ViewBag.ExistingImage = entity.Images;
+            ViewBag.TreatmentRecordId = entity.Id;
 
             await _viewBagHelper.BaseViewBag(ViewData);
 
@@ -120,36 +91,32 @@ namespace Project.Areas.Staff.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromForm] PatientDto inputDto, Guid Id)
+        public async Task<IActionResult> Edit([FromForm] TreatmentRecordDto inputDto, Guid Id)
         {
             try
             {
-                var entity = await _patientRepository.GetByIdAsync(Id);
+                var entity = await _treatmentRecordRepository.GetByIdAsync(Id);
                 if (entity == null) return NotFound();
 
                 _mapper.Map(inputDto, entity);
                 entity.UpdatedBy = "Admin";
                 entity.UpdatedDate = DateTime.UtcNow;
 
-                if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
-                {
-                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "Patients");
-                }
-
-                await _patientRepository.UpdateAsync(entity);
-                return Json(new { success = true, message = "Cập nhật thông tin bệnh nhân thành công!" });
+                await _treatmentRecordRepository.UpdateAsync(entity);
+                return Json(new { success = true, message = "Cập nhật thông tin đợt điều trị thành công!" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật bệnh nhân: " + ex.Message });
+                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật đợt điều trị: " + ex.Message });
             }
         }
 
         public async Task<IActionResult> Trash()
         {
-            var list = await _patientRepository.GetAllAsync();
-            var trashList = list.Where(x => x.IsActive == false).ToList();
-            return View(trashList);
+            var list = await _treatmentRecordRepository.GetAllAdvancedAsync();
+            var activeList = list.Where(x => x.IsActive == false).ToList();
+            var viewModelList = _mapper.Map<List<TreatmentRecordViewModel>>(activeList);
+            return View(viewModelList);
         }
 
         [HttpPost]
@@ -165,28 +132,28 @@ namespace Project.Areas.Staff.Controllers
                 }
             }
 
-            var delList = new List<Patient>();
+            var delList = new List<TreatmentRecord>();
             foreach (var id in ids)
             {
-                var entity = await _patientRepository.GetByIdAsync(id);
+                var entity = await _treatmentRecordRepository.GetByIdAsync(id);
                 if (entity != null)
                 {
-                    await _patientRepository.DeleteAsync(id);
+                    await _treatmentRecordRepository.DeleteAsync(id);
                     delList.Add(entity);
                 }
             }
 
             if (delList.Any())
             {
-                var names = string.Join(", ", delList.Select(c => $"\"{c.Name}\""));
+                var codes = string.Join(", ", delList.Select(c => $"\"{c.Code}\""));
                 var message = delList.Count == 1
-                    ? $"Đã xóa bệnh nhân {names} thành công"
-                    : $"Đã xóa các bệnh nhân: {names} thành công";
+                    ? $"Đã xóa đợt điều trị {codes} thành công"
+                    : $"Đã xóa các đợt điều trị: {codes} thành công";
                 TempData["SuccessMessage"] = message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy bệnh nhân nào để xóa.";
+                TempData["ErrorMessage"] = "Không tìm thấy đợt điều trị nào để xóa.";
             }
 
             return RedirectToAction("Trash");
@@ -205,32 +172,32 @@ namespace Project.Areas.Staff.Controllers
                 }
             }
 
-            var movedList = new List<Patient>();
+            var movedList = new List<TreatmentRecord>();
             foreach (var id in ids)
             {
 
-                var entity = await _patientRepository.GetByIdAsync(id);
+                var entity = await _treatmentRecordRepository.GetByIdAsync(id);
                 if (entity != null)
                 {
                     entity.IsActive = false;
                     entity.UpdatedBy = "Admin";
                     entity.UpdatedDate = DateTime.UtcNow;
-                    await _patientRepository.UpdateAsync(entity);
+                    await _treatmentRecordRepository.UpdateAsync(entity);
                     movedList.Add(entity);
                 }
             }
 
             if (movedList.Any())
             {
-                var names = string.Join(", ", movedList.Select(c => $"\"{c.Name}\""));
+                var codes = string.Join(", ", movedList.Select(c => $"\"{c.Code}\""));
                 var message = movedList.Count == 1
-                    ? $"Đã đưa bệnh nhân {names} thành công vào thùng rác"
-                    : $"Đã đưa các bệnh nhân: {names} thành công vào thùng rác";
+                    ? $"Đã đưa đợt điều trị {codes} thành công vào thùng rác"
+                    : $"Đã đưa các đợt điều trị: {codes} thành công vào thùng rác";
                 TempData["SuccessMessage"] = message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy bệnh nhân nào để đưa vào thùng rác.";
+                TempData["ErrorMessage"] = "Không tìm thấy đợt điều trị nào để đưa vào thùng rác.";
             }
 
             return RedirectToAction("Index");
@@ -248,31 +215,31 @@ namespace Project.Areas.Staff.Controllers
                     ids.Add(parsedId);
                 }
             }
-            var restoredEntity = new List<Patient>();
+            var restoredEntity = new List<TreatmentRecord>();
             foreach (var id in ids)
             {
-                var entity = await _patientRepository.GetByIdAsync(id);
+                var entity = await _treatmentRecordRepository.GetByIdAsync(id);
                 if (entity != null)
                 {
                     entity.IsActive = true;
                     entity.UpdatedBy = "Admin";
                     entity.UpdatedDate = DateTime.UtcNow;
-                    await _patientRepository.UpdateAsync(entity);
+                    await _treatmentRecordRepository.UpdateAsync(entity);
                     restoredEntity.Add(entity);
                 }
             }
 
             if (restoredEntity.Any())
             {
-                var names = string.Join(", ", restoredEntity.Select(c => $"\"{c.Name}\""));
+                var codes = string.Join(", ", restoredEntity.Select(c => $"\"{c.Code}\""));
                 var message = restoredEntity.Count == 1
-                    ? $"Đã khôi phục bệnh nhân {names} thành công."
-                    : $"Đã khôi phục các bệnh nhân: {names} thành công.";
+                    ? $"Đã khôi phục đợt điều trị {codes} thành công."
+                    : $"Đã khôi phục các đợt điều trị: {codes} thành công.";
                 TempData["SuccessMessage"] = message;
             }
             else
             {
-                TempData["ErrorMessage"] = "Không tìm thấy bệnh nhân nào để khôi phục.";
+                TempData["ErrorMessage"] = "Không tìm thấy đợt điều trị nào để khôi phục.";
             }
 
             return RedirectToAction("Trash");

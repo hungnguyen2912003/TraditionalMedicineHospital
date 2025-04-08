@@ -1,0 +1,316 @@
+﻿@model IEnumerable<Project.Areas.Staff.Models.ViewModels.TreatmentRecordViewModel>
+@{
+    ViewData["Title"] = "Danh sách đợt điều trị";
+    Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
+}
+
+<form id="indexForm" method="post" asp-action="MoveToTrash">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="selectedIds" id="selectedIds" />
+
+
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Đợt điều trị</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Danh sách</span>
+        </li>
+    </ul>
+
+    <div x-data="list">
+        <div class="panel border-[#e0e6ed] px-0 dark:border-[#1b2e4b] mt-3">
+            <div class="px-5">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+                    <div class="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
+                        <div>
+                            <a href="/Staff/TreatmentRecords/Create" class="btn btn-primary">
+                                <svg width="24" height="24" class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Edit / Add_Plus_Circle"> <path id="Vector" d="M8 12H12M12 12H16M12 12V16M12 12V8M12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
+                                Thêm đợt điều trị
+                            </a>
+                        </div>
+                        <button type="button" x-on:click="moveToTrash" class="btn btn-warning">
+                            <svg class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 10V17M8 10V17M19 9H22M19 14H22M19 19H21M16 6V16.2C16 17.8802 16 18.7202 15.673 19.362C15.3854 19.9265 14.9265 20.3854 14.362 20.673C13.7202 21 12.8802 21 11.2 21H8.8C7.11984 21 6.27976 21 5.63803 20.673C5.07354 20.3854 4.6146 19.9265 4.32698 19.362C4 18.7202 4 17.8802 4 16.2V6M2 6H18M14 6L13.7294 5.18807C13.4671 4.40125 13.3359 4.00784 13.0927 3.71698C12.8779 3.46013 12.6021 3.26132 12.2905 3.13878C11.9376 3 11.523 3 10.6936 3H9.30643C8.47705 3 8.06236 3 7.70951 3.13878C7.39792 3.26132  7.12208 3.46013 6.90729 3.71698C6.66405 4.00784 6.53292 4.40125 6.27064 5.18807L6 6" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                            Đưa vào thùng rác
+                        </button>
+                    </div>
+                    <div class="flex w-1/2 flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
+                        <div class="flex gap-3">
+                            <button type="button" class="btn btn-primary gap-2" @@click="print">
+                                <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
+                                    <path d="M6 17.9827C4.44655 17.9359 3.51998 17.7626 2.87868 17.1213C2 16.2426 2 14.8284 2 12C2 9.17157 2 7.75736 2.87868 6.87868C3.75736 6 5.17157 6 8 6H16C18.8284 6 20.2426 6 21.1213 6.87868C22 7.75736 22 9.17157 22 12C22 14.8284 22 16.2426 21.1213 17.1213C20.48 17.7626 19.5535 17.9359 18 17.9827" stroke="currentColor" stroke-width="1.5"></path>
+                                    <path opacity="0.5" d="M9 10H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M19 14L5 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M18 14V16C18 18.8284 18 20.2426 17.1213 21.1213C16.2426 22 14.8284 22 12 22C9.17157 22 7.75736 22 6.87868 21.1213C6 20.2426 6 18.8284 6 16V14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path opacity="0.5" d="M17.9827 6C17.9359 4.44655 17.7626 3.51998 17.1213 2.87868C16.2427 2 14.8284 2 12 2C9.17158 2 7.75737 2 6.87869 2.87868C6.23739 3.51998 6.06414 4.44655 6.01733 6" stroke="currentColor" stroke-width="1.5"></path>
+                                    <circle opacity="0.5" cx="17" cy="10" r="1" fill="currentColor"></circle>
+                                    <path opacity="0.5" d="M15 16.5H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path opacity="0.5" d="M13 19H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                </svg>
+                                In
+                            </button>
+                            <button type="button" class="btn btn-success gap-2">
+                                <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
+                                    <path opacity="0.5" d="M17 9.00195C19.175 9.01406 20.3529 9.11051 21.1213 9.8789C22 10.7576 22 12.1718 22 15.0002V16.0002C22 18.8286 22 20.2429 21.1213 21.1215C20.2426 22.0002 18.8284 22.0002 16 22.0002H8C5.17157 22.0002 3.75736 22.0002 2.87868 21.1215C2 20.2429 2 18.8286 2 16.0002L2 15.0002C2 12.1718 2 10.7576 2.87868 9.87889C3.64706 9.11051 4.82497 9.01406 7 9.00195" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M12 2L12 15M12 15L9 11.5M12 15L15 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                                Tải xuống
+                            </button>
+                            <div>
+                                <a href="/Staff/TreatmentRecords/Trash" class="btn btn-danger">
+                                    <svg class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M10.3094 2.25002H13.6908C13.9072 2.24988 14.0957 2.24976 14.2737 2.27819C14.977 2.39049 15.5856 2.82915 15.9146 3.46084C15.9978 3.62073 16.0573 3.79961 16.1256 4.00494L16.2373 4.33984C16.2562 4.39653 16.2616 4.41258 16.2661 4.42522C16.4413 4.90933 16.8953 5.23659 17.4099 5.24964C17.4235 5.24998 17.44 5.25004 17.5001 5.25004H20.5001C20.9143 5.25004 21.2501 5.58582 21.2501 6.00004C21.2501 6.41425 20.9143 6.75004 20.5001 6.75004H3.5C3.08579 6.75004 2.75 6.41425 2.75 6.00004C2.75 5.58582 3.08579 5.25004 3.5 5.25004H6.50008C6.56013 5.25004 6.5767 5.24998 6.59023 5.24964C7.10488 5.23659 7.55891 4.90936 7.73402 4.42524C7.73863 4.41251 7.74392 4.39681 7.76291 4.33984L7.87452 4.00496C7.94281 3.79964 8.00233 3.62073 8.08559 3.46084C8.41453 2.82915 9.02313 2.39049 9.72643 2.27819C9.90445 2.24976 10.093 2.24988 10.3094 2.25002ZM9.00815 5.25004C9.05966 5.14902 9.10531 5.04404 9.14458 4.93548C9.1565 4.90251 9.1682 4.86742 9.18322 4.82234L9.28302 4.52292C9.37419 4.24941 9.39519 4.19363 9.41601 4.15364C9.52566 3.94307 9.72853 3.79686 9.96296 3.75942C10.0075 3.75231 10.067 3.75004 10.3553 3.75004H13.6448C13.9331 3.75004 13.9927 3.75231 14.0372 3.75942C14.2716 3.79686 14.4745 3.94307 14.5842 4.15364C14.605 4.19363 14.626 4.2494 14.7171 4.52292L14.8169 4.82216L14.8556 4.9355C14.8949 5.04405 14.9405 5.14902 14.992 5.25004H9.00815Z" fill="#ffffff"></path> <path d="M5.91509 8.45015C5.88754 8.03685 5.53016 7.72415 5.11686 7.7517C4.70357 7.77925 4.39086 8.13663 4.41841 8.54993L4.88186 15.5017C4.96736 16.7844 5.03642 17.8205 5.19839 18.6336C5.36679 19.4789 5.65321 20.185 6.2448 20.7385C6.8364 21.2919 7.55995 21.5308 8.4146 21.6425C9.23662 21.7501 10.275 21.7501 11.5606 21.75H12.4395C13.7251 21.7501 14.7635 21.7501 15.5856 21.6425C16.4402 21.5308 17.1638 21.2919 17.7554 20.7385C18.347 20.185 18.6334 19.4789 18.8018 18.6336C18.9638 17.8206 19.0328 16.7844 19.1183 15.5017L19.5818 8.54993C19.6093 8.13663 19.2966 7.77925 18.8833 7.7517C18.47 7.72415 18.1126 8.03685 18.0851 8.45015L17.6251 15.3493C17.5353 16.6971 17.4713 17.6349 17.3307 18.3406C17.1943 19.025 17.004 19.3873 16.7306 19.6431C16.4572 19.8989 16.083 20.0647 15.391 20.1552C14.6776 20.2485 13.7376 20.25 12.3868 20.25H11.6134C10.2626 20.25 9.32255 20.2485 8.60915 20.1552C7.91715 20.0647 7.54299 19.8989 7.26958 19.6431C6.99617 19.3873 6.80583 19.025 6.66948 18.3406C6.52892 17.6349 6.46489 16.6971 6.37503 15.3493L5.91509 8.45015Z" fill="#ffffff"></path> <path d="M9.42546 10.2538C9.83762 10.2125 10.2052 10.5133 10.2464 10.9254L10.7464 15.9254C10.7876 16.3376 10.4869 16.7051 10.0747 16.7463C9.66256 16.7875 9.29503 16.4868 9.25381 16.0747L8.75381 11.0747C8.7126 10.6625 9.01331 10.295 9.42546 10.2538Z" fill="#ffffff"></path> <path d="M14.5747 10.2538C14.9869 10.295 15.2876 10.6625 15.2464 11.0747L14.7464 16.0747C14.7052 16.4868 14.3376 16.7875 13.9255 16.7463C13.5133 16.7051 13.2126 16.3376 13.2538 15.9254L13.7538 10.9254C13.795 10.5133 14.1626 10.2125 14.5747 10.2538Z" fill="#ffffff"></path> </g></svg>
+                                    Thùng rác
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="myTable" class="table-striped table-hover"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="~/Public/assets/js/simple-datatables.js"></script>
+
+<script>
+
+    function getStatusName(value) {
+        switch (value) {
+            case 1: return 'Đang điều trị';
+            case 2: return 'Đã hoàn thành';
+            case 3: return 'Đã hủy bỏ';
+            default: return 'Không xác định';
+        }
+    };
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('list', () => ({
+            entityList: @Html.Raw(Json.Serialize(Model)),
+            filteredList: [],
+            selectedRows: [],
+            datatable: null,
+
+            init() {
+                if (!Array.isArray(this.entityList)) {
+                    this.entityList = [];
+                }
+                this.filteredList = [...this.entityList];
+                this.initializeTable();
+
+                document.querySelector('#myTable thead').addEventListener('change', (e) => {
+                    if (e.target.type === 'checkbox') {
+                        this.selectedRows = [];
+                        const checkboxes = document.querySelectorAll('#myTable tbody input[type="checkbox"]');
+                        checkboxes.forEach(checkbox => {
+                            checkbox.checked = e.target.checked;
+                            if (e.target.checked) {
+                                if (!this.selectedRows.includes(checkbox.value)) {
+                                    this.selectedRows.push(checkbox.value);
+                                }
+                            }
+                        });
+                    }
+                });
+
+                document.querySelector('#myTable tbody').addEventListener('change', (e) => {
+                    if (e.target.type === 'checkbox') {
+                        const checkbox = e.target;
+                        const id = checkbox.value;
+                        if (checkbox.checked) {
+                            if (!this.selectedRows.includes(id)) {
+                                this.selectedRows.push(id);
+                            }
+                        } else {
+                            this.selectedRows = this.selectedRows.filter(rowId => rowId !== id);
+                        }
+                        const allCheckboxes = document.querySelectorAll('#myTable tbody input[type="checkbox"]');
+                        const allChecked = Array.from(allCheckboxes).every(chk => chk.checked);
+                        const mainCheckbox = document.querySelector('#myTable thead input[type="checkbox"]');
+                        mainCheckbox.checked = allChecked;
+                    }
+                });
+
+                document.querySelector('#myTable tbody').addEventListener('click', (e) => {
+                    const deleteBtn = e.target.closest('.delete-btn');
+                    if (deleteBtn) {
+                        const id = deleteBtn.getAttribute('data-id');
+                        this.moveSingleToTrash(id);
+                    }
+                });
+            },
+
+            initializeTable() {
+                const tableData = this.filteredList.map(entity => [
+                    `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
+                    entity.code,
+                    entity.patientName,
+                    entity.diagnosis,
+                    entity.startDate ? new Date(entity.startDate).toLocaleDateString('vi-VN') : 'Không xác định',
+                    entity.endDate ? new Date(entity.endDate).toLocaleDateString('vi-VN') : 'Không xác định',
+                    `${getStatusName(entity.status)}`,
+                    entity.isActive ?
+                        '<svg x-tooltip="Đang hoạt động" class="w-5 h-5 mx-auto" width="24" height="24" fill="#000000" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="green" d="M13 4.1974q0 .3097-.21677.5265L7.17806 10.329l-1.0529 1.0529q-.21677.2168-.52645.2168-.30968 0-.52645-.2168L4.01935 10.329 1.21677 7.5264Q1 7.3097 1 7t.21677-.5265l1.05291-1.0529q.21677-.2167.52645-.2167.30968 0 .52645.2167l2.27613 2.2839 5.07871-5.0864q.21677-.2168.52645-.2168.30968 0 .52645.2168l1.05291 1.0529Q13 3.8877 13 4.1974z"></path></g></svg>'
+                        :
+                        '<svg x-tooltip="Không hoạt động" class="w-5 h-5 mx-auto" width="24" height="24" fill="#000000" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="red" d="M13 10.65657q0 .40404-.28283.68686l-1.37374 1.37374Q11.06061 13 10.65657 13t-.68687-.28283L7 9.74747l-2.9697 2.9697Q3.74747 13 3.34343 13q-.40404 0-.68686-.28283l-1.37374-1.37374Q1 11.06061 1 10.65657t.28283-.68687L4.25253 7l-2.9697-2.9697Q1 3.74747 1 3.34343q0-.40404.28283-.68686l1.37374-1.37374Q2.93939 1 3.34343 1t.68687.28283L7 4.25253l2.9697-2.9697Q10.25253 1 10.65657 1q.40404 0 .68686.28283l1.37374 1.37374Q13 2.93939 13 3.34343t-.28283.68687L9.74747 7l2.9697 2.9697Q13 10.25253 13 10.65657z"></path></g></svg>',
+                    `<div class="flex gap-4">
+                        <a href="/Staff/TreatmentRecords/Edit/${entity.id}" class="hover:text-info" x-tooltip="Chỉnh sửa">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5">
+                                <path opacity="0.5" d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                <path d="M17.3009 2.80624L16.652 3.45506L10.6872 9.41993C10.2832 9.82394 10.0812 10.0259 9.90743 10.2487C9.70249 10.5114 9.52679 10.7957 9.38344 11.0965C9.26191 11.3515 9.17157 11.6225 8.99089 12.1646L8.41242 13.9L8.03811 15.0229C7.9492 15.2897 8.01862 15.5837 8.21744 15.7826C8.41626 15.9814 8.71035 16.0508 8.97709 15.9619L10.1 15.5876L11.8354 15.0091C12.3775 14.8284 12.6485 14.7381 12.9035 14.6166C13.2043 14.4732 13.4886 14.2975 13.7513 14.0926C13.9741 13.9188 14.1761 13.7168 14.5801 13.3128L20.5449 7.34795L21.1938 6.69914C22.2687 5.62415 22.2687 3.88124 21.1938 2.80624C20.1188 1.73125 18.3759 1.73125 17.3009 2.80624Z" stroke="currentColor" stroke-width="1.5"></path>
+                                <path opacity="0.5" d="M16.6522 3.45508C16.6522 3.45508 16.7333 4.83381 17.9499 6.05034C19.1664 7.26687 20.5451 7.34797 20.5451 7.34797M10.1002 15.5876L8.4126 13.9" stroke="currentColor" stroke-width="1.5"></path>
+                            </svg>
+                        </a>
+                        <a href="/Staff/TreatmentRecords/Details/${entity.id}" class="hover:text-primary" x-tooltip="Xem chi tiết">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
+                                <path opacity="0.5" d="M3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C4.97196 6.49956 7.81811 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957Z" stroke="currentColor" stroke-width="1.5"></path>
+                                <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" stroke-width="1.5"></path>
+                            </svg>
+                        </a>
+                        <button type="button" class="hover:text-danger delete-btn" data-id="${entity.id}" x-tooltip="Đưa vào thùng rác">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
+                                <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                <path opacity="0.5" d="M6.5 6C6.55588 6 6.58382 6 6.60915 5.99936C7.43259 5.97849 8.15902 5.45491 8.43922 4.68032C8.44784 4.65649 8.45667 4.62999 8.47434 4.57697L8.57143 4.28571C8.65431 4.03708 8.69575 3.91276 8.75071 3.8072C8.97001 3.38607 9.37574 3.09364 9.84461 3.01877C9.96213 3 10.0932 3 10.3553 3H13.6447C13.9068 3 14.0379 3 14.1554 3.01877C14.6243 3.09364 15.03 3.38607 15.2493 3.8072C15.3043 3.91276 15.3457 4.03708 15.4286 4.28571L15.5257 4.57697C15.5433 4.62992 15.5522 4.65651 15.5608 4.68032C15.841 5.45491 16.5674 5.97849 17.3909 5.99936C17.4162 6 17.4441 6 17.5 6" stroke="currentColor" stroke-width="1.5"></path>
+                            </svg>
+                        </button>
+                    </div>`
+                ]);
+
+                this.datatable = new simpleDatatables.DataTable('#myTable', {
+                    data: {
+                        headings: [
+                            '<input type="checkbox" class="form-checkbox" />',
+                            'Mã đợt điều trị',
+                            'Tên bệnh nhân',
+                            'Chẩn đoán',
+                            'Ngày bắt đầu',
+                            'Ngày kết thúc',
+                            'Trạng thái',
+                            'Hoạt động',
+                            'Thao tác'
+                        ],
+                        data: tableData
+                    },
+                    perPage: 10,
+                    perPageSelect: [10, 20, 30, 50, 100],
+                    firstLast: true,
+                    searchable: true,
+                    firstText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                    lastText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M11 19L17 12L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M6.99976 19L12.9998 12L6.99976 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                    prevText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M15 5L9 12L15 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                    nextText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                    labels: {
+                        perPage: "<span class='ml-2'>{select}</span>",
+                        noRows: 'Không có dữ liệu'
+                    },
+                    layout: {
+                        top: '{search}',
+                        bottom: '{info}{select}{pager}'
+                    },
+                    columns: [
+                        {
+                            select: 0,
+                            sortable: false,
+                            render: (data, cell, row) => {
+                                return data;
+                            }
+                        },
+                        {
+                            select: 7,
+                            sortable: false,
+                            render: (data, cell, row) => {
+                                return data;
+                            }
+                        },
+                        {
+                            select: 8,
+                            sortable: false,
+                            render: (data, cell, row) => {
+                                return data;
+                            }
+                        }
+                    ],
+                });
+            },
+
+            moveToTrash() {
+                if (this.selectedRows.length === 0) {
+                    notyf.error('Vui lòng chọn ít nhất một đợt điều trị để đưa vào thùng rác.');
+                    return;
+                }
+
+                $.confirm({
+                    title: 'Bạn có chắc chắn?',
+                    content: 'Bạn có muốn đưa các đợt điều trị vào thùng rác không?',
+                    icon: 'fa fa-question-circle text-blue-500',
+                    theme: 'modern',
+                    type: 'blue',
+                    boxWidth: '400px',
+                    useBootstrap: false,
+                    buttons: {
+                        confirm: {
+                            text: 'Có, hãy thực hiện!',
+                            btnClass: 'btn-success',
+                            action: () => {
+                                document.getElementById('selectedIds').value = this.selectedRows.join(',');
+                                document.getElementById('indexForm').submit();
+                            }
+                        },
+                        cancel: {
+                            text: 'Hủy',
+                            btnClass: 'btn-secondary'
+                        }
+                    }
+                });
+            },
+
+            moveSingleToTrash(id) {
+                $.confirm({
+                    title: 'Bạn có chắc chắn?',
+                    content: 'Bạn có muốn đưa đợt điều trị này vào thùng rác không?',
+                    icon: 'fa fa-question-circle text-blue-500',
+                    theme: 'modern',
+                    type: 'blue',
+                    boxWidth: '400px',
+                    useBootstrap: false,
+                    buttons: {
+                        confirm: {
+                            text: 'Có, hãy thực hiện!',
+                            btnClass: 'btn-success',
+                            action: () => {
+                                document.getElementById('selectedIds').value = id;
+                                document.getElementById('indexForm').submit();
+                            }
+                        },
+                        cancel: {
+                            text: 'Hủy',
+                            btnClass: 'btn-secondary'
+                        }
+                    }
+                });
+            }
+        }));
+    });
+</script>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            notyf.success('@Html.Raw(TempData["SuccessMessage"])');
+        });
+    </script>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            notyf.error('@Html.Raw(TempData["ErrorMessage"])');
+        });
+    </script>
+}
