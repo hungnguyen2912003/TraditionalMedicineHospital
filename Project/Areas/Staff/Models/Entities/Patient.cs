@@ -13,23 +13,23 @@ namespace Project.Areas.Staff.Models.Entities
         public Guid Id { get; set; }
         [Required]
         [StringLength(10)]
-        public string Code { get; set; }
+        public string Code { get; set; } = string.Empty;
         [Required]
         [StringLength(50)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         [Required]
         [StringLength(12, MinimumLength = 9)]
-        public string IdentityNumber { get; set; }
+        public string IdentityNumber { get; set; } = string.Empty;
         [Required]
         public DateTime DateOfBirth { get; set; }
         [Required]
         public GenderType Gender { get; set; }
         [Required]
         [StringLength(500)]
-        public string Address { get; set; }
+        public string Address { get; set; } = string.Empty;
         [Required]  
         [Phone]
-        public string PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; } = string.Empty;
         [EmailAddress]
         public string? EmailAddress { get; set; }
         public string? Images { get; set; }
@@ -38,5 +38,6 @@ namespace Project.Areas.Staff.Models.Entities
         /// Relationships
         ///
         public virtual User? User { get; set; }
+        public virtual ICollection<TreatmentRecord> TreatmentRecords { get; set; } = new HashSet<TreatmentRecord>();
     }
 }
