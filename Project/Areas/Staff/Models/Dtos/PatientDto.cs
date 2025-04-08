@@ -1,4 +1,4 @@
-﻿namespace Project.Areas.Staff.Models.Dtos
+﻿namespace Project.Areas.Staff.Models.DTOs
 {
     public class PatientDto
     {

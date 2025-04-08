@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Project.Areas.Staff.Models.Dtos;
+using Project.Areas.Staff.Models.DTOs;
 using Project.Areas.Staff.Models.Entities;
 using Project.Repositories.Interfaces;
 using Project.Services.Interfaces;

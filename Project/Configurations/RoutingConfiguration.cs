@@ -39,11 +39,11 @@
                 defaults: new { area = "Staff", controller = "Home", action = "Index" }
             );
 
-            //// Route chung cho các area
-            //app.MapControllerRoute(
-            //    name: "areas",
-            //    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
-            //);
+            // Route chung cho các area
+            app.MapControllerRoute(
+                name: "areas",
+                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+            );
 
             // Route mặc định (không thuộc area)
             app.MapControllerRoute(

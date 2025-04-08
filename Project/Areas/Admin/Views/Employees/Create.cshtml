@@ -79,7 +79,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="DateOfBirth" class="block text-sm font-medium text-gray-700">Ngày sinh</label>
-                                    <input id="DateOfBirth" type="text" name="DateOfBirth" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập ngày sinh" />
+                                    <input id="DateOfBirth" type="text" name="DateOfBirth" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập ngày sinh" />
                                     @Html.ValidationMessageFor(model => model.DateOfBirth, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -145,7 +145,7 @@
                         <label class="block text-sm font-medium text-gray-700">Thông tin ngày bắt đầu làm việc</label>
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <input id="StartDate" type="text" name="StartDate" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập ngày bắt đầu làm" />
+                                <input id="StartDate" type="text" name="StartDate" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập ngày bắt đầu làm" />
                                 @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
                             </div>
                             <div>
@@ -220,15 +220,11 @@
             },
 
             setupDateTimePicker() {
-                $('.picker').datetimepicker({
-                    autoclose: true,
-                    timepicker: false,
-                    datepicker: true,
-                    format: "d/m/Y",
-                    weeks: true
+                flatpickr('.flatpickr', {
+                    dateFormat: "d/m/Y",
+                    allowInput: true,
+                    locale: "vi"
                 });
-
-                $.datetimepicker.setLocale('vi');
             },
 
             setupDropzone() {

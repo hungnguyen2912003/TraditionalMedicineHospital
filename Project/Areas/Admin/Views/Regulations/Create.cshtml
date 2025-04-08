@@ -51,12 +51,12 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="EffectiveDate" class="block text-sm font-medium text-gray-700">Ngày có hiệu lực</label>
-                                    <input id="EffectiveDate" type="text" name="EffectiveDate" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập ngày có hiệu lực" />
+                                    <input id="EffectiveDate" type="text" name="EffectiveDate" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập ngày có hiệu lực" />
                                     @Html.ValidationMessageFor(model => model.EffectiveDate, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="ExpirationDate" class="block text-sm font-medium text-gray-700">Ngày hết hạn hiệu lực</label>
-                                    <input id="ExpirationDate" type="text" name="ExpirationDate" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập ngày hết hạn hiệu lực" />
+                                    <input id="ExpirationDate" type="text" name="ExpirationDate" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập ngày hết hạn hiệu lực" />
                                     @Html.ValidationMessageFor(model => model.ExpirationDate, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -118,15 +118,11 @@
             },
 
             setupDateTimePicker() {
-                $('.picker').datetimepicker({
-                    autoclose: true,
-                    timepicker: false,
-                    datepicker: true,
-                    format: "d/m/Y",
-                    weeks: true
+                flatpickr('.flatpickr', {
+                    dateFormat: "d/m/Y",
+                    allowInput: true,
+                    locale: "vi"
                 });
-
-                $.datetimepicker.setLocale('vi');
             },
 
             setupValidation() {

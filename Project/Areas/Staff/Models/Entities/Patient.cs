@@ -2,6 +2,7 @@
 using Project.Models.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Project.Areas.Admin.Models.Entities;
 
 namespace Project.Areas.Staff.Models.Entities
 {
@@ -32,5 +33,10 @@ namespace Project.Areas.Staff.Models.Entities
         [EmailAddress]
         public string? EmailAddress { get; set; }
         public string? Images { get; set; }
+
+        /////////////////////////////////////////////////////
+        /// Relationships
+        ///
+        public virtual User? User { get; set; }
     }
 }
