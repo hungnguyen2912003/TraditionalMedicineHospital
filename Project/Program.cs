@@ -12,11 +12,11 @@ JWTConfiguration.ConfigureJWT(builder);
 SessionConfiguration.ConfigureSession(builder);
 
 var app = builder.Build();
-app.UseRouting();
 
-EnvironmentConfiguration.ConfigureEnvironment(app);
-MiddlewareConfiguration.ConfigureMiddleware(app);
+// Configure the HTTP request pipeline
 PipelineConfiguration.ConfigurePipeline(app);
+MiddlewareConfiguration.ConfigureMiddleware(app);
+EnvironmentConfiguration.ConfigureEnvironment(app);
 RoutingConfiguration.ConfigureRouting(app);
 
 app.Run();

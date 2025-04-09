@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol.Core.Types;
+using Project.Repositories.Implementations;
 using Project.Repositories.Interfaces;
 using Project.Services.Features;
 using Project.Validators;
@@ -10,7 +12,7 @@ namespace Project.Areas.Admin.Controllers
     [Authorize]
     public class AccountController : Controller
     {
-        private readonly IUserRepository _repository;
+        private readonly IUserRepository _userRepository;
         private readonly EmailService _emailService;
         private readonly AuthValidator _validator;
         private readonly JwtManager _jwtManager;
@@ -19,7 +21,7 @@ namespace Project.Areas.Admin.Controllers
 
         public AccountController
         (
-            IUserRepository repository, 
+            IUserRepository userRepository, 
             AuthValidator validator, 
             JwtManager jwtManager, 
             EmailService emailService,
@@ -27,7 +29,7 @@ namespace Project.Areas.Admin.Controllers
             IConfiguration configuration
         )
         {
-            _repository = repository;
+            _userRepository = userRepository;
             _validator = validator;
             _jwtManager = jwtManager;
             _emailService = emailService;
@@ -54,7 +56,7 @@ namespace Project.Areas.Admin.Controllers
                     return Json(new { success = false, message = validationResult.ErrorMessage });
                 }
 
-                var user = await _repository.GetByUsernameAsync(username);
+                var user = await _userRepository.GetByUsernameAsync(username);
                 if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
                 {
                     var token = _jwtManager.GenerateToken(username, user.Role);
@@ -80,7 +82,7 @@ namespace Project.Areas.Admin.Controllers
                     string redirectURL = user.Role.ToString() switch
                     {
                         "Admin" => Url.Action("Index", "Home", new { area = "Admin" }) ?? "/Admin/Home/Index",
-                        "NhanVien" => Url.Action("Index", "Home", new { area = "" }) ?? "/Home/Index",
+                        "Nhanvien" => Url.Action("Index", "Home", new { area = "Staff" }) ?? "/Staff/Home/Index",
                         _ => Url.Action("") ?? "",
                     };
 
@@ -135,30 +137,20 @@ namespace Project.Areas.Admin.Controllers
                 var token = Request.Cookies["AuthToken"];
                 if (string.IsNullOrEmpty(token))
                 {
-                    return Json(new
-                    {
-                        success = false,
-                        message = "Phiên làm việc không hợp lệ. Vui lòng đăng nhập lại.",
-                        redirectUrl = Url.Action("Login", "Account", new { area = "Admin" })
-                    });
+                    return RedirectToAction("Login", "Account", new { area = "Admin" });
                 }
 
                 var (username, role) = _jwtManager.GetClaimsFromToken(token);
                 if (string.IsNullOrEmpty(username))
                 {
                     Response.Cookies.Delete("AuthToken");
-                    return Json(new
-                    {
-                        success = false,
-                        message = "Phiên làm việc không hợp lệ. Vui lòng đăng nhập lại.",
-                        redirectUrl = Url.Action("Login", "Account", new { area = "Admin" })
-                    });
+                    return RedirectToAction("Login", "Account", new { area = "Admin" });
                 }
 
-                var user = await _repository.GetByUsernameAsync(username);
-                if (user == null)
+                var user = await _userRepository.GetByUsernameAsync(username);
+                if (user == null || user.Employee == null)
                 {
-                    return Json(new { success = false, message = "Không tìm thấy nhân viên." });
+                    return RedirectToAction("Login", "Account", new { area = "Admin" });
                 }
 
                 var validationResult = _validator.ValidateChangePassword(oldPassword, newPassword, confirmPassword, user.PasswordHash);
@@ -169,7 +161,7 @@ namespace Project.Areas.Admin.Controllers
 
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
                 user.IsFirstLogin = false;
-                await _repository.UpdateAsync(user);
+                await _userRepository.UpdateAsync(user);
 
                 //if (!string.IsNullOrEmpty(user.Employee.EmailAddress))
                 //{
@@ -221,7 +213,7 @@ namespace Project.Areas.Admin.Controllers
                     return Json(new { success = false, message = validationResult.ErrorMessage });
                 }
 
-                var employee = await _repository.GetByCodeAsync(code);
+                var employee = await _userRepository.GetByCodeAsync(code);
                 if (employee == null)
                 {
                     return Json(new { success = false, message = "Không tìm thấy nhân viên với mã này." });
@@ -239,6 +231,69 @@ namespace Project.Areas.Admin.Controllers
             {
                 return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized(new { success = false, message = "Chưa đăng nhập." });
+            }
+
+            var (username, role) = _jwtManager.GetClaimsFromToken(token);
+            if (string.IsNullOrEmpty(username))
+            {
+                Response.Cookies.Delete("AuthToken");
+                return Unauthorized(new { success = false, message = "Token không hợp lệ." });
+            }
+
+            var user = await _userRepository.GetByUsernameAsync(username);
+            if (user == null)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy người dùng." });
+            }
+
+            if (role == "Admin")
+            {
+                return Json(new
+                {
+                    success = true,
+                    username = username,
+                    role = role
+                });
+            }
+            else
+            {
+                var employee = user.Employee;
+                if (employee == null)
+                {
+                    return NotFound(new { success = false, message = "Không tìm thấy thông tin nhân viên." });
+                }
+
+                string imagePath = string.IsNullOrEmpty(employee.Images)
+                    ? ""
+                    : $"/Images/Employees/{employee.Images}";
+
+                return Json(new
+                {
+                    success = true,
+                    id = employee.Id,
+                    username = username,
+                    name = employee.Name,
+                    email = employee.EmailAddress,
+                    image = imagePath,
+                    role = role
+                });
+            }
+        }
+
+
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
     }
 }

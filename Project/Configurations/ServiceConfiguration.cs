@@ -1,4 +1,5 @@
-﻿using Project.Areas.Admin.Models.Entities;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Staff.Models.Entities;
 using Project.Services;
 using Project.Services.Features;
@@ -27,6 +28,11 @@ namespace Project.Configurations
             builder.Services.AddScoped<JwtManager>();
             builder.Services.AddControllersWithViews();
 
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Admin/Account/Login";
+                });
 
             builder.Services.AddAuthorization();
             builder.Services.AddHttpClient();

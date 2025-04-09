@@ -43,6 +43,11 @@ namespace Project.Configurations
                         context.Response.Redirect("/login");
                         context.HandleResponse();
                         return Task.CompletedTask;
+                    },
+                    OnForbidden = context =>
+                    {
+                        context.Response.Redirect("/access-denied");
+                        return Task.CompletedTask;
                     }
                 };
             });
