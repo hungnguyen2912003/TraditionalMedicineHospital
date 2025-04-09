@@ -1,4 +1,5 @@
-﻿using Project.Models.Commons;
+﻿using Project.Areas.Staff.Models.Entities;
+using Project.Models.Commons;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,5 +21,11 @@ namespace Project.Areas.Admin.Models.Entities
         public string? Description { get; set; }
         public DateTime EffectiveDate { get; set; }
         public DateTime ExpirationDate { get; set; }
+
+
+        /////////////////////////////////////////////////////
+        /// Relationships
+        ///
+        public virtual ICollection<TreatmentRecord_Regulation> TreatmentRecord_Regulations { get; set; } = new HashSet<TreatmentRecord_Regulation>();
     }
 }
