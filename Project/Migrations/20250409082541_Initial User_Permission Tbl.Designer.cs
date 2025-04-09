@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project.Datas;
 
@@ -11,9 +12,11 @@ using Project.Datas;
 namespace Project.Migrations
 {
     [DbContext(typeof(TraditionalMedicineHospitalDbContext))]
-    partial class TraditionalMedicineHospitalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250409082541_Initial User_Permission Tbl")]
+    partial class InitialUser_PermissionTbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -959,41 +962,6 @@ namespace Project.Migrations
                     b.ToTable("TreatmentRecord");
                 });
 
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecordDetail", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("TreatmentRecordId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TreatmentRecordId");
-
-                    b.ToTable("TreatmentRecordDetail");
-                });
-
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecord_Regulation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1215,17 +1183,6 @@ namespace Project.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecordDetail", b =>
-                {
-                    b.HasOne("Project.Areas.Staff.Models.Entities.TreatmentRecord", "TreatmentRecord")
-                        .WithMany("TreatmentRecordDetails")
-                        .HasForeignKey("TreatmentRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TreatmentRecord");
-                });
-
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecord_Regulation", b =>
                 {
                     b.HasOne("Project.Areas.Admin.Models.Entities.Regulation", "Regulation")
@@ -1317,8 +1274,6 @@ namespace Project.Migrations
                     b.Navigation("Payments");
 
                     b.Navigation("Prescriptions");
-
-                    b.Navigation("TreatmentRecordDetails");
 
                     b.Navigation("TreatmentRecord_Regulations");
                 });

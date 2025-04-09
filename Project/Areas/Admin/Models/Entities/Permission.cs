@@ -14,5 +14,10 @@ namespace Project.Areas.Admin.Models.Entities
         [StringLength(50)]
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+
+        /////////////////////////////////////////////////////
+        /// Relationships
+        /// 
+        public virtual ICollection<User_Permission> User_Permissions { get; set; } = new HashSet<User_Permission>();
     }
 }

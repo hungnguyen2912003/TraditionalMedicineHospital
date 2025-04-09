@@ -31,5 +31,6 @@ namespace Project.Areas.Staff.Models.Entities
         public virtual ICollection<TreatmentRecord_Regulation> TreatmentRecord_Regulations { get; set; } = new HashSet<TreatmentRecord_Regulation>();
         public virtual ICollection<Payment> Payments { get; set; } = new HashSet<Payment>();
         public virtual ICollection<AdvancePayment> AdvancePayments { get; set; } = new HashSet<AdvancePayment>();
+        public virtual ICollection<TreatmentRecordDetail> TreatmentRecordDetails { get; set; } = new HashSet<TreatmentRecordDetail>();
     }
 }
