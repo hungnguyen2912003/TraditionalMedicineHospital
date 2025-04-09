@@ -89,6 +89,23 @@
     <script src="~/public/assets/js/goong-geocoder.min.js"></script>
     <script src="~/public/assets/js/goong-js.js"></script>
     <script>
+        const notyf = new Notyf({
+            duration: 2000,
+            position: { x: 'right', y: 'top' },
+            dismissible: false,
+            types: [
+              {
+                type: 'warning',
+                background: 'orange',
+                icon: {
+                  className: 'material-icons',
+                  tagName: 'i',
+                  text: 'warning'
+                }
+              }
+            ],
+        });
+
         document.addEventListener('alpine:init', () => {
             Alpine.data('header', () => ({
                 init() {
@@ -138,22 +155,6 @@
                     }
                 },
             }));
-        });
-        const notyf = new Notyf({
-            duration: 2000,
-            position: { x: 'right', y: 'top' },
-            dismissible: false,
-            types: [
-              {
-                type: 'warning',
-                background: 'orange',
-                icon: {
-                  className: 'material-icons',
-                  tagName: 'i',
-                  text: 'warning'
-                }
-              }
-            ],
         });
     </script>
 </body>

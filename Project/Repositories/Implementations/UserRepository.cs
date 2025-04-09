@@ -20,6 +20,7 @@ namespace Project.Repositories.Implementations
         public async Task<User?> GetByUsernameAsync(string username)
         {
             return await _context.users
+                .Include(u => u.Employee)
                 .FirstOrDefaultAsync(u => u.Username == username);
         }
     }

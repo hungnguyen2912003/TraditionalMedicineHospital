@@ -25,6 +25,12 @@
                 defaults: new { area = "Admin", controller = "Account", action = "Login" }
             );
 
+            app.MapControllerRoute(
+                name: "access-denied",
+                pattern: "access-denied",
+                defaults: new { area = "Admin", controller = "Account", action = "AccessDenied" }
+            );
+
             // Route cụ thể cho admin
             app.MapControllerRoute(
                 name: "admin",
@@ -50,6 +56,8 @@
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}"
             );
+
+
 
             return app;
         }

@@ -1,4 +1,6 @@
-﻿namespace Project.Configurations
+﻿using Project.Middlewares;
+
+namespace Project.Configurations
 {
     public static class MiddlewareConfiguration
     {
@@ -7,6 +9,8 @@
             app.UseStatusCodePagesWithReExecute("/Error/{0}");
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseAccessDeniedMiddleware();
             return app;
         }
     }
