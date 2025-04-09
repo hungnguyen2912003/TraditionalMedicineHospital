@@ -56,5 +56,6 @@ namespace Project.Areas.Admin.Models.Entities
         public required virtual Department Department { get; set; }
         public virtual User? User { get; set; }
         public virtual ICollection<Assignment> Assignments { get; set; } = new HashSet<Assignment>();
+        public virtual ICollection<Prescription> Prescriptions { get; set; } = new HashSet<Prescription>();
     }
 }

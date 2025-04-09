@@ -22,6 +22,7 @@ namespace Project.Datas
         public DbSet<Patient> patients { get; set; }
         public DbSet<TreatmentRecord> treatmentRecords { get; set; }
         public DbSet<Assignment> assignments { get; set; }
+        public DbSet<Prescription> prescriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,6 +32,10 @@ namespace Project.Datas
 
             modelBuilder.Entity<TreatmentMethod>()
                 .Property(e => e.Cost)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Prescription>()
+                .Property(e => e.TotalCost)
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<Medicine>()

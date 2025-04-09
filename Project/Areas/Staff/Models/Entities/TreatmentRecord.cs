@@ -10,6 +10,7 @@ namespace Project.Areas.Staff.Models.Entities
     {
         [Key]
         public Guid Id { get; set; }
+        [StringLength(10)]
         public string Code { get; set; } = string.Empty;
         public string Diagnosis { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
@@ -26,5 +27,6 @@ namespace Project.Areas.Staff.Models.Entities
         [ForeignKey("PatientId")]
         public required virtual Patient Patient { get; set; }
         public virtual ICollection<Assignment> Assignments { get; set; } = new HashSet<Assignment>();
+        public virtual ICollection<Prescription> Prescriptions { get; set; } = new HashSet<Prescription>();
     }
 }
