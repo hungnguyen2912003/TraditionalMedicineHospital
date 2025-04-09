@@ -29,5 +29,6 @@ namespace Project.Areas.Staff.Models.Entities
         public virtual ICollection<Assignment> Assignments { get; set; } = new HashSet<Assignment>();
         public virtual ICollection<Prescription> Prescriptions { get; set; } = new HashSet<Prescription>();
         public virtual ICollection<TreatmentRecord_Regulation> TreatmentRecord_Regulations { get; set; } = new HashSet<TreatmentRecord_Regulation>();
+        public virtual ICollection<Payment> Payments { get; set; } = new HashSet<Payment>();
     }
 }
