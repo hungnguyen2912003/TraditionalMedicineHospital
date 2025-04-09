@@ -4,7 +4,7 @@ using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Staff.Models.Entities;
 using Project.Services;
 
-namespace Project.Areas.Admin.Controllers
+namespace Project.Areas.Admin.Controllers.api
 {
     [Route("api/validation/{entityType}")]
     [ApiController]
