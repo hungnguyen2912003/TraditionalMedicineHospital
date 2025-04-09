@@ -24,6 +24,7 @@ namespace Project.Areas.Admin.Models.Entities
 
         /////////////////////////////////////////////////////
         /// Relationships
+        /// 
         [ForeignKey("DepartmentId")]
         public required virtual Department Department { get; set; }
         public virtual ICollection<Room> Rooms { get; set; } = new HashSet<Room>();
