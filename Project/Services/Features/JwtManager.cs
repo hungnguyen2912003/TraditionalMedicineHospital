@@ -13,9 +13,9 @@ namespace Project.Services.Features
         private readonly string _secretKey;
         public JwtManager(IConfiguration configuration)
         {
-            _issuer = configuration["JwtSettings:Issuer"];
-            _audience = configuration["JwtSettings:Audience"];
-            _secretKey = configuration["JwtSettings:SecretKey"];
+            _issuer = configuration["JwtSettings:Issuer"] ?? throw new ArgumentNullException(nameof(configuration), "Issuer is missing in configuration.");
+            _audience = configuration["JwtSettings:Audience"] ?? throw new ArgumentNullException(nameof(configuration), "Audience is missing in configuration.");
+            _secretKey = configuration["JwtSettings:SecretKey"] ?? throw new ArgumentNullException(nameof(configuration), "SecretKey is missing in configuration.");
         }
 
         public string GenerateToken(string username, RoleType role)
@@ -42,7 +42,7 @@ namespace Project.Services.Features
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public (string Username, string Role) GetClaimsFromToken(string token)
+        public (string? Username, string? Role) GetClaimsFromToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
