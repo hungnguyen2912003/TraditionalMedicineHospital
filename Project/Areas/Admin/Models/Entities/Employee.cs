@@ -1,4 +1,5 @@
-﻿using Project.Models.Commons;
+﻿using Project.Areas.Staff.Models.Entities;
+using Project.Models.Commons;
 using Project.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -54,5 +55,6 @@ namespace Project.Areas.Admin.Models.Entities
         [ForeignKey("DepartmentId")]
         public required virtual Department Department { get; set; }
         public virtual User? User { get; set; }
+        public virtual ICollection<Assignment> Assignments { get; set; } = new HashSet<Assignment>();
     }
 }
