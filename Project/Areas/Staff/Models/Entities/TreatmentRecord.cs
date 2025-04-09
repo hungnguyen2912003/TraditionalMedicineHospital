@@ -25,5 +25,6 @@ namespace Project.Areas.Staff.Models.Entities
         ///
         [ForeignKey("PatientId")]
         public required virtual Patient Patient { get; set; }
+        public virtual ICollection<Assignment> Assignments { get; set; } = new HashSet<Assignment>();
     }
 }

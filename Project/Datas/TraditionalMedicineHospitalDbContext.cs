@@ -21,6 +21,7 @@ namespace Project.Datas
         public DbSet<User> users { get; set; }
         public DbSet<Patient> patients { get; set; }
         public DbSet<TreatmentRecord> treatmentRecords { get; set; }
+        public DbSet<Assignment> assignments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
