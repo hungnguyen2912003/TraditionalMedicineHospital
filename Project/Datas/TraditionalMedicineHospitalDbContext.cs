@@ -23,6 +23,7 @@ namespace Project.Datas
         public DbSet<TreatmentRecord> treatmentRecords { get; set; }
         public DbSet<Assignment> assignments { get; set; }
         public DbSet<Prescription> prescriptions { get; set; }
+        public DbSet<PrescriptionDetail> prescriptionDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
