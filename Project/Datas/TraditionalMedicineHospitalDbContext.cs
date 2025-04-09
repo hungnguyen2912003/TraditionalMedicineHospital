@@ -26,6 +26,7 @@ namespace Project.Datas
         public DbSet<PrescriptionDetail> prescriptionDetails { get; set; }
         public DbSet<TreatmentRecord_Regulation> treatmentRecord_Regulations { get; set; }
         public DbSet<Payment> payments { get; set; }
+        public DbSet<Permission> permissions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
