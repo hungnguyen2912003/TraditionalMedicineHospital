@@ -37,6 +37,7 @@ namespace Project.Areas.Staff.Models.Entities
         /////////////////////////////////////////////////////
         /// Relationships
         ///
+        public virtual HealthInsurance? HealthInsurance { get; set; }
         public virtual User? User { get; set; }
         public virtual ICollection<TreatmentRecord> TreatmentRecords { get; set; } = new HashSet<TreatmentRecord>();
     }
