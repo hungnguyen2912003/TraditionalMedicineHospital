@@ -2,9 +2,9 @@
     <div class="shadow-sm">
         <div class="relative flex w-full items-center bg-white px-5 py-2.5 dark:bg-[#0e1726]">
             <div class="horizontal-logo flex items-center justify-between ltr:mr-2 rtl:ml-2 lg:hidden">
-                <a href="index.html" class="main-logo flex shrink-0 items-center">
-                    <img class="inline w-8 ltr:-ml-1 rtl:-mr-1" src="~/Public/assets/images/logo.png" alt="image">
-                    <span class="hidden align-middle text-2xl font-semibold transition-all duration-300 ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light md:inline">Admin</span>
+                <a id="home" href="" class="main-logo flex shrink-0 items-center">
+                    <img class="inline w-8 ltr:-ml-1 rtl:-mr-1" src="~/public/assets/images/logo/logo_official.png" alt="image">
+                    <span class="hidden align-middle text-lg font-semibold transition-all duration-300 ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light md:inline" style="font-weight: 900;background: linear-gradient(to right, #FF0000, #800080, #00008B); -webkit-background-clip: text; background-clip: text; color: transparent;">Bệnh viện Y học cổ truyền</span>
                 </a>
 
                 <a href="javascript:;" class="collapse-icon flex flex-none rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary ltr:ml-2 rtl:mr-2 dark:bg-dark/40 dark:text-[#d0d2d6] dark:hover:bg-dark/60 dark:hover:text-primary lg:hidden" @@click="$store.app.toggleSidebar()">
@@ -44,7 +44,7 @@
                     </button>
                 </div>
                 <div>
-                    Chào mừng, <p id="user-name-main" style="font-weight: 900;"></p>
+                    Chào mừng, <span id="user-name-main" style="font-weight: 900;"></span>
                 </div>
                 <div class="dropdown flex-shrink-0" x-data="dropdown" @@click.outside="open = false">
                     <a href="javascript:;" class="group relative" @@click="toggle()">
@@ -72,7 +72,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="change-password" class="dark:hover:text-white" @@click="toggle">
+                            <a href="/change-password" class="dark:hover:text-white" @@click="toggle">
                                 <svg class="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M2 16C2 13.1716 2 11.7574 2.87868 10.8787C3.75736 10 5.17157 10 8 10H16C18.8284 10 20.2426 10 21.1213 10.8787C22 11.7574 22 13.1716 22 16C22 18.8284 22 20.2426 21.1213 21.1213C20.2426 22 18.8284 22 16 22H8C5.17157 22 3.75736 22 2.87868 21.1213C2 20.2426 2 18.8284 2 16Z" stroke="currentColor" stroke-width="1.5"></path>
                                     <path opacity="0.5" d="M6 10V8C6 4.68629 8.68629 2 12 2C15.3137 2 18 4.68629 18 8V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
@@ -113,16 +113,18 @@
             const data = await response.json();
 
             if (data.success) {
+                const homeElement = document.getElementById('home');
                 const nameMainElement = document.getElementById('user-name-main');
                 const nameDropdownElement = document.getElementById('user-name-dropdown');
                 const emailElement = document.getElementById('user-email');
                 const imgTopElement = document.getElementById('profile-img-top');
                 const userDetailsLink = document.getElementById('user-details');
                 const imgDropdownElement = document.getElementById('profile-img-dropdown');
-                const defaultImage = '/Public/assets/images/user-profile.jpeg';
+                const defaultImage = '/Public/assets/images/admin-logo.png';
 
 
                 if (data.name && data.email) {
+                    homeElement.href = '/staff';
                     nameMainElement.textContent = data.name;
                     nameDropdownElement.textContent = data.name;
                     emailElement.textContent = data.email;
@@ -133,6 +135,7 @@
                     imgTopElement.src = imageUrl;
                     imgDropdownElement.src = imageUrl;
                 } else {
+                    homeElement.href = '/admin';
                     nameMainElement.textContent = data.username;
                     nameDropdownElement.textContent = data.username;
                     emailElement.style.display = 'none';
