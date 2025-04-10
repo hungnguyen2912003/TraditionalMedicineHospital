@@ -34,13 +34,15 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="DepartmentId" class="block text-sm font-medium text-gray-700">Khoa phụ trách</label>
-                                    <select id="DepartmentId" name="DepartmentId" class="form-input w-full mt-1 p-2 border rounded">
-                                        <option value="">Chọn khoa</option>
-                                        @foreach (var dep in ViewBag.Departments)
-                                        {
-                                            <option value="@dep.Id">@dep.Name</option>
-                                        }
-                                    </select>
+                                    <div class="select-wrapper">
+                                        <select id="DepartmentId" name="DepartmentId" class="form-input w-full mt-1 p-2 border rounded">
+                                            <option value="">Chọn khoa</option>
+                                            @foreach (var dep in ViewBag.Departments)
+                                            {
+                                                <option value="@dep.Id">@dep.Name</option>
+                                            }
+                                        </select>
+                                    </div>
                                     @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
                                 </div>
 
@@ -104,6 +106,20 @@
             init() {
                 this.setupValidation();
                 this.setupCleave();
+                this.setupChoices();
+            },
+
+            setupChoices() {
+                const selectElements = document.querySelectorAll('select.form-input');
+                selectElements.forEach(select => {
+                    new Choices(select, {
+                        searchEnabled: true,
+                        searchPlaceholderValue: 'Tìm kiếm...',
+                        removeItemButton: true,
+                        noResultsText: 'Không tìm thấy kết quả',
+                        noChoicesText: 'Không có lựa chọn nào',
+                    });
+                });
             },
 
             setupCleave() {
@@ -130,6 +146,7 @@
                 }, "Giá bán phải lớn hơn 0.");
 
                 $("#myForm").validate({
+                    ignore: [],
                     rules: {
                         Code: {
                             required: true,
@@ -195,15 +212,17 @@
                     errorElement: "div",
                     errorClass: "text-danger",
                     highlight: function (element) {
-                        if ($(element).attr('id') === 'Cost') {
-                            $('#Cost').addClass("border-red-500");
+                        if ($(element).is('select')) {
+                            const choicesContainer = $(element).closest('.select-wrapper').find('.choices__inner');
+                            choicesContainer.addClass("border-red-500");
                         } else {
                             $(element).addClass("border-red-500");
                         }
                     },
                     unhighlight: function (element) {
-                        if ($(element).attr('id') === 'Cost') {
-                            $('#Cost').removeClass("border-red-500");
+                        if ($(element).is('select')) {
+                            const choicesContainer = $(element).closest('.select-wrapper').find('.choices__inner');
+                            choicesContainer.removeClass("border-red-500");
                         } else {
                             $(element).removeClass("border-red-500");
                         }
@@ -211,6 +230,13 @@
                     errorPlacement: function (error, element) {
                         if (element.attr('id') === 'Cost') {
                             error.insertAfter(element.closest('.flex'));
+                        } else if (element.is('select')) {
+                            const wrapper = element.closest('.select-wrapper');
+                            if (wrapper.length) {
+                                error.insertAfter(wrapper);
+                            } else {
+                                error.insertAfter(element);
+                            }
                         } else {
                             error.insertAfter(element);
                         }
@@ -221,6 +247,10 @@
                         }
                     },
                     onkeyup: false
+                });
+
+                $('select.form-input').on('change', function() {
+                    $(this).valid();
                 });
             },
 

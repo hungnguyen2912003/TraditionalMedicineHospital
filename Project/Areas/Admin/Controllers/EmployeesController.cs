@@ -69,6 +69,7 @@ namespace Project.Areas.Admin.Controllers
             {
                 var entity = _mapper.Map<Employee>(inputDto);
                 entity.CreatedBy = "Admin";
+                entity.Status = EmployeeStatus.DangLamViec;
                 entity.CreatedDate = DateTime.UtcNow;
                 entity.IsActive = true;
 

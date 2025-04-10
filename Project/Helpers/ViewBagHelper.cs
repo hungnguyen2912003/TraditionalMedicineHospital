@@ -127,6 +127,15 @@ namespace Project.Helpers
                 })
                 .ToList();
 
+            viewData["DiagnosisOptions"] = Enum.GetValues(typeof(DiagnosisType))
+                .Cast<DiagnosisType>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
+
 
             string randomCode = await _codeGenHelper.GenerateUniqueCodeAsync();
             viewData["RandomCode"] = randomCode;

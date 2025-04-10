@@ -36,30 +36,40 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="PatientId" class="block text-sm font-medium text-gray-700">Đợt điều trị của bệnh nhân</label>
-                                    <select id="PatientId" name="PatientId" class="form-input w-full mt-1 p-2 border rounded">
-                                        <option value="">Chọn bệnh nhân</option>
-                                        @foreach (var p in ViewBag.Patients)
-                                        {
-                                            <option value="@p.Id">@p.Name</option>
-                                        }
-                                    </select>
+                                    <div class="select-wrapper">
+                                        <select id="PatientId" name="PatientId" class="form-input w-full mt-1 p-2 border rounded">
+                                            <option value="">Chọn bệnh nhân</option>
+                                            @foreach (var p in ViewBag.Patients)
+                                            {
+                                                <option value="@p.Id">@p.Name</option>
+                                            }
+                                        </select>
+                                    </div>
                                     @Html.ValidationMessageFor(model => model.PatientId, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="Diagnosis" class="block text-sm font-medium text-gray-700">Chuẩn đoán</label>
-                                    <input id="Diagnosis" type="text" name="Diagnosis" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập chuẩn đoán" />
+                                    <div class="select-wrapper">
+                                        <select id="Diagnosis" name="Diagnosis" class="form-input w-full mt-1 p-2 border rounded">
+                                            <option value="">Chọn chuẩn đoán</option>
+                                            @foreach (var d in ViewBag.DiagnosisOptions)
+                                            {
+                                                <option value="@d.Value">@d.Text</option>
+                                            }
+                                        </select>
+                                    </div>
                                     @Html.ValidationMessageFor(model => model.Diagnosis, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="StartDate" class="block text-sm font-medium text-gray-700">Ngày bắt đầu điều trị</label>
-                                    <input id="StartDate" type="text" name="StartDate" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập bắt đầu điều trị" />
+                                    <input id="StartDate" type="text" name="StartDate" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập bắt đầu điều trị" />
                                     @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="EndDate" class="block text-sm font-medium text-gray-700">Ngày kết thúc điều trị</label>
-                                    <input id="EndDate" type="text" name="EndDate" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập kết thúc điều trị" />
+                                    <input id="EndDate" type="text" name="EndDate" class="form-input w-full mt-1 p-2 border rounded picker" placeholder="Nhập kết thúc điều trị" />
                                     @Html.ValidationMessageFor(model => model.EndDate, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -109,22 +119,64 @@
 
     document.addEventListener('alpine:init', () => {
         Alpine.data('addData', () => ({
+            createdBy: '',
 
             init() {
                 this.setupValidation();
                 this.setupDateTimePicker();
+                this.fetchUserInfo();
+                this.setupChoices();
+            },
+
+            setupChoices() {
+                const selectElements = document.querySelectorAll('select.form-input');
+                selectElements.forEach(select => {
+                    new Choices(select, {
+                        searchEnabled: true,
+                        searchPlaceholderValue: 'Tìm kiếm...',
+                        removeItemButton: true,
+                        noResultsText: 'Không tìm thấy kết quả',
+                        noChoicesText: 'Không có lựa chọn nào',
+                    });
+                });
+            },
+
+            async fetchUserInfo() {
+                try {
+                    const response = await fetch('/Admin/Account/GetUserInfo', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Không thể lấy thông tin người dùng');
+                    }
+
+                    const data = await response.json();
+                    if (data.Role === 'Admin') {
+                        this.createdBy = data.username || 'Không tồn tại';
+                    } else {
+                        this.createdBy = data.Code || 'Không tồn tại';
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi lấy thông tin người dùng:', error);
+                    this.user = 'Không tồn tại';
+                }
             },
 
             setupDateTimePicker() {
                 flatpickr('.flatpickr', {
                     dateFormat: "d/m/Y",
-                    allowInput: true,
-                    locale: "vi"
+                    allowInput: true
                 });
             },
 
             setupValidation() {
                 $("#myForm").validate({
+                    ignore: [],
                     rules: {
                         Code: {
                             required: true,
@@ -179,13 +231,32 @@
                     errorElement: "div",
                     errorClass: "text-danger",
                     highlight: function (element) {
-                        $(element).addClass("border-red-500");
+                        if ($(element).is('select')) {
+                            const choicesContainer = $(element).closest('.select-wrapper').find('.choices__inner');
+                            choicesContainer.addClass("border-red-500");
+                        } else {
+                            $(element).addClass("border-red-500");
+                        }
                     },
                     unhighlight: function (element) {
-                        $(element).removeClass("border-red-500");
+                        if ($(element).is('select')) {
+                            const choicesContainer = $(element).closest('.select-wrapper').find('.choices__inner');
+                            choicesContainer.removeClass("border-red-500");
+                        } else {
+                            $(element).removeClass("border-red-500");
+                        }
                     },
                     errorPlacement: function (error, element) {
-                        error.insertAfter(element);
+                        if (element.is('select')) {
+                            const wrapper = element.closest('.select-wrapper');
+                            if (wrapper.length) {
+                                error.insertAfter(wrapper);
+                            } else {
+                                error.insertAfter(element);
+                            }
+                        } else {
+                            error.insertAfter(element);
+                        }
                     },
                     onfocusout: function(element) {
                         if ($(element).val() === '' || $(element).val().length > 0) {
@@ -193,6 +264,10 @@
                         }
                     },
                     onkeyup: false
+                });
+
+                $('select.form-input').on('change', function() {
+                    $(this).valid();
                 });
             },
 
@@ -203,6 +278,7 @@
                 formData.append('StartDate', document.getElementById('StartDate').value);
                 formData.append('EndDate', document.getElementById('EndDate').value);
                 formData.append('Note', document.getElementById('Note').value);
+                formData.append('CreatedBy', this.createdBy);
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
                 formData.append('__RequestVerificationToken', token);
             },
@@ -230,6 +306,7 @@
                     overlay.style.display = 'flex';
                     const form = document.getElementById('myForm');
                     const formData = new FormData(form);
+                    this.appendFormData(formData);
                     fetch('/Staff/TreatmentRecords/Create', {
                         method: 'POST',
                         body: formData

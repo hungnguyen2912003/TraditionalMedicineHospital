@@ -43,24 +43,28 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="EmployeeCategoryId" class="block text-sm font-medium text-gray-700">Loại nhân sự</label>
-                                    <select id="EmployeeCategoryId" name="EmployeeCategoryId" class="form-input w-full mt-1 p-2 border rounded">
-                                        <option value="">Chọn loại nhân sự</option>
-                                        @foreach (var category in ViewBag.EmployeeCategories)
-                                        {
-                                            <option value="@category.Id">@category.Name</option>
-                                        }
-                                    </select>
+                                    <div class="select-wrapper">
+                                        <select id="EmployeeCategoryId" name="EmployeeCategoryId" class="form-input w-full mt-1 p-2 border rounded">
+                                            <option value="">Chọn loại nhân sự</option>
+                                            @foreach (var category in ViewBag.EmployeeCategories)
+                                            {
+                                                <option value="@category.Id">@category.Name</option>
+                                            }
+                                        </select>
+                                    </div>
                                     @Html.ValidationMessageFor(model => model.EmployeeCategoryId, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="DepartmentId" class="block text-sm font-medium text-gray-700">Nhân sự thuộc Khoa</label>
-                                    <select id="DepartmentId" name="DepartmentId" class="form-input w-full mt-1 p-2 border rounded">
-                                        <option value="">Chọn khoa</option>
-                                        @foreach (var dep in ViewBag.Departments)
-                                        {
-                                            <option value="@dep.Id">@dep.Name</option>
-                                        }
-                                    </select>
+                                    <div class="select-wrapper">
+                                        <select id="DepartmentId" name="DepartmentId" class="form-input w-full mt-1 p-2 border rounded">
+                                            <option value="">Chọn khoa</option>
+                                            @foreach (var dep in ViewBag.Departments)
+                                            {
+                                                <option value="@dep.Id">@dep.Name</option>
+                                            }
+                                        </select>
+                                    </div>
                                     @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -68,13 +72,15 @@
 
                                 <div class="w-full sm:w-1/2">
                                     <label for="Gender" class="block text-sm font-medium text-gray-700">Giới tính</label>
-                                    <select id="Gender" name="Gender" class="form-input w-full mt-1 p-2 border rounded">
-                                        <option value="">Chọn loại giới tính</option>
-                                        @foreach (var gender in ViewBag.GenderOptions)
-                                        {
-                                            <option value="@gender.Value">@gender.Text</option>
-                                        }
-                                    </select>
+                                    <div class="select-wrapper">
+                                        <select id="Gender" name="Gender" class="form-input w-full mt-1 p-2 border rounded">
+                                            <option value="">Chọn loại giới tính</option>
+                                            @foreach (var gender in ViewBag.GenderOptions)
+                                            {
+                                                <option value="@gender.Value">@gender.Text</option>
+                                            }
+                                        </select>
+                                    </div>
                                     @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -110,24 +116,28 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label class="block text-sm font-medium text-gray-700">Thông tin bằng cấp</label>
-                                    <select id="Degree" name="Degree" class="form-input w-full mt-1 p-2 border rounded">
-                                        <option value="">Chọn bằng cấp</option>
-                                        @foreach (var degree in ViewBag.DegreeOptions)
-                                        {
-                                            <option value="@degree.Value">@degree.Text</option>
-                                        }
-                                    </select>
+                                    <div class="select-wrapper">
+                                        <select id="Degree" name="Degree" class="form-input w-full mt-1 p-2 border rounded">
+                                            <option value="">Chọn bằng cấp</option>
+                                            @foreach (var degree in ViewBag.DegreeOptions)
+                                            {
+                                                <option value="@degree.Value">@degree.Text</option>
+                                            }
+                                        </select>
+                                    </div>
                                     @Html.ValidationMessageFor(model => model.Degree, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label class="block text-sm font-medium text-gray-700">Thông tin trình độ chuyên môn</label>
-                                    <select id="ProfessionalQualification" name="ProfessionalQualification" class="form-input w-full mt-1 p-2 border rounded">
-                                        <option value="">Chọn trình độ chuyên môn</option>
-                                        @foreach (var qualification in ViewBag.ProfessionalOptions)
-                                        {
-                                            <option value="@qualification.Value">@qualification.Text</option>
-                                        }
-                                    </select>
+                                    <div class="select-wrapper">
+                                        <select id="ProfessionalQualification" name="ProfessionalQualification" class="form-input w-full mt-1 p-2 border rounded">
+                                            <option value="">Chọn trình độ chuyên môn</option>
+                                            @foreach (var qualification in ViewBag.ProfessionalOptions)
+                                            {
+                                                <option value="@qualification.Value">@qualification.Text</option>
+                                            }
+                                        </select>
+                                    </div>
                                     @Html.ValidationMessageFor(model => model.ProfessionalQualification, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -143,21 +153,9 @@
                     </div>
                     <div class="mt-4">
                         <label class="block text-sm font-medium text-gray-700">Thông tin ngày bắt đầu làm việc</label>
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <div>
-                                <input id="StartDate" type="text" name="StartDate" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập ngày bắt đầu làm" />
-                                @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
-                            </div>
-                            <div>
-                                <select id="Status" name="Status" class="form-input w-full mt-1 p-2 border rounded">
-                                    <option value="">Chọn trạng thái</option>
-                                    @foreach (var status in ViewBag.StatusOptions)
-                                    {
-                                        <option value="@status.Value">@status.Text</option>
-                                    }
-                                </select>
-                                @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
-                            </div>
+                        <div>
+                            <input id="StartDate" type="text" name="StartDate" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập ngày bắt đầu làm" />
+                            @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
                         </div>
                     </div>
                 </div>
@@ -217,13 +215,26 @@
                 this.setupDropzone();
                 this.setupValidation();
                 this.setupDateTimePicker();
+                this.setupChoices();
             },
 
             setupDateTimePicker() {
                 flatpickr('.flatpickr', {
                     dateFormat: "d/m/Y",
-                    allowInput: true,
-                    locale: "vi"
+                    allowInput: true
+                });
+            },
+
+            setupChoices() {
+                const selectElements = document.querySelectorAll('select.form-input');
+                selectElements.forEach(select => {
+                    new Choices(select, {
+                        searchEnabled: true,
+                        searchPlaceholderValue: 'Tìm kiếm...',
+                        removeItemButton: true,
+                        noResultsText: 'Không tìm thấy kết quả',
+                        noChoicesText: 'Không có lựa chọn nào',
+                    });
                 });
             },
 
@@ -261,6 +272,7 @@
 
             setupValidation() {
                 $("#myForm").validate({
+                    ignore: [],
                     rules: {
                         Code: {
                             required: true,
@@ -321,9 +333,6 @@
                             required: true
                         },
                         ProfessionalQualification: {
-                            required: true
-                        },
-                        Status: {
                             required: true
                         },
                         StartDate: {
@@ -387,9 +396,6 @@
                         ProfessionalQualification: {
                             required: "Trình độ chuyên môn không được bỏ trống."
                         },
-                        Status: {
-                            required: "Trạng thái làm việc không được bỏ trống."
-                        },
                         StartDate: {
                             required: "Ngày bắt đầu làm không được bỏ trống.",
                             dateFormat: "Ngày bắt đầu làm không hợp lệ."
@@ -404,13 +410,32 @@
                     errorElement: "div",
                     errorClass: "text-danger",
                     highlight: function (element) {
-                        $(element).addClass("border-red-500");
+                        if ($(element).is('select')) {
+                            const choicesContainer = $(element).closest('.select-wrapper').find('.choices__inner');
+                            choicesContainer.addClass("border-red-500");
+                        } else {
+                            $(element).addClass("border-red-500");
+                        }
                     },
                     unhighlight: function (element) {
-                        $(element).removeClass("border-red-500");
+                        if ($(element).is('select')) {
+                            const choicesContainer = $(element).closest('.select-wrapper').find('.choices__inner');
+                            choicesContainer.removeClass("border-red-500");
+                        } else {
+                            $(element).removeClass("border-red-500");
+                        }
                     },
                     errorPlacement: function (error, element) {
-                        error.insertAfter(element);
+                        if (element.is('select')) {
+                            const wrapper = element.closest('.select-wrapper');
+                            if (wrapper.length) {
+                                error.insertAfter(wrapper);
+                            } else {
+                                error.insertAfter(element);
+                            }
+                        } else {
+                            error.insertAfter(element);
+                        }
                     },
                     onfocusout: function(element) {
                         if ($(element).val() === '' || $(element).val().length > 0) {
@@ -418,6 +443,9 @@
                         }
                     },
                     onkeyup: false
+                });
+                $('select.form-input').on('change', function() {
+                    $(this).valid();
                 });
             },
 
@@ -432,7 +460,6 @@
                 formData.append('PhoneNumber', document.getElementById('PhoneNumber').value);
                 formData.append('Degree', document.getElementById('Degree').value);
                 formData.append('ProfessionalQualification', document.getElementById('ProfessionalQualification').value);
-                formData.append('Status', document.getElementById('Status').value);
                 formData.append('StartDate', document.getElementById('StartDate').value);
                 formData.append('EmployeeCategoryId', document.getElementById('EmployeeCategoryId').value);
                 formData.append('DepartmentId', document.getElementById('DepartmentId').value);
