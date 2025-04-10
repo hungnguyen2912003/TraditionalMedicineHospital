@@ -1,104 +1,103 @@
 ﻿<!DOCTYPE html>
 <html lang="en" dir="ltr">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>@ViewData["Title"]</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" type="image/x-icon" href="~/Public/assets/images/logo/logo_official.png">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-        <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/nunito-fonts.css">
-        <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/perfect-scrollbar.min.css">
-        <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/style.css">
-        <link defer="" rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/animate.css">
-        <script src="~/Public/assets/js/perfect-scrollbar.min.js"></script>
-        <script defer="" src="~/Public/assets/js/popper.min.js"></script>
-        <script defer="" src="~/Public/assets/js/tippy-bundle.umd.min.js"></script>
-        <script defer="" src="~/Public/assets/js/sweetalert.min.js"></script>
-        <link href="~/Public/assets/css/notyf.min.css" rel="stylesheet" />
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>@ViewData["Title"]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="~/Public/assets/images/logo/logo_official.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/nunito-fonts.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/perfect-scrollbar.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/style.css">
+    <link defer="" rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/animate.css">
+    <link href="~/Public/assets/css/notyf.min.css" rel="stylesheet" />
+    <link href="~/public/assets/css/mycss.css" rel="stylesheet" />
 
-        <script src="~/public/assets/js/jquery-3.7.1.min.js"></script>
-        <script src="~/public/assets/js/jquery.validate.min.js"></script>
-        <script src="~/public/assets/js/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/public/assets/js/jquery-3.7.1.min.js"></script>
+    <script src="~/public/assets/js/jquery.validate.min.js"></script>
+    <script src="~/public/assets/js/jquery.validate.unobtrusive.min.js"></script>
 
-        <style>
-            .error {
-                color: red;
-                font-size: 0.875rem;
-                margin-top: 0.25rem;
-            }
-        </style>
-    </head>
+    <script src="~/Public/assets/js/alpine-collaspe.min.js"></script>
+    <script src="~/Public/assets/js/alpine-persist.min.js"></script>
+    <script defer src="~/Public/assets/js/alpine-ui.min.js"></script>
+    <script defer src="~/Public/assets/js/alpine-focus.min.js"></script>
+    <script defer src="~/Public/assets/js/alpine.min.js"></script>
 
-    <body x-data="main" class="relative overflow-x-hidden font-nunito text-sm font-normal antialiased" :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout,$store.app.rtlClass]">
-        <!-- screen loader -->
-        <partial name="_screenLoader" />
+    <script src="~/Public/assets/js/perfect-scrollbar.min.js"></script>
+    <script defer src="~/Public/assets/js/popper.min.js"></script>
+    <script defer src="~/Public/assets/js/tippy-bundle.umd.min.js"></script>
+    <script defer src="~/Public/assets/js/sweetalert.min.js"></script>
 
-        <!-- scroll to top button -->
-        <partial name="_ScrollToTop" />
+    <style>
+        .error {
+            color: red;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
 
-        <div class="main-container min-h-screen text-black dark:text-white-dark">
-            <!-- start main content section -->
-            @RenderBody()
-            <!-- end main content section -->
-        </div>
+<body x-data="main" class="relative overflow-x-hidden font-nunito text-sm font-normal antialiased" :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout,$store.app.rtlClass]">
+    <!-- screen loader -->
+    <partial name="_screenLoader" />
 
-        <script src="~/Public/assets/js/alpine-collaspe.min.js"></script>
-        <script src="~/Public/assets/js/alpine-persist.min.js"></script>
-        <script defer="" src="~/Public/assets/js/alpine-ui.min.js"></script>
-        <script defer="" src="~/Public/assets/js/alpine-focus.min.js"></script>
-        <script defer="" src="~/Public/assets/js/alpine.min.js"></script>
-        <script src="~/Public/assets/js/custom.js"></script>
-        <script src="~/Public/assets/js/notyf.min.js"></script>
+    <!-- scroll to top button -->
+    <partial name="_ScrollToTop" />
 
+    <div class="main-container min-h-screen text-black dark:text-white-dark">
+        <!-- start main content section -->
+        @RenderBody()
+        <!-- end main content section -->
+    </div>
 
-        <script>
-            // main section
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('scrollToTop', () => ({
-                    showTopButton: false,
-                    init() {
-                        window.onscroll = () => {
-                            this.scrollFunction();
-                        };
-                    },
+    <!-- Các script khác -->
+    <script src="~/Public/assets/js/custom.js"></script>
+    <script src="~/Public/assets/js/notyf.min.js"></script>
 
-                    scrollFunction() {
-                        if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
-                            this.showTopButton = true;
-                        } else {
-                            this.showTopButton = false;
-                        }
-                    },
+    <script>
+        // main section
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('scrollToTop', () => ({
+                showTopButton: false,
+                init() {
+                    window.onscroll = () => {
+                        this.scrollFunction();
+                    };
+                },
 
-                    goToTop() {
-                        document.body.scrollTop = 0;
-                        document.documentElement.scrollTop = 0;
-                    },
-                }));
-
-                Alpine.data('auth', () => ({
-
-                }));
-            });
-
-            const notyf = new Notyf({
-                duration: 2000,
-                position: { x: 'right', y: 'top' },
-                dismissible: false,
-                types: [
-                  {
-                    type: 'warning',
-                    background: 'orange',
-                    icon: {
-                      className: 'material-icons',
-                      tagName: 'i',
-                      text: 'warning'
+                scrollFunction() {
+                    if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+                        this.showTopButton = true;
+                    } else {
+                        this.showTopButton = false;
                     }
-                  }
-                ],
-            });
-        </script>
-    </body>
+                },
+
+                goToTop() {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                },
+            }));
+        });
+
+        const notyf = new Notyf({
+            duration: 2000,
+            position: { x: 'right', y: 'top' },
+            dismissible: false,
+            types: [
+              {
+                type: 'warning',
+                background: 'orange',
+                icon: {
+                  className: 'material-icons',
+                  tagName: 'i',
+                  text: 'warning'
+                }
+              }
+            ],
+        });
+    </script>
+</body>
 </html>
