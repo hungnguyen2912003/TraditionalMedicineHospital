@@ -2,12 +2,14 @@
     <nav x-data="sidebar" class="sidebar fixed top-0 bottom-0 z-50 h-full min-h-screen w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-all duration-300">
         <div class="h-full bg-white dark:bg-[#0e1726]">
             <div class="flex items-center justify-between px-4 py-3">
-                <a href="/admin" class="main-logo flex shrink-0 items-center">
+                <a id="home" href="" class="main-logo flex shrink-0 items-center">
                     <img class="ml-[5px] w-8 flex-none" src="~/public/assets/images/logo/logo_official.png" />
-                    <span class="align-middle text-2xl font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline">StarCode Kh</span>
+                    <span class="align-middle text-sm font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline whitespace-normal break-words max-w-[100px]" style="font-weight: 900;background: linear-gradient(to right, #FF0000, #800080, #00008B); -webkit-background-clip: text; background-clip: text; color: transparent;">
+                        Bệnh viện Y học cổ truyền
+                    </span>
                 </a>
-                <a href="javascript:;" class="collapse-icon flex h-8 w-8 items-center rounded-full transition duration-300 hover:bg-gray-500/10 rtl:rotate-180 dark:text-white-light dark:hover:bg-dark-light/10" @@click ="$store.app.toggleSidebar()">
-                    <svg class="m-auto h-5 w-5" width="20" height="20" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <a href="javascript:;" class="collapse-icon flex h-8 w-8 items-center rounded-full transition duration-300 hover:bg-gray-500/10 rtl:rotate-180 dark:text-white-light dark:hover:bg-dark-light/10" @@click="$store.app.toggleSidebar()">
+                    <svg class="m-auto h-5 w-5" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                         <path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                     </svg>
@@ -15,7 +17,7 @@
             </div>
             <ul class="perfect-scrollbar relative h-[calc(100vh-80px)] space-y-0.5 overflow-y-auto overflow-x-hidden p-4 py-0 font-semibold" x-data="{ activeDropdown: null }">
                 <li class="menu nav-item">
-                    <a href="/admin" class="nav-link group" :class="{'active' : activeDropdown === 'dashboard'}" @@click ="activeDropdown === 'dashboard' ? activeDropdown = null : activeDropdown = 'dashboard'">
+                    <a id="dashboard" href="" class="nav-link group" :class="{'active' : activeDropdown === 'dashboard'}" @@click ="activeDropdown === 'dashboard' ? activeDropdown = null : activeDropdown = 'dashboard'">
                         <div class="flex items-center">
                             <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path opacity="0.5" d="M2 12.2039C2 9.91549 2 8.77128 2.5192 7.82274C3.0384 6.87421 3.98695 6.28551 5.88403 5.10813L7.88403 3.86687C9.88939 2.62229 10.8921 2 12 2C13.1079 2 14.1106 2.62229 16.116 3.86687L18.116 5.10812C20.0131 6.28551 20.9616 6.87421 21.4808 7.82274C22 8.77128 22 9.91549 22 12.2039V13.725C22 17.6258 22 19.5763 20.8284 20.7881C19.6569 22 17.7712 22 14 22H10C6.22876 22 4.34315 22 3.17157 20.7881C2 19.5763 2 17.6258 2 13.725V12.2039Z" fill="currentColor"></path>
@@ -36,7 +38,7 @@
 
                 <li class="nav-item">
                     <ul>
-                        <li class="menu nav-item">
+                        <li class="menu nav-item admin">
                             <button type="button" class="nav-link group" :class="{'active' : activeDropdown === 'medicine'}" @@click="activeDropdown === 'medicine' ? activeDropdown = null : activeDropdown = 'medicine'">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -62,7 +64,7 @@
                             </ul>
                         </li>
 
-                        <li class="menu nav-item">
+                        <li class="menu nav-item admin">
                             <button type="button" class="nav-link group" :class="{'active' : activeDropdown === 'employee'}" @@click="activeDropdown === 'employee' ? activeDropdown = null : activeDropdown = 'employee'">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -89,7 +91,7 @@
                             </ul>
                         </li>
 
-                        <li class="menu nav-item">
+                        <li class="menu nav-item admin">
                             <button type="button" class="nav-link group" :class="{'active' : activeDropdown === 'department-room'}" @@click="activeDropdown === 'department-room' ? activeDropdown = null : activeDropdown = 'department-room'">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -114,7 +116,7 @@
                             </ul>
                         </li>
 
-                        <li class="nav-item">
+                        <li class="nav-item admin">
                             <a asp-area="Admin" asp-controller="TreatmentMethods" asp-action="Index" class="group">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -126,7 +128,7 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
+                        <li class="nav-item admin">
                             <a asp-area="Admin" asp-controller="Regulations" asp-action="Index" class="group">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -148,6 +150,23 @@
                                     </svg>
 
                                     <span class="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Quản lý bệnh nhân</span>
+                                </div>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-area="Staff" asp-controller="HealthInsurances" asp-action="Index" class="group">
+                                <div class="flex items-center">
+                                    <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path opacity="0.5" d="M14 4H10C6.22876 4 4.34315 4 3.17157 5.17157C2 6.34315 2 8.22876 2 12C2 15.7712 2 17.6569 3.17157 18.8284C4.34315 20 6.22876 20 10 20H14C17.7712 20 19.6569 20 20.8284 18.8284C22 17.6569 22 15.7712 22 12C22 8.22876 22 6.34315 20.8284 5.17157C19.6569 4 17.7712 4 14 4Z" fill="currentColor" />
+                                        <path d="M13.25 9C13.25 8.58579 13.5858 8.25 14 8.25H19C19.4142 8.25 19.75 8.58579 19.75 9C19.75 9.41421 19.4142 9.75 19 9.75H14C13.5858 9.75 13.25 9.41421 13.25 9Z" fill="currentColor" />
+                                        <path d="M14.25 12C14.25 11.5858 14.5858 11.25 15 11.25H19C19.4142 11.25 19.75 11.5858 19.75 12C19.75 12.4142 19.4142 12.75 19 12.75H15C14.5858 12.75 14.25 12.4142 14.25 12Z" fill="currentColor" />
+                                        <path d="M15.25 15C15.25 14.5858 15.5858 14.25 16 14.25H19C19.4142 14.25 19.75 14.5858 19.75 15C19.75 15.4142 19.4142 15.75 19 15.75H16C15.5858 15.75 15.25 15.4142 15.25 15Z" fill="currentColor" />
+                                        <path d="M9 11C10.1046 11 11 10.1046 11 9C11 7.89543 10.1046 7 9 7C7.89543 7 7 7.89543 7 9C7 10.1046 7.89543 11 9 11Z" fill="currentColor" />
+                                        <path d="M9 17C13 17 13 16.1046 13 15C13 13.8954 11.2091 13 9 13C6.79086 13 5 13.8954 5 15C5 16.1046 5 17 9 17Z" fill="currentColor" />
+                                    </svg>
+
+                                    <span class="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Quản lý bảo hiểm Y tế</span>
                                 </div>
                             </a>
                         </li>
@@ -215,6 +234,18 @@
                                 </li>
                             </ul>
                         </li>
+
+                        <li class="nav-item admin">
+                            <a asp-area="Admin" asp-controller="Statistics" asp-action="Index" class="group">
+                                <div class="flex items-center">
+                                    <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path opacity="0.5" d="M6.22209 4.60105C6.66665 4.304 7.13344 4.04636 7.6171 3.82976C8.98898 3.21539 9.67491 2.9082 10.5875 3.4994C11.5 4.09061 11.5 5.06041 11.5 7.00001V8.50001C11.5 10.3856 11.5 11.3284 12.0858 11.9142C12.6716 12.5 13.6144 12.5 15.5 12.5H17C18.9396 12.5 19.9094 12.5 20.5006 13.4125C21.0918 14.3251 20.7846 15.011 20.1702 16.3829C19.9536 16.8666 19.696 17.3334 19.399 17.7779C18.3551 19.3402 16.8714 20.5578 15.1355 21.2769C13.3996 21.9959 11.4895 22.184 9.64665 21.8175C7.80383 21.4509 6.11109 20.5461 4.78249 19.2175C3.45389 17.8889 2.5491 16.1962 2.18254 14.3534C1.81598 12.5105 2.00412 10.6004 2.72315 8.86451C3.44218 7.12861 4.65982 5.64492 6.22209 4.60105Z" fill="currentColor" />
+                                        <path d="M21.446 7.06901C20.6342 5.00831 18.9917 3.36579 16.931 2.55398C15.3895 1.94669 14 3.34316 14 5.00002V9.00002C14 9.5523 14.4477 10 15 10H19C20.6569 10 22.0533 8.61055 21.446 7.06901Z" fill="currentColor" />
+                                    </svg>
+                                    <span class="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Quản lý thống kê</span>
+                                </div>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
@@ -224,7 +255,72 @@
                     </svg>
                     <span>CÀI ĐẶT</span>
                 </h2>
+
+                <li class="nav-item">
+                    <ul>
+                        <li class="nav-item admin">
+                            <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="group">
+                                <div class="flex items-center">
+                                    <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path opacity="0.5" d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" fill="currentColor" />
+                                        <path d="M16.807 19.0112C15.4398 19.9504 13.7841 20.5 12 20.5C10.2159 20.5 8.56023 19.9503 7.193 19.0111C6.58915 18.5963 6.33109 17.8062 6.68219 17.1632C7.41001 15.8302 8.90973 15 12 15C15.0903 15 16.59 15.8303 17.3178 17.1632C17.6689 17.8062 17.4108 18.5964 16.807 19.0112Z" fill="currentColor" />
+                                        <path d="M12 12C13.6569 12 15 10.6569 15 9C15 7.34315 13.6569 6 12 6C10.3432 6 9.00004 7.34315 9.00004 9C9.00004 10.6569 10.3432 12 12 12Z" fill="currentColor" />
+                                    </svg>
+
+                                    <span class="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Quản lý người dùng</span>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <ul>
+                        <li class="nav-item admin">
+                            <a asp-area="Admin" asp-controller="Permissions" asp-action="Index" class="group">
+                                <div class="flex items-center">
+                                    <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path opacity="0.5" d="M3 10.4167C3 7.21907 3 5.62028 3.37752 5.08241C3.75503 4.54454 5.25832 4.02996 8.26491 3.00079L8.83772 2.80472C10.405 2.26824 11.1886 2 12 2C12.8114 2 13.595 2.26824 15.1623 2.80472L15.7351 3.00079C18.7417 4.02996 20.245 4.54454 20.6225 5.08241C21 5.62028 21 7.21907 21 10.4167V11.9914C21 17.6294 16.761 20.3655 14.1014 21.5273C13.38 21.8424 13.0193 22 12 22C10.9807 22 10.62 21.8424 9.89856 21.5273C7.23896 20.3655 3 17.6294 3 11.9914V10.4167Z" fill="currentColor" />
+                                        <path d="M14 9C14 10.1046 13.1046 11 12 11C10.8954 11 10 10.1046 10 9C10 7.89543 10.8954 7 12 7C13.1046 7 14 7.89543 14 9Z" fill="currentColor" />
+                                        <path d="M12 17C16 17 16 16.1046 16 15C16 13.8954 14.2091 13 12 13C9.79086 13 8 13.8954 8 15C8 16.1046 8 17 12 17Z" fill="currentColor" />
+                                    </svg>
+
+                                    <span class="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Quản lý phân quyền</span>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </nav>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const response = await fetch('/Admin/Account/GetUserInfo', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            const homeElement = document.getElementById('home');
+            const dashboardElement = document.getElementById('dashboard');
+            if (data.success && data.role !== 'Admin') {
+                document.querySelectorAll('.admin').forEach(item => {
+                    item.style.display = 'none';
+                });
+                homeElement.href = '/staff';
+                dashboardElement.href = '/staff';
+            }
+            else {
+                homeElement.href = '/admin';
+                dashboardElement.href = '/admin';
+            }
+        } catch (error) {
+            console.error('Lỗi khi kiểm tra quyền sidebar:', error);
+        }
+    });
+</script>
