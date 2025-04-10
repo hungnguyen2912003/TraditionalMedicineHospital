@@ -279,6 +279,7 @@ namespace Project.Areas.Admin.Controllers
                 return Json(new
                 {
                     success = true,
+                    code = employee.Code,
                     id = employee.Id,
                     username = username,
                     name = employee.Name,

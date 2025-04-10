@@ -43,6 +43,7 @@ namespace Project.Areas.Admin.Controllers.api
             var response = new
             {
                 Username = user.Username,
+                Code = user.Employee?.Code,
                 Role = role,
                 FullName = user.Employee?.Name,
                 Email = user.Employee?.EmailAddress,

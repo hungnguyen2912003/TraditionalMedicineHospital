@@ -40,13 +40,15 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="MedicineCategoryId" class="block text-sm font-medium text-gray-700">Loại thuốc</label>
-                                    <select id="MedicineCategoryId" name="MedicineCategoryId" class="form-input w-full mt-1 p-2 border rounded">
-                                        <option value="">Chọn loại thuốc</option>
-                                        @foreach (var category in ViewBag.MedicineCategories)
-                                        {
-                                            <option value="@category.Id">@category.Name</option>
-                                        }
-                                    </select>
+                                    <div class="select-wrapper">
+                                        <select id="MedicineCategoryId" name="MedicineCategoryId" class="form-input w-full mt-1 p-2 border rounded">
+                                            <option value="">Chọn loại thuốc</option>
+                                            @foreach (var category in ViewBag.MedicineCategories)
+                                            {
+                                                <option value="@category.Id">@category.Name</option>
+                                            }
+                                        </select>
+                                    </div>
                                     @Html.ValidationMessageFor(model => model.MedicineCategoryId, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -90,23 +92,22 @@
                         <div class="dropzone flex-1" id="imageDropzone"></div>
                     </div>
                     <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700">Nhập thông tin tồn kho</label>
-                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-2">
-                            <div>
-                                <input id="StockQuantity" type="number" name="StockQuantity" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số lượng" />
-                                @Html.ValidationMessageFor(model => model.StockQuantity, "", new { @class = "text-danger" })
-                            </div>
-                            <div>
-                                <select id="StockUnit" name="StockUnit" class="form-input w-full mt-1 p-2 border rounded">
-                                    <option value="">Chọn đơn vị</option>
-                                    @foreach (var unit in ViewBag.StockUnit)
-                                    {
-                                        <option value="@unit.Value">@unit.Text</option>
-                                    }
-                                </select>
-                                @Html.ValidationMessageFor(model => model.StockUnit, "", new { @class = "text-danger" })
-                            </div>
+                        <label class="block text-sm font-medium text-gray-700">Nhập số lượng tồn kho</label>
+                        <input id="StockQuantity" type="number" name="StockQuantity" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số lượng" />
+                        @Html.ValidationMessageFor(model => model.StockQuantity, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700">Nhập đơn vị tồn kho</label>
+                        <div class="select-wrapper">
+                            <select id="StockUnit" name="StockUnit" class="form-input w-full mt-1 p-2 border rounded">
+                                <option value="">Chọn đơn vị</option>
+                                @foreach (var unit in ViewBag.StockUnit)
+                                {
+                                    <option value="@unit.Value">@unit.Text</option>
+                                }
+                            </select>
                         </div>
+                        @Html.ValidationMessageFor(model => model.StockUnit, "", new { @class = "text-danger" })
                     </div>
                     <div class="mt-4">
                         <label for="Price" class="block text-sm font-medium text-gray-700">Giá bán</label>
@@ -156,6 +157,20 @@
                 this.setupValidation();
                 this.setupDateTimePicker();
                 this.setupCleave();
+                this.setupChoices();
+            },
+
+            setupChoices() {
+                const selectElements = document.querySelectorAll('select.form-input');
+                selectElements.forEach(select => {
+                    new Choices(select, {
+                        searchEnabled: true,
+                        searchPlaceholderValue: 'Tìm kiếm...',
+                        removeItemButton: true,
+                        noResultsText: 'Không tìm thấy kết quả',
+                        noChoicesText: 'Không có lựa chọn nào',
+                    });
+                });
             },
 
             setupCleave() {
@@ -173,8 +188,7 @@
             setupDateTimePicker() {
                 flatpickr('.flatpickr', {
                     dateFormat: "d/m/Y",
-                    allowInput: true,
-                    locale: "vi"
+                    allowInput: true
                 });
             },
 
@@ -219,6 +233,7 @@
                 }, "Giá bán phải lớn hơn 0.");
 
                 $("#myForm").validate({
+                    ignore: [],
                     rules: {
                         Code: {
                             required: true,
@@ -336,15 +351,17 @@
                     errorElement: "div",
                     errorClass: "text-danger",
                     highlight: function (element) {
-                        if ($(element).attr('id') === 'Price') {
-                            $('#Price').addClass("border-red-500");
+                        if ($(element).is('select')) {
+                            const choicesContainer = $(element).closest('.select-wrapper').find('.choices__inner');
+                            choicesContainer.addClass("border-red-500");
                         } else {
                             $(element).addClass("border-red-500");
                         }
                     },
                     unhighlight: function (element) {
-                        if ($(element).attr('id') === 'Price') {
-                            $('#Price').removeClass("border-red-500");
+                        if ($(element).is('select')) {
+                            const choicesContainer = $(element).closest('.select-wrapper').find('.choices__inner');
+                            choicesContainer.removeClass("border-red-500");
                         } else {
                             $(element).removeClass("border-red-500");
                         }
@@ -352,6 +369,13 @@
                     errorPlacement: function (error, element) {
                         if (element.attr('id') === 'Price') {
                             error.insertAfter(element.closest('.flex'));
+                        } else if (element.is('select')) {
+                            const wrapper = element.closest('.select-wrapper');
+                            if (wrapper.length) {
+                                error.insertAfter(wrapper);
+                            } else {
+                                error.insertAfter(element);
+                            }
                         } else {
                             error.insertAfter(element);
                         }
@@ -368,7 +392,6 @@
                     return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
                 }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
 
-
                 $.validator.addMethod("greaterThanManufactured", function(value, element) {
                     var manufacturedDate = $('#ManufacturedDate').val();
                     if (!manufacturedDate || !value) return true;
@@ -376,6 +399,10 @@
                     var expiry = new Date(value.split('/').reverse().join('-'));
                     return expiry > manufactured;
                 }, "Ngày hết hạn phải sau ngày sản xuất.");
+
+                $('select.form-input').on('change', function() {
+                    $(this).valid();
+                });
             },
 
             appendFormData(formData) {
