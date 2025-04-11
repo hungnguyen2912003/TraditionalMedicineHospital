@@ -11,7 +11,7 @@ namespace Project.Areas.Staff.Models.Entities
         [Key]
         public Guid Id { get; set; }
         [StringLength(10)]
-        public string Code { get; set; }
+        public string Code { get; set; } = string.Empty;
         public DateTime PrescriptionDate { get; set; }
         public decimal TotalCost { get; set; }
         public string? Note { get; set; }
