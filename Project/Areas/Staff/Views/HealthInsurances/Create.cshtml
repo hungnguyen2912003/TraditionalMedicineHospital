@@ -248,20 +248,23 @@
                     overlay.style.display = 'flex';
                     const form = document.getElementById('myForm');
                     const formData = new FormData(form);
-                    this.appendFormData(formData);
 
                     fetch('/Staff/HealthInsurances/Create', {
                         method: 'POST',
                         body: formData
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
                     .then(this.handleResponse)
                     .catch(error => {
                         overlay.style.display = 'none';
-                        notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                        notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error.message);
                     });
-                }
-                else{
+                } else {
                     notyf.error("Vui lòng kiểm tra lại thông tin nhập.");
                 }
             },

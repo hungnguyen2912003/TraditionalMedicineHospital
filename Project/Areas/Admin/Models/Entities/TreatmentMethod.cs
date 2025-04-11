@@ -1,4 +1,5 @@
-﻿using Project.Models.Commons;
+﻿using Project.Areas.Staff.Models.Entities;
+using Project.Models.Commons;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

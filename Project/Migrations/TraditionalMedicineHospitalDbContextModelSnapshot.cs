@@ -59,7 +59,7 @@ namespace Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Department");
+                    b.ToTable("Department", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Employee", b =>
@@ -145,7 +145,7 @@ namespace Project.Migrations
 
                     b.HasIndex("EmployeeCategoryId");
 
-                    b.ToTable("Employee");
+                    b.ToTable("Employee", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.EmployeeCategory", b =>
@@ -185,7 +185,7 @@ namespace Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EmployeeCategory");
+                    b.ToTable("EmployeeCategory", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Medicine", b =>
@@ -259,7 +259,7 @@ namespace Project.Migrations
 
                     b.HasIndex("MedicineCategoryId");
 
-                    b.ToTable("Medicine");
+                    b.ToTable("Medicine", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.MedicineCategory", b =>
@@ -302,7 +302,7 @@ namespace Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MedicineCategory");
+                    b.ToTable("MedicineCategory", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Permission", b =>
@@ -343,7 +343,7 @@ namespace Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Permission");
+                    b.ToTable("Permission", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Regulation", b =>
@@ -393,7 +393,7 @@ namespace Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Regulation");
+                    b.ToTable("Regulation", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Room", b =>
@@ -438,7 +438,7 @@ namespace Project.Migrations
 
                     b.HasIndex("TreatmentMethodId");
 
-                    b.ToTable("Room");
+                    b.ToTable("Room", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentMethod", b =>
@@ -487,7 +487,7 @@ namespace Project.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("TreatmentMethod");
+                    b.ToTable("TreatmentMethod", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.User", b =>
@@ -543,7 +543,7 @@ namespace Project.Migrations
                         .IsUnique()
                         .HasFilter("[PatientId] IS NOT NULL");
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.User_Permission", b =>
@@ -583,7 +583,7 @@ namespace Project.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("User_Permission");
+                    b.ToTable("User_Permission", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.AdvancePayment", b =>
@@ -632,7 +632,7 @@ namespace Project.Migrations
 
                     b.HasIndex("TreatmentRecordId");
 
-                    b.ToTable("AdvancePayment");
+                    b.ToTable("AdvancePayment", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.Assignment", b =>
@@ -678,7 +678,7 @@ namespace Project.Migrations
 
                     b.HasIndex("TreatmentRecordId");
 
-                    b.ToTable("Assignment");
+                    b.ToTable("Assignment", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.HealthInsurance", b =>
@@ -722,7 +722,7 @@ namespace Project.Migrations
                     b.HasIndex("PatientId")
                         .IsUnique();
 
-                    b.ToTable("HealthInsurance");
+                    b.ToTable("HealthInsurance", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.Patient", b =>
@@ -785,7 +785,7 @@ namespace Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Patient");
+                    b.ToTable("Patient", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.Payment", b =>
@@ -850,7 +850,7 @@ namespace Project.Migrations
 
                     b.HasIndex("TreatmentRecordId");
 
-                    b.ToTable("Payment");
+                    b.ToTable("Payment", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.Prescription", b =>
@@ -902,7 +902,7 @@ namespace Project.Migrations
 
                     b.HasIndex("TreatmentRecordId");
 
-                    b.ToTable("Prescription");
+                    b.ToTable("Prescription", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.PrescriptionDetail", b =>
@@ -946,7 +946,7 @@ namespace Project.Migrations
 
                     b.HasIndex("PrescriptionId");
 
-                    b.ToTable("PrescriptionDetail");
+                    b.ToTable("PrescriptionDetail", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecord", b =>
@@ -999,7 +999,7 @@ namespace Project.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("TreatmentRecord");
+                    b.ToTable("TreatmentRecord", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecordDetail", b =>
@@ -1039,7 +1039,7 @@ namespace Project.Migrations
 
                     b.HasIndex("TreatmentTrackingId");
 
-                    b.ToTable("TreatmentRecordDetail");
+                    b.ToTable("TreatmentRecordDetail", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecord_Regulation", b =>
@@ -1082,7 +1082,7 @@ namespace Project.Migrations
 
                     b.HasIndex("TreatmentRecordId");
 
-                    b.ToTable("TreatmentRecord_Regulation");
+                    b.ToTable("TreatmentRecord_Regulation", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentTracking", b =>
@@ -1120,7 +1120,7 @@ namespace Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TreatmentTracking");
+                    b.ToTable("TreatmentTracking", (string)null);
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Employee", b =>
