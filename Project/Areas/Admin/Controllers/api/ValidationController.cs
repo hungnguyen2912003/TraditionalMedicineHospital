@@ -34,6 +34,14 @@ namespace Project.Areas.Admin.Controllers.api
             return Ok(isUnique);
         }
 
+        [HttpGet("check-number")]
+        public async Task<IActionResult> CheckNumberExists(string entityType, string number, Guid? id = null)
+        {
+            var service = GetService(entityType);
+            var isUnique = await service.IsNumberUniqueAsync(number, id);
+            return Ok(isUnique);
+        }
+
         private IBaseService GetService(string entityType)
         {
             Type serviceType = entityType.ToLower() switch
@@ -48,6 +56,7 @@ namespace Project.Areas.Admin.Controllers.api
                 "regulation" => typeof(IBaseService<Regulation>),
                 "patient" => typeof(IBaseService<Patient>),
                 "treatmentrecord" => typeof(IBaseService<TreatmentRecord>),
+                "healthinsurance" => typeof(IBaseService<HealthInsurance>),
                 _ => throw new ArgumentException($"Invalid entity type: {entityType}")
             };
 

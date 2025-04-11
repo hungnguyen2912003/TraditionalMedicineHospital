@@ -21,6 +21,15 @@ namespace Project.Services
             return !await _repository.AnyAsync(e => EF.Property<string>(e, "Code") == code);
         }
 
+        public virtual async Task<bool> IsNumberUniqueAsync(string number, Guid? id = null)
+        {
+            if (id.HasValue)
+            {
+                return !await _repository.AnyAsync(e => EF.Property<string>(e, "Number") == number && EF.Property<Guid>(e, "Id") != id.Value);
+            }
+            return !await _repository.AnyAsync(e => EF.Property<string>(e, "Number") == number);
+        }
+
         public virtual async Task<bool> IsNameUniqueAsync(string name, Guid? id = null)
         {
             if (id.HasValue)

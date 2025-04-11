@@ -23,5 +23,10 @@ namespace Project.Services.Implementations
             var existing = await _repository.FirstOrDefaultAsync(m => m.Name == name);
             return existing == null || (id.HasValue && existing.Id == id.Value);
         }
+
+        public Task<bool> IsNumberUniqueAsync(string number, Guid? id = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
