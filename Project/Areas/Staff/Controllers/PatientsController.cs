@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol.Core.Types;
+using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Staff.Models.DTOs;
 using Project.Areas.Staff.Models.Entities;
@@ -20,6 +22,7 @@ namespace Project.Areas.Staff.Controllers
         private readonly IImageService _imgService;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
+        private readonly CodeGeneratorHelper _codeGenerator;
 
         public PatientsController
         (
@@ -27,7 +30,8 @@ namespace Project.Areas.Staff.Controllers
             IUserRepository userRepository,
             IImageService imgService,
             IMapper mapper,
-            ViewBagHelper viewBagHelper
+            ViewBagHelper viewBagHelper,
+            CodeGeneratorHelper codeGenerator
         )
         {
             _patientRepository = patientRepository;
@@ -35,6 +39,7 @@ namespace Project.Areas.Staff.Controllers
             _imgService = imgService;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
+            _codeGenerator = codeGenerator;
         }
 
         public async Task<IActionResult> Index()
@@ -58,7 +63,11 @@ namespace Project.Areas.Staff.Controllers
         public async Task<IActionResult> Create()
         {
             await _viewBagHelper.BaseViewBag(ViewData);
-            return View();
+            var model = new PatientDto
+            {
+                Code = await _codeGenerator.GenerateUniqueCodeAsync(_patientRepository)
+            };
+            return View(model);
         }
 
         [HttpPost]

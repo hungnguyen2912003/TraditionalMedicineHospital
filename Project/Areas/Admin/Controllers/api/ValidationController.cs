@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project.Areas.Admin.Models.Entities;
-using Project.Areas.Staff.Models.Entities;
 using Project.Services;
 
 namespace Project.Areas.Admin.Controllers.api
@@ -18,50 +16,44 @@ namespace Project.Areas.Admin.Controllers.api
             _serviceProvider = serviceProvider;
         }
 
-        [HttpGet("check-code")]
-        public async Task<IActionResult> CheckCodeExists(string entityType, string code, Guid? id = null)
+        [HttpGet("check")]
+        public async Task<IActionResult> Check(string entityType, string type, string value, Guid? id = null)
         {
-            var service = GetService(entityType);
-            var isUnique = await service.IsCodeUniqueAsync(code, id);
-            return Ok(isUnique);
-        }
-
-        [HttpGet("check-name")]
-        public async Task<IActionResult> CheckNameExists(string entityType, string name, Guid? id = null)
-        {
-            var service = GetService(entityType);
-            var isUnique = await service.IsNameUniqueAsync(name, id);
-            return Ok(isUnique);
-        }
-
-        [HttpGet("check-number")]
-        public async Task<IActionResult> CheckNumberExists(string entityType, string number, Guid? id = null)
-        {
-            var service = GetService(entityType);
-            var isUnique = await service.IsNumberUniqueAsync(number, id);
-            return Ok(isUnique);
-        }
-
-        private IBaseService GetService(string entityType)
-        {
-            Type serviceType = entityType.ToLower() switch
+            try
             {
-                "medicine" => typeof(IBaseService<Medicine>),
-                "medicinecategory" => typeof(IBaseService<MedicineCategory>),
-                "department" => typeof(IBaseService<Department>),
-                "employeecategory" => typeof(IBaseService<EmployeeCategory>),
-                "employee" => typeof(IBaseService<Employee>),
-                "treatment" => typeof(IBaseService<TreatmentMethod>),
-                "room" => typeof(IBaseService<Room>),
-                "regulation" => typeof(IBaseService<Regulation>),
-                "patient" => typeof(IBaseService<Patient>),
-                "treatmentrecord" => typeof(IBaseService<TreatmentRecord>),
-                "healthinsurance" => typeof(IBaseService<HealthInsurance>),
-                _ => throw new ArgumentException($"Invalid entity type: {entityType}")
-            };
+                if (string.IsNullOrWhiteSpace(entityType) || string.IsNullOrWhiteSpace(type) || string.IsNullOrWhiteSpace(value))
+                {
+                    return BadRequest(new { success = false, message = "Missing required parameters." });
+                }
 
-            var service = _serviceProvider.GetService(serviceType) as IBaseService;
-            return service ?? throw new InvalidOperationException($"Service for {entityType} is not registered.");
+                if (!EntityServiceMap.ServiceTypes.TryGetValue(entityType, out var serviceType))
+                {
+                    return BadRequest(new { success = false, message = $"Invalid entity type: {entityType}" });
+                }
+
+                var service = _serviceProvider.GetService(serviceType) as IBaseService;
+                if (service == null)
+                {
+                    return StatusCode(500, new { success = false, message = $"Service for {entityType} is not registered." });
+                }
+
+                bool isUnique = type.ToLower() switch
+                {
+                    "code" => await service.IsCodeUniqueAsync(value, id),
+                    "name" => await service.IsNameUniqueAsync(value, id),
+                    "number" => await service.IsNumberUniqueAsync(value, id),
+                    "email" => await service.IsEmailUniqueAsync(value, id),
+                    "phone" => await service.IsPhoneUniqueAsync(value, id),
+                    "identitynumber" => await service.IsIdentityNumberUniqueAsync(value, id),
+                    _ => throw new ArgumentException($"Invalid check type: {type}")
+                };
+
+                return Ok(new { success = true, isUnique = isUnique });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"Error: {ex.Message}" });
+            }
         }
     }
 }

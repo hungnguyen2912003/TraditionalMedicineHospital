@@ -32,7 +32,7 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Code" class="block text-sm font-medium text-gray-700">Mã đợt điều trị</label>
-                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập mã đợt điều trị" value="@Model.Code" oninput="this.value = this.value.toUpperCase()" readonly />
+                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" value="@Model.Code" readonly />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -110,6 +110,7 @@
                         removeItemButton: true,
                         noResultsText: 'Không tìm thấy kết quả',
                         noChoicesText: 'Không có lựa chọn nào',
+                        itemSelectText: ''
                     });
                 });
             },
@@ -125,22 +126,6 @@
                 $("#myForm").validate({
                     ignore: [],
                     rules: {
-                        Code: {
-                            required: true,
-                            minlength: 4,
-                            maxlength: 10,
-                            customPattern: /^[A-Za-z][A-Za-z0-9]*$/,
-                            remote: {
-                                url: "/api/validation/treatmentrecord/check-code",
-                                type: "GET",
-                                data: {
-                                    entityType: "treatmentrecord",
-                                    code: function() { return $("#Code").val(); },
-                                    id: function() { return $("#Id").val(); }
-                                }
-                            }
-
-                        },
                         StartDate: {
                             required: true,
                             dateFormat: true,
@@ -157,12 +142,6 @@
                         }
                     },
                     messages: {
-                        Code: {
-                            required: "Mã đợt điều trị không được bỏ trống.",
-                            minlength: "Mã phải có ít nhất 4 ký tự.",
-                            maxlength: "Mã không được vượt quá 10 ký tự.",
-                            remote: "Mã đợt điều trị này đã tồn tại."
-                        },
                         StartDate: {
                             required: "Ngày bắt đầu điều trị không được bỏ trống.",
                             dateFormat: "Ngày bắt đầu điều trị không hợp lệ.",

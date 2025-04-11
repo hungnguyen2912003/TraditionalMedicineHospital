@@ -32,7 +32,7 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Code" class="block text-sm font-medium text-gray-700">Mã phòng</label>
-                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập mã phòng" oninput="this.value = this.value.toUpperCase()" value="@Model.Code" />
+                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" value="@Model.Code" readonly />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -105,40 +105,43 @@
 
             init() {
                 this.setupValidation();
+                this.setupChoices();
+            },
+
+            setupChoices() {
+                const selectElements = document.querySelectorAll('select.form-input');
+                selectElements.forEach(select => {
+                    new Choices(select, {
+                        searchEnabled: true,
+                        searchPlaceholderValue: 'Tìm kiếm...',
+                        removeItemButton: true,
+                        noResultsText: 'Không tìm thấy kết quả',
+                        noChoicesText: 'Không có lựa chọn nào',
+                        itemSelectText: ''
+                    });
+                });
             },
 
             setupValidation() {
                 $("#myForm").validate({
                     ignore: [],
                     rules: {
-                        Code: {
-                            required: true,
-                            minlength: 4,
-                            maxlength: 10,
-                            customPattern: /^[A-Za-z][A-Za-z0-9]*$/,
-                            remote: {
-                                url: "/api/validation/room/check-code",
-                                type: "GET",
-                                data: {
-                                    entityType: "room",
-                                    code: function() { return $("#Code").val(); },
-                                    id: function() { return $("#Id").val(); }
-                                }
-                            }
-
-                        },
                         Name: {
                             required: true,
                             minlength: 6,
                             maxlength: 20,
                             customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
                             remote: {
-                                url: "/api/validation/room/check-name",
+                                url: "/api/validation/room/check",
                                 type: "GET",
                                 data: {
+                                    type: "name",
                                     entityType: "room",
-                                    name: function() { return $("#Name").val(); },
-                                    id: function() { return $("#Id").val(); }
+                                    value: function () { return $("#Name").val(); },
+                                    id: function () { return $("#Id").val(); }
+                                },
+                                dataFilter: function (data) {
+                                    return JSON.parse(data) === true;
                                 }
                             }
                         },

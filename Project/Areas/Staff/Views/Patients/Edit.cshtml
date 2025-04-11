@@ -31,7 +31,7 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Code" class="block text-sm font-medium text-gray-700">Mã bệnh nhân</label>
-                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập mã bệnh nhân" value="@Model.Code" oninput="this.value = this.value.toUpperCase()" readonly />
+                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" value="@Model.Code" readonly />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -192,6 +192,7 @@
                         removeItemButton: true,
                         noResultsText: 'Không tìm thấy kết quả',
                         noChoicesText: 'Không có lựa chọn nào',
+                        itemSelectText: ''
                     });
                 });
             },
@@ -245,32 +246,22 @@
                 $("#myForm").validate({
                     ignore: [],
                     rules: {
-                        Code: {
-                            required: true,
-                            minlength: 4,
-                            maxlength: 10,
-                            remote: {
-                                url: "/api/validation/patient/check-code",
-                                type: "GET",
-                                data: {
-                                    entityType: "patient",
-                                    code: function() { return $("#Code").val(); },
-                                    id: function() { return $("#Id").val(); }
-                                }
-                            }
-                        },
                         Name: {
                             required: true,
                             minlength: 6,
                             maxlength: 20,
                             customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
                             remote: {
-                                url: "/api/validation/patient/check-name",
+                                url: "/api/validation/patient/check",
                                 type: "GET",
                                 data: {
+                                    type: "name",
                                     entityType: "patient",
-                                    name: function() { return $("#Name").val(); },
-                                    id: function() { return $("#Id").val(); }
+                                    value: function () { return $("#Name").val(); },
+                                    id: function () { return $("#Id").val(); }
+                                },
+                                dataFilter: function (data) {
+                                    return JSON.parse(data) === true;
                                 }
                             }
                         },
@@ -304,12 +295,6 @@
                         }
                     },
                 messages: {
-                    Code: {
-                        required: "Mã thuốc không được bỏ trống.",
-                        minlength: "Mã phải có ít nhất 4 ký tự.",
-                        maxlength: "Mã không được vượt quá 10 ký tự.",
-                        remote: "Mã thuốc này đã tồn tại."
-                    },
                     Name: {
                         required: "Tên thuốc không được bỏ trống.",
                         minlength: "Tên phải có ít nhất 6 ký tự.",

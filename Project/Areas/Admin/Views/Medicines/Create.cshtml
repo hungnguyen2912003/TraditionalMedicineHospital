@@ -30,7 +30,7 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Code" class="block text-sm font-medium text-gray-700">Mã thuốc</label>
-                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập mã thuốc" oninput="this.value = this.value.toUpperCase()" />
+                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" value="@Model.Code" readonly />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -55,8 +55,16 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Manufacturer" class="block text-sm font-medium text-gray-700">Nhà sản xuất</label>
-                                    <input id="Manufacturer" type="text" name="Manufacturer" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập nhà sản xuất" />
-                                    @Html.ValidationMessageFor(model => model.Manufacturer, "", new { @class = "text-danger" })
+                                    <div class="select-wrapper">
+                                        <select id="Manufacturer" name="Manufacturer" class="form-input w-full mt-1 p-2 border rounded">
+                                            <option value="">Chọn nhà sản xuất</option>
+                                            @foreach (var m in ViewBag.ManufacturerOptions)
+                                            {
+                                                <option value="@m.Value">@m.Text</option>
+                                            }
+                                        </select>
+                                        @Html.ValidationMessageFor(model => model.Manufacturer, "", new { @class = "text-danger" })
+                                    </div>
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="ManufacturedDate" class="block text-sm font-medium text-gray-700">Ngày sản xuất</label>
@@ -169,6 +177,7 @@
                         removeItemButton: true,
                         noResultsText: 'Không tìm thấy kết quả',
                         noChoicesText: 'Không có lựa chọn nào',
+                        itemSelectText: ''
                     });
                 });
             },
@@ -235,31 +244,32 @@
                 $("#myForm").validate({
                     ignore: [],
                     rules: {
-                        Code: {
-                            required: true,
-                            minlength: 4,
-                            maxlength: 10,
-                            customPattern: /^[A-Za-z][A-Za-z0-9]*$/,
-                            remote: {
-                                url: "/api/validation/medicine/check-code",
-                                type: "GET",
-                                data: {
-                                    entityType: "medicine",
-                                    code: function() { return $("#Code").val(); }
-                                }
-                            }
-                        },
                         Name: {
                             required: true,
                             minlength: 6,
                             maxlength: 20,
                             customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
                             remote: {
-                                url: "/api/validation/medicine/check-name",
+                                url: "/api/validation/medicine/check",
                                 type: "GET",
                                 data: {
+                                    type: "name",
                                     entityType: "medicine",
-                                    name: function() { return $("#Name").val(); }
+                                    value: function () { return $("#Name").val(); }
+                                },
+                                dataFilter: function (data) {
+                                    try {
+                                        const response = JSON.parse(data);
+                                        if (response.success) {
+                                            return response.isUnique === true;
+                                        } else {
+                                            notyf.error(response.message || "Lỗi khi kiểm tra tên.");
+                                            return false;
+                                        }
+                                    } catch (e) {
+                                        notyf.error("Lỗi kết nối server.");
+                                        return false;
+                                    }
                                 }
                             }
                         },
@@ -267,9 +277,7 @@
                             required: true
                         },
                         Manufacturer: {
-                            required: true,
-                            minlength: 2,
-                            maxlength: 50
+                            required: true
                         },
                         ManufacturedDate: {
                             required: true,
@@ -299,13 +307,6 @@
                         }
                     },
                     messages: {
-                        Code: {
-                            required: "Mã thuốc không được bỏ trống.",
-                            minlength: "Mã phải có ít nhất 4 ký tự.",
-                            maxlength: "Mã không được vượt quá 10 ký tự.",
-                            customPattern: "Mã phải bắt đầu bằng chữ cái và chỉ chứa chữ cái hoặc số.",
-                            remote: "Mã thuốc này đã tồn tại."
-                        },
                         Name: {
                             required: "Tên thuốc không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 6 ký tự.",
@@ -317,9 +318,7 @@
                             required: "Vui lòng chọn loại thuốc."
                         },
                         Manufacturer: {
-                            required: "Nhà sản xuất không được bỏ trống.",
-                            minlength: "Nhà sản xuất phải có ít nhất 2 ký tự.",
-                            maxlength: "Nhà sản xuất không được vượt quá 50 ký tự."
+                            required: "Nhà sản xuất không được bỏ trống."
                         },
                         ManufacturedDate: {
                             required: "Ngày sản xuất không được bỏ trống.",
@@ -440,27 +439,66 @@
 
             add() {
                 if ($("#myForm").valid()) {
-                    const overlay = document.getElementById('loadingOverlay');
-                    overlay.style.display = 'flex';
-                    if (this.dropzone.files.length > 0) {
-                        this.dropzone.processQueue();
-                    } else {
-                        const form = document.getElementById('myForm');
-                        const formData = new FormData(form);
-                        fetch('/Admin/Medicines/Create', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(this.handleResponse)
-                        .catch(error => {
-                            overlay.style.display = 'none';
-                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                    const expiryDateStr = $('#ExpiryDate').val();
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    const expiryDateParts = expiryDateStr.split('/');
+                    const expiryDate = new Date(`${expiryDateParts[2]}-${expiryDateParts[1]}-${expiryDateParts[0]}`);
+                    expiryDate.setHours(0, 0, 0, 0);
+
+                    if (expiryDate < today) {
+                        $.confirm({
+                            title: 'Xác nhận',
+                            content: 'Bạn có muốn thêm thuốc đã hết hạn hay không?',
+                            icon: 'fa fa-exclamation-triangle',
+                            theme: 'modern',
+                            type: 'orange',
+                            boxWidth: '400px',
+                            useBootstrap: false,
+                            buttons: {
+                                confirm: {
+                                    text: 'Có',
+                                    btnClass: 'btn-warning',
+                                    action: () => {
+                                        this.submitForm();
+                                    }
+                                },
+                                cancel: {
+                                    text: 'Không',
+                                    btnClass: 'btn-red',
+                                    action: () => {
+                                        notyf.error('Vui lòng chỉnh sửa ngày hết hạn.');
+                                    }
+                                }
+                            }
                         });
+                    } else {
+                        this.submitForm();
                     }
-                }
-                else{
+                } else {
                     notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
+                }
+            },
+
+            submitForm() {
+                const overlay = document.getElementById('loadingOverlay');
+                overlay.style.display = 'flex';
+                if (this.dropzone.files.length > 0) {
+                    this.dropzone.processQueue();
+                } else {
+                    const form = document.getElementById('myForm');
+                    const formData = new FormData(form);
+                    fetch('/Admin/Medicines/Create', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(this.handleResponse)
+                    .catch(error => {
+                        overlay.style.display = 'none';
+                        notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                    });
                 }
             },
 

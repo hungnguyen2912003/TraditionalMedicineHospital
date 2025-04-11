@@ -11,7 +11,7 @@ namespace Project.Areas.Admin.Models.DTOs
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
         public UnitType StockUnit { get; set; }
-        public string Manufacturer { get; set; } = string.Empty;
+        public ManufacturerType Manufacturer { get; set; }
         public DateTime ManufacturedDate { get; set; }
         public string ActiveIngredient { get; set; } = string.Empty;
         public DateTime ExpiryDate { get; set; }

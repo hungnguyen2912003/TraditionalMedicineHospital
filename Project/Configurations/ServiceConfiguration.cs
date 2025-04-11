@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Staff.Models.Entities;
+using Project.Models;
 using Project.Services;
 using Project.Services.Features;
 using Project.Services.Implementations;
@@ -27,6 +28,7 @@ namespace Project.Configurations
 
             builder.Services.AddScoped<EmailService>();
             builder.Services.AddScoped<JwtManager>();
+            builder.Services.Configure<GoongSettings>(builder.Configuration.GetSection("Goong"));
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

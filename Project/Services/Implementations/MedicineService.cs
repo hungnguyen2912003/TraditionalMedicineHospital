@@ -18,6 +18,16 @@ namespace Project.Services.Implementations
             return existing == null || (id.HasValue && existing.Id == id.Value);
         }
 
+        public Task<bool> IsEmailUniqueAsync(string email, Guid? id = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> IsIdentityNumberUniqueAsync(string identityNumber, Guid? id = null)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<bool> IsNameUniqueAsync(string name, Guid? id = null)
         {
             var existing = await _repository.FirstOrDefaultAsync(m => m.Name == name);
@@ -25,6 +35,11 @@ namespace Project.Services.Implementations
         }
 
         public Task<bool> IsNumberUniqueAsync(string number, Guid? id = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> IsPhoneUniqueAsync(string phone, Guid? id = null)
         {
             throw new NotImplementedException();
         }

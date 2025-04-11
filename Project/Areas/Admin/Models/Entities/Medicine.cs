@@ -27,8 +27,7 @@ namespace Project.Areas.Admin.Models.Entities
         [StringLength(10)]
         public UnitType StockUnit { get; set; }
         [Required]
-        [StringLength(50)]
-        public string Manufacturer { get; set; } = string.Empty;
+        public ManufacturerType Manufacturer { get; set; }
         [Required]
         public DateTime ManufacturedDate { get; set; }
         [Required]

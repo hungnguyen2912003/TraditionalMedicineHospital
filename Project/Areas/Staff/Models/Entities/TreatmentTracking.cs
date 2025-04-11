@@ -15,14 +15,9 @@ namespace Project.Areas.Staff.Models.Entities
         public DateTime TreatmentDate { get; set; }
         public string? Note { get; set; }
 
-        public Guid TreatmentMethodId { get; set; }
-
         /////////////////////////////////////////////////////
         /// Relationships
         ///
         public virtual ICollection<TreatmentRecordDetail> TreatmentRecordDetails { get; set; } = new HashSet<TreatmentRecordDetail>();
-
-        [ForeignKey("TreatmentMethodId")]
-        public virtual TreatmentMethod TreatmentMethod { get; set; } = null!;
     }
 }

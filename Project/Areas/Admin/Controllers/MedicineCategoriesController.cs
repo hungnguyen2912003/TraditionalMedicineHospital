@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
+using Project.Helpers;
 using Project.Repositories.Interfaces;
 using Project.Services.Interfaces;
 
@@ -17,19 +18,22 @@ namespace Project.Areas.Admin.Controllers
         private readonly IMedicineRepository _medicineRepository;
         private readonly IMapper _mapper;
         private readonly IImageService _imgService;
+        private readonly CodeGeneratorHelper _codeGenerator;
 
         public MedicineCategoriesController
         (
             IMedicineCategoryRepository repository,
             IMedicineRepository medicineRepository,
             IMapper mapper,
-            IImageService imgService
+            IImageService imgService,
+            CodeGeneratorHelper codeGenerator
         )
         {
             _repository = repository;
             _medicineRepository = medicineRepository;
             _mapper = mapper;
             _imgService = imgService;
+            _codeGenerator = codeGenerator;
         }
 
         public async Task<IActionResult> Index()
@@ -48,9 +52,13 @@ namespace Project.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var model = new MedicineCategoryDto
+            {
+                Code = await _codeGenerator.GenerateUniqueCodeAsync(_repository)
+            };
+            return View(model);
         }
 
         [HttpPost]

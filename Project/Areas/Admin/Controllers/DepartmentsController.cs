@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
+using Project.Helpers;
 using Project.Repositories.Interfaces;
 
 namespace Project.Areas.Admin.Controllers
@@ -15,18 +16,21 @@ namespace Project.Areas.Admin.Controllers
         private readonly IEmployeeRepository _employeeRepository;
         private readonly ITreatmentMethodRepository _treatmentRepository;
         private readonly IMapper _mapper;
+        private readonly CodeGeneratorHelper _codeGenerator;
         public DepartmentsController
         (
             IDepartmentRepository repository,
             IEmployeeRepository employeeRepository,
             ITreatmentMethodRepository treatmentRepository,
-            IMapper mapper
+            IMapper mapper,
+            CodeGeneratorHelper codeGenerator
         )
         {
             _repository = repository;
             _employeeRepository = employeeRepository;
             _treatmentRepository = treatmentRepository;
             _mapper = mapper;
+            _codeGenerator = codeGenerator;
         }
 
         public async Task<IActionResult> Index()
@@ -45,9 +49,13 @@ namespace Project.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var model = new DepartmentDto
+            {
+                Code = await _codeGenerator.GenerateUniqueCodeAsync(_repository)
+            };
+            return View(model);
         }
 
         [HttpPost]

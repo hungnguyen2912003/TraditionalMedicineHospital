@@ -1,4 +1,5 @@
-﻿@model Project.Areas.Admin.Models.Entities.Department
+﻿@using System.Globalization
+@model Project.Areas.Admin.Models.Entities.Department
 
 @{
     ViewData["Title"] = "Chi tiết Khoa";
@@ -78,11 +79,11 @@
                     </div>
                     <div class="sm:col-span-2">
                         <label for="description">Mô tả Khoa</label>
-                        <textarea id="description" name="Description" class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" readonly>@Model.Description</textarea>
+                        <textarea id="description" name="Description" class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" readonly>@(Model.Description ?? "Không có mô tả")</textarea>
                     </div>
                     <div>
                         <label for="createdDate">Ngày tạo</label>
-                        <input id="createdDate" type="text" value="@Model.CreatedDate.ToString("dd/MM/yyyy")" readonly class="form-input">
+                        <input id="createdDate" type="text" value="@Model.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly class="form-input">
                     </div>
                     <div>
                         <label for="createdBy">Nguời tạo</label>
@@ -90,7 +91,7 @@
                     </div>
                     <div>
                         <label for="UpdatedDate">Ngày chỉnh sửa</label>
-                        <input id="UpdatedDate" type="text" value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy") ?? "Không có")" readonly class="form-input">
+                        <input id="UpdatedDate" type="text" value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) ?? "Không có")" readonly class="form-input">
                     </div>
                     <div>
                         <label for="UpdatedBy">Nguời chỉnh sửa</label>

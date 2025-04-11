@@ -31,12 +31,12 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Code" class="block text-sm font-medium text-gray-700">Mã nhân sự</label>
-                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập mã nhân sự" value="@ViewBag.RandomCode" oninput="this.value = this.value.toUpperCase()" readonly />
+                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" value="@Model.Code" readonly />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Tên nhân sự</label>
-                                    <input id="Name" type="text" name="Name" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập họ tên nhân sự"/>
+                                    <input id="Name" type="text" name="Name" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập họ tên nhân sự" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -69,7 +69,6 @@
                                 </div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
-
                                 <div class="w-full sm:w-1/2">
                                     <label for="Gender" class="block text-sm font-medium text-gray-700">Giới tính</label>
                                     <div class="select-wrapper">
@@ -95,9 +94,9 @@
                                 </div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                                <div class="w-full">
+                                <div class="w-full address-container">
                                     <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ</label>
-                                    <input id="Address" type="text" name="Address" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập địa chỉ" />
+                                    <input id="Address" type="text" name="Address" class="form-input w-full mt-1 p-2 border rounded address-autocomplete" placeholder="Nhập địa chỉ" autocomplete="off" />
                                     @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -108,8 +107,8 @@
                                     @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Email" class="block text-sm font-medium text-gray-700">Email</label>
-                                    <input id="Email" type="text" name="Email" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập email" />
+                                    <label for="EmailAddress" class="block text-sm font-medium text-gray-700">Email</label>
+                                    <input id="EmailAddress" type="text" name="EmailAddress" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập email" />
                                     @Html.ValidationMessageFor(model => model.EmailAddress, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -234,6 +233,7 @@
                         removeItemButton: true,
                         noResultsText: 'Không tìm thấy kết quả',
                         noChoicesText: 'Không có lựa chọn nào',
+                        itemSelectText: ''
                     });
                 });
             },
@@ -274,35 +274,14 @@
                 $("#myForm").validate({
                     ignore: [],
                     rules: {
-                        Code: {
-                            required: true,
-                            minlength: 4,
-                            maxlength: 10,
-                            remote: {
-                                url: "/api/validation/employee/check-code",
-                                type: "GET",
-                                data: {
-                                    entityType: "employee",
-                                    code: function() { return $("#Code").val(); }
-                                }
-                            }
-                        },
                         Name: {
                             required: true,
                             minlength: 6,
                             maxlength: 20,
-                            customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
-                            remote: {
-                                url: "/api/validation/employee/check-name",
-                                type: "GET",
-                                data: {
-                                    entityType: "employee",
-                                    name: function() { return $("#Name").val(); }
-                                }
-                            }
+                            customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/
                         },
                         Gender: {
-                            required: true,
+                            required: true
                         },
                         DateOfBirth: {
                             required: true,
@@ -313,21 +292,90 @@
                             required: true,
                             minlength: 9,
                             maxlength: 12,
-                            customPattern: /^[0-9]*$/
+                            customPattern: /^[0-9]*$/,
+                            remote: {
+                                url: "/api/validation/employee/check",
+                                type: "GET",
+                                data: {
+                                    type: "identitynumber",
+                                    entityType: "employee",
+                                    value: function () { return $("#IdentityNumber").val(); }
+                                },
+                                dataFilter: function (data) {
+                                    try {
+                                        const response = JSON.parse(data);
+                                        if (response.success) {
+                                            return response.isUnique === true;
+                                        } else {
+                                            notyf.error(response.message || "Lỗi khi kiểm tra căn cước công dân.");
+                                            return false;
+                                        }
+                                    } catch (e) {
+                                        notyf.error("Lỗi kết nối server.");
+                                        return false;
+                                    }
+                                }
+                            }
                         },
                         Address: {
                             required: true,
                             maxlength: 500
                         },
-                        Email: {
+                        EmailAddress: {
                             required: true,
-                            email: true
+                            email: true,
+                            remote: {
+                                url: "/api/validation/employee/check",
+                                type: "GET",
+                                data: {
+                                    type: "email",
+                                    entityType: "employee",
+                                    value: function () { return $("#EmailAddress").val(); }
+                                },
+                                dataFilter: function (data) {
+                                    try {
+                                        const response = JSON.parse(data);
+                                        if (response.success) {
+                                            return response.isUnique === true;
+                                        } else {
+                                            notyf.error(response.message || "Lỗi khi kiểm tra email.");
+                                            return false;
+                                        }
+                                    } catch (e) {
+                                        notyf.error("Lỗi kết nối server.");
+                                        return false;
+                                    }
+                                }
+                            }
                         },
                         PhoneNumber: {
                             required: true,
                             minlength: 10,
                             maxlength: 15,
-                            customPattern: /^[0-9]*$/
+                            customPattern: /^[0-9]*$/,
+                            remote: {
+                                url: "/api/validation/employee/check",
+                                type: "GET",
+                                data: {
+                                    type: "phone",
+                                    entityType: "employee",
+                                    value: function () { return $("#PhoneNumber").val(); }
+                                },
+                                dataFilter: function (data) {
+                                    try {
+                                        const response = JSON.parse(data);
+                                        if (response.success) {
+                                            return response.isUnique === true;
+                                        } else {
+                                            notyf.error(response.message || "Lỗi khi kiểm tra số điện thoại.");
+                                            return false;
+                                        }
+                                    } catch (e) {
+                                        notyf.error("Lỗi kết nối server.");
+                                        return false;
+                                    }
+                                }
+                            }
                         },
                         Degree: {
                             required: true
@@ -343,27 +391,18 @@
                             required: true
                         },
                         DepartmentId: {
-                            required: function () {
-                                return $("#Role").val() != '@((int)RoleType.Admin)';
-                            }
+                            required: true
                         }
                     },
                     messages: {
-                        Code: {
-                            required: "Mã nhân sự không được bỏ trống.",
-                            minlength: "Mã phải có ít nhất 4 ký tự.",
-                            maxlength: "Mã không được vượt quá 10 ký tự.",
-                            remote: "Mã nhân sự này đã tồn tại."
-                        },
                         Name: {
                             required: "Tên nhân sự không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 6 ký tự.",
                             maxlength: "Tên không được vượt quá 20 ký tự.",
-                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng.",
-                            remote: "Tên nhân sự này đã tồn tại."
+                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng."
                         },
                         Gender: {
-                            required: "Giới tính không được bỏ trống",
+                            required: "Giới tính không được bỏ trống"
                         },
                         DateOfBirth: {
                             required: "Ngày sinh không được bỏ trống.",
@@ -374,21 +413,24 @@
                             required: "Căn cước công dân không được bỏ trống",
                             minlength: "Căn cước công dân có ít nhất 9 số",
                             maxlength: "Căn cước công dân không vượt quá 12 số",
-                            customPattern: "Căn cước công dân không hợp lệ."
+                            customPattern: "Căn cước công dân không hợp lệ.",
+                            remote: "Căn cước công dân này đã được đăng ký bởi nhân sự khác."
                         },
                         Address: {
                             required: "Địa chỉ không được bỏ trống",
                             maxlength: "Địa chỉ không được vượt quá 500 ký tự"
                         },
-                        Email: {
+                        EmailAddress: {
                             required: "Email không được bỏ trống.",
-                            email: "Email không hợp lệ."
+                            email: "Email không hợp lệ.",
+                            remote: "Email này đã được đăng ký bởi nhân sự khác."
                         },
                         PhoneNumber: {
                             required: "Số điện thoại không được bỏ trống.",
                             minlength: "Số điện thoại phải có ít nhất 10 ký tự.",
                             maxlength: "Số điện thoại không được vượt quá 15 ký tự.",
-                            customPattern: "Số điện thoại không hợp lệ."
+                            customPattern: "Số điện thoại không hợp lệ.",
+                            remote: "Số điện thoại này đã được đăng ký bởi nhân sự khác."
                         },
                         Degree: {
                             required: "Bằng cấp không được bỏ trống."
@@ -456,7 +498,7 @@
                 formData.append('IdentityNumber', document.getElementById('IdentityNumber').value);
                 formData.append('Address', document.getElementById('Address').value);
                 formData.append('Gender', document.getElementById('Gender').value);
-                formData.append('EmailAddress', document.getElementById('Email').value);
+                formData.append('EmailAddress', document.getElementById('EmailAddress').value);
                 formData.append('PhoneNumber', document.getElementById('PhoneNumber').value);
                 formData.append('Degree', document.getElementById('Degree').value);
                 formData.append('ProfessionalQualification', document.getElementById('ProfessionalQualification').value);

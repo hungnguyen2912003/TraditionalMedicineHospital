@@ -1,4 +1,5 @@
 ﻿@using Project.Extensions
+@using System.Globalization
 @model Project.Areas.Admin.Models.Entities.Medicine
 
 @{
@@ -94,7 +95,7 @@
                     </div>
                     <div>
                         <label for="price">Giá bán thuốc</label>
-                        <input id="price" type="text" class="form-input" value="@Model.Price" data-raw-value="@Model.Price" readonly>
+                        <input id="price" type="text" class="form-input" value="@Model.Price.ToString("N0", CultureInfo.InvariantCulture)" data-raw-value="@Model.Price" readonly>
                     </div>
                     <div>
                         <label for="stock">Tồn kho thuốc</label>
@@ -106,15 +107,15 @@
                     </div>
                     <div>
                         <label for="ManufacturedDate">Ngày sản xuất thuốc</label>
-                        <input id="ManufacturedDate" type="text" value="@Model.ManufacturedDate.ToString("dd/MM/yyyy")" readonly class="form-input">
+                        <input id="ManufacturedDate" type="text" value="@Model.ManufacturedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly class="form-input">
                     </div>
                     <div>
                         <label for="ExpiryDate">Ngày hết hạn thuốc</label>
-                        <input id="ExpiryDate" type="text" value="@Model.ExpiryDate.ToString("dd/MM/yyyy")" readonly class="form-input">
+                        <input id="ExpiryDate" type="text" value="@Model.ExpiryDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly class="form-input">
                     </div>
                     <div class="sm:col-span-2">
                         <label for="description">Mô tả thuốc</label>
-                        <textarea id="description" name="Description" class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" readonly>@Model.Description</textarea>
+                        <textarea id="description" name="Description" class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" readonly>@(Model.Description ?? "Không có mô tả")</textarea>
                     </div>
                     <div class="sm:col-span-2">
                         <label for="ActiveIngredient">Thành phần thuốc</label>
@@ -122,7 +123,7 @@
                     </div>
                     <div>
                         <label for="createdDate">Ngày tạo</label>
-                        <input id="createdDate" type="text" value="@Model.CreatedDate.ToString("dd/MM/yyyy")" readonly class="form-input">
+                        <input id="createdDate" type="text" value="@Model.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly class="form-input">
                     </div>
                     <div>
                         <label for="createdBy">Nguời tạo</label>
@@ -130,7 +131,7 @@
                     </div>
                     <div>
                         <label for="UpdatedDate">Ngày chỉnh sửa</label>
-                        <input id="UpdatedDate" type="text" value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy") ?? "Không có")" readonly class="form-input">
+                        <input id="UpdatedDate" type="text" value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) ?? "Không có")" readonly class="form-input">
                     </div>
                     <div>
                         <label for="UpdatedBy">Nguời chỉnh sửa</label>
@@ -148,6 +149,8 @@
 
             init() {
                 const priceInput = document.getElementById('price');
+                const rawPrice = parseFloat(priceInput.getAttribute('data-raw-value'));
+
                 const cleave = new Cleave('#price', {
                     numeral: true,
                     numeralThousandsGroupStyle: 'thousand',
@@ -156,8 +159,9 @@
                     numeralDecimalScale: 0
                 });
 
+                cleave.setRawValue(rawPrice);
                 const formattedValue = cleave.getFormattedValue();
-                priceInput.value = `${formattedValue} VND`;
+                priceInput.value = `${formattedValue} đ`;
             },
 
             print() {

@@ -31,8 +31,8 @@
                         <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Code" class="block text-sm font-medium text-gray-700">Mã loại thuốc</label>
-                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập mã loại thuốc" oninput="this.value = this.value.toUpperCase()" value="@Model.Code" />
+                                    <label for="Code" class="block text-sm font-medium text-gray-700">Mã loại nhân sự</label>
+                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" value="@Model.Code" readonly />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -157,46 +157,38 @@
             setupValidation() {
                 $("#myForm").validate({
                     rules: {
-                        Code: {
-                            required: true,
-                            minlength: 4,
-                            maxlength: 10,
-                            customPattern: /^[A-Za-z][A-Za-z0-9]*$/,
-                            remote: {
-                                url: "/api/validation/medicinecategory/check-code",
-                                type: "GET",
-                                data: {
-                                    entityType: "medicinecategory",
-                                    code: function() { return $("#Code").val(); },
-                                    id: function() { return $("#Id").val(); }
-                                }
-                            }
-
-                        },
                         Name: {
                             required: true,
                             minlength: 6,
                             maxlength: 20,
                             customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
                             remote: {
-                                url: "/api/validation/medicinecategory/check-name",
+                                url: "/api/validation/medicinecategory/check",
                                 type: "GET",
                                 data: {
+                                    type: "name",
                                     entityType: "medicinecategory",
-                                    name: function() { return $("#Name").val(); },
-                                    id: function() { return $("#Id").val(); }
+                                    value: function () { return $("#Name").val(); },
+                                    id: function () { return $("#Id").val(); }
+                                },
+                                dataFilter: function (data) {
+                                    try {
+                                        const response = JSON.parse(data);
+                                        if (response.success) {
+                                            return response.isUnique === true;
+                                        } else {
+                                            notyf.error(response.message || "Lỗi khi kiểm tra tên.");
+                                            return false;
+                                        }
+                                    } catch (e) {
+                                        notyf.error("Lỗi kết nối server.");
+                                        return false;
+                                    }
                                 }
                             }
                         }
                     },
                     messages: {
-                        Code: {
-                            required: "Mã loại thuốc không được bỏ trống.",
-                            minlength: "Mã phải có ít nhất 4 ký tự.",
-                            maxlength: "Mã không được vượt quá 10 ký tự.",
-                            customPattern: "Mã phải bắt đầu bằng chữ cái và chỉ chứa chữ cái hoặc số.",
-                            remote: "Mã loại thuốc đã tồn tại."
-                        },
                         Name: {
                             required: "Tên loại thuốc không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 6 ký tự.",

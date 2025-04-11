@@ -136,9 +136,14 @@ namespace Project.Helpers
                 })
                 .ToList();
 
-
-            string randomCode = await _codeGenHelper.GenerateUniqueCodeAsync();
-            viewData["RandomCode"] = randomCode;
+            viewData["ManufacturerOptions"] = Enum.GetValues(typeof(ManufacturerType))
+                .Cast<ManufacturerType>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
         }
     }
 }

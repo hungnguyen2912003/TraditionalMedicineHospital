@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol.Core.Types;
+using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Staff.Models.DTOs;
 using Project.Areas.Staff.Models.Entities;
 using Project.Areas.Staff.Models.ViewModels;
@@ -16,16 +18,19 @@ namespace Project.Areas.Staff.Controllers
         private readonly ITreatmentRecordRepository _treatmentRecordRepository;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
+        private readonly CodeGeneratorHelper _codeGenerator;
         public TreatmentRecordsController
         (
             ITreatmentRecordRepository treatmentRecordRepository,
             IMapper mapper,
-            ViewBagHelper viewBagHelper
+            ViewBagHelper viewBagHelper,
+            CodeGeneratorHelper codeGenerator
         )
         {
             _treatmentRecordRepository = treatmentRecordRepository;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
+            _codeGenerator = codeGenerator;
         }
         public async Task<IActionResult> Index()
         {
@@ -49,7 +54,11 @@ namespace Project.Areas.Staff.Controllers
         public async Task<IActionResult> Create()
         {
             await _viewBagHelper.BaseViewBag(ViewData);
-            return View();
+            var model = new TreatmentRecordDto
+            {
+                Code = await _codeGenerator.GenerateUniqueCodeAsync(_treatmentRecordRepository)
+            };
+            return View(model);
         }
 
         [HttpPost]

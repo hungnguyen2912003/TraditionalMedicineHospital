@@ -20,6 +20,7 @@ namespace Project.Areas.Admin.Controllers
         private readonly IMapper _mapper;
         private readonly IImageService _imgService;
         private readonly ViewBagHelper _viewBagHelper;
+        private readonly CodeGeneratorHelper _codeGenerator;
 
         public MedicinesController
         (
@@ -27,7 +28,8 @@ namespace Project.Areas.Admin.Controllers
             IMapper mapper,
             IImageService imgService,
             IMedicineCategoryRepository categoryRepository,
-            ViewBagHelper viewBagHelper
+            ViewBagHelper viewBagHelper,
+            CodeGeneratorHelper codeGenerator
         )
         {
             _repository = repository;
@@ -35,6 +37,7 @@ namespace Project.Areas.Admin.Controllers
             _imgService = imgService;
             _categoryRepository = categoryRepository;
             _viewBagHelper = viewBagHelper;
+            _codeGenerator = codeGenerator;
         }
 
         public async Task<IActionResult> Index()
@@ -45,13 +48,12 @@ namespace Project.Areas.Admin.Controllers
             return View(viewModelList);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
             var entity = await _repository.GetByIdAdvancedAsync(id);
-            if (entity == null)
-            {
-                return NotFound();
-            }
+            if (entity == null) return NotFound();
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View(entity);
         }
 
@@ -59,7 +61,11 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             await _viewBagHelper.BaseViewBag(ViewData);
-            return View();
+            var model = new MedicineDto
+            {
+                Code = await _codeGenerator.GenerateUniqueCodeAsync(_repository)
+            };
+            return View(model);
         }
 
         [HttpPost]

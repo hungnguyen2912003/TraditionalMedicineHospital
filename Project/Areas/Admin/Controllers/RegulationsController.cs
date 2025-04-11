@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
+using Project.Helpers;
 using Project.Repositories.Interfaces;
 
 namespace Project.Areas.Admin.Controllers
@@ -13,15 +14,18 @@ namespace Project.Areas.Admin.Controllers
     {
         private readonly IRegulationRepository _repository;
         private readonly IMapper _mapper;
+        private readonly CodeGeneratorHelper _codeGenerator;
 
         public RegulationsController
         (
             IRegulationRepository repository,
-            IMapper mapper
+            IMapper mapper,
+            CodeGeneratorHelper codeGenerator
         )
         {
             _repository = repository;
             _mapper = mapper;
+            _codeGenerator = codeGenerator;
         }
 
         public async Task<IActionResult> Index()
@@ -39,10 +43,13 @@ namespace Project.Areas.Admin.Controllers
             return View(entity);
         }
 
-        [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var model = new RegulationDto
+            {
+                Code = await _codeGenerator.GenerateUniqueCodeAsync(_repository)
+            };
+            return View(model);
         }
 
         [HttpPost]
@@ -56,15 +63,6 @@ namespace Project.Areas.Admin.Controllers
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
                 entity.IsActive = true;
-
-                if (entity.EffectiveDate == default(DateTime))
-                {
-                    entity.EffectiveDate = DateTime.UtcNow; // Gán giá trị mặc định nếu cần
-                }
-                if (entity.ExpirationDate == default(DateTime))
-                {
-                    entity.ExpirationDate = DateTime.UtcNow.AddDays(30); // Gán giá trị mặc định nếu cần
-                }
 
                 await _repository.CreateAsync(entity);
                 return Json(new { success = true, message = "Thêm quy định thành công!" });

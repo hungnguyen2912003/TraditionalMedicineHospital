@@ -31,7 +31,7 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Code" class="block text-sm font-medium text-gray-700">Mã phương pháp điều trị</label>
-                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập mã phương pháp điều trị" oninput="this.value = this.value.toUpperCase()" value="@Model.Code" />
+                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" value="@Model.Code" readonly />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -128,6 +128,7 @@
                         removeItemButton: true,
                         noResultsText: 'Không tìm thấy kết quả',
                         noChoicesText: 'Không có lựa chọn nào',
+                        itemSelectText: ''
                     });
                 });
             },
@@ -158,21 +159,6 @@
                 $("#myForm").validate({
                     ignore: [],
                     rules: {
-                        Code: {
-                            required: true,
-                            minlength: 4,
-                            maxlength: 10,
-                            customPattern: /^[A-Za-z][A-Za-z0-9]*$/,
-                            remote: {
-                                url: "/api/validation/treatment/check-code",
-                                type: "GET",
-                                data: {
-                                    entityType: "treatment",
-                                    code: function() { return $("#Code").val(); },
-                                    id: function() { return $("#Id").val(); }
-                                }
-                            }
-                        },
                         DepartmentId: {
                             required: true
                         },
@@ -182,12 +168,16 @@
                             maxlength: 20,
                             customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
                             remote: {
-                                url: "/api/validation/treatment/check-name",
+                                url: "/api/validation/treatmentmethod/check",
                                 type: "GET",
                                 data: {
-                                    entityType: "treatment",
-                                    name: function() { return $("#Name").val(); },
-                                    id: function() { return $("#Id").val(); }
+                                    type: "name",
+                                    entityType: "treatmentmethod",
+                                    value: function () { return $("#Name").val(); },
+                                    id: function () { return $("#Id").val(); }
+                                },
+                                dataFilter: function (data) {
+                                    return JSON.parse(data) === true;
                                 }
                             }
                         },
@@ -198,13 +188,6 @@
                         }
                     },
                     messages: {
-                        Code: {
-                            required: "Mã phương pháp điều trị không được bỏ trống.",
-                            minlength: "Mã phải có ít nhất 4 ký tự.",
-                            maxlength: "Mã không được vượt quá 10 ký tự.",
-                            customPattern: "Mã phải bắt đầu bằng chữ cái và chỉ chứa chữ cái hoặc số.",
-                            remote: "Mã phương pháp điều trị này đã tồn tại."
-                        },
                         DepartmentId: {
                             required: "Khoa phụ trách phương pháp điều trị không được bỏ trống."
                         },

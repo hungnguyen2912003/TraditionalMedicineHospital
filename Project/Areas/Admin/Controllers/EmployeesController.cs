@@ -20,13 +20,15 @@ namespace Project.Areas.Admin.Controllers
         private readonly IMapper _mapper;
         private readonly IImageService _imgService;
         private readonly ViewBagHelper _viewBagHelper;
+        private readonly CodeGeneratorHelper _codeGenerator;
         public EmployeesController
         (
             IEmployeeRepository repository,
             IUserRepository userRepository,
             IMapper mapper,
             IImageService imgService,
-            ViewBagHelper viewBagHelper
+            ViewBagHelper viewBagHelper,
+            CodeGeneratorHelper codeGenerator
         )
         {
             _repository = repository;
@@ -34,6 +36,7 @@ namespace Project.Areas.Admin.Controllers
             _mapper = mapper;
             _imgService = imgService;
             _viewBagHelper = viewBagHelper;
+            _codeGenerator = codeGenerator;
         }
 
         public async Task<IActionResult> Index()
@@ -58,7 +61,12 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             await _viewBagHelper.BaseViewBag(ViewData);
-            return View();
+            var model = new EmployeeDto
+            {
+                Code = await _codeGenerator.GenerateUniqueCodeAsync(_repository)
+            };
+
+            return View(model);
         }
 
         [HttpPost]

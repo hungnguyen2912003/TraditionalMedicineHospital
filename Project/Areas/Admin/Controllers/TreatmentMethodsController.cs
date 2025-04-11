@@ -17,19 +17,22 @@ namespace Project.Areas.Admin.Controllers
         private readonly IRoomRepository _roomRepository;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
+        private readonly CodeGeneratorHelper _codeGenerator;
 
         public TreatmentMethodsController
         (
             ITreatmentMethodRepository repository,
             IRoomRepository roomRepository,
             IMapper mapper,
-            ViewBagHelper viewBagHelper
+            ViewBagHelper viewBagHelper,
+            CodeGeneratorHelper codeGenerator
         )
         {
             _repository = repository;
             _roomRepository = roomRepository;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
+            _codeGenerator = codeGenerator;
         }
 
         public async Task<IActionResult> Index()
@@ -55,7 +58,12 @@ namespace Project.Areas.Admin.Controllers
         {
             await _viewBagHelper.BaseViewBag(ViewData);
 
-            return View();
+            var model = new TreatmentMethodDto
+            {
+                Code = await _codeGenerator.GenerateUniqueCodeAsync(_repository)
+            };
+
+            return View(model);
         }
 
         [HttpPost]

@@ -56,6 +56,43 @@ input:invalid + .text-danger {
     font-size: 1rem;
 }
 
+.jconfirm .jconfirm-box {
+    font-family: 'Nunito', sans-serif;
+}
+
+.jconfirm.jconfirm-modern .jconfirm-icon .fa-exclamation-triangle {
+    color: #f5a623 !important;
+    font-size: 2rem;
+}
+
+.jconfirm.jconfirm-modern .btn-warning {
+    background-color: #f5a623 !important;
+    color: white !important;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.jconfirm.jconfirm-modern .btn-warning:hover {
+    background-color: #e69520 !important;
+}
+
+.jconfirm.jconfirm-modern .btn-red {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.jconfirm.jconfirm-modern .btn-red:hover {
+    background-color: #c82333 !important; 
+}
+
 #myTable thead th {
     white-space: nowrap;
 }

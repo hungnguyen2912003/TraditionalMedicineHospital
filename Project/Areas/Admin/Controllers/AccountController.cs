@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Protocol.Core.Types;
-using Project.Repositories.Implementations;
 using Project.Repositories.Interfaces;
 using Project.Services.Features;
 using Project.Validators;
@@ -295,6 +293,53 @@ namespace Project.Areas.Admin.Controllers
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> RefreshToken()
+        {
+            try
+            {
+                var token = Request.Cookies["AuthToken"];
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Unauthorized(new { success = false, message = "Token không tồn tại." });
+                }
+
+                var (username, role) = _jwtManager.GetClaimsFromToken(token);
+                if (string.IsNullOrEmpty(username))
+                {
+                    Response.Cookies.Delete("AuthToken");
+                    return Unauthorized(new { success = false, message = "Token không hợp lệ." });
+                }
+
+                var user = await _userRepository.GetByUsernameAsync(username);
+                if (user == null)
+                {
+                    return NotFound(new { success = false, message = "Không tìm thấy người dùng." });
+                }
+
+                // Tạo token mới
+                var newToken = _jwtManager.GenerateToken(username, user.Role);
+                Response.Cookies.Append("AuthToken", newToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(30)
+                });
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Token đã được gia hạn thành công."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra khi gia hạn token: " + ex.Message });
+            }
         }
     }
 }

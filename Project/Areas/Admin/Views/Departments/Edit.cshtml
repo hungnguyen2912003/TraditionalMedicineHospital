@@ -32,7 +32,7 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Code" class="block text-sm font-medium text-gray-700">Mã Khoa</label>
-                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập mã Khoa" oninput="this.value = this.value.toUpperCase()" value="@Model.Code" />
+                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" value="@Model.Code" readonly />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -90,34 +90,33 @@
             setupValidation() {
                 $("#myForm").validate({
                     rules: {
-                        Code: {
-                            required: true,
-                            minlength: 4,
-                            maxlength: 10,
-                            customPattern: /^[A-Za-z][A-Za-z0-9]*$/,
-                            remote: {
-                                url: "/api/validation/department/check-code",
-                                type: "GET",
-                                data: {
-                                    entityType: "department",
-                                    code: function() { return $("#Code").val(); },
-                                    id: function() { return $("#Id").val(); }
-                                }
-                            }
-
-                        },
                         Name: {
                             required: true,
                             minlength: 6,
                             maxlength: 20,
                             customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
                             remote: {
-                                url: "/api/validation/department/check-name",
+                                url: "/api/validation/department/check",
                                 type: "GET",
                                 data: {
+                                    type: "name",
                                     entityType: "department",
-                                    name: function() { return $("#Name").val(); },
-                                    id: function() { return $("#Id").val(); }
+                                    value: function () { return $("#Name").val(); },
+                                    id: function () { return $("#Id").val(); }
+                                },
+                                dataFilter: function (data) {
+                                    try {
+                                        const response = JSON.parse(data);
+                                        if (response.success) {
+                                            return response.isUnique === true;
+                                        } else {
+                                            notyf.error(response.message || "Lỗi khi kiểm tra tên.");
+                                            return false;
+                                        }
+                                    } catch (e) {
+                                        notyf.error("Lỗi kết nối server.");
+                                        return false;
+                                    }
                                 }
                             }
                         }
