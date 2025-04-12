@@ -140,7 +140,18 @@
                                     value: function () { return $("#Name").val(); }
                                 },
                                 dataFilter: function (data) {
-                                    return JSON.parse(data) === true;
+                                    try {
+                                        const response = JSON.parse(data);
+                                        if (response.success) {
+                                            return response.isUnique === true;
+                                        } else {
+                                            notyf.error(response.message || "Lỗi khi kiểm tra tên.");
+                                            return false;
+                                        }
+                                    } catch (e) {
+                                        notyf.error("Lỗi kết nối server.");
+                                        return false;
+                                    }
                                 }
                             }
                         },
@@ -235,24 +246,66 @@
 
             add() {
                 if ($("#myForm").valid()) {
-                    const overlay = document.getElementById('loadingOverlay');
-                    overlay.style.display = 'flex';
-                    const form = document.getElementById('myForm');
-                    const formData = new FormData(form);
-                    fetch('/Admin/Regulations/Create', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(this.handleResponse)
-                    .catch(error => {
-                        overlay.style.display = 'none';
-                        notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
-                    });
+                    const expiryDateStr = $('#ExpirationDate').val();
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    const expiryDateParts = expiryDateStr.split('/');
+                    const expiryDate = new Date(`${expiryDateParts[2]}-${expiryDateParts[1]}-${expiryDateParts[0]}`);
+                    expiryDate.setHours(0, 0, 0, 0);
+
+
+                    if (expiryDate < today) {
+                        $.confirm({
+                            title: 'Xác nhận',
+                            content: 'Bạn có muốn thêm quy định đã hết hạn hay không?',
+                            icon: 'fa fa-exclamation-triangle',
+                            theme: 'modern',
+                            type: 'orange',
+                            boxWidth: '400px',
+                            useBootstrap: false,
+                            buttons: {
+                                confirm: {
+                                    text: 'Có',
+                                    btnClass: 'btn-warning',
+                                    action: () => {
+                                        this.submitForm();
+                                    }
+                                },
+                                cancel: {
+                                    text: 'Không',
+                                    btnClass: 'btn-red',
+                                    action: () => {
+                                        notyf.error('Vui lòng chỉnh sửa ngày hết hạn.');
+                                        $('#ExpirationDate').focus();
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        this.submitForm();
+                    }
                 }
                 else{
                     notyf.error("Vui lòng kiểm tra lại thông tin nhập.");
                 }
+            },
+
+            submitForm() {
+                const overlay = document.getElementById('loadingOverlay');
+                overlay.style.display = 'flex';
+                const form = document.getElementById('myForm');
+                const formData = new FormData(form);
+                fetch('/Admin/Regulations/Create', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(this.handleResponse)
+                .catch(error => {
+                    overlay.style.display = 'none';
+                    notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                });
             },
 
             goBack() {

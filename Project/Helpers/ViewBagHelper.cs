@@ -144,6 +144,8 @@ namespace Project.Helpers
                     Text = e.GetDisplayName()
                 })
                 .ToList();
+
+            viewData["EnumDisplayNames"] = EnumHelper.GetEnumDisplayNames();
         }
     }
 }

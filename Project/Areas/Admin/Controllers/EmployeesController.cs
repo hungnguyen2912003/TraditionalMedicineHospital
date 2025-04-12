@@ -44,6 +44,7 @@ namespace Project.Areas.Admin.Controllers
             var list = await _repository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive == true).ToList();
             var viewModelList = _mapper.Map<List<EmployeeViewModel>>(activeList);
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
 
@@ -63,7 +64,7 @@ namespace Project.Areas.Admin.Controllers
             await _viewBagHelper.BaseViewBag(ViewData);
             var model = new EmployeeDto
             {
-                Code = await _codeGenerator.GenerateUniqueCodeAsync(_repository)
+                Code = await _codeGenerator.GenerateNumericCodeAsync(_repository)
             };
 
             return View(model);
@@ -159,6 +160,7 @@ namespace Project.Areas.Admin.Controllers
             var list = await _repository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive == false).ToList();
             var viewModelList = _mapper.Map<List<EmployeeViewModel>>(activeList);
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
 

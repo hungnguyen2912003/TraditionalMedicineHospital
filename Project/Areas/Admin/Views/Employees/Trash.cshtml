@@ -61,53 +61,12 @@
 <script src="~/Public/assets/js/simple-datatables.js"></script>
 
 <script>
+    const enumDisplayNames = @Html.Raw(Json.Serialize(ViewData["EnumDisplayNames"]));
 
-    function getGenderName(value) {
-        switch (value) {
-            case 1: return 'Nam';
-            case 2: return 'Nữ';
-            case 3: return 'Khác';
-            default: return 'Không xác định';
-        }
-    };
-
-    function getStatusName(value) {
-        switch (value) {
-            case 1: return 'Đang làm việc';
-            case 2: return 'Đã nghỉ việc';
-            case 3: return 'Nghỉ hưu';
-            default: return 'Không xác định';
-        }
-    };
-
-    function getDegreeName(value) {
-        switch (value) {
-            case 1: return 'Trung cấp';
-            case 2: return 'Cao đẳng';
-            case 3: return 'Đại học';
-            case 4: return 'Thạc sĩ';
-            case 5: return 'Tiến sĩ';
-            case 6: return 'Phó Giáo sư';
-            case 7: return 'Giáo sư';
-            default: return 'Không xác định';
-        }
-    };
-
-    function getPQName(value) {
-        switch (value) {
-            case 1: return 'Bác sĩ y học cổ truyền';
-            case 2: return 'Dược sĩ đông y';
-            case 3: return 'Chuyên viên châm cứu';
-            case 4: return 'Chuyên viên vật lý trị liệu';
-            case 5: return 'Chuyên viên phục hồi chức năng';
-            case 6: return 'Lương y';
-            case 7: return 'Điều dưỡng';
-            case 8: return 'Y sĩ';
-            case 9: return 'Y tá';
-            case 10: return 'Dược sĩ';
-            default: return 'Không xác định';
-        }
-    };
+    function getEnumDisplayName(enumType, value) {
+        const enumData = enumDisplayNames[enumType];
+        return enumData && enumData[value] ? enumData[value] : 'Không xác định';
+    }
 
     document.addEventListener('alpine:init', () => {
         Alpine.data('list', () => ({
@@ -172,15 +131,15 @@
                     entity.categoryName,
                     entity.depName,
                     entity.name,
-                    `${getGenderName(entity.gender)}`,
+                    getEnumDisplayName('GenderType', entity.gender),
                     entity.dateOfBirth ? new Date(entity.dateOfBirth).toLocaleDateString('vi-VN') : 'Không xác định',
                     entity.address || 'Không có dữ liệu',
                     entity.emailAddress,
                     entity.phoneNumber,
-                    `${getDegreeName(entity.degree)}`,
-                    `${getPQName(entity.professionalQualification)}`,
+                    getEnumDisplayName('DegreeType', entity.degree),
+                    getEnumDisplayName('ProfessionalQualificationType', entity.professionalQualification),
                     entity.startDate ? new Date(entity.startDate).toLocaleDateString('vi-VN') : 'Không xác định',
-                    `${getStatusName(entity.status)}`,
+                    getEnumDisplayName('EmployeeStatus', entity.status),
                     entity.isActive ?
                     '<svg x-tooltip="Đang hoạt động" class="w-5 h-5 mx-auto" width="24" height="24" fill="#000000" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="green" d="M13 4.1974q0 .3097-.21677.5265L7.17806 10.329l-1.0529 1.0529q-.21677.2168-.52645.2168-.30968 0-.52645-.2168L4.01935 10.329 1.21677 7.5264Q1 7.3097 1 7t.21677-.5265l1.05291-1.0529q.21677-.2167.52645-.2167.30968 0 .52645.2167l2.27613 2.2839 5.07871-5.0864q.21677-.2168.52645-.2168.30968 0 .52645.2168l1.05291 1.0529Q13 3.8877 13 4.1974z"></path></g></svg>'
                     :

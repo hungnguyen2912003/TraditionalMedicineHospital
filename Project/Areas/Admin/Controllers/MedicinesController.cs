@@ -45,6 +45,7 @@ namespace Project.Areas.Admin.Controllers
             var list = await _repository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive == true).ToList();
             var viewModelList = _mapper.Map<List<MedicineViewModel>>(activeList);
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
 
@@ -140,6 +141,7 @@ namespace Project.Areas.Admin.Controllers
             var list = await _repository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive == false).ToList();
             var viewModelList = _mapper.Map<List<MedicineViewModel>>(activeList);
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
 

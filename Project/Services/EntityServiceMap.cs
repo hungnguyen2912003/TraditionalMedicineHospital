@@ -12,7 +12,7 @@ namespace Project.Services
             { "department", typeof(IBaseService<Department>) },
             { "employeecategory", typeof(IBaseService<EmployeeCategory>) },
             { "employee", typeof(IBaseService<Employee>) },
-            { "treatment", typeof(IBaseService<TreatmentMethod>) },
+            { "treatmentmethod", typeof(IBaseService<TreatmentMethod>) },
             { "room", typeof(IBaseService<Room>) },
             { "regulation", typeof(IBaseService<Regulation>) },
             { "patient", typeof(IBaseService<Patient>) },

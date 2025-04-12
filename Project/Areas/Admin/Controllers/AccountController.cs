@@ -64,7 +64,7 @@ namespace Project.Areas.Admin.Controllers
                         HttpOnly = true,
                         Secure = true,
                         SameSite = SameSiteMode.Strict,
-                        Expires = DateTimeOffset.UtcNow.AddMinutes(30)
+                        Expires = DateTimeOffset.UtcNow.AddHours(1)
                     });
 
                     if (user.IsFirstLogin)
@@ -73,7 +73,8 @@ namespace Project.Areas.Admin.Controllers
                         {
                             success = true,
                             message = "Đây là lần đăng nhập đầu tiên của bạn. Vui lòng đổi mật khẩu!",
-                            redirectUrl = Url.Action("ChangePassword", "Account", new { area = "Admin" })
+                            redirectUrl = Url.Action("ChangePassword", "Account", new { area = "Admin" }),
+                            loginTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                         });
                     }
 
@@ -88,7 +89,8 @@ namespace Project.Areas.Admin.Controllers
                     {
                         success = true,
                         message = "Đăng nhập thành công!",
-                        redirectUrl = redirectURL
+                        redirectUrl = redirectURL,
+                        loginTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                     });
                 }
                 return Json(new
@@ -293,53 +295,6 @@ namespace Project.Areas.Admin.Controllers
         public IActionResult AccessDenied()
         {
             return View();
-        }
-
-
-        [HttpPost]
-        public async Task<IActionResult> RefreshToken()
-        {
-            try
-            {
-                var token = Request.Cookies["AuthToken"];
-                if (string.IsNullOrEmpty(token))
-                {
-                    return Unauthorized(new { success = false, message = "Token không tồn tại." });
-                }
-
-                var (username, role) = _jwtManager.GetClaimsFromToken(token);
-                if (string.IsNullOrEmpty(username))
-                {
-                    Response.Cookies.Delete("AuthToken");
-                    return Unauthorized(new { success = false, message = "Token không hợp lệ." });
-                }
-
-                var user = await _userRepository.GetByUsernameAsync(username);
-                if (user == null)
-                {
-                    return NotFound(new { success = false, message = "Không tìm thấy người dùng." });
-                }
-
-                // Tạo token mới
-                var newToken = _jwtManager.GenerateToken(username, user.Role);
-                Response.Cookies.Append("AuthToken", newToken, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTimeOffset.UtcNow.AddMinutes(30)
-                });
-
-                return Json(new
-                {
-                    success = true,
-                    message = "Token đã được gia hạn thành công."
-                });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi gia hạn token: " + ex.Message });
-            }
         }
     }
 }

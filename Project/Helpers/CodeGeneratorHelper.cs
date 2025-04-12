@@ -4,9 +4,19 @@ namespace Project.Helpers
 {
     public class CodeGeneratorHelper
     {
-        public async Task<string> GenerateUniqueCodeAsync<T>(IBaseRepository<T> repository, int length = 8) where T : class
+        private const string DefaultChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        private const string NumbersOnlyChars = "0123456789";
+
+        public async Task<string> GenerateUniqueCodeAsync<T>(
+            IBaseRepository<T> repository,
+            int length = 8,
+            string chars = DefaultChars) where T : class
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            if (string.IsNullOrEmpty(chars))
+            {
+                throw new ArgumentException("Tập hợp ký tự không được rỗng.", nameof(chars));
+            }
+
             var random = new Random();
             string code;
 
@@ -17,6 +27,13 @@ namespace Project.Helpers
             } while (await repository.IsCodeExistsAsync(code));
 
             return code;
+        }
+
+        public async Task<string> GenerateNumericCodeAsync<T>(
+            IBaseRepository<T> repository,
+            int length = 8) where T : class
+        {
+            return await GenerateUniqueCodeAsync(repository, length, NumbersOnlyChars);
         }
     }
 }

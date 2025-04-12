@@ -177,7 +177,18 @@
                                     id: function () { return $("#Id").val(); }
                                 },
                                 dataFilter: function (data) {
-                                    return JSON.parse(data) === true;
+                                    try {
+                                        const response = JSON.parse(data);
+                                        if (response.success) {
+                                            return response.isUnique === true;
+                                        } else {
+                                            notyf.error(response.message || "Lỗi khi kiểm tra tên.");
+                                            return false;
+                                        }
+                                    } catch (e) {
+                                        notyf.error("Lỗi kết nối server.");
+                                        return false;
+                                    }
                                 }
                             }
                         },

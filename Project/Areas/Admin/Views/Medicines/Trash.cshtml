@@ -64,15 +64,12 @@
 
 <script>
 
-    function getUnitTypeName(unitValue) {
-        switch (unitValue) {
-            case 1: return 'Chai';
-            case 2: return 'Ống';
-            case 3: return 'Hộp';
-            case 4: return 'Gói';
-            default: return 'Không xác định';
-        }
-    };
+    const enumDisplayNames = @Html.Raw(Json.Serialize(ViewData["EnumDisplayNames"]));
+
+    function getEnumDisplayName(enumType, value) {
+        const enumData = enumDisplayNames[enumType];
+        return enumData && enumData[value] ? enumData[value] : 'Không xác định';
+    }
 
     document.addEventListener('alpine:init', () => {
         Alpine.data('list', () => ({
@@ -137,7 +134,7 @@
                     entity.categoryName,
                     entity.name,
                     entity.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
-                    `${entity.stockQuantity} ${getUnitTypeName(entity.stockUnit)}`,
+                    `${entity.stockQuantity} ${getEnumDisplayName('UnitType', entity.stockUnit)}`,
                     entity.manufacturer,
                     new Date(entity.manufacturedDate).toLocaleDateString('vi-VN'),
                     new Date(entity.expiryDate).toLocaleDateString('vi-VN'),
