@@ -7,7 +7,7 @@ using Project.Areas.Admin.Models.Entities;
 namespace Project.Areas.Staff.Models.Entities
 {
     [Table("Patient")]
-    public class Patient : BaseEntity
+    public class Patient : BaseEntity, ICodeEntity
     {
         [Key]
         public Guid Id { get; set; }

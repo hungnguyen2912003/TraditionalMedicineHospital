@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Project.Areas.Admin.Models.Entities
 {
     [Table("Medicine")]
-    public class Medicine : BaseEntity
+    public class Medicine : BaseEntity, ICodeEntity
     {
         [Key]
         public Guid Id { get; set; }

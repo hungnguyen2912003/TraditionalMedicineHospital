@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project.Datas;
+using Project.Models.Commons;
 using System.Linq.Expressions;
 
 namespace Project.Repositories
 {
-    public class BaseRepository<T> : IBaseRepository<T> where T : class
+    public class BaseRepository<T> : IBaseRepository<T> where T : class, ICodeEntity
     {
         protected readonly TraditionalMedicineHospitalDbContext _context;
         private readonly DbSet<T> _dbSet;
@@ -79,12 +80,8 @@ namespace Project.Repositories
 
         public async Task<bool> IsCodeExistsAsync(string code)
         {
-            if (string.IsNullOrEmpty(code))
-            {
-                return false;
-            }
-
-            return await _dbSet.AnyAsync(e => EF.Property<string>(e, "Code") == code);
+            return await _context.Set<T>()
+                .AnyAsync(x => x.Code == code);
         }
     }
 }

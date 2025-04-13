@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project.Datas;
 
@@ -11,9 +12,11 @@ using Project.Datas;
 namespace Project.Migrations
 {
     [DbContext(typeof(TraditionalMedicineHospitalDbContext))]
-    partial class TraditionalMedicineHospitalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250412123456_Add Relationship TreatmentRecordDetail w Rooms")]
+    partial class AddRelationshipTreatmentRecordDetailwRooms
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -639,11 +642,6 @@ namespace Project.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -689,11 +687,6 @@ namespace Project.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -1061,11 +1054,6 @@ namespace Project.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1332,7 +1320,7 @@ namespace Project.Migrations
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecordDetail", b =>
                 {
-                    b.HasOne("Project.Areas.Admin.Models.Entities.Room", "Room")
+                    b.HasOne("Project.Areas.Admin.Models.Entities.Room", "Rooms")
                         .WithMany("TreatmentRecordDetails")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1348,7 +1336,7 @@ namespace Project.Migrations
                         .WithMany("TreatmentRecordDetails")
                         .HasForeignKey("TreatmentTrackingId");
 
-                    b.Navigation("Room");
+                    b.Navigation("Rooms");
 
                     b.Navigation("TreatmentRecord");
                 });

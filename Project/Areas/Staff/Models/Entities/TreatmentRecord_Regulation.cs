@@ -6,10 +6,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Project.Areas.Staff.Models.Entities
 {
     [Table("TreatmentRecord_Regulation")]
-    public class TreatmentRecord_Regulation : BaseEntity
+    public class TreatmentRecord_Regulation : BaseEntity, ICodeEntity
     {
         [Key]
         public Guid Id { get; set; }
+        [Required]
+        [StringLength(10)]
+        public string Code { get; set; } = string.Empty;
         public DateTime ExecutionDate { get; set; }
         public string? Note { get; set; }
 
