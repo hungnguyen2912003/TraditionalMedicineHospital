@@ -50,11 +50,14 @@ namespace Project.Helpers
             // Get current user
             Guid? userId = null;
             Guid? depId = null;
-            if (!string.IsNullOrEmpty(authToken)){
+            if (!string.IsNullOrEmpty(authToken))
+            {
                 var (username, role) = _jwtManager.GetClaimsFromToken(authToken);
-                if (!string.IsNullOrEmpty(username)){
+                if (!string.IsNullOrEmpty(username))
+                {
                     var user = await _userRepository.GetByUsernameAsync(username);
-                    if (user != null && user.Employee != null){
+                    if (user != null && user.Employee != null)
+                    {
                         userId = user.Employee.Id;
                         depId = user.Employee.DepartmentId;
                     }
@@ -88,14 +91,17 @@ namespace Project.Helpers
                 .Select(mc => new { mc.Id, mc.Name })
                 .ToList();
 
-            var treatmentsMethods = await _treatmentRepository.GetAllAsync();
-            if (depId.HasValue){
-                viewData["TreatmentsMethods"] = treatmentsMethods
+            var treatmentMethods = await _treatmentRepository.GetAllAsync();
+            if (depId.HasValue)
+            {
+                viewData["TreatmentMethods"] = treatmentMethods
                     .Where(tm => tm.IsActive && tm.DepartmentId == depId)
                     .Select(tm => new { tm.Id, tm.Name })
                     .ToList();
-            } else {
-                viewData["TreatmentsMethods"] = treatmentsMethods
+            }
+            else
+            {
+                viewData["TreatmentMethods"] = treatmentMethods
                     .Where(tm => tm.IsActive)
                     .Select(tm => new { tm.Id, tm.Name })
                     .ToList();
@@ -104,7 +110,7 @@ namespace Project.Helpers
             var rooms = await _roomRepository.GetAllAsync();
             viewData["Rooms"] = rooms
                 .Where(r => r.IsActive)
-                .Select(r => new { r.Id, r.Name })
+                .Select(r => new { r.Id, r.Name, r.TreatmentMethodId })
                 .ToList();
 
             var currentDate = DateTime.Now;
@@ -113,7 +119,7 @@ namespace Project.Helpers
                 .Where(r => r.IsActive && r.EffectiveDate <= currentDate && r.ExpirationDate >= currentDate)
                 .Select(r => new { r.Id, r.Name })
                 .ToList();
-                
+
             viewData["GenderOptions"] = Enum.GetValues(typeof(GenderType))
                 .Cast<GenderType>()
                 .Select(e => new

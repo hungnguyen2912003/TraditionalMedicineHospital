@@ -7,5 +7,6 @@ namespace Project.Areas.Staff.Models.DTOs.ReceptionDTO
         public Guid RoomId { get; set; }
         public string? Note { get; set; }
         public Guid TreatmentRecordId { get; set; }
+        public Guid TreatmentMethodId { get; set; }
     }
 }

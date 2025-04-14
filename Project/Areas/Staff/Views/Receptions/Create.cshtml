@@ -1,0 +1,433 @@
+@model Project.Areas.Staff.Models.DTOs.ReceptionDTO.ReceptionDto
+@using Project.Models.Enums
+
+@{
+    ViewData["Title"] = "Tiếp nhận bệnh nhân";
+    Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
+}
+
+<div class="overlay" id="loadingOverlay">
+    <span
+        class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
+</div>
+
+<form id="receptionForm" method="post" enctype="multipart/form-data" asp-action="Create" x-data="reception">
+    @Html.AntiForgeryToken()
+
+    <div x-data="{tab: 'patient', hasHealthInsurance: false}">
+        <ul
+            class="mb-5 overflow-y-auto whitespace-nowrap border-b border-[#ebedf2] font-semibold dark:border-[#191e3a] sm:flex">
+            <li class="inline-block">
+                <a href="javascript:;"
+                    class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
+                    :class="{'!border-primary text-primary' : tab == 'patient'}"
+                    @@click = "tab='patient'; $nextTick(() => { $dispatch('tab-changed', 'patient'); })" >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M5.25013 6C5.25013 3.37665 7.37678 1.25 10.0001 1.25C12.6235 1.25 14.7501 3.37665 14.7501 6C14.7501 8.62335 12.6235 10.75 10.0001 10.75C7.37678 10.75 5.25013 8.62335 5.25013 6ZM10.0001 2.75C8.20521 2.75 6.75013 4.20507 6.75013 6C6.75013 7.79493 8.20521 9.25 10.0001 9.25C11.7951 9.25 13.2501 7.79493 13.2501 6C13.2501 4.20507 11.7951 2.75 10.0001 2.75Z"
+                            fill="currentColor" />
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M3.97558 13.6643C5.55506 12.7759 7.68658 12.25 10.0001 12.25C12.3137 12.25 14.4452 12.7759 16.0247 13.6643C17.5807 14.5396 18.7501 15.8661 18.7501 17.5L18.7502 17.602C18.7513 18.7638 18.7527 20.222 17.4737 21.2635C16.8443 21.7761 15.9637 22.1406 14.7739 22.3815C13.5809 22.6229 12.0259 22.75 10.0001 22.75C7.97436 22.75 6.4194 22.6229 5.22634 22.3815C4.03661 22.1406 3.15602 21.7761 2.52655 21.2635C1.24752 20.222 1.24894 18.7638 1.25007 17.602L1.25013 17.5C1.25013 15.8661 2.41962 14.5396 3.97558 13.6643ZM4.71098 14.9717C3.37151 15.7251 2.75013 16.6487 2.75013 17.5C2.75013 18.8078 2.79045 19.544 3.47372 20.1004C3.84425 20.4022 4.46366 20.6967 5.52393 20.9113C6.58087 21.1252 8.02591 21.25 10.0001 21.25C11.9744 21.25 13.4194 21.1252 14.4763 20.9113C15.5366 20.6967 16.156 20.4022 16.5265 20.1004C17.2098 19.544 17.2501 18.8078 17.2501 17.5C17.2501 16.6487 16.6288 15.7251 15.2893 14.9717C13.9733 14.2315 12.1049 13.75 10.0001 13.75C7.89541 13.75 6.02693 14.2315 4.71098 14.9717Z"
+                            fill="currentColor" />
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M22.7501 9.69672C22.7501 8.59954 22.1877 7.70123 21.2545 7.37409C20.5252 7.11843 19.7164 7.26275 19.0001 7.73431C18.2838 7.26275 17.4751 7.11843 16.7458 7.3741C15.8126 7.70123 15.2501 8.59955 15.2501 9.69673C15.2501 10.4666 15.6913 11.1479 16.125 11.6493C16.5783 12.1735 17.1393 12.6327 17.5993 12.9703L17.6698 13.0223C18.0211 13.282 18.4208 13.5776 19.0001 13.5776C19.5794 13.5776 19.9792 13.282 20.3305 13.0223L20.401 12.9703C20.861 12.6327 21.4219 12.1735 21.8752 11.6493C22.3089 11.1479 22.7501 10.4666 22.7501 9.69672ZM19.5188 9.23307C20.0444 8.72986 20.508 8.70189 20.7583 8.78964C20.9876 8.87002 21.2501 9.12068 21.2501 9.69672C21.2501 9.91131 21.1089 10.2424 20.7407 10.6681C20.392 11.0713 19.9316 11.4542 19.5136 11.7609C19.2874 11.9269 19.18 12.0034 19.094 12.0488C19.0396 12.0775 19.0246 12.0776 19.0001 12.0776C18.9757 12.0776 18.9606 12.0775 18.9062 12.0488C18.8203 12.0034 18.7129 11.9269 18.4867 11.7609C18.0687 11.4542 17.6082 11.0712 17.2596 10.6681C16.8914 10.2423 16.7501 9.91131 16.7501 9.69673C16.7501 9.12068 17.0127 8.87002 17.242 8.78964C17.4923 8.70189 17.9559 8.72986 18.4814 9.23307C18.7715 9.51077 19.2288 9.51077 19.5188 9.23307Z"
+                            fill="currentColor" />
+                    </svg>
+
+
+                    Thông tin bệnh nhân
+                </a>
+            </li>
+            <li class="inline-block">
+                <a href="javascript:;"
+                    class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
+                    :class="{'!border-primary text-primary' : tab == 'treatment-record'}"
+                    @@click = "tab='treatment-record'" >
+                    <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5">
+                        <circle opacity="0.5" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"></circle>
+                        <path d="M12 6V18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                        <path
+                            d="M15 9.5C15 8.11929 13.6569 7 12 7C10.3431 7 9 8.11929 9 9.5C9 10.8807 10.3431 12 12 12C13.6569 12 15 13.1193 15 14.5C15 15.8807 13.6569 17 12 17C10.3431 17 9 15.8807 9 14.5"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                    </svg>
+                    Thông tin điều trị
+                </a>
+            </li>
+            <li class="inline-block">
+                <a href="javascript:;"
+                    class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
+                    :class="{'!border-primary text-primary' : tab == 'treatment-details'}"
+                    @@click = "tab='treatment-details'" >
+                                            <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                                                class="h-5 w-5">
+                                                <circle cx="12" cy="6" r="4" stroke="currentColor" stroke-width="1.5"></circle>
+                                                <ellipse opacity="0.5" cx="12" cy="17" rx="7" ry="4" stroke="currentColor" stroke-width="1.5">
+                                                </ellipse>
+                                            </svg>
+                                            Chi tiết điều trị
+                                        </a>
+                                    </li>
+                                    <li class="inline-block">
+                                        <a href="javascript:;"
+                                            class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
+                                            :class="{'!border-primary text-primary' : tab == 'assignment'}" @@click="tab='assignment'">
+                                            <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                                                class="h-5 w-5">
+                                                <path
+                                                    d="M16.1007 13.359L16.5562 12.9062C17.1858 12.2801 18.1672 12.1515 18.9728 12.5894L20.8833 13.628C22.1102 14.2949 22.3806 15.9295 21.4217 16.883L20.0011 18.2954C19.6399 18.6546 19.1917 18.9171 18.6763 18.9651M4.00289 5.74561C3.96765 5.12559 4.25823 4.56668 4.69185 4.13552L6.26145 2.57483C7.13596 1.70529 8.61028 1.83992 9.37326 2.85908L10.6342 4.54348C11.2507 5.36691 11.1841 6.49484 10.4775 7.19738L10.1907 7.48257"
+                                                    stroke="currentColor" stroke-width="1.5"></path>
+                                                <path opacity="0.5"
+                                                    d="M18.6763 18.9651C17.0469 19.117 13.0622 18.9492 8.8154 14.7266C4.81076 10.7447 4.09308 7.33182 4.00293 5.74561"
+                                                    stroke="currentColor" stroke-width="1.5"></path>
+                                                <path opacity="0.5"
+                                                    d="M16.1007 13.3589C16.1007 13.3589 15.0181 14.4353 12.0631 11.4971C9.10807 8.55886 10.1907 7.48242 10.1907 7.48242"
+                                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                            </svg>
+                                            Phân công bác sĩ
+                                        </a>
+                                    </li>
+                                    <li class="inline-block">
+                                        <a href="javascript:;"
+                                            class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
+                                            :class="{'!border-primary text-primary' : tab == 'regulations'}" @@click="tab='regulations'">
+                                            <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                                                class="h-5 w-5">
+                                                <path d="M12 6V18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                                <path
+                                                    d="M15 9.5C15 8.11929 13.6569 7 12 7C10.3431 7 9 8.11929 9 9.5C9 10.8807 10.3431 12 12 12C13.6569 12 15 13.1193 15 14.5C15 15.8807 13.6569 17 12 17C10.3431 17 9 15.8807 9 14.5"
+                                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                            </svg>
+                                            Quy định điều trị
+                                        </a>
+                                    </li>
+                                </ul>
+
+                                <!-- Phần 1: Thông tin bệnh nhân -->
+                                <div x-show="tab === 'patient'" x-cloak>
+                                    <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
+                                        <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
+                                            <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
+                                                <div class="px-6">
+                                                    <div class="text-lg font-semibold mb-6">Thêm thông tin bệnh nhân</div>
+                                                    <div class="flex flex-col lg:flex-row gap-6">
+                                                        <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
+                                                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                                                <div class="w-full sm:w-1/2">
+                                                                    <label for="Code" class="block text-sm font-medium text-gray-700">Mã bệnh
+                                                                        nhân</label>
+                                                                    <input id="Code" name="Code"
+                                                                        class="form-input w-full mt-1 p-2 border rounded" readonly
+                                                                        value="@Model.Patient.Code" />
+                                                                    @Html.ValidationMessageFor(model => model.Patient.Code, "", new { @class =
+                                                                    "text-danger" })
+                                        </div>
+                                        <div class="w-full sm:w-1/2">
+                                            <label for="Name" class="block text-sm font-medium text-gray-700">Họ tên
+                                                bệnh nhân</label>
+                                            <input id="Name" name="Name"
+                                                class="form-input w-full mt-1 p-2 border rounded"
+                                                placeholder="Nhập họ tên bệnh nhân" />
+                                            @Html.ValidationMessageFor(model => model.Patient.Name, "", new { @class =
+                                                                                        "text-danger" })
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                        <div class="w-full sm:w-1/2">
+                                            <label for="Gender" class="block text-sm font-medium text-gray-700">Giới
+                                                tính</label>
+                                            <div class="select-wrapper">
+                                                <select id="Gender" name="Gender"
+                                                    class="form-input w-full mt-1 p-2 border rounded">
+                                                    <option value="">Chọn giới tính</option>
+                                                    @foreach (var gender in ViewBag.GenderOptions)
+                                                    {
+                                                        <option value="@gender.Value">@gender.Text</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            @Html.ValidationMessageFor(model => model.Patient.Gender, "", new { @class =
+                                            "text-danger" })
+                                        </div>
+                                        <div class="w-full sm:w-1/2">
+                                            <label for="DateOfBirth"
+                                                class="block text-sm font-medium text-gray-700">Ngày sinh</label>
+                                            <input id="DateOfBirth" name="DateOfBirth"
+                                                class="form-input w-full mt-1 p-2 border rounded flatpickr"
+                                                placeholder="Nhập ngày sinh" type="text" />
+                                            @Html.ValidationMessageFor(model => model.Patient.DateOfBirth, "", new {
+                                                                                        @class = "text-danger" })
+                                        </div>
+                                        <div class="w-full sm:w-1/2">
+                                            <label for="IdentityNumber"
+                                                class="block text-sm font-medium text-gray-700">Căn cước công
+                                                dân</label>
+                                            <input id="IdentityNumber" name="IdentityNumber"
+                                                class="form-input w-full mt-1 p-2 border rounded"
+                                                placeholder="Nhập căn cước công dân" />
+                                            @Html.ValidationMessageFor(model => model.Patient.IdentityNumber, "", new {
+                                                                                        @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                        <div class="w-full">
+                                            <label for="Address" class="block text-sm font-medium text-gray-700">Địa
+                                                chỉ</label>
+                                            <input id="Address" name="Address"
+                                                class="form-input w-full mt-1 p-2 border rounded"
+                                                placeholder="Nhập địa chỉ" />
+                                            @Html.ValidationMessageFor(model => model.Patient.Address, "", new { @class
+                                                                                        = "text-danger" })
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                        <div class="w-full sm:w-1/2">
+                                            <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Số
+                                                điện thoại</label>
+                                            <input id="PhoneNumber" name="PhoneNumber"
+                                                class="form-input w-full mt-1 p-2 border rounded"
+                                                placeholder="Nhập số điện thoại" />
+                                            @Html.ValidationMessageFor(model => model.Patient.PhoneNumber, "", new {
+                                                                                        @class = "text-danger" })
+                                        </div>
+                                        <div class="w-full sm:w-1/2">
+                                            <label for="Email"
+                                                class="block text-sm font-medium text-gray-700">Email</label>
+                                            <input id="Email" name="Email"
+                                                class="form-input w-full mt-1 p-2 border rounded"
+                                                placeholder="Nhập email" />
+                                            @Html.ValidationMessageFor(model => model.Patient.EmailAddress, "", new {
+                                                                                        @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 w-full xl:mt-0 xl:w-96">
+                        <div class="panel mb-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 form-label">Hình ảnh bệnh
+                                    nhân</label>
+                                <div class="dropzone flex-1" id="imageDropzone"></div>
+                            </div>
+                        </div>
+                        <div class="panel mb-5">
+                            <label class="inline-flex cursor-pointer">
+                                <input type="checkbox" class="form-checkbox" name="HasHealthInsurance"
+                                    x-model="hasHealthInsurance" id="HasHealthInsurance" />
+                                <span class="text-sm font-medium text-gray-700 ml-2">Bệnh nhân có thẻ bảo hiểm y
+                                    tế</span>
+                            </label>
+                            <!-- Thông tin thẻ BHYT -->
+                            <div x-show="hasHealthInsurance" class="mt-5">
+                                <h6 class="mb-5 text-lg font-bold">Thông tin thẻ BHYT</h6>
+                                <div class="flex flex-col gap-4">
+                                    <div class="w-full">
+                                        <label for="HealthInsuranceNumber"
+                                            class="block text-sm font-medium text-gray-700">Số thẻ BHYT</label>
+                                        <input id="HealthInsuranceNumber" name="HealthInsuranceNumber"
+                                            class="form-input w-full mt-1 p-2 border rounded"
+                                            placeholder="Nhập số thẻ BHYT" />
+                                        @Html.ValidationMessageFor(model => model.Patient.HealthInsuranceNumber, "", new
+                                                                                { @class = "text-danger" })
+                                    </div>
+                                    <div class="w-full">
+                                        <label for="HealthInsuranceExpiryDate"
+                                            class="block text-sm font-medium text-gray-700">Ngày hết hạn</label>
+                                        <input id="HealthInsuranceExpiryDate" name="HealthInsuranceExpiryDate"
+                                            class="form-input w-full mt-1 p-2 border rounded flatpickr"
+                                            placeholder="Nhập ngày hết hạn" type="text" />
+                                        @Html.ValidationMessageFor(model => model.Patient.HealthInsuranceExpiryDate, "",
+                                                                                new { @class = "text-danger" })
+                                    </div>
+                                    <div class="w-full">
+                                        <label for="HealthInsurancePlaceOfRegistration"
+                                            class="block text-sm font-medium text-gray-700">Nơi đăng ký khám
+                                            bệnh</label>
+                                        <input id="HealthInsurancePlaceOfRegistration"
+                                            name="HealthInsurancePlaceOfRegistration"
+                                            class="form-input w-full mt-1 p-2 border rounded"
+                                            placeholder="Nhập nơi đăng ký khám bệnh" />
+                                        @Html.ValidationMessageFor(model =>
+                                                                                model.Patient.HealthInsurancePlaceOfRegistration, "", new
+                                                                                {
+                                                                                    @class =
+                                                                                "text-danger"
+                                                                                })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần 2: Thông tin điều trị -->
+        <div x-show="tab === 'treatment-record'" x-cloak>
+            <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
+                <h6 class="mb-5 text-lg font-bold">Thông tin điều trị</h6>
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                        <label for="treatmentRecordCode">Mã điều trị</label>
+                        <input id="treatmentRecordCode" asp-for="TreatmentRecord.Code" class="form-input" readonly />
+                    </div>
+                    <div>
+                        <label for="treatmentRecordDiagnosis">Chẩn đoán</label>
+                        <select id="treatmentRecordDiagnosis" asp-for="TreatmentRecord.Diagnosis" class="form-select">
+                            <option value="">Chọn chẩn đoán</option>
+                            @foreach (var diagnosis in ViewBag.DiagnosisOptions)
+                            {
+                                <option value="@diagnosis.Value">@diagnosis.Text</option>
+                            }
+                        </select>
+                        <span asp-validation-for="TreatmentRecord.Diagnosis" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <label for="treatmentRecordStartDate">Ngày bắt đầu</label>
+                        <input id="treatmentRecordStartDate" asp-for="TreatmentRecord.StartDate"
+                            class="form-input flatpickr" type="text" />
+                        <span asp-validation-for="TreatmentRecord.StartDate" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <label for="treatmentRecordEndDate">Ngày kết thúc</label>
+                        <input id="treatmentRecordEndDate" asp-for="TreatmentRecord.EndDate"
+                            class="form-input flatpickr" type="text" />
+                        <span asp-validation-for="TreatmentRecord.EndDate" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần 3: Chi tiết điều trị -->
+        <div x-show="tab === 'treatment-details'" x-cloak>
+            <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
+                <h6 class="mb-5 text-lg font-bold">Chi tiết điều trị</h6>
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                        <label for="treatmentRecordDetailCode">Mã chi tiết điều trị</label>
+                        <input id="treatmentRecordDetailCode" asp-for="TreatmentRecordDetail.Code" class="form-input"
+                            readonly />
+                    </div>
+                    <div>
+                        <label for="treatmentRecordDetailTreatmentMethod">Phương pháp điều trị</label>
+                        <select id="treatmentRecordDetailTreatmentMethod"
+                            asp-for="TreatmentRecordDetail.TreatmentMethodId" class="form-select"
+                            x-on:change="filterRooms($event.target.value)">
+                            <option value="">Chọn phương pháp điều trị</option>
+                            @foreach (var method in ViewBag.TreatmentMethods)
+                            {
+                                <option value="@method.Id">@method.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="TreatmentRecordDetail.TreatmentMethodId" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <label for="treatmentRecordDetailRoom">Phòng điều trị</label>
+                        <select id="treatmentRecordDetailRoom" asp-for="TreatmentRecordDetail.RoomId"
+                            class="form-select">
+                            <option value="">Chọn phòng</option>
+                            <template x-for="room in filteredRooms" :key="room.Id">
+                                <option :value="room.Id" x-text="room.Name"></option>
+                            </template>
+                        </select>
+                        <span asp-validation-for="TreatmentRecordDetail.RoomId" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <label for="treatmentRecordDetailNote">Ghi chú</label>
+                        <input id="treatmentRecordDetailNote" asp-for="TreatmentRecordDetail.Note" class="form-input" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần 4: Phân công bác sĩ -->
+        <div x-show="tab === 'assignment'" x-cloak>
+            <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
+                <h6 class="mb-5 text-lg font-bold">Phân công bác sĩ</h6>
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                        <label for="assignmentCode">Mã phân công</label>
+                        <input id="assignmentCode" asp-for="Assignment.Code" class="form-input" readonly />
+                    </div>
+                    <div>
+                        <label for="assignmentEmployee">Bác sĩ thực hiện</label>
+                        <input id="assignmentEmployee" asp-for="Assignment.EmployeeId" class="form-input" readonly
+                            value="@ViewData["EmployeeId"]" />
+                    </div>
+                    <div>
+                        <label for="assignmentStartDate">Ngày bắt đầu</label>
+                        <input id="assignmentStartDate" asp-for="Assignment.StartDate" class="form-input flatpickr"
+                            type="text" />
+                        <span asp-validation-for="Assignment.StartDate" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <label for="assignmentEndDate">Ngày kết thúc</label>
+                        <input id="assignmentEndDate" asp-for="Assignment.EndDate" class="form-input flatpickr"
+                            type="text" />
+                        <span asp-validation-for="Assignment.EndDate" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <label for="assignmentNote">Ghi chú</label>
+                        <input id="assignmentNote" asp-for="Assignment.Note" class="form-input" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần 5: Quy định điều trị -->
+        <div x-show="tab === 'regulations'" x-cloak>
+            <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
+                <h6 class="mb-5 text-lg font-bold">Quy định điều trị</h6>
+                <div x-data="{ regulations: [] }">
+                    <button type="button" class="btn btn-primary mb-4"
+                        @@click = "regulations.push({ RegulationId: '', ExecutionDate: '', Note: '', Code: '' })" >
+                        Thêm
+                        quy định</button>
+                    <div x-show="regulations.length === 0" class="text-center text-gray-500">Chưa có quy định nào
+                        được thêm.</div>
+                    <template x-for="(regulation, index) in regulations" :key="index">
+                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-4 border-b pb-4">
+                            <div>
+                                <label :for="'regulationId-' + index">Quy định</label>
+                                <select :id="'regulationId-' + index" :name="'Regulations[' + index + '].RegulationId'"
+                                    class="form-select">
+                                    <option value="">Chọn quy định</option>
+                                    @foreach (var regulation in ViewBag.Regulations)
+                                    {
+                                        <option value="@regulation.Id">@regulation.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div>
+                                <label :for="'executionDate-' + index">Ngày thực hiện</label>
+                                <input :id="'executionDate-' + index" :name="'Regulations[' + index + '].ExecutionDate'"
+                                    class="form-input flatpickr" type="text" />
+                            </div>
+                            <div>
+                                <label :for="'note-' + index">Ghi chú</label>
+                                <input :id="'note-' + index" :name="'Regulations[' + index + '].Note'"
+                                    class="form-input" />
+                                <input type="hidden" :name="'Regulations[' + index + '].Code'"
+                                    :value="generateCode()" />
+                            </div>
+                            <div class="flex items-end">
+                                <button type="button" class="btn btn-danger" @@click="regulations.splice(index, 1)">
+                                    Xóa </ button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nút lưu -->
+        <div class="flex justify-end mt-4">
+            <button type="button" class="btn btn-primary" @@click="submitForm()">Lưu</button>
+            <a href="@Url.Action("Index", "Home", new { area = "Staff" })" class="btn btn-secondary ml-2">Hủy</a>
+        </div>
+    </div>
+</form>
+
+<script src="~/Public/assets/js/reception.js"></script>

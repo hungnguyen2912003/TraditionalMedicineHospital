@@ -26,6 +26,9 @@ namespace Project.Configurations
             builder.Services.AddScoped<IPatientRepository, PatientRepository>();
             builder.Services.AddScoped<ITreatmentRecordRepository, TreatmentRecordRepository>();
             builder.Services.AddScoped<IHealthInsuranceRepository, HealthInsuranceRepository>();
+            builder.Services.AddScoped<IAssignmentRepository, AssignmentRepository>();
+            builder.Services.AddScoped<ITreatmentRecordDetailRepository, TreatmentRecordDetailRepository>();
+            builder.Services.AddScoped<ITreatmentRecordRegulationRepository, TreatmentRecordRegulationRepository>();
 
             return builder;
         }

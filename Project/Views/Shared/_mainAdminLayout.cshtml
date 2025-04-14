@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en" dir="ltr">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -15,7 +16,7 @@
     <link href="~/Public/assets/dropzone/min/dropzone.min.css" rel="stylesheet" />
 
     <link href="~/public/assets/css/notyf.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/js/all.min.js"></script>
 
     <link href="~/public/assets/css/jquery-confirm.min.css" rel="stylesheet" />
@@ -44,9 +45,10 @@
 </head>
 
 
-<body x-data="main" class="relative overflow-x-hidden font-nunito text-sm font-normal antialiased" :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout,$store.app.rtlClass]">
+<body x-data="main" class="relative overflow-x-hidden font-nunito text-sm font-normal antialiased"
+    :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout,$store.app.rtlClass]">
     <!-- sidebar menu overlay -->
-    <partial name="_SidebarMenuOverlay"/>
+    <partial name="_SidebarMenuOverlay" />
 
     <!-- screen loader -->
     <partial name="_screenLoader" />
@@ -96,15 +98,15 @@
             position: { x: 'right', y: 'top' },
             dismissible: false,
             types: [
-              {
-                type: 'warning',
-                background: 'orange',
-                icon: {
-                  className: 'material-icons',
-                  tagName: 'i',
-                  text: 'warning'
+                {
+                    type: 'warning',
+                    background: 'orange',
+                    icon: {
+                        className: 'material-icons',
+                        tagName: 'i',
+                        text: 'warning'
+                    }
                 }
-              }
             ],
         });
 
@@ -160,4 +162,5 @@
         });
     </script>
 </body>
+
 </html>

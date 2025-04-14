@@ -55,7 +55,7 @@ namespace Project.Areas.Staff.Controllers
             _mapper = mapper;
             _imageService = imageService;
         }
-        
+
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -68,7 +68,7 @@ namespace Project.Areas.Staff.Controllers
 
             await _viewBagHelper.BaseViewBag(ViewData, token);
 
-            if(ViewData["UserId"] == null || ViewData["DepId"] == null)
+            if (ViewData["UserId"] == null || ViewData["DepId"] == null)
             {
                 return RedirectToAction("Login", "Account", new { area = "Admin" });
             }
@@ -96,12 +96,12 @@ namespace Project.Areas.Staff.Controllers
                 }
             };
 
-            return View();
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ReceptionDto dto)
+        public async Task<IActionResult> Create([FromForm] ReceptionDto dto)
         {
             try
             {
@@ -120,8 +120,8 @@ namespace Project.Areas.Staff.Controllers
                 }
 
                 var user = await _userRepository.GetByUsernameAsync(username);
-                
-                if(user == null || user.Employee == null)
+
+                if (user == null || user.Employee == null)
                 {
                     return Json(new { success = false, message = "Người dùng không hợp lệ" });
                 }
@@ -133,10 +133,10 @@ namespace Project.Areas.Staff.Controllers
                 patient.CreatedBy = employee.Name;
                 patient.CreatedDate = DateTime.Now;
                 patient.IsActive = true;
-                
+
                 if (dto.Patient.ImageFile != null && dto.Patient.ImageFile.Length > 0)
                 {
-                    var imagePath = await _imageService.SaveImageAsync(dto.Patient.ImageFile, "patients");
+                    var imagePath = await _imageService.SaveImageAsync(dto.Patient.ImageFile, "Patients");
                     patient.Images = imagePath;
                 }
 
@@ -162,7 +162,7 @@ namespace Project.Areas.Staff.Controllers
                 treatmentRecord.CreatedBy = employee.Name;
                 treatmentRecord.CreatedDate = DateTime.Now;
                 treatmentRecord.IsActive = true;
-                
+
                 await _treatmentRecordRepository.CreateAsync(treatmentRecord);
 
                 // Create treatment record detail
@@ -185,7 +185,7 @@ namespace Project.Areas.Staff.Controllers
                 assignment.IsActive = true;
 
                 await _assignmentRepository.CreateAsync(assignment);
-                
+
                 // Create treatment record regulation
                 foreach (var r in dto.Regulations)
                 {
