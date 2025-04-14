@@ -2,6 +2,7 @@
 using Project.Extensions;
 using Project.Models.Enums;
 using Project.Repositories.Interfaces;
+using Project.Services.Features;
 
 namespace Project.Helpers
 {
@@ -13,6 +14,10 @@ namespace Project.Helpers
         private readonly ITreatmentMethodRepository _treatmentRepository;
         private readonly IPatientRepository _patientRepository;
         private readonly CodeGeneratorHelper _codeGenHelper;
+        private readonly IUserRepository _userRepository;
+        public readonly JwtManager _jwtManager;
+        private readonly IRoomRepository _roomRepository;
+        private readonly IRegulationRepository _regulationRepository;
         public ViewBagHelper
         (
             IEmployeeCategoryRepository employeecategoryRepository,
@@ -20,7 +25,11 @@ namespace Project.Helpers
             IDepartmentRepository depRepository,
             ITreatmentMethodRepository treatmentRepository,
             IPatientRepository patientRepository,
-            CodeGeneratorHelper codeGenHelper
+            CodeGeneratorHelper codeGenHelper,
+            IUserRepository userRepository,
+            JwtManager jwtManager,
+            IRoomRepository roomRepository,
+            IRegulationRepository regulationRepository
 
         )
         {
@@ -30,10 +39,31 @@ namespace Project.Helpers
             _treatmentRepository = treatmentRepository;
             _patientRepository = patientRepository;
             _codeGenHelper = codeGenHelper;
+            _userRepository = userRepository;
+            _jwtManager = jwtManager;
+            _roomRepository = roomRepository;
+            _regulationRepository = regulationRepository;
         }
 
-        public async Task BaseViewBag(ViewDataDictionary viewData)
+        public async Task BaseViewBag(ViewDataDictionary viewData, string authToken = null)
         {
+            // Get current user
+            Guid? userId = null;
+            Guid? depId = null;
+            if (!string.IsNullOrEmpty(authToken)){
+                var (username, role) = _jwtManager.GetClaimsFromToken(authToken);
+                if (!string.IsNullOrEmpty(username)){
+                    var user = await _userRepository.GetByUsernameAsync(username);
+                    if (user != null && user.Employee != null){
+                        userId = user.Employee.Id;
+                        depId = user.Employee.DepartmentId;
+                    }
+                }
+            }
+
+            viewData["UserId"] = userId;
+            viewData["DepId"] = depId;
+
             var patients = await _patientRepository.GetAllAsync();
             viewData["Patients"] = patients
                 .Where(mc => mc.IsActive)
@@ -58,12 +88,32 @@ namespace Project.Helpers
                 .Select(mc => new { mc.Id, mc.Name })
                 .ToList();
 
-            var treatments = await _treatmentRepository.GetAllAsync();
-            viewData["Treatments"] = treatments
-                .Where(mc => mc.IsActive)
-                .Select(mc => new { mc.Id, mc.Name })
+            var treatmentsMethods = await _treatmentRepository.GetAllAsync();
+            if (depId.HasValue){
+                viewData["TreatmentsMethods"] = treatmentsMethods
+                    .Where(tm => tm.IsActive && tm.DepartmentId == depId)
+                    .Select(tm => new { tm.Id, tm.Name })
+                    .ToList();
+            } else {
+                viewData["TreatmentsMethods"] = treatmentsMethods
+                    .Where(tm => tm.IsActive)
+                    .Select(tm => new { tm.Id, tm.Name })
+                    .ToList();
+            }
+
+            var rooms = await _roomRepository.GetAllAsync();
+            viewData["Rooms"] = rooms
+                .Where(r => r.IsActive)
+                .Select(r => new { r.Id, r.Name })
                 .ToList();
 
+            var currentDate = DateTime.Now;
+            var regulations = await _regulationRepository.GetAllAsync();
+            viewData["Regulations"] = regulations
+                .Where(r => r.IsActive && r.EffectiveDate <= currentDate && r.ExpirationDate >= currentDate)
+                .Select(r => new { r.Id, r.Name })
+                .ToList();
+                
             viewData["GenderOptions"] = Enum.GetValues(typeof(GenderType))
                 .Cast<GenderType>()
                 .Select(e => new
