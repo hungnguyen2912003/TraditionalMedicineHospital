@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Project.Areas.Admin.Models.Entities
 {
     [Table("TreatmentMethod")]
-    public class TreatmentMethod : BaseEntity, ICodeEntity
+    public class TreatmentMethod : BaseEntity
     {
         [Key]
         public Guid Id { get; set; }

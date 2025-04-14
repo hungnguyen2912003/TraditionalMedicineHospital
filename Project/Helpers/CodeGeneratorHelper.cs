@@ -1,5 +1,4 @@
-﻿using Project.Models.Commons;
-using Project.Repositories;
+﻿using Project.Repositories;
 
 namespace Project.Helpers
 {
@@ -11,8 +10,7 @@ namespace Project.Helpers
         public async Task<string> GenerateUniqueCodeAsync<T>(
             IBaseRepository<T> repository,
             int length = 8,
-            string chars = DefaultChars) where T : class,
-            ICodeEntity
+            string chars = DefaultChars) where T : class
         {
             if (string.IsNullOrEmpty(chars))
             {
@@ -33,7 +31,7 @@ namespace Project.Helpers
 
         public async Task<string> GenerateNumericCodeAsync<T>(
             IBaseRepository<T> repository,
-            int length = 8) where T : class, ICodeEntity
+            int length = 8) where T : class
         {
             return await GenerateUniqueCodeAsync(repository, length, NumbersOnlyChars);
         }

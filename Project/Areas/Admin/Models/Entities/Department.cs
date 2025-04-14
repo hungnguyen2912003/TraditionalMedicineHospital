@@ -1,11 +1,12 @@
-﻿using Project.Models.Commons;
+﻿using Project.Areas.Staff.Models.Entities;
+using Project.Models.Commons;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Project.Areas.Admin.Models.Entities
 {
     [Table("Department")]
-    public class Department : BaseEntity, ICodeEntity
+    public class Department : BaseEntity
     {
         [Key]
         public Guid Id { get; set; }

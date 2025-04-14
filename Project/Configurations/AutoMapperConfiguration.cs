@@ -17,7 +17,6 @@ namespace Project.Configurations
             builder.Services.AddAutoMapper(typeof(PatientProfile));
             builder.Services.AddAutoMapper(typeof(TreatmentRecordProfile));
             builder.Services.AddAutoMapper(typeof(HealthInsuranceProfile));
-            builder.Services.AddAutoMapper(typeof(ReceptionProfile));
 
             return builder;
         }

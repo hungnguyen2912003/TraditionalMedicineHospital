@@ -639,11 +639,6 @@ namespace Project.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -689,11 +684,6 @@ namespace Project.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -1029,9 +1019,6 @@ namespace Project.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("TreatmentRecordId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1046,8 +1033,6 @@ namespace Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoomId");
-
                     b.HasIndex("TreatmentRecordId");
 
                     b.HasIndex("TreatmentTrackingId");
@@ -1060,11 +1045,6 @@ namespace Project.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -1332,12 +1312,6 @@ namespace Project.Migrations
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecordDetail", b =>
                 {
-                    b.HasOne("Project.Areas.Admin.Models.Entities.Room", "Room")
-                        .WithMany("TreatmentRecordDetails")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Project.Areas.Staff.Models.Entities.TreatmentRecord", "TreatmentRecord")
                         .WithMany("TreatmentRecordDetails")
                         .HasForeignKey("TreatmentRecordId")
@@ -1347,8 +1321,6 @@ namespace Project.Migrations
                     b.HasOne("Project.Areas.Staff.Models.Entities.TreatmentTracking", null)
                         .WithMany("TreatmentRecordDetails")
                         .HasForeignKey("TreatmentTrackingId");
-
-                    b.Navigation("Room");
 
                     b.Navigation("TreatmentRecord");
                 });
@@ -1411,11 +1383,6 @@ namespace Project.Migrations
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Regulation", b =>
                 {
                     b.Navigation("TreatmentRecord_Regulations");
-                });
-
-            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Room", b =>
-                {
-                    b.Navigation("TreatmentRecordDetails");
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentMethod", b =>

@@ -1,12 +1,11 @@
-﻿using Project.Areas.Staff.Models.Entities;
-using Project.Models.Commons;
+﻿using Project.Models.Commons;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Project.Areas.Admin.Models.Entities
 {
     [Table("Room")]
-    public class Room : BaseEntity, ICodeEntity
+    public class Room : BaseEntity
     {
         [Key]
         public Guid Id { get; set; }
@@ -24,7 +23,6 @@ namespace Project.Areas.Admin.Models.Entities
         /////////////////////////////////////////////////////
         /// Relationships
         [ForeignKey("TreatmentMethodId")]
-        public required virtual TreatmentMethod TreatmentMethod { get; set; }
-        public virtual ICollection<TreatmentRecordDetail> TreatmentRecordDetails { get; set; } = new HashSet<TreatmentRecordDetail>();
+        public required virtual TreatmentMethod TreatmentMethod { get; set; } 
     }
 }
