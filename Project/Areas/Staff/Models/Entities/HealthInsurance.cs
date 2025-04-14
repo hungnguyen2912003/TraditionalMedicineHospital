@@ -9,6 +9,8 @@ namespace Project.Areas.Staff.Models.Entities
     {
         [Key]
         public Guid Id { get; set; }
+        [StringLength(10)]
+        public string Code { get; set; } = string.Empty;
         public string Number { get; set; } = string.Empty;
         public DateTime ExpiryDate { get; set; }
         public string PlaceOfRegistration { get; set; } = string.Empty;

@@ -24,5 +24,6 @@ namespace Project.Areas.Admin.Models.Entities
         /// Relationships
         [ForeignKey("TreatmentMethodId")]
         public required virtual TreatmentMethod TreatmentMethod { get; set; } 
+        public virtual ICollection<TreatmentRecordDetail> TreatmentRecordDetails { get; set; } = new HashSet<TreatmentRecordDetail>();
     }
 }
