@@ -1,6 +1,7 @@
 ﻿using Project.Models.Commons;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Project.Areas.Admin.Models.Entities;
 
 namespace Project.Areas.Staff.Models.Entities
 {
