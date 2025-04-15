@@ -67,6 +67,19 @@ namespace Project.Helpers
             viewData["UserId"] = userId;
             viewData["DepId"] = depId;
 
+            if (!string.IsNullOrEmpty(authToken))
+            {
+                var (username, role) = _jwtManager.GetClaimsFromToken(authToken);
+                if (!string.IsNullOrEmpty(username))
+                {
+                    var user = await _userRepository.GetByUsernameAsync(username);
+                    if (user != null && user.Employee != null)
+                    {
+                        viewData["EmployeeName"] = user.Employee.Name;
+                    }
+                }
+            }
+
             var patients = await _patientRepository.GetAllAsync();
             viewData["Patients"] = patients
                 .Where(mc => mc.IsActive)
@@ -94,23 +107,26 @@ namespace Project.Helpers
             var treatmentMethods = await _treatmentRepository.GetAllAsync();
             if (depId.HasValue)
             {
-                viewData["TreatmentMethods"] = treatmentMethods
+                viewData["TreatmentMethods_Reception"] = treatmentMethods
                     .Where(tm => tm.IsActive && tm.DepartmentId == depId)
                     .Select(tm => new { tm.Id, tm.Name })
                     .ToList();
             }
-            else
-            {
-                viewData["TreatmentMethods"] = treatmentMethods
-                    .Where(tm => tm.IsActive)
-                    .Select(tm => new { tm.Id, tm.Name })
-                    .ToList();
-            }
+
+            viewData["TreatmentMethods"] = treatmentMethods
+                .Where(tm => tm.IsActive)
+                .Select(tm => new { tm.Id, tm.Name })
+                .ToList();
 
             var rooms = await _roomRepository.GetAllAsync();
             viewData["Rooms"] = rooms
                 .Where(r => r.IsActive)
-                .Select(r => new { r.Id, r.Name, r.TreatmentMethodId })
+                .Select(r => new
+                {
+                    id = r.Id,
+                    name = r.Name,
+                    treatmentMethodId = r.TreatmentMethodId
+                })
                 .ToList();
 
             var currentDate = DateTime.Now;

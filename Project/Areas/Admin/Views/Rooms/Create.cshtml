@@ -43,7 +43,7 @@
                                     <div class="select-wrapper">
                                         <select id="TreatmentMethodId" name="TreatmentMethodId" class="form-input w-full mt-1 p-2 border rounded">
                                             <option value="">Chọn phương pháp điều trị</option>
-                                            @foreach (var tm in ViewBag.Treatments)
+                                            @foreach (var tm in ViewBag.TreatmentMethods)
                                             {
                                                 <option value="@tm.Id">@tm.Name</option>
                                             }
