@@ -83,6 +83,12 @@ namespace Project.Datas
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Patient>()
+                .HasMany(p => p.TreatmentRecords)
+                .WithOne(t => t.Patient)
+                .HasForeignKey(t => t.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<TreatmentRecordDetail>()
                 .HasOne(d => d.TreatmentRecord)
                 .WithMany(t => t.TreatmentRecordDetails)

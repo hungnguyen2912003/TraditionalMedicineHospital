@@ -8,10 +8,10 @@ namespace Project.Helpers
     {
         public static Dictionary<string, Dictionary<int, string>> GetEnumDisplayNames()
         {
-            var enumTypes = new[] { 
-                typeof(GenderType), 
-                typeof(DiagnosisType), 
-                typeof(DegreeType), 
+            var enumTypes = new[] {
+                typeof(GenderType),
+                typeof(DiagnosisType),
+                typeof(DegreeType),
                 typeof(ProfessionalQualificationType),
                 typeof(EmployeeStatus),
                 typeof(ManufacturerType),

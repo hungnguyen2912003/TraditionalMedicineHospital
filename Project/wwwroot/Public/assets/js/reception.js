@@ -12,29 +12,8 @@ document.addEventListener('alpine:init', () => {
         allRooms: [],
         roomChoices: null,
         regulations: [],
-        availableRegulations: [], // Store available regulations
-        patientInfo: {
-            name: "Nguyễn Văn A",
-            gender: "1",
-            dateOfBirth: "01/01/1990",
-            idNumber: "123456789",
-            address: "123 Đường ABC, Quận 1, TP.HCM",
-            phoneNumber: "0123456789",
-            email: "test@example.com"
-        },
+        availableRegulations: [],
         hasHealthInsurance: true,
-        healthInsurance: {
-            cardNumber: "BH123456789",
-            expirationDate: "31/12/2024",
-            registrationLocation: "Bệnh viện XYZ"
-        },
-        treatmentInfo: {
-            startDate: new Date().toISOString().split('T')[0],
-            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            notes: "Ghi chú điều trị test",
-            treatmentMethod: "",
-            treatmentRoom: ""
-        },
         images: [],
         errors: {},
         choicesInstances: {}, // Store Choices instances
@@ -659,9 +638,36 @@ document.addEventListener('alpine:init', () => {
                 "IdentityNumber": { 
                     requiredIfOver14: true,
                     minlength: 9, 
-                    maxlength: 12 
+                    maxlength: 12 ,
+                    remote: {
+                        url: "/api/validation/patient/check",
+                        type: "GET",
+                        data: {
+                            type: "identitynumber",
+                            entityType: "patient",
+                            value: function () { return $("#IdentityNumber").val(); }
+                        },
+                        dataFilter: function (data) {
+                            return JSON.parse(data) === true;
+                        }
+                    }                    
                 },
-                "PhoneNumber": { required: true, phone: true },
+                "PhoneNumber": { 
+                    required: true, 
+                    phone: true,
+                    remote: {
+                        url: "/api/validation/patient/check",
+                        type: "GET",
+                        data: {
+                            type: "phone",
+                            entityType: "patient",
+                            value: function () { return $("#PhoneNumber").val(); }
+                        },
+                        dataFilter: function (data) {
+                            return JSON.parse(data) === true;
+                        }
+                    }                       
+                },
                 "Address": { required: true, minlength: 5, maxlength: 500 },
                 "Email": { email: true },
                 "HealthInsuranceNumber": { 
@@ -713,11 +719,13 @@ document.addEventListener('alpine:init', () => {
                 "IdentityNumber": {
                     requiredIfOver14: "Người trên 14 tuổi bắt buộc phải nhập CCCD",
                     minlength: "Số CMND/CCCD phải có ít nhất 9 ký tự.",
-                    maxlength: "Số CMND/CCCD không được vượt quá 12 ký tự."
+                    maxlength: "Số CMND/CCCD không được vượt quá 12 ký tự.",
+                    remote: "Số CMND/CCCD đã được đăng ký trước đó trên hệ thống"
                 },
                 "PhoneNumber": {
                     required: "Số điện thoại không được bỏ trống.",
-                    phone: "Số điện thoại không hợp lệ."
+                    phone: "Số điện thoại không hợp lệ.",
+                    remote: "Số điện thoại đã được đăng ký trước đó trên hệ thống"
                 },
                 "Address": {
                     required: "Địa chỉ không được bỏ trống.",

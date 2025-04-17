@@ -17,7 +17,8 @@ namespace Project.Services
             { "regulation", typeof(IBaseService<Regulation>) },
             { "patient", typeof(IBaseService<Patient>) },
             { "treatmentrecord", typeof(IBaseService<TreatmentRecord>) },
-            { "healthinsurance", typeof(IBaseService<HealthInsurance>) }
+            { "healthinsurance", typeof(IBaseService<HealthInsurance>) },
+            { "patient", typeof(IBaseService<Patient>) }
         };
     }
 }

@@ -1,5 +1,6 @@
 @model Project.Areas.Staff.Models.DTOs.ReceptionDTO.ReceptionDto
 @using Project.Models.Enums
+@using System.ComponentModel.DataAnnotations
 
 @{
     ViewData["Title"] = "Tiếp nhận bệnh nhân";
@@ -121,9 +122,14 @@
                                             <div class="select-wrapper">
                                                 <select id="Diagnosis" name="Diagnosis" class="form-input w-full mt-1 p-2 border rounded choices">
                                                     <option value="">Chọn chẩn đoán</option>
-                                                    @foreach (var diagnosis in ViewBag.DiagnosisOptions)
+                                                    @foreach (var diagnosis in Enum.GetValues(typeof(Project.Models.Enums.DiagnosisType)))
                                                     {
-                                                        <option value="@diagnosis.Value">@diagnosis.Text</option>
+                                                        var displayAttr = diagnosis.GetType()
+                                                            .GetField(diagnosis.ToString())
+                                                            ?.GetCustomAttributes(typeof(DisplayAttribute), false)
+                                                            .FirstOrDefault() as DisplayAttribute;
+                                                        var displayName = displayAttr?.Name ?? diagnosis.ToString();
+                                                        <option value="@displayName">@displayName</option>
                                                     }
                                                 </select>
                                             </div>
@@ -303,16 +309,24 @@
                                         <label for="HealthInsurancePlaceOfRegistration"
                                             class="block text-sm font-medium text-gray-700">Nơi đăng ký khám
                                             bệnh</label>
-                                        <input id="HealthInsurancePlaceOfRegistration"
-                                            name="HealthInsurancePlaceOfRegistration"
-                                            class="form-input w-full mt-1 p-2 border rounded"
-                                            placeholder="Nhập nơi đăng ký khám bệnh" value="Bệnh viện XYZ" />
+                                        <div class="select-wrapper">
+                                            <select id="HealthInsurancePlaceOfRegistration"
+                                                name="HealthInsurancePlaceOfRegistration"
+                                                class="form-input w-full mt-1 p-2 border rounded choices">
+                                                <option value="">Chọn nơi đăng ký</option>
+                                                @foreach (var place in Enum.GetValues(typeof(Project.Models.Enums.HealthInsuranceRegistrationPlace)))
+                                                {
+                                                    var displayAttr = place.GetType()
+                                                        .GetField(place.ToString())
+                                                        ?.GetCustomAttributes(typeof(DisplayAttribute), false)
+                                                        .FirstOrDefault() as DisplayAttribute;
+                                                    var displayName = displayAttr?.Name ?? place.ToString();
+                                                    <option value="@displayName">@displayName</option>
+                                                }
+                                            </select>
+                                        </div>
                                         @Html.ValidationMessageFor(model =>
-                                                                                model.Patient.HealthInsurancePlaceOfRegistration, "", new
-                                                                                {
-                                                                                    @class =
-                                                                                "text-danger"
-                                                                                })
+                                            model.Patient.HealthInsurancePlaceOfRegistration, "", new { @class = "text-danger" })
                                     </div>
                                 </div>
                             </div>
