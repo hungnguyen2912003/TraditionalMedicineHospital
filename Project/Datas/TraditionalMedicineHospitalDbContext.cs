@@ -82,6 +82,24 @@ namespace Project.Datas
                 .HasForeignKey<User>(u => u.PatientId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TreatmentRecordDetail>()
+                .HasOne(d => d.TreatmentRecord)
+                .WithMany(t => t.TreatmentRecordDetails)
+                .HasForeignKey(d => d.TreatmentRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TreatmentRecordDetail>()
+                .HasOne(d => d.TreatmentTracking)
+                .WithMany(t => t.TreatmentRecordDetails)
+                .HasForeignKey(d => d.TreatmentTrackingId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TreatmentRecord_Regulation>()
+                .HasOne(tr => tr.TreatmentRecord)
+                .WithMany(t => t.TreatmentRecord_Regulations)
+                .HasForeignKey(tr => tr.TreatmentRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

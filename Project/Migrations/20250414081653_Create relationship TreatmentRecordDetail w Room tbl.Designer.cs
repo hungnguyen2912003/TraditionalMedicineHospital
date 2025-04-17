@@ -1043,8 +1043,6 @@ namespace Project.Migrations
                     b.Property<Guid>("TreatmentRecordId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("TreatmentTrackingId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -1057,8 +1055,6 @@ namespace Project.Migrations
                     b.HasIndex("RoomId");
 
                     b.HasIndex("TreatmentRecordId");
-
-                    b.HasIndex("TreatmentTrackingId");
 
                     b.ToTable("TreatmentRecordDetail");
                 });
@@ -1352,9 +1348,6 @@ namespace Project.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Project.Areas.Staff.Models.Entities.TreatmentTracking", null)
-                        .WithMany("TreatmentRecordDetails")
-                        .HasForeignKey("TreatmentTrackingId");
 
                     b.Navigation("Room");
 
@@ -1465,10 +1458,6 @@ namespace Project.Migrations
                     b.Navigation("TreatmentRecord_Regulations");
                 });
 
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentTracking", b =>
-                {
-                    b.Navigation("TreatmentRecordDetails");
-                });
 #pragma warning restore 612, 618
         }
     }

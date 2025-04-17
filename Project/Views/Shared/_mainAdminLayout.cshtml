@@ -92,6 +92,7 @@
 
     <script src="~/public/assets/js/goong-geocoder.min.js"></script>
     <script src="~/public/assets/js/goong-js.js"></script>
+
     <script>
         const notyf = new Notyf({
             duration: 2000,
@@ -159,6 +160,71 @@
                     }
                 },
             }));
+        });
+
+        // Goong API integration
+        document.addEventListener('DOMContentLoaded', function () {
+            const addressInputs = document.querySelectorAll('.address-autocomplete');
+
+            addressInputs.forEach(addressInput => {
+                const suggestionsContainer = document.createElement('div');
+                suggestionsContainer.id = 'suggestions-' + addressInput.id;
+                suggestionsContainer.className = 'suggestions';
+                addressInput.parentNode.appendChild(suggestionsContainer);
+                let sessionToken = crypto.randomUUID();
+
+                function debounce(func, wait) {
+                    let timeout;
+                    return function executedFunction(...args) {
+                        const later = () => {
+                            clearTimeout(timeout);
+                            func(...args);
+                        };
+                        clearTimeout(timeout);
+                        timeout = setTimeout(later, wait);
+                    };
+                }
+
+                const debouncedSearch = debounce((query) => {
+                    if (query.length < 2) {
+                        suggestionsContainer.style.display = 'none';
+                        return;
+                    }
+
+                    // Call our backend GoongController instead of direct Goong API
+                    fetch(`/api/goong/autocomplete?input=${encodeURIComponent(query)}&sessiontoken=${sessionToken}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'OK') {
+                                suggestionsContainer.innerHTML = '';
+                                suggestionsContainer.style.display = 'block';
+
+                                data.predictions.forEach(prediction => {
+                                    const div = document.createElement('div');
+                                    div.className = 'suggestion-item';
+                                    div.textContent = prediction.description;
+                                    div.addEventListener('click', () => {
+                                        addressInput.value = prediction.description;
+                                        suggestionsContainer.style.display = 'none';
+                                    });
+                                    suggestionsContainer.appendChild(div);
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            notyf.error('Có lỗi xảy ra khi tìm kiếm địa chỉ');
+                        });
+                }, 300);
+
+                addressInput.addEventListener('input', (e) => debouncedSearch(e.target.value));
+
+                document.addEventListener('click', function (e) {
+                    if (!suggestionsContainer.contains(e.target) && e.target !== addressInput) {
+                        suggestionsContainer.style.display = 'none';
+                    }
+                });
+            });
         });
     </script>
 </body>

@@ -10,7 +10,7 @@ namespace Project.Areas.Staff.Models.DTOs.ReceptionDTO
         public string Name { get; set; } = string.Empty;
         public DateTime DateOfBirth { get; set; }
         public GenderType Gender { get; set; }
-        public string IdentityNumber { get; set; } = string.Empty;
+        public string? IdentityNumber { get; set; }
         public string PhoneNumber { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         [EmailAddress]

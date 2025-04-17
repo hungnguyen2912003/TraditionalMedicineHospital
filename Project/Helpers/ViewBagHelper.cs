@@ -132,8 +132,14 @@ namespace Project.Helpers
             var currentDate = DateTime.Now;
             var regulations = await _regulationRepository.GetAllAsync();
             viewData["Regulations"] = regulations
-                .Where(r => r.IsActive && r.EffectiveDate <= currentDate && r.ExpirationDate >= currentDate)
-                .Select(r => new { r.Id, r.Name })
+                .Where(r => r.IsActive && r.ExpirationDate >= currentDate)
+                .Select(r => new
+                {
+                    id = r.Id,
+                    name = r.Name,
+                    effectiveStartDate = r.EffectiveDate.ToString("dd/MM/yyyy"),
+                    effectiveEndDate = r.ExpirationDate.ToString("dd/MM/yyyy")
+                })
                 .ToList();
 
             viewData["GenderOptions"] = Enum.GetValues(typeof(GenderType))

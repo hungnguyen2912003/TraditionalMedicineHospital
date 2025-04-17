@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Staff.Models.DTOs.ReceptionDTO;
 using Project.Areas.Staff.Models.Entities;
 using Project.Helpers;
+using Project.Models.Enums;
 using Project.Repositories.Interfaces;
 using Project.Services.Features;
 using Project.Services.Interfaces;
+using Project.Areas.Admin.Models.Entities;
 
 namespace Project.Areas.Staff.Controllers
 {
@@ -26,7 +28,7 @@ namespace Project.Areas.Staff.Controllers
         private readonly JwtManager _jwtManager;
         private readonly IMapper _mapper;
         private readonly IImageService _imageService;
-
+        private readonly IRoomRepository _roomRepository;
         public ReceptionsController(
             IPatientRepository patientRepository,
             IHealthInsuranceRepository healthInsuranceRepository,
@@ -39,7 +41,8 @@ namespace Project.Areas.Staff.Controllers
             ViewBagHelper viewBagHelper,
             JwtManager jwtManager,
             IMapper mapper,
-            IImageService imageService
+            IImageService imageService,
+            IRoomRepository roomRepository
         )
         {
             _patientRepository = patientRepository;
@@ -54,6 +57,7 @@ namespace Project.Areas.Staff.Controllers
             _jwtManager = jwtManager;
             _mapper = mapper;
             _imageService = imageService;
+            _roomRepository = roomRepository;
         }
 
         [HttpGet]
@@ -147,14 +151,17 @@ namespace Project.Areas.Staff.Controllers
                 if (dto.Patient.HasHealthInsurance)
                 {
                     healthInsurance = _mapper.Map<HealthInsurance>(dto.Patient);
-                    healthInsurance.PatientId = patient.Id;
-                    healthInsurance.CreatedBy = employee.Name;
-                    healthInsurance.CreatedDate = DateTime.Now;
-                    healthInsurance.IsActive = true;
+                    if (healthInsurance != null)
+                    {
+                        healthInsurance.PatientId = patient.Id;
+                        healthInsurance.Code = dto.Patient.HealthInsuranceCode;
+                        healthInsurance.CreatedBy = employee.Name;
+                        healthInsurance.CreatedDate = DateTime.Now;
+                        healthInsurance.IsActive = true;
 
-                    await _healthInsuranceRepository.CreateAsync(healthInsurance);
+                        await _healthInsuranceRepository.CreateAsync(healthInsurance);
+                    }
                 }
-
 
                 // Create treatment record
                 var treatmentRecord = _mapper.Map<TreatmentRecord>(dto.TreatmentRecord);
@@ -162,6 +169,7 @@ namespace Project.Areas.Staff.Controllers
                 treatmentRecord.CreatedBy = employee.Name;
                 treatmentRecord.CreatedDate = DateTime.Now;
                 treatmentRecord.IsActive = true;
+                treatmentRecord.Status = TreatmentStatus.DangDieuTri;
 
                 await _treatmentRecordRepository.CreateAsync(treatmentRecord);
 
@@ -172,38 +180,60 @@ namespace Project.Areas.Staff.Controllers
                 treatmentRecordDetail.CreatedDate = DateTime.Now;
                 treatmentRecordDetail.IsActive = true;
 
+                // Validate RoomId is not empty
+                if (treatmentRecordDetail.RoomId == Guid.Empty)
+                {
+                    return Json(new { success = false, message = "Vui lòng chọn phòng điều trị" });
+                }
+
+                // Validate RoomId exists
+                var room = await _roomRepository.GetByIdAsync(treatmentRecordDetail.RoomId);
+                if (room == null)
+                {
+                    return Json(new { success = false, message = $"Phòng điều trị với ID {treatmentRecordDetail.RoomId} không tồn tại" });
+                }
+
                 await _treatmentRecordDetailRepository.CreateAsync(treatmentRecordDetail);
+
+                // Create treatment record regulations
+                if (dto.Regulations != null && dto.Regulations.Any())
+                {
+                    foreach (var regulationDto in dto.Regulations)
+                    {
+                        var treatmentRecordRegulation = _mapper.Map<TreatmentRecord_Regulation>(regulationDto);
+                        treatmentRecordRegulation.TreatmentRecordId = treatmentRecord.Id;
+                        treatmentRecordRegulation.CreatedBy = employee.Name;
+                        treatmentRecordRegulation.CreatedDate = DateTime.Now;
+                        treatmentRecordRegulation.IsActive = true;
+
+                        await _treatmentRecordRegulationRepository.CreateAsync(treatmentRecordRegulation);
+                    }
+                }
 
                 // Create assignment
                 var assignment = _mapper.Map<Assignment>(dto.Assignment);
                 assignment.TreatmentRecordId = treatmentRecord.Id;
                 assignment.EmployeeId = employee.Id;
-                assignment.StartDate = dto.TreatmentRecord.StartDate;
-                assignment.EndDate = dto.TreatmentRecord.EndDate;
                 assignment.CreatedBy = employee.Name;
                 assignment.CreatedDate = DateTime.Now;
                 assignment.IsActive = true;
 
                 await _assignmentRepository.CreateAsync(assignment);
 
-                // Create treatment record regulation
-                foreach (var r in dto.Regulations)
-                {
-                    var regulation = _mapper.Map<TreatmentRecord_Regulation>(r);
-                    regulation.TreatmentRecordId = treatmentRecord.Id;
-                    regulation.Code = await _codeGenerator.GenerateUniqueCodeAsync(_treatmentRecordRegulationRepository);
-                    regulation.CreatedBy = employee.Name;
-                    regulation.CreatedDate = DateTime.Now;
-                    regulation.IsActive = true;
-
-                    await _treatmentRecordRegulationRepository.CreateAsync(regulation);
-                }
-
                 return Json(new { success = true, message = "Tiếp nhận bệnh nhân và lập phiếu khám thành công" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                string errorMessage = ex.Message;
+                if (ex.InnerException != null)
+                {
+                    errorMessage += "\nInner Exception: " + ex.InnerException.Message;
+                    if (ex.InnerException.InnerException != null)
+                    {
+                        errorMessage += "\nInner Inner Exception: " + ex.InnerException.InnerException.Message;
+                    }
+                }
+                return Json(new { success = false, message = errorMessage });
             }
         }
     }

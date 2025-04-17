@@ -12,8 +12,8 @@ using Project.Datas;
 namespace Project.Migrations
 {
     [DbContext(typeof(TraditionalMedicineHospitalDbContext))]
-    [Migration("20250411100659_Change type props Menufacturer in Medicine Tbl")]
-    partial class ChangetypepropsMenufacturerinMedicineTbl
+    [Migration("20250416131227_Add relationship tmDetail w tmTracking")]
+    partial class AddrelationshiptmDetailwtmTracking
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -642,6 +642,11 @@ namespace Project.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -687,6 +692,11 @@ namespace Project.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -978,7 +988,6 @@ namespace Project.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Note")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("PatientId")
@@ -1009,6 +1018,11 @@ namespace Project.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1022,8 +1036,12 @@ namespace Project.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("TreatmentRecordId")
                         .HasColumnType("uniqueidentifier");
+
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -1032,6 +1050,8 @@ namespace Project.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RoomId");
 
                     b.HasIndex("TreatmentRecordId");
 
@@ -1043,6 +1063,11 @@ namespace Project.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -1310,11 +1335,20 @@ namespace Project.Migrations
 
             modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecordDetail", b =>
                 {
+                    b.HasOne("Project.Areas.Admin.Models.Entities.Room", "Room")
+                        .WithMany("TreatmentRecordDetails")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Project.Areas.Staff.Models.Entities.TreatmentRecord", "TreatmentRecord")
                         .WithMany("TreatmentRecordDetails")
                         .HasForeignKey("TreatmentRecordId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+
+                    b.Navigation("Room");
 
                     b.Navigation("TreatmentRecord");
                 });
@@ -1379,6 +1413,11 @@ namespace Project.Migrations
                     b.Navigation("TreatmentRecord_Regulations");
                 });
 
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Room", b =>
+                {
+                    b.Navigation("TreatmentRecordDetails");
+                });
+
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentMethod", b =>
                 {
                     b.Navigation("Rooms");
@@ -1417,7 +1456,7 @@ namespace Project.Migrations
 
                     b.Navigation("TreatmentRecord_Regulations");
                 });
-                
+
 #pragma warning restore 612, 618
         }
     }

@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Protocol.Core.Types;
-using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Staff.Models.DTOs;
 using Project.Areas.Staff.Models.Entities;
 using Project.Areas.Staff.Models.ViewModels;
@@ -37,6 +35,7 @@ namespace Project.Areas.Staff.Controllers
             var list = await _treatmentRecordRepository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive == true).ToList();
             var viewModelList = _mapper.Map<List<TreatmentRecordViewModel>>(activeList);
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
 
@@ -125,6 +124,7 @@ namespace Project.Areas.Staff.Controllers
             var list = await _treatmentRecordRepository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive == false).ToList();
             var viewModelList = _mapper.Map<List<TreatmentRecordViewModel>>(activeList);
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
 

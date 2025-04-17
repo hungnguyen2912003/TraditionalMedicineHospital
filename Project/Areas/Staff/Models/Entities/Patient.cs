@@ -17,9 +17,8 @@ namespace Project.Areas.Staff.Models.Entities
         [Required]
         [StringLength(50)]
         public string Name { get; set; } = string.Empty;
-        [Required]
         [StringLength(12, MinimumLength = 9)]
-        public string IdentityNumber { get; set; } = string.Empty;
+        public string? IdentityNumber { get; set; }
         [Required]
         public DateTime DateOfBirth { get; set; }
         [Required]

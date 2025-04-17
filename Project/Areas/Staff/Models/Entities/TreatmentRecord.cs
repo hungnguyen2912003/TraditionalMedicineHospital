@@ -15,7 +15,7 @@ namespace Project.Areas.Staff.Models.Entities
         public DiagnosisType Diagnosis { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public string Note { get; set; } = string.Empty;
+        public string? Note { get; set; } = string.Empty;
         public TreatmentStatus Status { get; set; }
 
         //Foreign key
