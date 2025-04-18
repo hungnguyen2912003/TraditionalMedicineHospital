@@ -24,5 +24,13 @@ namespace Project.Repositories.Implementations
                 .Include(m => m.Patient)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
+
+        public async Task<IEnumerable<TreatmentRecord>> GetByPatientIdAsync(Guid patientId)
+        {
+            return await _context.treatmentRecords
+                .Include(m => m.Patient)
+                .Where(m => m.PatientId == patientId)
+                .ToListAsync();
+        }
     }
 }

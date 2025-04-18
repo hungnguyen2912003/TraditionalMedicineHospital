@@ -62,15 +62,6 @@
 
 <script>
 
-    function getGenderName(value) {
-        switch (value) {
-            case 1: return 'Nam';
-            case 2: return 'Nữ';
-            case 3: return 'Khác';
-            default: return 'Không xác định';
-        }
-    };
-
     document.addEventListener('alpine:init', () => {
         Alpine.data('list', () => ({
             entityList: @Html.Raw(Json.Serialize(Model)),
@@ -132,7 +123,7 @@
                     `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
                     entity.code,
                     entity.name,
-                    `${getGenderName(entity.gender)}`,
+                    getEnumDisplayName('GenderType', entity.gender),
                     entity.dateOfBirth ? new Date(entity.dateOfBirth).toLocaleDateString('vi-VN') : 'Không xác định',
                     entity.address || 'Không có dữ liệu',
                     entity.emailAddress,

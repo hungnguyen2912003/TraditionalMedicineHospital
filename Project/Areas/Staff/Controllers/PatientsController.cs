@@ -55,7 +55,7 @@ namespace Project.Areas.Staff.Controllers
 
         public async Task<IActionResult> Details(Guid id)
         {
-            var patient = await _patientRepository.GetByIdAsync(id);
+            var patient = await _patientRepository.GetByIdAdvancedAsync(id);
             if (patient == null)
             {
                 return NotFound();
@@ -162,6 +162,7 @@ namespace Project.Areas.Staff.Controllers
         {
             var list = await _patientRepository.GetAllAsync();
             var trashList = list.Where(x => x.IsActive == false).ToList();
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View(trashList);
         }
 
@@ -181,23 +182,24 @@ namespace Project.Areas.Staff.Controllers
             var treatmentRecords = new List<TreatmentRecord>();
             foreach (var id in ids)
             {
-                var treatmentRecord = await _treatmentRecordRepository.GetByIdAsync(id);
-                if (treatmentRecord == null) continue;
-                var patients = await _patientRepository.GetAllAdvancedAsync();
-                var hasPatients = patients.Any(m => m.Id == id);
-                if (hasPatients)
+                var patient = await _patientRepository.GetByIdAsync(id);
+                if (patient == null) continue;
+
+                var patientTreatmentRecords = await _treatmentRecordRepository.GetByPatientIdAsync(id);
+                if (patientTreatmentRecords.Any())
                 {
-                    treatmentRecords.Add(treatmentRecord);
+                    treatmentRecords.AddRange(patientTreatmentRecords);
                 }
             }
 
             if (treatmentRecords.Any())
             {
-                var names = string.Join(", ", treatmentRecords.Select(c => $"\"{c.Patient.Name}\""));
-                var message = treatmentRecords.Count == 1
+                var names = string.Join(", ", treatmentRecords.Select(c => $"\"{c.Patient.Name}\"").Distinct());
+                var message = treatmentRecords.Select(c => c.PatientId).Distinct().Count() == 1
                     ? $"Không thể xóa bệnh nhân {names} vì vẫn còn lưu trữ hồ sơ khám bệnh."
                     : $"Không thể xóa các bệnh nhân: {names} vì vẫn còn lưu trữ hồ sơ khám bệnh.";
                 TempData["ErrorMessage"] = message;
+                return RedirectToAction("Index");
             }
 
             var delList = new List<Patient>();
@@ -243,29 +245,29 @@ namespace Project.Areas.Staff.Controllers
             var treatmentRecords = new List<TreatmentRecord>();
             foreach (var id in ids)
             {
-                var treatmentRecord = await _treatmentRecordRepository.GetByIdAsync(id);
-                if (treatmentRecord == null) continue;
-                var patients = await _patientRepository.GetAllAdvancedAsync();
-                var hasPatients = patients.Any(m => m.Id == id);
-                if (hasPatients)
+                var patient = await _patientRepository.GetByIdAsync(id);
+                if (patient == null) continue;
+
+                var patientTreatmentRecords = await _treatmentRecordRepository.GetByPatientIdAsync(id);
+                if (patientTreatmentRecords.Any())
                 {
-                    treatmentRecords.Add(treatmentRecord);
+                    treatmentRecords.AddRange(patientTreatmentRecords);
                 }
             }
 
             if (treatmentRecords.Any())
             {
-                var names = string.Join(", ", treatmentRecords.Select(c => $"\"{c.Patient.Name}\""));
-                var message = treatmentRecords.Count == 1
+                var names = string.Join(", ", treatmentRecords.Select(c => $"\"{c.Patient.Name}\"").Distinct());
+                var message = treatmentRecords.Select(c => c.PatientId).Distinct().Count() == 1
                     ? $"Không thể đưa bệnh nhân {names} vào thùng rác vì vẫn còn lưu trữ hồ sơ khám bệnh."
                     : $"Không thể đưa các bệnh nhân: {names} vào thùng rác vì vẫn còn lưu trữ hồ sơ khám bệnh.";
                 TempData["ErrorMessage"] = message;
-            }            
+                return RedirectToAction("Index");
+            }
 
             var movedList = new List<Patient>();
             foreach (var id in ids)
             {
-
                 var entity = await _patientRepository.GetByIdAsync(id);
                 if (entity != null)
                 {
