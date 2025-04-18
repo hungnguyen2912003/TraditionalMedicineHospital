@@ -41,7 +41,7 @@ namespace Project.Areas.Staff.Controllers
 
         public async Task<IActionResult> Details(Guid id)
         {
-            var treatmentRecord = await _treatmentRecordRepository.GetByIdAsync(id);
+            var treatmentRecord = await _treatmentRecordRepository.GetByIdAdvancedAsync(id);
             if (treatmentRecord == null)
             {
                 return NotFound();
@@ -142,11 +142,20 @@ namespace Project.Areas.Staff.Controllers
             }
 
             var delList = new List<TreatmentRecord>();
+            var cannotDeleteList = new List<string>();
+
             foreach (var id in ids)
             {
                 var entity = await _treatmentRecordRepository.GetByIdAsync(id);
                 if (entity != null)
                 {
+                    // Kiểm tra xem phiếu điều trị có đang trong thời gian điều trị không
+                    if (DateTime.Now >= entity.StartDate && DateTime.Now <= entity.EndDate)
+                    {
+                        cannotDeleteList.Add(entity.Code);
+                        continue;
+                    }
+
                     await _treatmentRecordRepository.DeleteAsync(id);
                     delList.Add(entity);
                 }
@@ -160,7 +169,16 @@ namespace Project.Areas.Staff.Controllers
                     : $"Đã xóa các đợt điều trị: {codes} thành công";
                 TempData["SuccessMessage"] = message;
             }
-            else
+
+            if (cannotDeleteList.Any())
+            {
+                var codes = string.Join(", ", cannotDeleteList.Select(c => $"\"{c}\""));
+                var message = cannotDeleteList.Count == 1
+                    ? $"Không thể xóa đợt điều trị {codes} vì đang trong thời gian điều trị."
+                    : $"Không thể xóa các đợt điều trị: {codes} vì đang trong thời gian điều trị.";
+                TempData["ErrorMessage"] = message;
+            }
+            else if (!delList.Any())
             {
                 TempData["ErrorMessage"] = "Không tìm thấy đợt điều trị nào để xóa.";
             }
@@ -182,12 +200,20 @@ namespace Project.Areas.Staff.Controllers
             }
 
             var movedList = new List<TreatmentRecord>();
+            var cannotMoveList = new List<string>();
+
             foreach (var id in ids)
             {
-
                 var entity = await _treatmentRecordRepository.GetByIdAsync(id);
                 if (entity != null)
                 {
+                    // Kiểm tra xem phiếu điều trị có đang trong thời gian điều trị không
+                    if (DateTime.Now >= entity.StartDate && DateTime.Now <= entity.EndDate)
+                    {
+                        cannotMoveList.Add(entity.Code);
+                        continue;
+                    }
+
                     entity.IsActive = false;
                     entity.UpdatedBy = "Admin";
                     entity.UpdatedDate = DateTime.UtcNow;
@@ -204,7 +230,16 @@ namespace Project.Areas.Staff.Controllers
                     : $"Đã đưa các đợt điều trị: {codes} thành công vào thùng rác";
                 TempData["SuccessMessage"] = message;
             }
-            else
+
+            if (cannotMoveList.Any())
+            {
+                var codes = string.Join(", ", cannotMoveList.Select(c => $"\"{c}\""));
+                var message = cannotMoveList.Count == 1
+                    ? $"Không thể chuyển đợt điều trị {codes} vào thùng rác vì đang trong thời gian điều trị."
+                    : $"Không thể chuyển các đợt điều trị: {codes} vào thùng rác vì đang trong thời gian điều trị.";
+                TempData["ErrorMessage"] = message;
+            }
+            else if (!movedList.Any())
             {
                 TempData["ErrorMessage"] = "Không tìm thấy đợt điều trị nào để đưa vào thùng rác.";
             }

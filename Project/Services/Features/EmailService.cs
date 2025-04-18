@@ -15,7 +15,7 @@ namespace Project.Services.Features
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             var smtpServer = _configuration["EmailSettings:SmtpServer"];
-            var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
+            var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"] ?? throw new ArgumentNullException("SmtpPort configuration is missing"));
             var smtpUsername = _configuration["EmailSettings:SmtpUsername"];
             var smtpPassword = _configuration["EmailSettings:SmtpPassword"];
             var fromEmail = _configuration["EmailSettings:FromEmail"];

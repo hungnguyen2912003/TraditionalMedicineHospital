@@ -12,7 +12,17 @@
         class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
 </div>
 
-<form id="receptionForm" method="post" enctype="multipart/form-data" asp-action="Create" 
+<ul class="flex space-x-2 rtl:space-x-reverse mb-4">
+    <li>
+        <a href="javascript:;" class="text-primary hover:underline">Lập phiếu & Tiếp nhận bệnh nhân</a>
+    </li>
+    <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+        <span>Thêm mới</span>
+    </li>
+</ul>
+
+<form id="receptionForm" method="post" enctype="multipart/form-data" asp-action="Create"
+
     x-data="reception"
     x-init="
         allRooms = window.roomsData || [];
