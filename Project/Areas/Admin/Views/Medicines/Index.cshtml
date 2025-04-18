@@ -78,14 +78,6 @@
 <script src="~/Public/assets/js/simple-datatables.js"></script>
 
 <script>
-
-    const enumDisplayNames = @Html.Raw(Json.Serialize(ViewData["EnumDisplayNames"]));
-
-    function getEnumDisplayName(enumType, value) {
-        const enumData = enumDisplayNames[enumType];
-        return enumData && enumData[value] ? enumData[value] : 'Không xác định';
-    }
-
     document.addEventListener('alpine:init', () => {
         Alpine.data('list', () => ({
             entityList: @Html.Raw(Json.Serialize(Model)),

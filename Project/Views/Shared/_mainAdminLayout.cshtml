@@ -94,6 +94,14 @@
     <script src="~/public/assets/js/goong-js.js"></script>
 
     <script>
+
+        const enumDisplayNames = @Html.Raw(Json.Serialize(ViewData["EnumDisplayNames"]));
+
+        function getEnumDisplayName(enumType, value) {
+            const enumData = enumDisplayNames[enumType];
+            return enumData && enumData[value] ? enumData[value] : 'Không xác định';
+        }
+
         const notyf = new Notyf({
             duration: 2000,
             position: { x: 'right', y: 'top' },

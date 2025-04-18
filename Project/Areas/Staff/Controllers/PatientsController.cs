@@ -19,6 +19,7 @@ namespace Project.Areas.Staff.Controllers
     {
         private readonly IPatientRepository _patientRepository;
         private readonly IUserRepository _userRepository;
+        private readonly ITreatmentRecordRepository _treatmentRecordRepository;
         private readonly IImageService _imgService;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
@@ -28,6 +29,7 @@ namespace Project.Areas.Staff.Controllers
         (
             IPatientRepository patientRepository,
             IUserRepository userRepository,
+            ITreatmentRecordRepository treatmentRecordRepository,
             IImageService imgService,
             IMapper mapper,
             ViewBagHelper viewBagHelper,
@@ -36,6 +38,7 @@ namespace Project.Areas.Staff.Controllers
         {
             _patientRepository = patientRepository;
             _userRepository = userRepository;
+            _treatmentRecordRepository = treatmentRecordRepository;
             _imgService = imgService;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
@@ -46,6 +49,7 @@ namespace Project.Areas.Staff.Controllers
         {
             var list = await _patientRepository.GetAllAsync();
             var activeList = list.Where(x => x.IsActive == true).ToList();
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View(activeList);
         }
 
@@ -174,6 +178,28 @@ namespace Project.Areas.Staff.Controllers
                 }
             }
 
+            var treatmentRecords = new List<TreatmentRecord>();
+            foreach (var id in ids)
+            {
+                var treatmentRecord = await _treatmentRecordRepository.GetByIdAsync(id);
+                if (treatmentRecord == null) continue;
+                var patients = await _patientRepository.GetAllAdvancedAsync();
+                var hasPatients = patients.Any(m => m.Id == id);
+                if (hasPatients)
+                {
+                    treatmentRecords.Add(treatmentRecord);
+                }
+            }
+
+            if (treatmentRecords.Any())
+            {
+                var names = string.Join(", ", treatmentRecords.Select(c => $"\"{c.Patient.Name}\""));
+                var message = treatmentRecords.Count == 1
+                    ? $"Không thể xóa bệnh nhân {names} vì vẫn còn lưu trữ hồ sơ khám bệnh."
+                    : $"Không thể xóa các bệnh nhân: {names} vì vẫn còn lưu trữ hồ sơ khám bệnh.";
+                TempData["ErrorMessage"] = message;
+            }
+
             var delList = new List<Patient>();
             foreach (var id in ids)
             {
@@ -213,6 +239,28 @@ namespace Project.Areas.Staff.Controllers
                     ids.Add(parsedId);
                 }
             }
+
+            var treatmentRecords = new List<TreatmentRecord>();
+            foreach (var id in ids)
+            {
+                var treatmentRecord = await _treatmentRecordRepository.GetByIdAsync(id);
+                if (treatmentRecord == null) continue;
+                var patients = await _patientRepository.GetAllAdvancedAsync();
+                var hasPatients = patients.Any(m => m.Id == id);
+                if (hasPatients)
+                {
+                    treatmentRecords.Add(treatmentRecord);
+                }
+            }
+
+            if (treatmentRecords.Any())
+            {
+                var names = string.Join(", ", treatmentRecords.Select(c => $"\"{c.Patient.Name}\""));
+                var message = treatmentRecords.Count == 1
+                    ? $"Không thể đưa bệnh nhân {names} vào thùng rác vì vẫn còn lưu trữ hồ sơ khám bệnh."
+                    : $"Không thể đưa các bệnh nhân: {names} vào thùng rác vì vẫn còn lưu trữ hồ sơ khám bệnh.";
+                TempData["ErrorMessage"] = message;
+            }            
 
             var movedList = new List<Patient>();
             foreach (var id in ids)
