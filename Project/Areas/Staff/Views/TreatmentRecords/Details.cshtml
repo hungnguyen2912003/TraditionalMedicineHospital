@@ -1,129 +1,234 @@
 ﻿@using Project.Extensions
 @model Project.Areas.Staff.Models.Entities.TreatmentRecord
+@using Project.Models.Enums
+@using System.ComponentModel.DataAnnotations
+
 @{
-    ViewData["Title"] = "Chi tiết thông tin đợt điều trị";
+    ViewData["Title"] = "Chi tiết phiếu điều trị";
     Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
 }
 
-<ul class="flex space-x-2 rtl:space-x-reverse">
-    <li>
-        <a href="javascript:;" class="text-primary hover:underline">Đợt điều trị</a>
-    </li>
-    <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-        <span>Xem chi tiết</span>
-    </li>
-</ul>
+<div class="overlay" id="loadingOverlay">
+    <span
+        class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
+</div>
 
-<div x-data="details">
-    <div class="mb-3 mt-3 flex flex-wrap items-center justify-between gap-4">
-        <div>
-            <button type="button" class="btn btn-secondary w-full py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600" @@click="goBack()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
-                    <path d="M4 10L3.29289 10.7071L2.58579 10L3.29289 9.29289L4 10ZM21 18C21 18.5523 20.5523 19 20 19C19.4477 19 19 18.5523 19 18L21 18ZM8.29289 15.7071L3.29289 10.7071L4.70711 9.29289L9.70711 14.2929L8.29289 15.7071ZM3.29289 9.29289L8.29289 4.29289L9.70711 5.70711L4.70711 10.7071L3.29289 9.29289ZM4 9L14 9L14 11L4 11L4 9ZM21 16L21 18L19 18L19 16L21 16ZM14 9C17.866 9 21 12.134 21 16L19 16C19 13.2386 16.7614 11 14 11L14 9Z" fill="white" />
+<div x-data="{tab: 'treatment-record'}">
+    <ul
+        class="mb-5 overflow-y-auto whitespace-nowrap border-b border-[#ebedf2] font-semibold dark:border-[#191e3a] sm:flex">
+        <li class="inline-block">
+            <a href="javascript:;"
+                class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
+                :class="{'!border-primary text-primary' : tab == 'treatment-record'}" @@click="tab='treatment-record'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M10.9436 1.25H13.0564C14.8942 1.24998 16.3498 1.24997 17.489 1.40314C18.6614 1.56076 19.6104 1.89288 20.3588 2.64124C20.6516 2.93414 20.6516 3.40901 20.3588 3.7019C20.0659 3.9948 19.591 3.9948 19.2981 3.7019C18.8749 3.27869 18.2952 3.02502 17.2892 2.88976C16.2615 2.75159 14.9068 2.75 13 2.75H11C9.09318 2.75 7.73851 2.75159 6.71085 2.88976C5.70476 3.02502 5.12511 3.27869 4.7019 3.7019C4.27869 4.12511 4.02502 4.70476 3.88976 5.71085C3.75159 6.73851 3.75 8.09318 3.75 10V14C3.75 15.9068 3.75159 17.2615 3.88976 18.2892C4.02502 19.2952 4.27869 19.8749 4.7019 20.2981C5.12511 20.7213 5.70476 20.975 6.71085 21.1102C7.73851 21.2484 9.09318 21.25 11 21.25H13C14.9068 21.25 16.2615 21.2484 17.2892 21.1102C18.2952 20.975 18.8749 20.7213 19.2981 20.2981C19.994 19.6022 20.2048 18.5208 20.2414 15.9892C20.2474 15.575 20.588 15.2441 21.0022 15.2501C21.4163 15.2561 21.7472 15.5967 21.7412 16.0108C21.7061 18.4383 21.549 20.1685 20.3588 21.3588C19.6104 22.1071 18.6614 22.4392 17.489 22.5969C16.3498 22.75 14.8942 22.75 13.0564 22.75H10.9436C9.10583 22.75 7.65019 22.75 6.51098 22.5969C5.33856 22.4392 4.38961 22.1071 3.64124 21.3588C2.89288 20.6104 2.56076 19.6614 2.40314 18.489C2.24997 17.3498 2.24998 15.8942 2.25 14.0564V9.94358C2.24998 8.10582 2.24997 6.65019 2.40314 5.51098C2.56076 4.33856 2.89288 3.38961 3.64124 2.64124C4.38961 1.89288 5.33856 1.56076 6.51098 1.40314C7.65019 1.24997 9.10582 1.24998 10.9436 1.25ZM18.1131 7.04556C19.1739 5.98481 20.8937 5.98481 21.9544 7.04556C23.0152 8.1063 23.0152 9.82611 21.9544 10.8869L17.1991 15.6422C16.9404 15.901 16.7654 16.076 16.5693 16.2289C16.3387 16.4088 16.0892 16.563 15.8252 16.6889C15.6007 16.7958 15.3659 16.8741 15.0187 16.9897L12.9351 17.6843C12.4751 17.8376 11.9679 17.7179 11.625 17.375C11.2821 17.0321 11.1624 16.5249 11.3157 16.0649L11.9963 14.0232C12.001 14.0091 12.0056 13.9951 12.0102 13.9813C12.1259 13.6342 12.2042 13.3993 12.3111 13.1748C12.437 12.9108 12.5912 12.6613 12.7711 12.4307C12.924 12.2346 13.099 12.0596 13.3578 11.8009C13.3681 11.7906 13.3785 11.7802 13.3891 11.7696L18.1131 7.04556ZM20.8938 8.10622C20.4188 7.63126 19.6488 7.63126 19.1738 8.10622L18.992 8.288C19.0019 8.32149 19.0132 8.3571 19.0262 8.39452C19.1202 8.66565 19.2988 9.02427 19.6372 9.36276C19.9757 9.70125 20.3343 9.87975 20.6055 9.97382C20.6429 9.9868 20.6785 9.99812 20.712 10.008L20.8938 9.8262C21.3687 9.35124 21.3687 8.58118 20.8938 8.10622ZM19.5664 11.1536C19.2485 10.9866 18.9053 10.7521 18.5766 10.4234C18.2479 10.0947 18.0134 9.75146 17.8464 9.43357L14.4497 12.8303C14.1487 13.1314 14.043 13.2388 13.9538 13.3532C13.841 13.4979 13.7442 13.6545 13.6652 13.8202C13.6028 13.9511 13.5539 14.0936 13.4193 14.4976L13.019 15.6985L13.3015 15.981L14.5024 15.5807C14.9064 15.4461 15.0489 15.3972 15.1798 15.3348C15.3455 15.2558 15.5021 15.159 15.6468 15.0462C15.7612 14.957 15.8686 14.8513 16.1697 14.5503L19.5664 11.1536ZM7.25 9C7.25 8.58579 7.58579 8.25 8 8.25H14.5C14.9142 8.25 15.25 8.58579 15.25 9C15.25 9.41421 14.9142 9.75 14.5 9.75H8C7.58579 9.75 7.25 9.41421 7.25 9ZM7.25 13C7.25 12.5858 7.58579 12.25 8 12.25H10.5C10.9142 12.25 11.25 12.5858 11.25 13C11.25 13.4142 10.9142 13.75 10.5 13.75H8C7.58579 13.75 7.25 13.4142 7.25 13ZM7.25 17C7.25 16.5858 7.58579 16.25 8 16.25H9.5C9.91421 16.25 10.25 16.5858 10.25 17C10.25 17.4142 9.91421 17.75 9.5 17.75H8C7.58579 17.75 7.25 17.4142 7.25 17Z"
+                        fill="currentColor" />
                 </svg>
-                Trở về
-            </button>
-        </div>
-        <div class="flex gap-2 lg:justify-end">
-            <button type="button" class="btn btn-primary gap-2" @@click="print">
-                <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
-                    <path d="M6 17.9827C4.44655 17.9359 3.51998 17.7626 2.87868 17.1213C2 16.2426 2 14.8284 2 12C2 9.17157 2 7.75736 2.87868 6.87868C3.75736 6 5.17157 6 8 6H16C18.8284 6 20.2426 6 21.1213 6.87868C22 7.75736 22 9.17157 22 12C22 14.8284 22 16.2426 21.1213 17.1213C20.48 17.7626 19.5535 17.9359 18 17.9827" stroke="currentColor" stroke-width="1.5"></path>
-                    <path opacity="0.5" d="M9 10H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                    <path d="M19 14L5 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                    <path d="M18 14V16C18 18.8284 18 20.2426 17.1213 21.1213C16.2426 22 14.8284 22 12 22C9.17157 22 7.75736 22 6.87868 21.1213C6 20.2426 6 18.8284 6 16V14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                    <path opacity="0.5" d="M17.9827 6C17.9359 4.44655 17.7626 3.51998 17.1213 2.87868C16.2427 2 14.8284 2 12 2C9.17158 2 7.75737 2 6.87869 2.87868C6.23739 3.51998 6.06414 4.44655 6.01733 6" stroke="currentColor" stroke-width="1.5"></path>
-                    <circle opacity="0.5" cx="17" cy="10" r="1" fill="currentColor"></circle>
-                    <path opacity="0.5" d="M15 16.5H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                    <path opacity="0.5" d="M13 19H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                </svg>
-                In
-            </button>
-
-            <button type="button" class="btn btn-success gap-2">
-                <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
-                    <path opacity="0.5" d="M17 9.00195C19.175 9.01406 20.3529 9.11051 21.1213 9.8789C22 10.7576 22 12.1718 22 15.0002V16.0002C22 18.8286 22 20.2429 21.1213 21.1215C20.2426 22.0002 18.8284 22.0002 16 22.0002H8C5.17157 22.0002 3.75736 22.0002 2.87868 21.1215C2 20.2429 2 18.8286 2 16.0002L2 15.0002C2 12.1718 2 10.7576 2.87868 9.87889C3.64706 9.11051 4.82497 9.01406 7 9.00195" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                    <path d="M12 2L12 15M12 15L9 11.5M12 15L15 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-                Tải xuống
-            </button>
-
-            <a href="/Staff/TreatmentRecords/Create" class="btn btn-primary">
-                <svg width="24" height="24" class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Edit / Add_Plus_Circle"> <path id="Vector" d="M8 12H12M12 12H16M12 12V16M12 12V8M12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
-                Thêm đợt điều trị
+                Thông tin phiếu điều trị
             </a>
-
-            <a href="/Staff/TreatmentRecords/Edit/@Model.Id" class="btn btn-warning gap-2">
-                <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
-                    <path opacity="0.5" d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                    <path d="M17.3009 2.80624L16.652 3.45506L10.6872 9.41993C10.2832 9.82394 10.0812 10.0259 9.90743 10.2487C9.70249 10.5114 9.52679 10.7957 9.38344 11.0965C9.26191 11.3515 9.17157 11.6225 8.99089 12.1646L8.41242 13.9L8.03811 15.0229C7.9492 15.2897 8.01862 15.5837 8.21744 15.7826C8.41626 15.9814 8.71035 16.0508 8.97709 15.9619L10.1 15.5876L11.8354 15.0091C12.3775 14.8284 12.6485 14.7381 12.9035 14.6166C13.2043 14.4732 13.4886 14.2975 13.7513 14.0926C13.9741 13.9188 14.1761 13.7168 14.5801 13.3128L20.5449 7.34795L21.1938 6.69914C22.2687 5.62415 22.2687 3.88124 21.1938 2.80624C20.1188 1.73125 18.3759 1.73125 17.3009 2.80624Z" stroke="currentColor" stroke-width="1.5"></path>
-                    <path opacity="0.5" d="M16.6522 3.45508C16.6522 3.45508 16.7333 4.83381 17.9499 6.05034C19.1664 7.26687 20.5451 7.34797 20.5451 7.34797M10.1002 15.5876L8.4126 13.9" stroke="currentColor" stroke-width="1.5"></path>
+        </li>
+        <li class="inline-block">
+            <a href="javascript:;"
+                class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
+                :class="{'!border-primary text-primary' : tab == 'patient'}" @@click="tab='patient'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M5.25013 6C5.25013 3.37665 7.37678 1.25 10.0001 1.25C12.6235 1.25 14.7501 3.37665 14.7501 6C14.7501 8.62335 12.6235 10.75 10.0001 10.75C7.37678 10.75 5.25013 8.62335 5.25013 6ZM10.0001 2.75C8.20521 2.75 6.75013 4.20507 6.75013 6C6.75013 7.79493 8.20521 9.25 10.0001 9.25C11.7951 9.25 13.2501 7.79493 13.2501 6C13.2501 4.20507 11.7951 2.75 10.0001 2.75Z"
+                        fill="currentColor" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M3.97558 13.6643C5.55506 12.7759 7.68658 12.25 10.0001 12.25C12.3137 12.25 14.4452 12.7759 16.0247 13.6643C17.5807 14.5396 18.7501 15.8661 18.7501 17.5L18.7502 17.602C18.7513 18.7638 18.7527 20.222 17.4737 21.2635C16.8443 21.7761 15.9637 22.1406 14.7739 22.3815C13.5809 22.6229 12.0259 22.75 10.0001 22.75C7.97436 22.75 6.4194 22.6229 5.22634 22.3815C4.03661 22.1406 3.15602 21.7761 2.52655 21.2635C1.24752 20.222 1.24894 18.7638 1.25007 17.602L1.25013 17.5C1.25013 15.8661 2.41962 14.5396 3.97558 13.6643ZM4.71098 14.9717C3.37151 15.7251 2.75013 16.6487 2.75013 17.5C2.75013 18.8078 2.79045 19.544 3.47372 20.1004C3.84425 20.4022 4.46366 20.6967 5.52393 20.9113C6.58087 21.1252 8.02591 21.25 10.0001 21.25C11.9744 21.25 13.4194 21.1252 14.4763 20.9113C15.5366 20.6967 16.156 20.4022 16.5265 20.1004C17.2098 19.544 17.2501 18.8078 17.2501 17.5C17.2501 16.6487 16.6288 15.7251 15.2893 14.9717C13.9733 14.2315 12.1049 13.75 10.0001 13.75C7.89541 13.75 6.02693 14.2315 4.71098 14.9717Z"
+                        fill="currentColor" />
                 </svg>
-                Chỉnh sửa
+                Thông tin bệnh nhân
             </a>
-        </div>
-    </div>
-    <div class="panel">
-        <div>
-            <h6 class="mb-5 text-lg font-bold">Thông Tin Chung</h6>
-            <div class="flex flex-col sm:flex-row">
-                <div class="flex-1">
-                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3 mt-5">
-                        <div>
-                            <label for="code">Mã đợt điều trị</label>
-                            <input id="code" type="text" class="form-input" value="@Model.Code" readonly>
-                        </div>
-                        <div>
-                            <label for="Name">Bệnh nhân của đợt điều trị</label>
-                            <input id="Name" type="text" value="@Model.Patient.Name" readonly class="form-input" readonly>
-                        </div>
-                        <div>
-                            <label for="Diagnosis">Chuẩn đoán</label>
-                            <input id="Diagnosis" type="text" value="@Model.Diagnosis" readonly class="form-input" readonly>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3 mt-5">
-                        <div>
-                            <label for="StartDate">Ngày bắt đầu điều trị</label>
-                            <input id="StartDate" type="text" class="form-input" value="@Model.StartDate.ToString("dd/MM/yyyy")" readonly>
-                        </div>
-                        <div>
-                            <label for="EndDate">Ngày kết thúc điều trị</label>
-                            <input id="EndDate" type="text" value="@Model.EndDate.ToString("dd/MM/yyyy")" readonly class="form-input" readonly>
-                        </div>
-                        <div>
-                            <label for="Status">Trạng thái điều trị</label>
-                            <input id="Status" type="text" value="@EnumExtensions.GetDisplayName(Model.Status)" readonly class="form-input" readonly>
-                        </div>
-                    </div>
+        </li>
+        <li class="inline-block">
+            <a href="javascript:;"
+                class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
+                :class="{'!border-primary text-primary' : tab == 'treatment-details'}"
+                @@click = "tab='treatment-details'" >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 11.75C12.4142 11.75 12.75 12.0858 12.75 12.5V13.25H13.5C13.9142 13.25 14.25 13.5858 14.25 14C14.25 14.4142 13.9142 14.75 13.5 14.75H12.75V15.5C12.75 15.9142 12.4142 16.25 12 16.25C11.5858 16.25 11.25 15.9142 11.25 15.5V14.75H10.5C10.0858 14.75 9.75 14.4142 9.75 14C9.75 13.5858 10.0858 13.25 10.5 13.25H11.25V12.5C11.25 12.0858 11.5858 11.75 12 11.75Z"
+                        fill="currentColor" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M12 9.25C9.37665 9.25 7.25 11.3767 7.25 14C7.25 16.6234 9.37665 18.75 12 18.75C14.6234 18.75 16.75 16.6234 16.75 14C16.75 11.3767 14.6234 9.25 12 9.25ZM8.75 14C8.75 12.2051 10.2051 10.75 12 10.75C13.7949 10.75 15.25 12.2051 15.25 14C15.25 15.7949 13.7949 17.25 12 17.25C10.2051 17.25 8.75 15.7949 8.75 14Z"
+                        fill="currentColor" />
+                </svg>
+                Thông tin điều trị
+            </a>
+        </li>
+    </ul>
 
-                    <div class="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2">
-                        <div class="sm:col-span-2">
-                            <label for="Note">Ghi chú</label>
-                            <textarea id="Note" name="Note" class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" readonly>@Model.Note</textarea>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 mt-5">
-                        <div>
-                            <label for="createdDate">Ngày tạo</label>
-                            <input id="createdDate" type="text" value="@Model.CreatedDate.ToString("dd/MM/yyyy")" readonly class="form-input">
-                        </div>
-                        <div>
-                            <label for="createdBy">Nguời tạo</label>
-                            <input id="createdBy" type="text" value="@Model.CreatedBy" readonly class="form-input">
-                        </div>
-                        <div>
-                            <label for="UpdatedDate">Ngày chỉnh sửa</label>
-                            <input id="UpdatedDate" type="text" value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy") ?? "Không có")" readonly class="form-input">
-                        </div>
-                        <div>
-                            <label for="UpdatedBy">Nguời chỉnh sửa</label>
-                            <input id="UpdatedBy" type="text" value="@(Model.UpdatedBy ?? "Không có")" readonly class="form-input">
+    <!-- Phần 1: Thông tin phiếu điều trị -->
+    <div x-show="tab === 'treatment-record'" x-cloak>
+        <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
+            <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
+                <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
+                    <div class="px-6">
+                        <h6 class="mb-5 text-lg font-bold">Thông tin phiếu điều trị</h6>
+                        <div class="flex flex-col lg:flex-row gap-6">
+                            <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
+                                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                    <div class="w-full sm:w-1/2">
+                                        <label for="treatmentRecordCode">Mã điều trị</label>
+                                        <input id="treatmentRecordCode" class="form-input" readonly
+                                            value="@Model.Code" />
+                                    </div>
+                                    <div class="w-full sm:w-1/2">
+                                        <label for="Diagnosis">Chẩn đoán</label>
+                                        <input id="Diagnosis" class="form-input" readonly value="@Model.Diagnosis" />
+                                    </div>
+                                </div>
+                                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                    <div class="w-full sm:w-1/2">
+                                        <label for="StartDate">Ngày bắt đầu</label>
+                                        <input id="StartDate" class="form-input" readonly
+                                            value="@Model.StartDate.ToString("dd/MM/yyyy")" />
+                                    </div>
+                                    <div class="w-full sm:w-1/2">
+                                        <label for="EndDate">Ngày kết thúc</label>
+                                        <input id="EndDate" class="form-input" readonly
+                                            value="@Model.EndDate.ToString("dd/MM/yyyy")" />
+                                    </div>
+                                </div>
+                                <div class="w-full sm:col-span-2">
+                                    <label for="treatmentRecordNote">Ghi chú</label>
+                                    <textarea id="treatmentRecordNote"
+                                        class="form-textarea w-full mt-1 p-2 border rounded min-h-[100px]"
+                                        readonly>@Model.Note</textarea>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Phần 2: Thông tin bệnh nhân -->
+    <div x-show="tab === 'patient'" x-cloak>
+        <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
+            <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
+                <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
+                    <div class="px-6">
+                        <h6 class="mb-5 text-lg font-bold">Thông tin bệnh nhân</h6>
+                        <div class="flex flex-col lg:flex-row gap-6">
+                            <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
+                                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                    <div class="w-full sm:w-1/2">
+                                        <label for="Code" class="block text-sm font-medium text-gray-700">Mã bệnh
+                                            nhân</label>
+                                        <input id="Code" class="form-input w-full mt-1 p-2 border rounded" readonly
+                                            value="@Model.Patient.Code" />
+                                    </div>
+                                    <div class="w-full sm:w-1/2">
+                                        <label for="Name" class="block text-sm font-medium text-gray-700">Họ tên bệnh
+                                            nhân</label>
+                                        <input id="Name" class="form-input w-full mt-1 p-2 border rounded" readonly
+                                            value="@Model.Patient.Name" />
+                                    </div>
+                                </div>
+                                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                    <div class="w-full sm:w-1/2">
+                                        <label for="Gender" class="block text-sm font-medium text-gray-700">Giới
+                                            tính</label>
+                                        <input id="Gender" class="form-input w-full mt-1 p-2 border rounded" readonly
+                                            value="@Model.Patient.Gender" />
+                                    </div>
+                                    <div class="w-full sm:w-1/2">
+                                        <label for="DateOfBirth" class="block text-sm font-medium text-gray-700">Ngày
+                                            sinh</label>
+                                        <input id="DateOfBirth" class="form-input w-full mt-1 p-2 border rounded"
+                                            readonly value="@Model.Patient.DateOfBirth.ToString("dd/MM/yyyy")" />
+                                    </div>
+                                    <div class="w-full sm:w-1/2">
+                                        <label for="IdentityNumber" class="block text-sm font-medium text-gray-700">Căn
+                                            cước công dân</label>
+                                        <input id="IdentityNumber" class="form-input w-full mt-1 p-2 border rounded"
+                                            readonly value="@Model.Patient.IdentityNumber" />
+                                    </div>
+                                </div>
+                                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                    <div class="w-full address-container">
+                                        <label for="Address" class="block text-sm font-medium text-gray-700">Địa
+                                            chỉ</label>
+                                        <input id="Address" class="form-input w-full mt-1 p-2 border rounded" readonly
+                                            value="@Model.Patient.Address" />
+                                    </div>
+                                </div>
+                                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                    <div class="w-full sm:w-1/2">
+                                        <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Số điện
+                                            thoại</label>
+                                        <input id="PhoneNumber" class="form-input w-full mt-1 p-2 border rounded"
+                                            readonly value="@Model.Patient.PhoneNumber" />
+                                    </div>
+                                    <div class="w-full sm:w-1/2">
+                                        <label for="Email" class="block text-sm font-medium text-gray-700">Email</label>
+                                        <input id="Email" class="form-input w-full mt-1 p-2 border rounded" readonly
+                                            value="@Model.Patient.EmailAddress" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phần 3: Thông tin điều trị -->
+    <div x-show="tab === 'treatment-details'" x-cloak>
+        <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
+            <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
+                <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
+                    <div class="px-6">
+                        <h6 class="mb-5 text-lg font-bold">Thông tin điều trị</h6>
+                        @if (Model.TreatmentRecordDetails != null && Model.TreatmentRecordDetails.Any())
+                        {
+                            foreach (var detail in Model.TreatmentRecordDetails)
+                            {
+                                <div class="flex flex-col lg:flex-row gap-6 mb-6">
+                                    <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm border">
+                                        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                            <div class="w-full sm:w-1/2">
+                                                <label class="block text-sm font-medium text-gray-700">Mã chi tiết điều
+                                                    trị</label>
+                                                <input class="form-input w-full mt-1 p-2 border rounded" readonly
+                                                    value="@detail.Code" />
+                                            </div>
+                                            <div class="w-full sm:w-1/2">
+                                                <label class="block text-sm font-medium text-gray-700">Phòng điều trị</label>
+                                                <input class="form-input w-full mt-1 p-2 border rounded" readonly
+                                                    value="@detail.Room.Name" />
+                                            </div>
+                                        </div>
+                                        <div class="w-full">
+                                            <label class="block text-sm font-medium text-gray-700">Ghi chú</label>
+                                            <textarea class="form-textarea w-full mt-1 p-2 border rounded min-h-[100px]"
+                                                readonly>@detail.Note</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-center text-gray-500">
+                                Chưa có thông tin chi tiết điều trị
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nút quay lại -->
+    <div class="flex justify-end mt-4">
+        <a href="@Url.Action("Index", "TreatmentRecords")" class="btn btn-secondary">Quay lại</a>
     </div>
 </div>
 

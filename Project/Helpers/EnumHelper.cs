@@ -28,10 +28,10 @@ namespace Project.Helpers
 
                 foreach (var value in Enum.GetValues(enumType))
                 {
-                    var memberInfo = enumType.GetMember(value.ToString()).FirstOrDefault();
+                    var memberInfo = enumType.GetMember(value.ToString() ?? string.Empty).FirstOrDefault();
                     var displayAttribute = memberInfo?.GetCustomAttribute<DisplayAttribute>();
                     var displayName = displayAttribute?.Name ?? value.ToString();
-                    enumValues[(int)value] = displayName;
+                    enumValues[(int)value] = displayName ?? string.Empty;
                 }
 
                 result[enumName] = enumValues;

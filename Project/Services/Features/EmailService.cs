@@ -29,7 +29,7 @@ namespace Project.Services.Features
 
             var mailMessage = new MailMessage
             {
-                From = new MailAddress(fromEmail, fromName),
+                From = new MailAddress(fromEmail ?? throw new ArgumentNullException(nameof(fromEmail)), fromName),
                 Subject = subject,
                 Body = body,
                 IsBodyHtml = true

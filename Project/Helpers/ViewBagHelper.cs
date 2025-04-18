@@ -47,7 +47,7 @@ namespace Project.Helpers
             _healthInsuranceRepository = healthInsuranceRepository;
         }
 
-        public async Task BaseViewBag(ViewDataDictionary viewData, string authToken = null)
+        public async Task BaseViewBag(ViewDataDictionary viewData, string? authToken = null)
         {
             // Get current user
             Guid? userId = null;

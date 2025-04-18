@@ -60,7 +60,7 @@ namespace Project.Services.Implementations
             return !await _repository.AnyAsync(predicate);
         }
 
-        public override async Task<bool> IsNumberUniqueAsync(string number, Guid? id = null)
+        public override Task<bool> IsNumberUniqueAsync(string number, Guid? id = null)
         {
             throw new NotSupportedException("Number uniqueness check is not supported for Employee.");
         }

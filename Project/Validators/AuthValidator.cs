@@ -7,7 +7,7 @@
             public bool IsValid { get; set; }
             public string ErrorMessage { get; set; }
 
-            public ValidationResult(bool isValid, string errorMessage = null)
+            public ValidationResult(bool isValid, string errorMessage = "")
             {
                 IsValid = isValid;
                 ErrorMessage = errorMessage;

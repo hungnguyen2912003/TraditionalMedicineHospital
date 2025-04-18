@@ -154,7 +154,6 @@ namespace Project.Areas.Staff.Controllers
                     if (healthInsurance != null)
                     {
                         healthInsurance.PatientId = patient.Id;
-                        healthInsurance.Code = dto.Patient.HealthInsuranceCode;
                         healthInsurance.CreatedBy = employee.Name;
                         healthInsurance.CreatedDate = DateTime.Now;
                         healthInsurance.IsActive = true;
