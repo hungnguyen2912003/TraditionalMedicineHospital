@@ -43,5 +43,10 @@ namespace Project.Services.Implementations
         {
             throw new NotImplementedException();
         }
+
+        public Task<bool> IsNumberHealthInsuranceUniqueAsync(string numberHealthInsurance, Guid? id = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

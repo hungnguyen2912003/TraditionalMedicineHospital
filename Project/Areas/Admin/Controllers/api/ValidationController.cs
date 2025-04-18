@@ -45,6 +45,7 @@ namespace Project.Areas.Admin.Controllers.api
                     "email" => await service.IsEmailUniqueAsync(value, id),
                     "phone" => await service.IsPhoneUniqueAsync(value, id),
                     "identitynumber" => await service.IsIdentityNumberUniqueAsync(value, id),
+                    "numberhealthinsurance" => await service.IsNumberHealthInsuranceUniqueAsync(value, id),
                     _ => throw new ArgumentException($"Invalid check type: {type}")
                 };
 

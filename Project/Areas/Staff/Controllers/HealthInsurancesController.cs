@@ -14,19 +14,24 @@ namespace Project.Areas.Staff.Controllers
     public class HealthInsurancesController : Controller
     {
         private readonly IHealthInsuranceRepository _healthInsuranceRepository;
+        private readonly IPatientRepository _patientRepository;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
+
         public HealthInsurancesController
         (
             IHealthInsuranceRepository healthInsuranceRepository,
+            IPatientRepository patientRepository,
             IMapper mapper,
             ViewBagHelper viewBagHelper
         )
         {
             _healthInsuranceRepository = healthInsuranceRepository;
+            _patientRepository = patientRepository;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
         }
+
         public async Task<IActionResult> Index()
         {
             var list = await _healthInsuranceRepository.GetAllAdvancedAsync();
@@ -34,6 +39,7 @@ namespace Project.Areas.Staff.Controllers
             var viewModelList = _mapper.Map<List<HealthInsuranceViewModel>>(activeList);
             return View(viewModelList);
         }
+
         public async Task<IActionResult> Details(Guid id)
         {
             var healthInsurance = await _healthInsuranceRepository.GetByIdAdvancedAsync(id);
@@ -47,7 +53,7 @@ namespace Project.Areas.Staff.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            await _viewBagHelper.BaseViewBag(ViewData);
+            await _viewBagHelper.GetPatientsWithoutInsurance(ViewData);
             return View();
         }
 
@@ -173,7 +179,6 @@ namespace Project.Areas.Staff.Controllers
             var movedList = new List<HealthInsurance>();
             foreach (var id in ids)
             {
-
                 var entity = await _healthInsuranceRepository.GetByIdAsync(id);
                 if (entity != null)
                 {

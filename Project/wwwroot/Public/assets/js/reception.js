@@ -688,7 +688,21 @@ document.addEventListener('alpine:init', () => {
                 "Address": { required: true, minlength: 5, maxlength: 500 },
                 "Email": { email: true },
                 "HealthInsuranceNumber": {
-                    required: () => $('#HasHealthInsurance').is(':checked')
+                    required: () => $('#HasHealthInsurance').is(':checked'),
+                    remote: {
+                        url: "/api/validation/healthinsurance/check",
+                        type: "GET",
+                        data: {
+                            type: "numberhealthinsurance",
+                            entityType: "healthinsurance",
+                            value: function () { return $("#HealthInsuranceNumber").val(); }
+                        },
+                        dataFilter: function (data) {
+                            return JSON.parse(data) === true;
+                        }
+                    },
+                    minlength: 15,
+                    maxlength: 15
                 },
                 "HealthInsuranceExpiryDate": {
                     required: () => $('#HasHealthInsurance').is(':checked'),
@@ -750,7 +764,12 @@ document.addEventListener('alpine:init', () => {
                     maxlength: "Địa chỉ không được vượt quá 500 ký tự."
                 },
                 "Email": { email: "Email không hợp lệ." },
-                "HealthInsuranceNumber": { required: "Số thẻ BHYT không được bỏ trống." },
+                "HealthInsuranceNumber": { 
+                    required: "Số thẻ BHYT không được bỏ trống.",
+                    remote: "Số thẻ BHYT đã được đăng ký trước đó trên hệ thống",
+                    minlength: "Số thẻ BHYT phải có đủ 15 ký tự.",
+                    maxlength: "Số thẻ BHYT phải có đủ 15 ký tự."
+                },
                 "HealthInsuranceExpiryDate": {
                     required: "Ngày hết hạn không được bỏ trống.",
                     dateFormat: "Ngày hết hạn không hợp lệ.",

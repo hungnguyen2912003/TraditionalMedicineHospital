@@ -18,6 +18,7 @@ namespace Project.Helpers
         public readonly JwtManager _jwtManager;
         private readonly IRoomRepository _roomRepository;
         private readonly IRegulationRepository _regulationRepository;
+        private readonly IHealthInsuranceRepository _healthInsuranceRepository;
         public ViewBagHelper
         (
             IEmployeeCategoryRepository employeecategoryRepository,
@@ -29,8 +30,8 @@ namespace Project.Helpers
             IUserRepository userRepository,
             JwtManager jwtManager,
             IRoomRepository roomRepository,
-            IRegulationRepository regulationRepository
-
+            IRegulationRepository regulationRepository,
+            IHealthInsuranceRepository healthInsuranceRepository
         )
         {
             _employeecategoryRepository = employeecategoryRepository;
@@ -43,6 +44,7 @@ namespace Project.Helpers
             _jwtManager = jwtManager;
             _roomRepository = roomRepository;
             _regulationRepository = regulationRepository;
+            _healthInsuranceRepository = healthInsuranceRepository;
         }
 
         public async Task BaseViewBag(ViewDataDictionary viewData, string authToken = null)
@@ -224,6 +226,23 @@ namespace Project.Helpers
                 .ToList();
 
             viewData["EnumDisplayNames"] = EnumHelper.GetEnumDisplayNames();
+        }
+
+        public async Task GetPatientsWithoutInsurance(ViewDataDictionary viewData)
+        {
+            // Get all active patients
+            var allPatients = await _patientRepository.GetAllAdvancedAsync();
+            var activePatients = allPatients.Where(x => x.IsActive == true);
+
+            // Get all active health insurances
+            var allHealthInsurances = await _healthInsuranceRepository.GetAllAdvancedAsync();
+            var activeHealthInsurances = allHealthInsurances.Where(x => x.IsActive == true);
+
+            // Get patients who don't have health insurance
+            var patientsWithoutInsurance = activePatients.Where(p =>
+                !activeHealthInsurances.Any(hi => hi.PatientId == p.Id));
+
+            viewData["PatientsWithoutInsurance"] = patientsWithoutInsurance;
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿@model Project.Areas.Staff.Models.DTOs.HealthInsuranceDto
+@using Project.Models.Enums
+@using System.ComponentModel.DataAnnotations
 
 @{
     ViewData["Title"] = "Chỉnh sửa thông tin thẻ BHYT";
@@ -6,7 +8,8 @@
 }
 
 <div class="overlay" id="loadingOverlay">
-    <span class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
+    <span
+        class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
 </div>
 
 <form id="myForm" method="post" enctype="multipart/form-data" asp-action="Edit">
@@ -30,9 +33,11 @@
                         <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="PatientId" class="block text-sm font-medium text-gray-700">Chủ thẻ</label>
+                                    <label for="PatientId" class="block text-sm font-medium text-gray-700">Chủ
+                                        thẻ</label>
                                     <div class="select-wrapper">
-                                        <select id="PatientId" name="PatientId" class="form-input w-full mt-1 p-2 border rounded">
+                                        <select disabled id="PatientId" name="PatientId"
+                                            class="form-input w-full mt-1 p-2 border rounded">
                                             <option value="">Chọn chủ thẻ</option>
                                             @foreach (var p in ViewBag.Patients)
                                             {
@@ -47,24 +52,58 @@
                                             }
                                         </select>
                                     </div>
-                                    @Html.ValidationMessageFor(model => model.PatientId, "", new { @class = "text-danger" })
+                                    @Html.ValidationMessageFor(model => model.PatientId, "", new { @class =
+                                    "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Number" class="block text-sm font-medium text-gray-700">Số thẻ BHYT</label>
-                                    <input id="Number" type="text" name="Number" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số thẻ BHYT" value="@Model.Number" />
-                                    @Html.ValidationMessageFor(model => model.Number, "", new { @class = "text-danger" })
+                                    <label for="Number" class="block text-sm font-medium text-gray-700">Số thẻ
+                                        BHYT</label>
+                                    <input id="Number" type="text" name="Number"
+                                        class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số thẻ BHYT"
+                                        value="@Model.Number" />
+                                    @Html.ValidationMessageFor(model => model.Number, "", new { @class = "text-danger"
+                                                                        })
                                 </div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="ExpiryDate" class="block text-sm font-medium text-gray-700">Ngày hết hạn thẻ</label>
-                                    <input id="ExpiryDate" type="text" name="ExpiryDate" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập ngày hết hạn thẻ" value="@Model.ExpiryDate.ToString("dd/MM/yyyy")" />
-                                    @Html.ValidationMessageFor(model => model.ExpiryDate, "", new { @class = "text-danger" })
+                                    <label for="ExpiryDate" class="block text-sm font-medium text-gray-700">Ngày hết hạn
+                                        thẻ</label>
+                                    <input id="ExpiryDate" type="text" name="ExpiryDate"
+                                        class="form-input w-full mt-1 p-2 border rounded flatpickr"
+                                        placeholder="Nhập ngày hết hạn thẻ"
+                                        value="@Model.ExpiryDate.ToString("dd/MM/yyyy")" />
+                                    @Html.ValidationMessageFor(model => model.ExpiryDate, "", new { @class =
+                                                                        "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="PlaceOfRegistration" class="block text-sm font-medium text-gray-700">Nơi đăng ký khám bệnh</label>
-                                    <input id="PlaceOfRegistration" type="text" name="PlaceOfRegistration" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập nơi đăng ký khám bệnh" value="@Model.PlaceOfRegistration" />
-                                    @Html.ValidationMessageFor(model => model.PlaceOfRegistration, "", new { @class = "text-danger" })
+                                    <label for="PlaceOfRegistration" class="block text-sm font-medium text-gray-700">Nơi
+                                        đăng ký khám bệnh</label>
+                                    <div class="select-wrapper">
+                                        <select id="PlaceOfRegistration" name="PlaceOfRegistration"
+                                            class="form-input w-full mt-1 p-2 border rounded choices">
+                                            <option value="">Chọn nơi đăng ký</option>
+                                            @foreach (var place in
+                                                                                        Enum.GetValues(typeof(Project.Models.Enums.HealthInsuranceRegistrationPlace)))
+                                            {
+                                                var displayAttr = place.GetType()
+                                                .GetField(place.ToString())
+                                                ?.GetCustomAttributes(typeof(DisplayAttribute), false)
+                                                .FirstOrDefault() as DisplayAttribute;
+                                                var displayName = displayAttr?.Name ?? place.ToString();
+                                                if (displayName == Model.PlaceOfRegistration)
+                                                {
+                                                    <option value="@displayName" selected>@displayName</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@displayName">@displayName</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.PlaceOfRegistration, "", new { @class =
+                                    "text-danger" })
                                 </div>
                             </div>
                         </div>
@@ -72,17 +111,29 @@
                     <div class="flex flex-col lg:flex-row gap-6">
                         <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
                             <div class="flex justify-center gap-4 mt-4">
-                                <button type="button" @@click="update()" class="btn btn-success py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 hover:bg-green-700">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
-                                        <path d="M3.46447 20.5355C4.92893 22 7.28595 22 12 22C16.714 22 19.0711 22 20.5355 20.5355C22 19.0711 22 16.714 22 12C22 11.6585 22 11.4878 21.9848 11.3142C21.9142 10.5049 21.586 9.71257 21.0637 9.09034C20.9516 8.95687 20.828 8.83317 20.5806 8.58578L15.4142 3.41944C15.1668 3.17206 15.0431 3.04835 14.9097 2.93631C14.2874 2.414 13.4951 2.08581 12.6858 2.01515C12.5122 2 12.3415 2 12 2C7.28595 2 4.92893 2 3.46447 3.46447C2 4.92893 2 7.28595 2 12C2 16.714 2 19.0711 3.46447 20.5355Z" stroke="white" stroke-width="1.5"></path>
-                                        <path d="M17 22V21C17 19.1144 17 18.1716 16.4142 17.5858C15.8284 17 14.8856 17 13 17H11C9.11438 17 8.17157 17 7.58579 17.5858C7 18.1716 7 19.1144 7 21V22" stroke="white" stroke-width="1.5"></path>
-                                        <path opacity="0.5" d="M7 8H13" stroke="white" stroke-width="1.5" stroke-linecap="round"></path>
+                                <button type="button" @@click="update()"
+                                    class="btn btn-success py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 hover:bg-green-700">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
+                                        <path
+                                            d="M3.46447 20.5355C4.92893 22 7.28595 22 12 22C16.714 22 19.0711 22 20.5355 20.5355C22 19.0711 22 16.714 22 12C22 11.6585 22 11.4878 21.9848 11.3142C21.9142 10.5049 21.586 9.71257 21.0637 9.09034C20.9516 8.95687 20.828 8.83317 20.5806 8.58578L15.4142 3.41944C15.1668 3.17206 15.0431 3.04835 14.9097 2.93631C14.2874 2.414 13.4951 2.08581 12.6858 2.01515C12.5122 2 12.3415 2 12 2C7.28595 2 4.92893 2 3.46447 3.46447C2 4.92893 2 7.28595 2 12C2 16.714 2 19.0711 3.46447 20.5355Z"
+                                            stroke="white" stroke-width="1.5"></path>
+                                        <path
+                                            d="M17 22V21C17 19.1144 17 18.1716 16.4142 17.5858C15.8284 17 14.8856 17 13 17H11C9.11438 17 8.17157 17 7.58579 17.5858C7 18.1716 7 19.1144 7 21V22"
+                                            stroke="white" stroke-width="1.5"></path>
+                                        <path opacity="0.5" d="M7 8H13" stroke="white" stroke-width="1.5"
+                                            stroke-linecap="round"></path>
                                     </svg>
                                     Cập nhật
                                 </button>
-                                <button type="button" class="btn btn-secondary py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600 w-40 justify-center" @@click="goBack()">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
-                                        <path d="M4 10L3.29289 10.7071L2.58579 10L3.29289 9.29289L4 10ZM21 18C21 18.5523 20.5523 19 20 19C19.4477 19 19 18.5523 19 18L21 18ZM8.29289 15.7071L3.29289 10.7071L4.70711 9.29289L9.70711 14.2929L8.29289 15.7071ZM3.29289 9.29289L8.29289 4.29289L9.70711 5.70711L4.70711 10.7071L3.29289 9.29289ZM4 9L14 9L14 11L4 11L4 9ZM21 16L21 18L19 18L19 16L21 16ZM14 9C17.866 9 21 12.134 21 16L19 16C19 13.2386 16.7614 11 14 11L14 9Z" fill="white" />
+                                <button type="button"
+                                    class="btn btn-secondary py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600 w-40 justify-center"
+                                                                        @@click = "goBack()" >
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
+                                        <path
+                                            d="M4 10L3.29289 10.7071L2.58579 10L3.29289 9.29289L4 10ZM21 18C21 18.5523 20.5523 19 20 19C19.4477 19 19 18.5523 19 18L21 18ZM8.29289 15.7071L3.29289 10.7071L4.70711 9.29289L9.70711 14.2929L8.29289 15.7071ZM3.29289 9.29289L8.29289 4.29289L9.70711 5.70711L4.70711 10.7071L3.29289 9.29289ZM4 9L14 9L14 11L4 11L4 9ZM21 16L21 18L19 18L19 16L21 16ZM14 9C17.866 9 21 12.134 21 16L19 16C19 13.2386 16.7614 11 14 11L14 9Z"
+                                            fill="white" />
                                     </svg>
                                     Trở về
                                 </button>
@@ -96,13 +147,20 @@
 </form>
 
 <script>
-    $.validator.addMethod("customPattern", function(value, element, regex) {
+    $.validator.addMethod("customPattern", function (value, element, regex) {
         return this.optional(element) || regex.test(value);
     }, "Giá trị không hợp lệ.");
 
-    $.validator.addMethod("dateFormat", function(value, element) {
+    $.validator.addMethod("dateFormat", function (value, element) {
         return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
     }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
+
+    $.validator.addMethod("checkExpiryDate", function (value, element) {
+        if (!value) return true;
+        const dateParts = value.split('/');
+        const expiryDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+        return expiryDate > new Date();
+    }, "Thẻ BHYT đã hết hạn.");
 
     document.addEventListener('alpine:init', () => {
         Alpine.data('editData', () => ({
@@ -139,21 +197,27 @@
                     rules: {
                         Number: {
                             required: true,
-                            maxlength: 10,
+                            minlength: 15,
+                            maxlength: 15,
                             customPattern: /^[0-9]*$/,
                             remote: {
-                                url: "/api/validation/healthinsurance/check-number",
+                                url: "/api/validation/check",
                                 type: "GET",
                                 data: {
                                     entityType: "healthinsurance",
-                                    number: function() { return $("#Number").val(); },
-                                    id: function() { return $("#Id").val(); }
+                                    type: "numberhealthinsurance",
+                                    value: function () { return $("#Number").val(); },
+                                    id: function () { return $("#Id").val(); }
+                                },
+                                dataFilter: function (data) {
+                                    return JSON.parse(data) === true;
                                 }
                             }
                         },
                         ExpiryDate: {
                             required: true,
                             dateFormat: true,
+                            checkExpiryDate: true
                         },
                         PlaceOfRegistration: {
                             required: true,
@@ -165,13 +229,15 @@
                     messages: {
                         Number: {
                             required: "Số thẻ BHYT không được bỏ trống.",
-                            maxlength: "Số thẻ không được vượt quá 10 ký tự.",
+                            minlength: "Số thẻ BHYT phải có đủ 15 số.",
+                            maxlength: "Số thẻ BHYT phải có đủ 15 số.",
                             customPattern: "Số thẻ không hợp lệ.",
-                            remote: "Số thẻ BHYT này đã tồn tại."
+                            remote: "Số thẻ BHYT này đã được đăng ký."
                         },
                         ExpiryDate: {
                             required: "Ngày hết hạn không được bỏ trống.",
-                            dateFormat: "Ngày hết hạn không hợp lệ."
+                            dateFormat: "Ngày hết hạn không hợp lệ.",
+                            checkExpiryDate: "Thẻ BHYT đã hết hạn."
                         },
                         PlaceOfRegistration: {
                             required: "Nơi đăng ký không được bỏ trống"
@@ -210,7 +276,7 @@
                             error.insertAfter(element);
                         }
                     },
-                    onfocusout: function(element) {
+                    onfocusout: function (element) {
                         if ($(element).val() === '' || $(element).val().length > 0) {
                             this.element(element);
                         }
@@ -218,7 +284,7 @@
                     onkeyup: false
                 });
 
-                $('select.form-input').on('change', function() {
+                $('select.form-input').on('change', function () {
                     $(this).valid();
                 });
             },
@@ -263,12 +329,12 @@
                         method: 'POST',
                         body: formData
                     })
-                    .then(response => response.json())
-                    .then(this.handleResponse)
-                    .catch(error => {
-                        overlay.style.display = 'none';
-                        notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
-                    });
+                        .then(response => response.json())
+                        .then(this.handleResponse)
+                        .catch(error => {
+                            overlay.style.display = 'none';
+                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                        });
                 }
                 else {
                     notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");

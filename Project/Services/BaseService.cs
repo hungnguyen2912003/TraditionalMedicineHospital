@@ -67,5 +67,14 @@ namespace Project.Services
 
             return !await _repository.AnyAsync(predicate);
         }
+
+        public virtual async Task<bool> IsNumberHealthInsuranceUniqueAsync(string numberHealthInsurance, Guid? id = null)
+        {
+            Expression<Func<T, bool>> predicate = id.HasValue
+                ? e => EF.Property<string>(e, "Number") == numberHealthInsurance && EF.Property<Guid>(e, "Id") != id.Value
+                : e => EF.Property<string>(e, "Number") == numberHealthInsurance;
+
+            return !await _repository.AnyAsync(predicate);
+        }
     }
 }

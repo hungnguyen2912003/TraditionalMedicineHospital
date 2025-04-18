@@ -8,6 +8,7 @@
         Task<bool> IsEmailUniqueAsync(string email, Guid? id = null);
         Task<bool> IsPhoneUniqueAsync(string phone, Guid? id = null);
         Task<bool> IsIdentityNumberUniqueAsync(string identityNumber, Guid? id = null);
+        Task<bool> IsNumberHealthInsuranceUniqueAsync(string numberHealthInsurance, Guid? id = null);
     }
     public interface IBaseService<T> : IBaseService where T : class
     {

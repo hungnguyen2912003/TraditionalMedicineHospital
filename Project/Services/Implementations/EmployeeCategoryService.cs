@@ -34,6 +34,11 @@ namespace Project.Services.Implementations
             return existing == null || (id.HasValue && existing.Id == id.Value);
         }
 
+        public Task<bool> IsNumberHealthInsuranceUniqueAsync(string numberHealthInsurance, Guid? id = null)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<bool> IsNumberUniqueAsync(string number, Guid? id = null)
         {
             throw new NotImplementedException();
@@ -43,5 +48,7 @@ namespace Project.Services.Implementations
         {
             throw new NotImplementedException();
         }
+
+        
     }
 }
