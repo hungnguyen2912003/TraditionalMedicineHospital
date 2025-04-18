@@ -473,7 +473,7 @@
                                             <div x-show="regulations.length === 0" class="text-center text-gray-500">Chưa có quy định nào
                                                 được thêm.</div>
                                             <template x-for="(regulation, index) in regulations" :key="regulation.Code">
-                                                <div class="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-4 border-b pb-4">
+                                                <div class="grid grid-cols-1 gap-5 sm:grid-cols-4 mb-4 border-b pb-4">
                                                     <div>
                                                         <label :for="'regulationId-' + index">Quy định</label>
                                                         <select :id="'regulationId-' + index" :name="'Regulations[' + index + '].RegulationId'"
@@ -494,14 +494,6 @@
                                                             class="form-input" type="text" 
                                                             placeholder="Chọn ngày thực hiện"
                                                             readonly/>
-                                                        <div x-show="!regulation.RegulationId" class="text-sm mt-1" style="color: coral; font-weight: bold;">
-                                                            <div class="flex items-center">
-                                                                <svg class="w-4 h-4 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                                                </svg>
-                                                                Vui lòng chọn quy định trước khi chọn ngày thực hiện!
-                                                            </div>
-                                                        </div>
                                                     </div>
                                                     <div>
                                                         <label :for="'note-' + index">Ghi chú</label>
@@ -511,9 +503,19 @@
                                                         <input type="hidden" :name="'Regulations[' + index + '].Code'"
                                                             :value="regulation.Code" />
                                                     </div>
-                                                    <div class="flex items-end">
-                                                        <button type="button" class="btn btn-danger" @@click="regulations.splice(index, 1)">
-                                                            Xóa </button>
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700">&nbsp;</label>
+                                                        <div class="mt-1">
+                                                            <input type="button" class="btn btn-danger" style="cursor: pointer;" value="Xóa" @@click="regulations.splice(index, 1)" />
+                                                        </div>
+                                                    </div>
+                                                    <div x-show="!regulation.RegulationId" class="text-sm sm:col-span-4" style="color: coral; font-weight: bold;">
+                                                        <div class="flex items-center whitespace-nowrap">
+                                                            <svg class="w-4 h-4 inline-block mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                            </svg>
+                                                            <span class="flex-shrink-0">Vui lòng chọn quy định trước khi chọn ngày thực hiện!</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </template>

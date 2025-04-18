@@ -19,7 +19,7 @@ document.addEventListener('alpine:init', () => {
         choicesInstances: {}, // Store Choices instances
         assignmentStartPicker: null,
         assignmentEndPicker: null,
-        
+
         /**
          * Initialize the reception component
          */
@@ -29,7 +29,7 @@ document.addEventListener('alpine:init', () => {
                 this.filteredRooms = [];
                 this.allRooms = window.roomsData || [];
                 this.availableRegulations = window.regulationsData || [];
-                
+
                 // Then initialize components once
                 this.initializeComponents();
             } catch (error) {
@@ -67,7 +67,7 @@ document.addEventListener('alpine:init', () => {
 
             // Get currently selected regulation IDs
             const selectedRegulationIds = this.regulations.map(r => r.RegulationId).filter(id => id);
-            
+
             // Filter regulations based on date range and not already selected
             return this.availableRegulations.filter(r => {
                 // Check if regulation is not already selected
@@ -93,7 +93,7 @@ document.addEventListener('alpine:init', () => {
                 notyf.error('Không thể thêm quá 5 quy định cho một phiếu điều trị');
                 return;
             }
-            
+
             // Get available valid regulations
             const availableRegs = this.getAvailableRegulationsForAdd();
 
@@ -102,11 +102,28 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            this.regulations.push({
+            const newRegulation = {
+                Code: this.generateCode(),
                 RegulationId: '',
                 ExecutionDate: '',
-                Note: '',
-                Code: this.generateCode()
+                Note: ''
+            };
+            this.regulations.push(newRegulation);
+
+            // Initialize Choices.js for the new regulation select after the template is rendered
+            this.$nextTick(() => {
+                const index = this.regulations.length - 1;
+                const selectElement = document.getElementById(`regulationId-${index}`);
+                if (selectElement) {
+                    new Choices(selectElement, {
+                        removeItemButton: true,
+                        searchEnabled: true,
+                        placeholder: true,
+                        placeholderValue: 'Chọn quy định',
+                        noResultsText: 'Không tìm thấy kết quả',
+                        itemSelectText: ''
+                    });
+                }
             });
         },
 
@@ -128,7 +145,7 @@ document.addEventListener('alpine:init', () => {
             const selectedIds = this.regulations
                 .map((r, index) => index !== currentIndex ? r.RegulationId : null)
                 .filter(id => id);
-            
+
             return this.availableRegulations.filter(r => {
                 // Check if regulation is not already selected
                 if (selectedIds.includes(r.id.toString())) {
@@ -171,7 +188,7 @@ document.addEventListener('alpine:init', () => {
                 addRemoveLinks: true,
                 dictDefaultMessage: 'Kéo thả hoặc nhấp để chọn ảnh',
                 paramName: 'Patient.ImageFile',
-                init: function() {
+                init: function () {
                     this.on('addedfile', (file) => {
                         if (this.files.length > 1) {
                             this.removeFile(this.files[0]);
@@ -336,7 +353,7 @@ document.addEventListener('alpine:init', () => {
                         flatpickr(input, {
                             dateFormat: "d/m/Y",
                             allowInput: true,
-                            onChange: function(selectedDates, dateStr) {
+                            onChange: function (selectedDates, dateStr) {
                                 // If this is the treatment start date, update assignment start date
                                 if (input.id === 'StartDate') {
                                     const assignmentStartInput = document.getElementById('assignmentStartDate');
@@ -371,7 +388,7 @@ document.addEventListener('alpine:init', () => {
                 // Function to update assignment date pickers state
                 const updateAssignmentDatePickersState = () => {
                     const hasBothDates = areTreatmentDatesSelected();
-                    
+
                     if (warningMessage) {
                         warningMessage.style.display = hasBothDates ? 'none' : 'block';
                     }
@@ -434,7 +451,7 @@ document.addEventListener('alpine:init', () => {
 
                 // Watch for changes in treatment dates
                 if (treatmentStartDate) {
-                    treatmentStartDate.addEventListener('change', function() {
+                    treatmentStartDate.addEventListener('change', function () {
                         updateAssignmentDatePickersState();
                         if (areTreatmentDatesSelected()) {
                             if (this.assignmentStartPicker) this.assignmentStartPicker.set('minDate', this.value);
@@ -444,7 +461,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 if (treatmentEndDate) {
-                    treatmentEndDate.addEventListener('change', function() {
+                    treatmentEndDate.addEventListener('change', function () {
                         updateAssignmentDatePickersState();
                         if (areTreatmentDatesSelected()) {
                             if (this.assignmentStartPicker) this.assignmentStartPicker.set('maxDate', this.value);
@@ -482,13 +499,13 @@ document.addEventListener('alpine:init', () => {
 
             // Find the selected regulation
             const regulation = this.availableRegulations.find(r => r.id.toString() === regulationId);
-            
+
             if (!regulation) {
                 flatpickr(element, {
                     dateFormat: "d/m/Y",
                     allowInput: true,
                     disable: [
-                        function(date) {
+                        function (date) {
                             return true; // Disable all dates if no regulation is selected
                         }
                     ]
@@ -506,7 +523,7 @@ document.addEventListener('alpine:init', () => {
                 minDate: startDate,
                 maxDate: endDate,
                 disable: [
-                    function(date) {
+                    function (date) {
                         // Disable dates outside the effective range
                         return date < startDate || date > endDate;
                     }
@@ -537,7 +554,7 @@ document.addEventListener('alpine:init', () => {
                     // Initialize flatpickr only if regulation is selected
                     const treatmentStartDate = document.getElementById('StartDate').value;
                     this.initRegulationDatePicker(dateField, regulationId);
-                    
+
                     // Set execution date to treatment start date after regulation is selected
                     if (treatmentStartDate) {
                         this.regulations[index].ExecutionDate = treatmentStartDate;
@@ -557,17 +574,17 @@ document.addEventListener('alpine:init', () => {
          */
         isOver14(dateOfBirth) {
             if (!dateOfBirth) return false;
-            
+
             const parts = dateOfBirth.split('/');
             const birthDate = new Date(parts[2], parts[1] - 1, parts[0]);
             const today = new Date();
             const age = today.getFullYear() - birthDate.getFullYear();
             const monthDiff = today.getMonth() - birthDate.getMonth();
-            
+
             if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
                 return age - 1 >= 14;
             }
-            
+
             return age >= 14;
         },
 
@@ -580,10 +597,10 @@ document.addEventListener('alpine:init', () => {
             const validationMessages = this.getValidationMessages();
 
             // Add custom validation method for CCCD based on age
-            $.validator.addMethod("requiredIfOver14", function(value, element) {
+            $.validator.addMethod("requiredIfOver14", function (value, element) {
                 const dateOfBirth = $("#DateOfBirth").val();
                 if (!dateOfBirth) return true; // Skip validation if DOB not entered
-                
+
                 const isOver14 = self.isOver14(dateOfBirth);
                 if (isOver14) {
                     return value.trim().length > 0;
@@ -592,14 +609,14 @@ document.addEventListener('alpine:init', () => {
             }, "Người trên 14 tuổi bắt buộc phải nhập CCCD");
 
             // Add custom validation method for health insurance expiry date
-            $.validator.addMethod("notExpired", function(value, element) {
+            $.validator.addMethod("notExpired", function (value, element) {
                 if (!value) return true; // Skip validation if no date entered
-                
+
                 const parts = value.split('/');
                 const expiryDate = new Date(parts[2], parts[1] - 1, parts[0]);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                
+
                 return expiryDate >= today;
             }, "Thẻ BHYT đã hết hạn");
 
@@ -617,12 +634,12 @@ document.addEventListener('alpine:init', () => {
             });
 
             // Add validation for select elements
-            $('select.form-input').on('change', function() {
+            $('select.form-input').on('change', function () {
                 $(this).valid();
             });
 
             // Add validation when date of birth changes
-            $("#DateOfBirth").on('change', function() {
+            $("#DateOfBirth").on('change', function () {
                 $("#IdentityNumber").valid();
             });
         },
@@ -635,10 +652,10 @@ document.addEventListener('alpine:init', () => {
                 "Name": { required: true, minlength: 2, maxlength: 50 },
                 "DateOfBirth": { required: true, dateFormat: true },
                 "Gender": { required: true },
-                "IdentityNumber": { 
+                "IdentityNumber": {
                     requiredIfOver14: true,
-                    minlength: 9, 
-                    maxlength: 12 ,
+                    minlength: 9,
+                    maxlength: 12,
                     remote: {
                         url: "/api/validation/patient/check",
                         type: "GET",
@@ -650,10 +667,10 @@ document.addEventListener('alpine:init', () => {
                         dataFilter: function (data) {
                             return JSON.parse(data) === true;
                         }
-                    }                    
+                    }
                 },
-                "PhoneNumber": { 
-                    required: true, 
+                "PhoneNumber": {
+                    required: true,
                     phone: true,
                     remote: {
                         url: "/api/validation/patient/check",
@@ -666,19 +683,19 @@ document.addEventListener('alpine:init', () => {
                         dataFilter: function (data) {
                             return JSON.parse(data) === true;
                         }
-                    }                       
+                    }
                 },
                 "Address": { required: true, minlength: 5, maxlength: 500 },
                 "Email": { email: true },
-                "HealthInsuranceNumber": { 
+                "HealthInsuranceNumber": {
                     required: () => $('#HasHealthInsurance').is(':checked')
                 },
-                "HealthInsuranceExpiryDate": { 
+                "HealthInsuranceExpiryDate": {
                     required: () => $('#HasHealthInsurance').is(':checked'),
                     dateFormat: true,
                     notExpired: true
                 },
-                "HealthInsurancePlaceOfRegistration": { 
+                "HealthInsurancePlaceOfRegistration": {
                     required: () => $('#HasHealthInsurance').is(':checked')
                 },
                 "Diagnosis": { required: true },
@@ -686,15 +703,15 @@ document.addEventListener('alpine:init', () => {
                 "EndDate": { required: true, dateFormat: true, endDateAfterStartDate: true },
                 "TreatmentRecordDetail.TreatmentMethodId": { required: true },
                 "TreatmentRecordDetail.RoomId": { required: true },
-                "Assignment.StartDate": { 
-                    required: true, 
-                    dateFormat: true, 
+                "Assignment.StartDate": {
+                    required: true,
+                    dateFormat: true,
                     notPastDate: true,
                     assignmentStartDateValid: true
                 },
-                "Assignment.EndDate": { 
-                    required: true, 
-                    dateFormat: true, 
+                "Assignment.EndDate": {
+                    required: true,
+                    dateFormat: true,
                     endDateAfterStartDate: true,
                     assignmentEndDateValid: true
                 }
@@ -847,7 +864,7 @@ document.addEventListener('alpine:init', () => {
             // Update choices
             if (this.roomChoices) {
                 this.roomChoices.clearStore();
-                
+
                 const choices = [
                     { value: '', label: 'Chọn phòng' },
                     ...filteredRooms.map(room => ({
@@ -857,7 +874,7 @@ document.addEventListener('alpine:init', () => {
                 ];
 
                 this.roomChoices.setChoices(choices, 'value', 'label', true);
-                
+
                 if (filteredRooms.length > 0) {
                     this.roomChoices.enable();
                 } else {
@@ -891,13 +908,13 @@ document.addEventListener('alpine:init', () => {
                         method: 'POST',
                         body: formData
                     })
-                    .then(response => response.json())
-                    .then(this.handleResponse)
-                    .catch(error => {
-                        overlay.style.display = 'none';
-                        console.error('Error submitting form:', error);
-                        notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error.message);
-                    });
+                        .then(response => response.json())
+                        .then(this.handleResponse)
+                        .catch(error => {
+                            overlay.style.display = 'none';
+                            console.error('Error submitting form:', error);
+                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error.message);
+                        });
                 }
             } catch (error) {
                 overlay.style.display = 'none';
@@ -946,56 +963,56 @@ document.addEventListener('alpine:init', () => {
 });
 
 // Custom jQuery validation methods
-$.validator.addMethod("dateFormat", function(value, element) {
+$.validator.addMethod("dateFormat", function (value, element) {
     return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
 }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
 
-$.validator.addMethod("phone", function(value, element) {
+$.validator.addMethod("phone", function (value, element) {
     return this.optional(element) || /^\+?\d{10,12}$/.test(value);
 }, "Số điện thoại không hợp lệ.");
 
-$.validator.addMethod("endDateAfterStartDate", function(value, element) {
+$.validator.addMethod("endDateAfterStartDate", function (value, element) {
     const startDate = $("#StartDate").val();
     if (!startDate || !value) return true;
-    
+
     const start = new Date(startDate.split('/').reverse().join('-'));
     const end = new Date(value.split('/').reverse().join('-'));
     return end > start;
 }, "Ngày kết thúc phải sau ngày bắt đầu.");
 
-$.validator.addMethod("notPastDate", function(value, element) {
+$.validator.addMethod("notPastDate", function (value, element) {
     if (!value) return true;
-    
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const selectedDate = new Date(value.split('/').reverse().join('-'));
     selectedDate.setHours(0, 0, 0, 0);
-    
+
     return selectedDate >= today;
 }, "Không thể chọn ngày trong quá khứ.");
 
-$.validator.addMethod("assignmentStartDateValid", function(value, element) {
+$.validator.addMethod("assignmentStartDateValid", function (value, element) {
     if (!value) return true;
-    
+
     const treatmentStartDate = $("#StartDate").val();
     if (!treatmentStartDate) return true;
-    
+
     const assignmentStart = new Date(value.split('/').reverse().join('-'));
     const treatmentStart = new Date(treatmentStartDate.split('/').reverse().join('-'));
-    
+
     return assignmentStart >= treatmentStart;
 }, "Ngày bắt đầu phân công không được trước ngày bắt đầu điều trị");
 
-$.validator.addMethod("assignmentEndDateValid", function(value, element) {
+$.validator.addMethod("assignmentEndDateValid", function (value, element) {
     if (!value) return true;
-    
+
     const treatmentEndDate = $("#EndDate").val();
     if (!treatmentEndDate) return true;
-    
+
     const assignmentEnd = new Date(value.split('/').reverse().join('-'));
     const treatmentEnd = new Date(treatmentEndDate.split('/').reverse().join('-'));
-    
+
     return assignmentEnd <= treatmentEnd;
 }, "Ngày kết thúc phân công không được sau ngày kết thúc điều trị");
 
@@ -1003,7 +1020,7 @@ function checkTreatmentMethod() {
     const treatmentMethodSelect = document.getElementById('treatmentRecordDetailTreatmentMethod');
     const roomSelect = document.getElementById('treatmentRecordDetailRoom');
     const warningDiv = document.getElementById('treatmentMethodWarning');
-    
+
     if (!treatmentMethodSelect.value) {
         roomSelect.disabled = true;
         warningDiv.style.display = 'block';
@@ -1014,6 +1031,6 @@ function checkTreatmentMethod() {
 }
 
 // Call this when the page loads to set initial state
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     checkTreatmentMethod();
 });
