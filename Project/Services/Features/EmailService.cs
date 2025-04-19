@@ -5,38 +5,59 @@ namespace Project.Services.Features
 {
     public class EmailService
     {
-        private readonly IConfiguration _configuration;
+        private readonly string _smtpServer;
+        private readonly int _smtpPort;
+        private readonly string _smtpUsername;
+        private readonly string _smtpPassword;
+        private readonly string _fromEmail;
+        private readonly string _fromName;
 
         public EmailService(IConfiguration configuration)
         {
-            _configuration = configuration;
+            _smtpServer = configuration["EmailSettings:SmtpServer"] ?? throw new ArgumentNullException("SmtpServer configuration is missing");
+            _smtpPort = int.Parse(configuration["EmailSettings:SmtpPort"] ?? throw new ArgumentNullException("SmtpPort configuration is missing"));
+            _smtpUsername = configuration["EmailSettings:SmtpUsername"] ?? throw new ArgumentNullException("SmtpUsername configuration is missing");
+            _smtpPassword = configuration["EmailSettings:SmtpPassword"] ?? throw new ArgumentNullException("SmtpPassword configuration is missing");
+            _fromEmail = configuration["EmailSettings:FromEmail"] ?? throw new ArgumentNullException("FromEmail configuration is missing");
+            _fromName = configuration["EmailSettings:FromName"] ?? throw new ArgumentNullException("FromName configuration is missing");
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
-            var smtpServer = _configuration["EmailSettings:SmtpServer"];
-            var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"] ?? throw new ArgumentNullException("SmtpPort configuration is missing"));
-            var smtpUsername = _configuration["EmailSettings:SmtpUsername"];
-            var smtpPassword = _configuration["EmailSettings:SmtpPassword"];
-            var fromEmail = _configuration["EmailSettings:FromEmail"];
-            var fromName = _configuration["EmailSettings:FromName"];
+            if (string.IsNullOrEmpty(toEmail))
+                throw new ArgumentNullException(nameof(toEmail));
+            if (string.IsNullOrEmpty(subject))
+                throw new ArgumentNullException(nameof(subject));
+            if (string.IsNullOrEmpty(body))
+                throw new ArgumentNullException(nameof(body));
 
-            using var client = new SmtpClient(smtpServer, smtpPort)
+            try
             {
-                Credentials = new NetworkCredential(smtpUsername, smtpPassword),
-                EnableSsl = true
-            };
+                using var client = new SmtpClient(_smtpServer, _smtpPort)
+                {
+                    Credentials = new NetworkCredential(_smtpUsername, _smtpPassword),
+                    EnableSsl = true
+                };
 
-            var mailMessage = new MailMessage
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(_fromEmail, _fromName),
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true
+                };
+                mailMessage.To.Add(toEmail);
+
+                await client.SendMailAsync(mailMessage);
+            }
+            catch (SmtpException ex)
             {
-                From = new MailAddress(fromEmail ?? throw new ArgumentNullException(nameof(fromEmail)), fromName),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true
-            };
-            mailMessage.To.Add(toEmail);
-
-            await client.SendMailAsync(mailMessage);
+                throw new Exception($"Lỗi khi gửi email: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi không xác định khi gửi email: {ex.Message}", ex);
+            }
         }
     }
 }

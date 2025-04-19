@@ -15,7 +15,7 @@
 
             if (context.Response.StatusCode == 403)
             {
-                context.Response.Redirect("/Admin/Account/AccessDenied");
+                context.Response.Redirect("/Admin/api/Authorization/AccessDenied");
             }
         }
     }

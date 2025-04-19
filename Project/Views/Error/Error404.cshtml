@@ -4,12 +4,27 @@
 }
 
 <div class="relative flex min-h-screen items-center justify-center overflow-hidden">
-    <div class="px-6 py-16 text-center font-semibold before:container before:absolute before:left-1/2 before:aspect-square before:-translate-x-1/2 before:rounded-full before:bg-[linear-gradient(180deg,#4361EE_0%,rgba(67,97,238,0)_50.73%)] before:opacity-10 md:py-20">
+    <div
+        class="px-6 py-16 text-center font-semibold before:container before:absolute before:left-1/2 before:aspect-square before:-translate-x-1/2 before:rounded-full before:bg-[linear-gradient(180deg,#4361EE_0%,rgba(67,97,238,0)_50.73%)] before:opacity-10 md:py-20">
         <div class="relative">
-            <img :src="$store.app.theme === 'dark' || $store.app.isDarkMode ? 'assets/images/error/404-dark.svg' : 'assets/images/error/404-light.svg'" alt="404" class="mx-auto -mt-10 w-full max-w-xs object-cover md:-mt-14 md:max-w-xl">
-            <p class="mt-5 text-base dark:text-white">The page you requested was not found!</p>
-            <a href="index.html" class="btn btn-gradient mx-auto !mt-7 w-max border-0 uppercase shadow-none">Home</a>
+            <div class="mt-5">
+                <img src="~/Public/assets/images/404-medical.png" alt="404"
+                    class="mx-auto -mt-10 w-full max-w-xs object-cover md:-mt-14 md:max-w-xl">
+                <div class="font-bold text-lg md:text-4xl leading-tight"
+                    style="font-weight: 900;background: linear-gradient(to right, #FF0000, #800080, #00008B); -webkit-background-clip: text; background-clip: text; color: transparent;">
+                    Không tìm thấy trang
+                </div>
+                @if (ViewData["Message"] != null){
+                    <p class="text-xl mt-5 font-medium dark:text-white">@ViewData["Message"]</p>
+                }
+                else{
+                    <p class="text-xl mt-5 font-medium dark:text-white">Trang bạn đang truy cập không tồn tại</p>
+                }
+                <a href="/"
+                    class="btn btn-gradient mx-auto !mt-7 w-max border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
+                    Trang chủ
+                </a>
+            </div>
         </div>
     </div>
 </div>
-

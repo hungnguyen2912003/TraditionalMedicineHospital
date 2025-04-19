@@ -3,19 +3,21 @@ using Microsoft.AspNetCore.Mvc;
 using Project.Repositories.Interfaces;
 using Project.Services.Features;
 using Project.Validators;
+using Project.Helpers;
 
 namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize]
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class AccountController : Controller
     {
         private readonly IUserRepository _userRepository;
         private readonly EmailService _emailService;
         private readonly AuthValidator _validator;
         private readonly JwtManager _jwtManager;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IConfiguration _configuration;
+        private readonly PasswordResetCodeHelper _resetCodeHelper;
+        private const string CAPTCHA_KEY = "CaptchaCode";
 
         public AccountController
         (
@@ -23,6 +25,7 @@ namespace Project.Areas.Admin.Controllers
             AuthValidator validator,
             JwtManager jwtManager,
             EmailService emailService,
+            PasswordResetCodeHelper resetCodeHelper,
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration
         )
@@ -31,8 +34,7 @@ namespace Project.Areas.Admin.Controllers
             _validator = validator;
             _jwtManager = jwtManager;
             _emailService = emailService;
-            _httpClientFactory = httpClientFactory;
-            _configuration = configuration;
+            _resetCodeHelper = resetCodeHelper;
         }
 
         [HttpGet]
@@ -54,10 +56,11 @@ namespace Project.Areas.Admin.Controllers
                     return Json(new { success = false, message = validationResult.ErrorMessage });
                 }
 
-                var user = await _userRepository.GetByUsernameAsync(username);
+                // Try to find user by username (employee code) or email
+                var user = await _userRepository.GetByIdentifierAsync(username);
                 if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
                 {
-                    var token = _jwtManager.GenerateToken(username, user.Role);
+                    var token = _jwtManager.GenerateToken(user.Username, user.Role);
                     var expirationTime = DateTime.UtcNow.AddHours(1);
                     var cookieExpirationTime = expirationTime.AddMinutes(1);
 
@@ -106,7 +109,7 @@ namespace Project.Areas.Admin.Controllers
                 return Json(new
                 {
                     success = false,
-                    message = "Mã nhân viên hoặc mật khẩu không đúng."
+                    message = "Mã nhân viên/Email hoặc mật khẩu không đúng."
                 });
             }
             catch (Exception ex)
@@ -173,18 +176,9 @@ namespace Project.Areas.Admin.Controllers
                 user.IsFirstLogin = false;
                 await _userRepository.UpdateAsync(user);
 
-                //if (!string.IsNullOrEmpty(user.Employee.EmailAddress))
-                //{
-                //    var subject = "Thông báo thay đổi mật khẩu";
-                //    var body = $"<h2>Xin chào {user.Employee.Name},</h2>" +
-                //               "<p>Mật khẩu của bạn đã được thay đổi thành công vào lúc " +
-                //               $"{DateTime.Now:dd/MM/yyyy HH:mm:ss}.</p>" +
-                //               "<p>Nếu bạn không thực hiện hành động này, vui lòng liên hệ quản trị viên ngay lập tức.</p>" +
-                //               "<p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
-                //    await _emailService.SendEmailAsync(user.Employee.EmailAddress, subject, body);
-                //}
-
                 Response.Cookies.Delete("AuthToken");
+                Response.Cookies.Delete("TokenExpiration");
+                HttpContext.Session.Clear();
 
                 return Json(new
                 {
@@ -203,38 +197,67 @@ namespace Project.Areas.Admin.Controllers
         public IActionResult Logout()
         {
             Response.Cookies.Delete("AuthToken");
+            Response.Cookies.Delete("TokenExpiration");
+            HttpContext.Session.Clear();
             return RedirectToAction("Login", "Account", new { area = "Admin" });
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ForgotPassword(string code)
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword([FromForm] string identifier, [FromForm] string captcha)
         {
             try
             {
-                var validationResult = _validator.ValidateForgotPassword(code);
-                if (!validationResult.IsValid)
+                var storedCaptcha = HttpContext.Session.GetString(CAPTCHA_KEY);
+                if (string.IsNullOrEmpty(storedCaptcha) || !storedCaptcha.Equals(captcha, StringComparison.OrdinalIgnoreCase))
                 {
-                    return Json(new { success = false, message = validationResult.ErrorMessage });
+                    return Json(new { success = false, message = "Mã bảo vệ không đúng!" });
                 }
 
-                var employee = await _userRepository.GetByCodeAsync(code);
-                if (employee == null)
+                var user = await _userRepository.GetByIdentifierAsync(identifier);
+                if (user == null || user.Employee == null)
                 {
-                    return Json(new { success = false, message = "Không tìm thấy nhân viên với mã này." });
+                    return Json(new { success = false, message = "Không tìm thấy thông tin người dùng!" });
                 }
 
-                TempData["Code"] = code;
+                if (user.IsFirstLogin)
+                {
+                    return Json(new { success = false, message = "Tài khoản của bạn chưa đăng nhập lần đầu!" });
+                }
+
+                if (string.IsNullOrEmpty(user.Employee.EmailAddress))
+                {
+                    return Json(new { success = false, message = "Người dùng chưa cập nhật địa chỉ email!" });
+                }
+
+                var resetCode = _resetCodeHelper.GenerateResetCode(user.Username);
+                var resetLink = Url.Action("ResetPassword", "Account",
+                    new { area = "Admin", code = resetCode }, Request.Scheme);
+
+                var subject = "Yêu cầu đặt lại mật khẩu";
+                var body = $@"<h2>Xin chào {user.Employee.Name},</h2>
+                            <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>
+                            <p>Vui lòng nhấn vào liên kết dưới đây để đặt lại mật khẩu:</p>
+                            <p><a href='{resetLink}'>{resetLink}</a></p>
+                            <p>Lưu ý: Liên kết này chỉ có hiệu lực trong vòng 5 giờ.</p>
+                            <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
+                            <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
+
+                await _emailService.SendEmailAsync(user.Employee.EmailAddress, subject, body);
+
+                TempData["ResetPasswordEmail"] = user.Employee.EmailAddress;
                 return Json(new
                 {
                     success = true,
-                    message = "Xác nhận thành công! Vui lòng đặt lại mật khẩu.",
-                    redirectUrl = Url.Action("ResetPassword", "Account", new { area = "Admin" })
+                    message = "Đã gửi yêu cầu thành công. Vui lòng kiểm tra email của bạn để nhận hướng dẫn đặt lại mật khẩu!",
+                    redirectUrl = Url.Action("ForgetPasswordSent", "Account", new { area = "Admin" })
                 });
             }
             catch (Exception ex)
@@ -244,122 +267,111 @@ namespace Project.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUserInfo()
+        [AllowAnonymous]
+        public IActionResult ForgetPasswordSent()
         {
-            var token = Request.Cookies["AuthToken"];
-            if (string.IsNullOrEmpty(token))
+            var email = TempData["ResetPasswordEmail"]?.ToString();
+            if (string.IsNullOrEmpty(email))
             {
-                return Unauthorized(new { success = false, message = "Chưa đăng nhập." });
+                return RedirectToAction("ForgotPassword");
+            }
+            ViewData["Email"] = email;
+            return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(string code)
+        {
+            if (string.IsNullOrEmpty(code))
+            {
+                return RedirectToAction("Login");
             }
 
-            var (username, role) = _jwtManager.GetClaimsFromToken(token);
-            if (string.IsNullOrEmpty(username))
+            // Decode URL-encoded characters
+            code = System.Web.HttpUtility.UrlDecode(code);
+
+            var (isValid, userId, message) = _resetCodeHelper.ValidateResetCode(code);
+
+            if (!isValid || string.IsNullOrEmpty(userId))
             {
-                Response.Cookies.Delete("AuthToken");
-                return Unauthorized(new { success = false, message = "Token không hợp lệ." });
+                ViewData["Message"] = "Liên kết đặt lại mật khẩu không tồn tại hoặc đã hết hạn.";
+                return View("~/Views/Error/Error404.cshtml");
             }
 
-            var user = await _userRepository.GetByUsernameAsync(username);
-            if (user == null)
+            var user = await _userRepository.GetByUsernameAsync(userId);
+            if (user == null || user.Employee == null)
             {
-                return NotFound(new { success = false, message = "Không tìm thấy người dùng." });
+                ViewData["Message"] = "Liên kết đặt lại mật khẩu không tồn tại hoặc đã hết hạn.";
+                return View("~/Views/Error/Error404.cshtml");
             }
 
-            if (role == "Admin")
+            // Check if this reset code has been used before
+            if (!string.IsNullOrEmpty(user.UsedResetCode) && user.UsedResetCode == code)
             {
-                return Json(new
-                {
-                    success = true,
-                    username = username,
-                    role = role
-                });
+                ViewData["Message"] = "Liên kết đặt lại mật khẩu không tồn tại hoặc đã hết hạn.";
+                return View("~/Views/Error/Error404.cshtml");
             }
-            else
-            {
-                var employee = user.Employee;
-                if (employee == null)
-                {
-                    return NotFound(new { success = false, message = "Không tìm thấy thông tin nhân viên." });
-                }
 
-                string imagePath = string.IsNullOrEmpty(employee.Images)
-                    ? ""
-                    : $"/Images/Employees/{employee.Images}";
-
-                return Json(new
-                {
-                    success = true,
-                    code = employee.Code,
-                    id = employee.Id,
-                    username = username,
-                    name = employee.Name,
-                    email = employee.EmailAddress,
-                    image = imagePath,
-                    role = role
-                });
-            }
+            ViewData["Code"] = code;
+            ViewData["Username"] = user.Username;
+            ViewData["Email"] = user.Employee.EmailAddress;
+            return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> RenewToken()
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword([FromForm] string code, [FromForm] string newPassword, [FromForm] string confirmPassword)
         {
             try
             {
-                var token = Request.Cookies["AuthToken"];
-                if (string.IsNullOrEmpty(token))
+                if (string.IsNullOrEmpty(code))
                 {
-                    return Json(new { success = false, message = "Không tìm thấy token." });
+                    return Json(new { success = false, message = "Mã reset không hợp lệ!" });
                 }
 
-                var (username, role) = _jwtManager.GetClaimsFromToken(token);
-                if (string.IsNullOrEmpty(username))
+                // Decode URL-encoded characters
+                code = System.Web.HttpUtility.UrlDecode(code);
+
+                var (isValid, userId, message) = _resetCodeHelper.ValidateResetCode(code);
+                if (!isValid || string.IsNullOrEmpty(userId))
                 {
-                    Response.Cookies.Delete("AuthToken");
-                    Response.Cookies.Delete("TokenExpiration");
-                    return Json(new { success = false, message = "Token không hợp lệ." });
+                    return Json(new { success = false, message = "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn!" });
                 }
 
-                var user = await _userRepository.GetByUsernameAsync(username);
+                var validationResult = _validator.ValidateResetPassword(newPassword, confirmPassword);
+                if (!validationResult.IsValid)
+                {
+                    return Json(new { success = false, message = validationResult.ErrorMessage });
+                }
+
+                var user = await _userRepository.GetByUsernameAsync(userId);
                 if (user == null)
                 {
-                    return Json(new { success = false, message = "Không tìm thấy thông tin người dùng." });
+                    return Json(new { success = false, message = "Không tìm thấy thông tin người dùng!" });
                 }
 
-                // Tạo token mới
-                var newToken = _jwtManager.GenerateToken(username, user.Role);
-                var expirationTime = DateTime.UtcNow.AddHours(1);
-                var cookieExpirationTime = expirationTime.AddMinutes(1);
-
-                // Cập nhật cookie với token mới
-                Response.Cookies.Append("AuthToken", newToken, new CookieOptions
+                // Check if this reset code has been used before
+                if (!string.IsNullOrEmpty(user.UsedResetCode) && user.UsedResetCode == code)
                 {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = cookieExpirationTime
-                });
+                    return NotFound("Liên kết đặt lại mật khẩu không tồn tại hoặc đã hết hạn.");
+                }
 
-                // Cập nhật cookie thời gian hết hạn
-                Response.Cookies.Append("TokenExpiration", ((DateTimeOffset)expirationTime).ToUnixTimeMilliseconds().ToString(), new CookieOptions
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+                user.UsedResetCode = code; // Store the used reset code
+                await _userRepository.UpdateAsync(user);
+
+                return Json(new
                 {
-                    HttpOnly = false,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = cookieExpirationTime
+                    success = true,
+                    message = "Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.",
+                    redirectUrl = Url.Action("Login", "Account", new { area = "Admin" })
                 });
-
-                return Json(new { success = true, message = "Gia hạn token thành công." });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi gia hạn token: " + ex.Message });
+                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
             }
-        }
-
-        [AllowAnonymous]
-        public IActionResult AccessDenied()
-        {
-            return View();
         }
     }
 }

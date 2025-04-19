@@ -19,6 +19,7 @@ namespace Project.Areas.Admin.Models.Entities
         [Required]
         public RoleType Role { get; set; }
         public bool IsFirstLogin { get; set; }
+        public string? UsedResetCode { get; set; }
 
         // Foreign Key
         public Guid? EmployeeId { get; set; }

@@ -1,5 +1,4 @@
-﻿using Project.Mappers;
-using Project.Validators;
+﻿using Project.Validators;
 
 namespace Project.Configurations
 {
@@ -8,7 +7,6 @@ namespace Project.Configurations
         public static WebApplicationBuilder ConfigureValidator(this WebApplicationBuilder builder)
         {
             builder.Services.AddScoped<AuthValidator>();
-
             return builder;
         }
     }

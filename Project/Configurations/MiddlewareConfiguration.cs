@@ -9,7 +9,7 @@ namespace Project.Configurations
             app.UseStatusCodePagesWithReExecute("/Error/{0}");
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseSession();
             app.UseAccessDeniedMiddleware();
             return app;
         }

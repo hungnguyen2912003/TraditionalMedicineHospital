@@ -126,16 +126,10 @@ const tokenHandler = {
     },
 
     logout() {
-        // Xóa tất cả cookie liên quan
-        document.cookie = 'AuthToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        document.cookie = 'TokenExpiration=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        
         // Gọi API logout và chuyển về trang login
         fetch('/Admin/Account/Logout', {
             method: 'GET'
-        }).finally(() => {
-            window.location.href = '/login';
-        });
+        })
     }
 };
 

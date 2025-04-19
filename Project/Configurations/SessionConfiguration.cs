@@ -14,9 +14,5 @@
 
             return builder;
         }
-        public static void UseSession(this IApplicationBuilder app)
-        {
-            app.UseSession();
-        }
     }
 }

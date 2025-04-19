@@ -471,7 +471,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
         try {
-            const response = await fetch('/Admin/Account/GetUserInfo', {
+            const response = await fetch('/api/User/GetInfo', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

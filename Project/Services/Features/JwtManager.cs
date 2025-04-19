@@ -11,11 +11,14 @@ namespace Project.Services.Features
         private readonly string _issuer;
         private readonly string _audience;
         private readonly string _secretKey;
+        private readonly IConfiguration _configuration;
+
         public JwtManager(IConfiguration configuration)
         {
             _issuer = configuration["JwtSettings:Issuer"] ?? throw new ArgumentNullException(nameof(configuration), "Issuer is missing in configuration.");
             _audience = configuration["JwtSettings:Audience"] ?? throw new ArgumentNullException(nameof(configuration), "Audience is missing in configuration.");
             _secretKey = configuration["JwtSettings:SecretKey"] ?? throw new ArgumentNullException(nameof(configuration), "SecretKey is missing in configuration.");
+            _configuration = configuration;
         }
 
         public string GenerateToken(string username, RoleType role)
@@ -70,6 +73,29 @@ namespace Project.Services.Features
             {
                 return (null, null);
             }
+        }
+
+        public string GeneratePasswordResetToken(string username)
+        {
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, username),
+                new Claim(ClaimTypes.Role, "ResetPassword"),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _issuer,
+                audience: _audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(5),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

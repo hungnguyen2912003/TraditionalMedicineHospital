@@ -23,5 +23,21 @@ namespace Project.Repositories.Implementations
                 .Include(u => u.Employee)
                 .FirstOrDefaultAsync(u => u.Username == username);
         }
+
+        public new async Task<User?> GetByCodeAsync(string code)
+        {
+            return await _context.users
+                .Include(u => u.Employee)
+                .FirstOrDefaultAsync(u => u.Employee != null && u.Employee.Code == code);
+        }
+
+        public async Task<User?> GetByIdentifierAsync(string identifier)
+        {
+            return await _context.users
+                .Include(u => u.Employee)
+                .FirstOrDefaultAsync(u =>
+                    (u.Employee != null && u.Employee.Code == identifier) ||
+                    (u.Employee != null && u.Employee.EmailAddress == identifier));
+        }
     }
 }

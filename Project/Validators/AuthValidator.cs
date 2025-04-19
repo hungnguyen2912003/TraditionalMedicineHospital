@@ -67,9 +67,9 @@
                 return new ValidationResult(false, "Mật khẩu mới không được trùng với mật khẩu cũ!");
             }
 
-            if (!System.Text.RegularExpressions.Regex.IsMatch(newPassword, @"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$"))
+            if (!System.Text.RegularExpressions.Regex.IsMatch(newPassword, @"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?]{6,}$"))
             {
-                return new ValidationResult(false, "Mật khẩu mới phải chứa ít nhất 1 chữ cái và 1 số!");
+                return new ValidationResult(false, "Mật khẩu mới phải chứa ít nhất 1 chữ cái hoa, chữ cái thường, chữ số và ký tự đặc biệt!");
             }
 
             return new ValidationResult(true);
@@ -80,6 +80,36 @@
             if (string.IsNullOrWhiteSpace(username))
             {
                 return new ValidationResult(false, "Mã nhân viên không được bỏ trống!");
+            }
+
+            return new ValidationResult(true);
+        }
+
+        public ValidationResult ValidateResetPassword(string newPassword, string confirmPassword)
+        {
+            if (string.IsNullOrEmpty(newPassword))
+            {
+                return new ValidationResult(false, "Mật khẩu mới không được bỏ trống!");
+            }
+
+            if (newPassword.Length < 6)
+            {
+                return new ValidationResult(false, "Mật khẩu mới phải có ít nhất 6 ký tự!");
+            }
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(newPassword, @"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?]{6,}$"))
+            {
+                return new ValidationResult(false, "Mật khẩu mới phải chứa ít nhất 1 chữ cái hoa, chữ cái thường, chữ số và ký tự đặc biệt!");
+            }
+
+            if (string.IsNullOrEmpty(confirmPassword))
+            {
+                return new ValidationResult(false, "Xác nhận mật khẩu không được bỏ trống!");
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                return new ValidationResult(false, "Mật khẩu xác nhận không khớp!");
             }
 
             return new ValidationResult(true);

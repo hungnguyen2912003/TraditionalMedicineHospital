@@ -8,6 +8,8 @@ namespace Project.Configurations
         {
             builder.Services.AddScoped<CodeGeneratorHelper>();
             builder.Services.AddScoped<ViewBagHelper>();
+            builder.Services.AddScoped<CaptchaHelper>();
+            builder.Services.AddScoped<PasswordResetCodeHelper>();
             return builder;
         }
     }

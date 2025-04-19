@@ -6,5 +6,7 @@ namespace Project.Repositories.Interfaces
     {
         Task<User?> GetEmailUserAsync(string email);
         Task<User?> GetByUsernameAsync(string username);
+        new Task<User?> GetByCodeAsync(string code);
+        Task<User?> GetByIdentifierAsync(string identifier);
     }
 }
