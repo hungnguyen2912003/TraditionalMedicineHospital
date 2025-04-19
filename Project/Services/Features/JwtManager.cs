@@ -57,7 +57,8 @@ namespace Project.Services.Features
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = _issuer,
                     ValidAudience = _audience,
-                    IssuerSigningKey = securityKey
+                    IssuerSigningKey = securityKey,
+                    ClockSkew = TimeSpan.FromMinutes(1)
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;

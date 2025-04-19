@@ -27,7 +27,7 @@
                 </svg>
                 Thông tin phiếu điều trị
             </a>
-        </li>
+    </li>
         <li class="inline-block">
             <a href="javascript:;"
                 class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
@@ -214,11 +214,11 @@
                                         <input id="Email" type="text" class="form-input" readonly
                                             value="@Model.Patient.EmailAddress" />
                                     </div>
-                                </div>
-                            </div>
+                        </div>
+                        </div>
                         </div>
                     </div>
-                </div>
+                        </div>
                 <div class="mt-6 w-full xl:mt-0 xl:w-96">
                     <div class="panel mb-5">
                         <div>
@@ -234,7 +234,7 @@
                                     <img src="~/Public/assets/images/no_image.png" alt="image"
                                         class="mx-auto h-40 w-40 rounded-full object-cover md:h-64 md:w-64">
                                 }
-                            </div>
+                        </div>
                         </div>
                     </div>
                     <div class="panel mb-5">
@@ -250,22 +250,22 @@
                         @if (Model.Patient.HealthInsurance != null)
                         {
                             <div class="grid grid-cols-1 gap-4">
-                                <div>
+                        <div>
                                     <label>Mã thẻ BHYT</label>
                                     <input type="text" class="form-input" readonly
                                         value="@Model.Patient.HealthInsurance.Code" />
-                                </div>
-                                <div>
+                        </div>
+                        <div>
                                     <label>Số thẻ BHYT</label>
                                     <input type="text" class="form-input" readonly
                                         value="@Model.Patient.HealthInsurance.Number" />
-                                </div>
-                                <div>
+                        </div>
+                        <div>
                                     <label>Nơi đăng ký KCB ban đầu</label>
                                     <input type="text" class="form-input" readonly
                                         value="@Model.Patient.HealthInsurance.PlaceOfRegistration" />
-                                </div>
-                                <div>
+                        </div>
+                        <div>
                                     <label>Ngày hết hạn</label>
                                     <input type="text" class="form-input" readonly
                                         value="@Model.Patient.HealthInsurance.ExpiryDate.ToString("dd/MM/yyyy")" />
@@ -440,7 +440,7 @@
                             {
                                 <div class="text-center text-gray-500">
                                     Chưa có thông tin quy định
-                                </div>
+                        </div>
                             }
                     </div>
                 </div>

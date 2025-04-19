@@ -19,9 +19,9 @@ namespace Project.Areas.Admin.Controllers
 
         public AccountController
         (
-            IUserRepository userRepository, 
-            AuthValidator validator, 
-            JwtManager jwtManager, 
+            IUserRepository userRepository,
+            AuthValidator validator,
+            JwtManager jwtManager,
             EmailService emailService,
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration
@@ -58,13 +58,23 @@ namespace Project.Areas.Admin.Controllers
                 if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
                 {
                     var token = _jwtManager.GenerateToken(username, user.Role);
+                    var expirationTime = DateTime.UtcNow.AddHours(1);
+                    var cookieExpirationTime = expirationTime.AddMinutes(1);
 
                     Response.Cookies.Append("AuthToken", token, new CookieOptions
                     {
                         HttpOnly = true,
                         Secure = true,
                         SameSite = SameSiteMode.Strict,
-                        Expires = DateTimeOffset.UtcNow.AddHours(1)
+                        Expires = cookieExpirationTime
+                    });
+
+                    Response.Cookies.Append("TokenExpiration", ((DateTimeOffset)expirationTime).ToUnixTimeMilliseconds().ToString(), new CookieOptions
+                    {
+                        HttpOnly = false,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = cookieExpirationTime
                     });
 
                     if (user.IsFirstLogin)
@@ -290,6 +300,61 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> RenewToken()
+        {
+            try
+            {
+                var token = Request.Cookies["AuthToken"];
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Json(new { success = false, message = "Không tìm thấy token." });
+                }
+
+                var (username, role) = _jwtManager.GetClaimsFromToken(token);
+                if (string.IsNullOrEmpty(username))
+                {
+                    Response.Cookies.Delete("AuthToken");
+                    Response.Cookies.Delete("TokenExpiration");
+                    return Json(new { success = false, message = "Token không hợp lệ." });
+                }
+
+                var user = await _userRepository.GetByUsernameAsync(username);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy thông tin người dùng." });
+                }
+
+                // Tạo token mới
+                var newToken = _jwtManager.GenerateToken(username, user.Role);
+                var expirationTime = DateTime.UtcNow.AddHours(1);
+                var cookieExpirationTime = expirationTime.AddMinutes(1);
+
+                // Cập nhật cookie với token mới
+                Response.Cookies.Append("AuthToken", newToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = cookieExpirationTime
+                });
+
+                // Cập nhật cookie thời gian hết hạn
+                Response.Cookies.Append("TokenExpiration", ((DateTimeOffset)expirationTime).ToUnixTimeMilliseconds().ToString(), new CookieOptions
+                {
+                    HttpOnly = false,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = cookieExpirationTime
+                });
+
+                return Json(new { success = true, message = "Gia hạn token thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra khi gia hạn token: " + ex.Message });
+            }
+        }
 
         [AllowAnonymous]
         public IActionResult AccessDenied()
