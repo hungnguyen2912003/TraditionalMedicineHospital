@@ -74,7 +74,7 @@ const tokenHandler = {
             if (confirm('Thời gian làm việc trên web sắp hết, bạn có muốn tiếp tục không?')) {
                 tokenHandler.renew();
             } else {
-                window.location.href = '/login';
+                tokenHandler.logout();
             }
             return;
         }
@@ -117,6 +117,7 @@ const tokenHandler = {
             closeOnClick: false
         });
 
+        // Set timeout to automatically logout after 1 minute
         setTimeout(() => {
             if (state.isWarningDisplayed && state.warningDialog) {
                 state.warningDialog.close();
@@ -126,10 +127,19 @@ const tokenHandler = {
     },
 
     logout() {
-        // Gọi API logout và chuyển về trang login
+        // Xóa tất cả cookie liên quan
+        document.cookie = 'AuthToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = 'TokenExpiration=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        
+        // Gọi API logout và chuyển hướng
         fetch('/Admin/Account/Logout', {
-            method: 'GET'
-        })
+            method: 'GET',
+            redirect: 'follow'
+        }).then(response => {
+            if (response.redirected) {
+                window.location.replace(response.url);
+            }
+        });
     }
 };
 

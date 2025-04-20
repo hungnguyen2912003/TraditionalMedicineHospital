@@ -36,6 +36,7 @@ namespace Project.Repositories.Implementations
             return await _context.users
                 .Include(u => u.Employee)
                 .FirstOrDefaultAsync(u =>
+                    u.Username == identifier ||
                     (u.Employee != null && u.Employee.Code == identifier) ||
                     (u.Employee != null && u.Employee.EmailAddress == identifier));
         }

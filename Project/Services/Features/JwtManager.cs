@@ -38,7 +38,7 @@ namespace Project.Services.Features
                 issuer: _issuer,
                 audience: _audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddSeconds(30),
                 signingCredentials: credentials
             );
 
