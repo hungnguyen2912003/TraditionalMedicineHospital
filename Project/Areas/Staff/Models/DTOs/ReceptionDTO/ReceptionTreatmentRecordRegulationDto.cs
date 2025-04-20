@@ -1,3 +1,5 @@
+using Project.Areas.Admin.Models.Entities;
+
 namespace Project.Areas.Staff.Models.DTOs.ReceptionDTO
 {
     public class ReceptionTreatmentRecordRegulationDto
@@ -7,5 +9,9 @@ namespace Project.Areas.Staff.Models.DTOs.ReceptionDTO
         public Guid RegulationId { get; set; }
         public DateTime ExecutionDate { get; set; }
         public string? Note { get; set; }
+        public string? CreatedBy { get; set; }
+
+        // Navigation property
+        public string? RegulationName { get; set; }
     }
 }

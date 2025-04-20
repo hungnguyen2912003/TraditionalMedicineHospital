@@ -4,6 +4,7 @@ namespace Project.Repositories.Interfaces
 {
     public interface ITreatmentRecordDetailRepository : IBaseRepository<TreatmentRecordDetail>
     {
+        Task<List<TreatmentRecordDetail>> GetByTreatmentRecordIdAsync(Guid treatmentRecordId);
     }
 }
 

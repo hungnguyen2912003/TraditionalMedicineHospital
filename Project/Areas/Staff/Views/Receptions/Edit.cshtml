@@ -1,0 +1,186 @@
+@model Project.Areas.Staff.Models.DTOs.ReceptionDTO.ReceptionEditDto
+
+@{
+    ViewData["Title"] = "Chỉnh sửa tiếp nhận";
+}
+
+<div class="container-fluid" x-data="receptionEdit()" x-init="init()">
+    <form id="receptionForm" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <!-- Patient Information (Editable by all doctors) -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Thông tin bệnh nhân</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Patient form fields (same as Create view) -->
+                        @await Html.PartialAsync("_PatientFormFields", Model.Patient)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Treatment Record Information (Read-only) -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Thông tin điều trị</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Treatment record form fields (read-only) -->
+                        @await Html.PartialAsync("_TreatmentRecordFormFields", Model.TreatmentRecord, new
+                        ViewDataDictionary(ViewData) { { "IsReadOnly", true } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Treatment Record Details (Read-only for other doctors' entries) -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Chi tiết điều trị</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Mã</th>
+                                        <th>Phương pháp điều trị</th>
+                                        <th>Phòng</th>
+                                        <th>Ghi chú</th>
+                                        <th>Người tạo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var detail in Model.TreatmentRecordDetails)
+                                    {
+                                        <tr>
+                                            <td>@detail.Code</td>
+                                            <td>@detail.TreatmentMethodName</td>
+                                            <td>@detail.RoomName</td>
+                                            <td>@detail.Note</td>
+                                            <td>@detail.CreatedBy</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- New Treatment Record Detail Form (Editable by current doctor) -->
+                        <div class="mt-4">
+                            <h6>Thêm chi tiết điều trị mới</h6>
+                            @await Html.PartialAsync("_TreatmentRecordDetailFormFields", Model.NewTreatmentRecordDetail)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignments (Read-only for other doctors' entries) -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Phân công</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Mã</th>
+                                        <th>Ngày bắt đầu</th>
+                                        <th>Ngày kết thúc</th>
+                                        <th>Ghi chú</th>
+                                        <th>Người tạo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var assignment in Model.Assignments)
+                                    {
+                                        <tr>
+                                            <td>@assignment.Code</td>
+                                            <td>@assignment.StartDate.ToString("dd/MM/yyyy")</td>
+                                            <td>@assignment.EndDate.ToString("dd/MM/yyyy")</td>
+                                            <td>@assignment.Note</td>
+                                            <td>@assignment.CreatedBy</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- New Assignment Form (Editable by current doctor) -->
+                        <div class="mt-4">
+                            <h6>Thêm phân công mới</h6>
+                            @await Html.PartialAsync("_AssignmentFormFields", Model.NewAssignment)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regulations (Editable by all doctors) -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Quy định</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Mã</th>
+                                        <th>Quy định</th>
+                                        <th>Ngày thực hiện</th>
+                                        <th>Ghi chú</th>
+                                        <th>Người tạo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var regulation in Model.Regulations)
+                                    {
+                                        <tr>
+                                            <td>@regulation.Code</td>
+                                            <td>@regulation.RegulationName</td>
+                                            <td>@regulation.ExecutionDate.ToString("dd/MM/yyyy")</td>
+                                            <td>@regulation.Note</td>
+                                            <td>@regulation.CreatedBy</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Add Regulation Button -->
+                        <div class="mt-4">
+                            <button type="button" class="btn btn-primary" x-on:click="addRegulation()">
+                                Thêm quy định
+                            </button>
+                        </div>
+
+                        <!-- Regulation Form Fields -->
+                        <div id="regulationContainer">
+                            <!-- Regulation form fields will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Lưu</button>
+                <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="~/Public/assets/js/receptionEdit.js"></script>

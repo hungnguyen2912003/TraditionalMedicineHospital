@@ -235,5 +235,275 @@ namespace Project.Areas.Staff.Controllers
                 return Json(new { success = false, message = errorMessage });
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            // Token
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login", "Account", new { area = "Admin" });
+            }
+
+            await _viewBagHelper.BaseViewBag(ViewData, token);
+
+            if (ViewData["UserId"] == null || ViewData["DepId"] == null)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Admin" });
+            }
+
+            // Get current user
+            var (username, role) = _jwtManager.GetClaimsFromToken(token);
+            var user = await _userRepository.GetByUsernameAsync(username!);
+            if (user == null || user.Employee == null)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Admin" });
+            }
+
+            // Get treatment record
+            var treatmentRecord = await _treatmentRecordRepository.GetByIdAsync(id);
+            if (treatmentRecord == null)
+            {
+                return NotFound();
+            }
+
+            // Get patient
+            var patient = await _patientRepository.GetByIdAsync(treatmentRecord.PatientId);
+            if (patient == null)
+            {
+                return NotFound();
+            }
+
+            // Get health insurance
+            var healthInsurance = await _healthInsuranceRepository.GetByPatientIdAsync(patient.Id);
+
+            // Get treatment record details
+            var treatmentRecordDetails = await _treatmentRecordDetailRepository.GetByTreatmentRecordIdAsync(treatmentRecord.Id);
+
+            // Get assignments
+            var assignments = await _assignmentRepository.GetByTreatmentRecordIdAsync(treatmentRecord.Id);
+
+            // Get regulations
+            var regulations = await _treatmentRecordRegulationRepository.GetByTreatmentRecordIdAsync(treatmentRecord.Id);
+
+            // Map to DTOs
+            var model = new ReceptionEditDto
+            {
+                Patient = _mapper.Map<ReceptionPatientDto>(patient),
+                TreatmentRecord = _mapper.Map<ReceptionTreatmentRecordDto>(treatmentRecord),
+                TreatmentRecordDetails = _mapper.Map<List<ReceptionTreatmentRecordDetailDto>>(treatmentRecordDetails),
+                Assignments = _mapper.Map<List<ReceptionAssignmentDto>>(assignments),
+                Regulations = _mapper.Map<List<ReceptionTreatmentRecordRegulationDto>>(regulations),
+                NewTreatmentRecordDetail = new ReceptionTreatmentRecordDetailDto
+                {
+                    Code = await _codeGenerator.GenerateUniqueCodeAsync(_treatmentRecordDetailRepository)
+                },
+                NewAssignment = new ReceptionAssignmentDto
+                {
+                    Code = await _codeGenerator.GenerateUniqueCodeAsync(_assignmentRepository)
+                },
+                CurrentEmployeeId = user.Employee.Id
+            };
+
+            // Set health insurance data
+            if (healthInsurance != null)
+            {
+                model.Patient.HasHealthInsurance = true;
+                model.Patient.HealthInsuranceCode = healthInsurance.Code;
+                model.Patient.HealthInsuranceNumber = healthInsurance.Number;
+                model.Patient.HealthInsuranceExpiryDate = healthInsurance.ExpiryDate;
+                model.Patient.HealthInsurancePlaceOfRegistration = healthInsurance.PlaceOfRegistration;
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit([FromForm] ReceptionEditDto dto)
+        {
+            try
+            {
+                // Get user info from token
+                var token = Request.Cookies["AuthToken"];
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
+                }
+
+                var (username, role) = _jwtManager.GetClaimsFromToken(token);
+                if (string.IsNullOrEmpty(username))
+                {
+                    Response.Cookies.Delete("AuthToken");
+                    return Json(new { success = false, message = "Token không hợp lệ." });
+                }
+
+                var user = await _userRepository.GetByUsernameAsync(username);
+                if (user == null || user.Employee == null)
+                {
+                    return Json(new { success = false, message = "Người dùng không hợp lệ" });
+                }
+
+                var employee = user.Employee;
+
+                // Check if user has permission to edit this treatment record
+                var treatmentRecord = await _treatmentRecordRepository.GetByIdAsync(dto.TreatmentRecord.Id);
+                if (treatmentRecord == null)
+                {
+                    return Json(new { success = false, message = "Phiếu khám không tồn tại" });
+                }
+
+                // Check if treatment record is in a valid state for editing
+                if (treatmentRecord.Status == TreatmentStatus.DaKetThuc)
+                {
+                    return Json(new { success = false, message = "Không thể cập nhật phiếu khám đã kết thúc" });
+                }
+
+                // Update patient
+                var patient = await _patientRepository.GetByIdAsync(dto.TreatmentRecord.PatientId);
+                if (patient == null)
+                {
+                    return Json(new { success = false, message = "Bệnh nhân không tồn tại" });
+                }
+
+                _mapper.Map(dto.Patient, patient);
+                patient.UpdatedBy = employee.Name;
+                patient.UpdatedDate = DateTime.Now;
+
+                if (dto.Patient.ImageFile != null && dto.Patient.ImageFile.Length > 0)
+                {
+                    var imagePath = await _imageService.SaveImageAsync(dto.Patient.ImageFile, "Patients");
+                    patient.Images = imagePath;
+                }
+
+                await _patientRepository.UpdateAsync(patient);
+
+                // Update health insurance
+                var healthInsurance = await _healthInsuranceRepository.GetByPatientIdAsync(patient.Id);
+                if (dto.Patient.HasHealthInsurance)
+                {
+                    if (healthInsurance == null)
+                    {
+                        healthInsurance = _mapper.Map<HealthInsurance>(dto.Patient);
+                        healthInsurance.PatientId = patient.Id;
+                        healthInsurance.CreatedBy = employee.Name;
+                        healthInsurance.CreatedDate = DateTime.Now;
+                        healthInsurance.IsActive = true;
+
+                        await _healthInsuranceRepository.CreateAsync(healthInsurance);
+                    }
+                    else
+                    {
+                        _mapper.Map(dto.Patient, healthInsurance);
+                        healthInsurance.UpdatedBy = employee.Name;
+                        healthInsurance.UpdatedDate = DateTime.Now;
+
+                        await _healthInsuranceRepository.UpdateAsync(healthInsurance);
+                    }
+                }
+                else if (healthInsurance != null)
+                {
+                    healthInsurance.IsActive = false;
+                    healthInsurance.UpdatedBy = employee.Name;
+                    healthInsurance.UpdatedDate = DateTime.Now;
+
+                    await _healthInsuranceRepository.UpdateAsync(healthInsurance);
+                }
+
+                // Create new treatment record detail if provided
+                if (dto.NewTreatmentRecordDetail != null)
+                {
+                    if (dto.NewTreatmentRecordDetail.TreatmentMethodId == Guid.Empty)
+                    {
+                        return Json(new { success = false, message = "Vui lòng chọn phương pháp điều trị" });
+                    }
+
+                    if (dto.NewTreatmentRecordDetail.RoomId == Guid.Empty)
+                    {
+                        return Json(new { success = false, message = "Vui lòng chọn phòng điều trị" });
+                    }
+
+                    var treatmentRecordDetail = _mapper.Map<TreatmentRecordDetail>(dto.NewTreatmentRecordDetail);
+                    treatmentRecordDetail.TreatmentRecordId = dto.TreatmentRecord.Id;
+                    treatmentRecordDetail.CreatedBy = employee.Name;
+                    treatmentRecordDetail.CreatedDate = DateTime.Now;
+                    treatmentRecordDetail.IsActive = true;
+
+                    // Validate RoomId exists
+                    var room = await _roomRepository.GetByIdAsync(treatmentRecordDetail.RoomId);
+                    if (room == null)
+                    {
+                        return Json(new { success = false, message = $"Phòng điều trị với ID {treatmentRecordDetail.RoomId} không tồn tại" });
+                    }
+
+                    await _treatmentRecordDetailRepository.CreateAsync(treatmentRecordDetail);
+                }
+
+                // Create new assignment if provided
+                if (dto.NewAssignment != null)
+                {
+                    if (dto.NewAssignment.StartDate == default)
+                    {
+                        return Json(new { success = false, message = "Vui lòng chọn ngày bắt đầu" });
+                    }
+
+                    if (dto.NewAssignment.EndDate == default)
+                    {
+                        return Json(new { success = false, message = "Vui lòng chọn ngày kết thúc" });
+                    }
+
+                    if (dto.NewAssignment.EndDate < dto.NewAssignment.StartDate)
+                    {
+                        return Json(new { success = false, message = "Ngày kết thúc phải sau ngày bắt đầu" });
+                    }
+
+                    var assignment = _mapper.Map<Assignment>(dto.NewAssignment);
+                    assignment.TreatmentRecordId = dto.TreatmentRecord.Id;
+                    assignment.EmployeeId = employee.Id;
+                    assignment.CreatedBy = employee.Name;
+                    assignment.CreatedDate = DateTime.Now;
+                    assignment.IsActive = true;
+
+                    await _assignmentRepository.CreateAsync(assignment);
+                }
+
+                // Update regulations
+                if (dto.Regulations != null && dto.Regulations.Any())
+                {
+                    var existingRegulations = await _treatmentRecordRegulationRepository.GetByTreatmentRecordIdAsync(dto.TreatmentRecord.Id);
+                    var existingRegulationIds = existingRegulations.Select(r => r.RegulationId).ToList();
+
+                    foreach (var regulationDto in dto.Regulations)
+                    {
+                        if (!existingRegulationIds.Contains(regulationDto.RegulationId))
+                        {
+                            var treatmentRecordRegulation = _mapper.Map<TreatmentRecord_Regulation>(regulationDto);
+                            treatmentRecordRegulation.TreatmentRecordId = dto.TreatmentRecord.Id;
+                            treatmentRecordRegulation.CreatedBy = employee.Name;
+                            treatmentRecordRegulation.CreatedDate = DateTime.Now;
+                            treatmentRecordRegulation.IsActive = true;
+
+                            await _treatmentRecordRegulationRepository.CreateAsync(treatmentRecordRegulation);
+                        }
+                    }
+                }
+
+                return Json(new { success = true, message = "Cập nhật thông tin tiếp nhận thành công" });
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = ex.Message;
+                if (ex.InnerException != null)
+                {
+                    errorMessage += "\nInner Exception: " + ex.InnerException.Message;
+                    if (ex.InnerException.InnerException != null)
+                    {
+                        errorMessage += "\nInner Inner Exception: " + ex.InnerException.InnerException.Message;
+                    }
+                }
+                return Json(new { success = false, message = errorMessage });
+            }
+        }
     }
 }

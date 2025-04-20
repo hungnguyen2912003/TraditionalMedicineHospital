@@ -8,5 +8,6 @@ namespace Project.Repositories.Interfaces
         Task<IEnumerable<HealthInsurance>> GetAllAdvancedAsync();
 
         Task<HealthInsurance?> GetByIdAdvancedAsync(Guid id);
+        Task<HealthInsurance?> GetByPatientIdAsync(Guid patientId);
     }
 }

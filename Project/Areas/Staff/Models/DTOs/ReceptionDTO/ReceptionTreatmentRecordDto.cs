@@ -5,6 +5,8 @@ namespace Project.Areas.Staff.Models.DTOs.ReceptionDTO
     public class ReceptionTreatmentRecordDto
     {
         // Treatment record info
+        public Guid Id { get; set; }
+        public Guid PatientId { get; set; }
         public string Code { get; set; } = string.Empty;
         public string Diagnosis { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }

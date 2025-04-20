@@ -1,3 +1,5 @@
+using Project.Areas.Admin.Models.Entities;
+
 namespace Project.Areas.Staff.Models.DTOs.ReceptionDTO
 {
     public class ReceptionTreatmentRecordDetailDto
@@ -8,5 +10,10 @@ namespace Project.Areas.Staff.Models.DTOs.ReceptionDTO
         public string? Note { get; set; }
         public Guid TreatmentRecordId { get; set; }
         public Guid TreatmentMethodId { get; set; }
+        public string? CreatedBy { get; set; }
+
+        // Navigation properties
+        public string? TreatmentMethodName { get; set; }
+        public string? RoomName { get; set; }
     }
 }

@@ -44,6 +44,10 @@ namespace Project.Mappers
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note));
 
             // Treatment record detail
+            CreateMap<TreatmentRecordDetail, ReceptionTreatmentRecordDetailDto>()
+                .ForMember(dest => dest.TreatmentMethodName, opt => opt.MapFrom(src => src.Room.TreatmentMethod.Name))
+                .ForMember(dest => dest.RoomName, opt => opt.MapFrom(src => src.Room.Name));
+
             CreateMap<ReceptionTreatmentRecordDetailDto, TreatmentRecordDetail>()
                 .ForMember(dest => dest.TreatmentRecordId, opt => opt.Ignore())
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
@@ -51,6 +55,9 @@ namespace Project.Mappers
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note));
 
             // Treatment record regulation
+            CreateMap<TreatmentRecord_Regulation, ReceptionTreatmentRecordRegulationDto>()
+                .ForMember(dest => dest.RegulationName, opt => opt.MapFrom(src => src.Regulation.Name));
+
             CreateMap<ReceptionTreatmentRecordRegulationDto, TreatmentRecord_Regulation>()
                 .ForMember(dest => dest.TreatmentRecordId, opt => opt.Ignore())
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))

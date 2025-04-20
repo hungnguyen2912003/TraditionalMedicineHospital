@@ -24,5 +24,11 @@ namespace Project.Repositories.Implementations
                 .Include(m => m.Patient)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
+
+        public async Task<HealthInsurance?> GetByPatientIdAsync(Guid patientId)
+        {
+            return await _context.healthInsurances
+                .FirstOrDefaultAsync(m => m.PatientId == patientId);
+        }
     }
 }
