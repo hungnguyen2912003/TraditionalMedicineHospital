@@ -151,14 +151,14 @@
                                         <div class="w-full sm:w-1/2">
                                             <label for="StartDate">Ngày bắt đầu</label>
                                             <input id="StartDate" name="StartDate" class="form-input flatpickr" type="text"
-                                                placeholder="Chọn ngày bắt đầu" value="@DateTime.Now.ToString("dd/MM/yyyy")" />
+                                                placeholder="Chọn ngày bắt đầu" />
                                             @Html.ValidationMessageFor(model => model.TreatmentRecord.StartDate, "", new { @class =
                                                 "text-danger" })                                        
                                         </div>
                                         <div class="w-full sm:w-1/2">
                                             <label for="EndDate">Ngày kết thúc</label>
                                             <input id="EndDate" name="EndDate" class="form-input flatpickr" type="text"
-                                                placeholder="Chọn ngày kết thúc" value="@DateTime.Now.AddDays(30).ToString("dd/MM/yyyy")" />
+                                                placeholder="Chọn ngày kết thúc"/>
                                             @Html.ValidationMessageFor(model => model.TreatmentRecord.EndDate, "", new { @class =
                                                 "text-danger" })                                        
                                         </div>
@@ -167,7 +167,7 @@
                                         <label for="treatmentRecordNote">Ghi chú</label>
                                         <textarea id="treatmentRecordNote" name="TreatmentRecord.Note"
                                             class="form-textarea w-full mt-1 p-2 border rounded min-h-[100px]"
-                                            placeholder="Nhập ghi chú...">Ghi chú điều trị test</textarea> 
+                                            placeholder="Nhập ghi chú..."></textarea> 
                                         @Html.ValidationMessageFor(model => model.TreatmentRecord.Note, "", new { @class = "text-danger" })
                                     </div>
                                 </div>
@@ -203,7 +203,7 @@
                                                 bệnh nhân</label>
                                             <input id="Name" name="Name"
                                                 class="form-input w-full mt-1 p-2 border rounded"
-                                                placeholder="Nhập họ tên bệnh nhân" value="Nguyễn Văn A" />
+                                                placeholder="Nhập họ tên bệnh nhân" />
                                             @Html.ValidationMessageFor(model => model.Patient.Name, "", new { @class =
                                                                                         "text-danger" })
                                         </div>
@@ -218,7 +218,7 @@
                                                     <option value="">Chọn giới tính</option>
                                                     @foreach (var gender in ViewBag.GenderOptions)
                                                     {
-                                                        <option value="@gender.Value" selected="@(gender.Value.ToString() == "1")">@gender.Text</option>
+                                                        <option value="@gender.Value">@gender.Text</option>
                                                     }
                                                 </select>
                                             </div>
@@ -230,7 +230,7 @@
                                                 class="block text-sm font-medium text-gray-700">Ngày sinh</label>
                                             <input id="DateOfBirth" name="DateOfBirth"
                                                 class="form-input w-full mt-1 p-2 border rounded flatpickr"
-                                                placeholder="Nhập ngày sinh" type="text" value="01/01/1990" />
+                                                placeholder="Nhập ngày sinh" type="text" />
                                             @Html.ValidationMessageFor(model => model.Patient.DateOfBirth, "", new {
                                                                                         @class = "text-danger" })
                                         </div>
@@ -240,7 +240,7 @@
                                                 dân</label>
                                             <input id="IdentityNumber" name="IdentityNumber"
                                                 class="form-input w-full mt-1 p-2 border rounded"
-                                                placeholder="Nhập căn cước công dân" value="123456789" />
+                                                placeholder="Nhập căn cước công dân" />
                                             @Html.ValidationMessageFor(model => model.Patient.IdentityNumber, "", new {
                                                                                         @class = "text-danger" })
                                         </div>
@@ -249,7 +249,7 @@
                                         <div class="w-full address-container">
                                             <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ</label>
                                             <input id="Address" type="text" name="Address" class="form-input w-full mt-1 p-2 border rounded" 
-                                                placeholder="Nhập địa chỉ" autocomplete="off" value="123 Đường ABC, Quận 1, TP.HCM" />
+                                                placeholder="Nhập địa chỉ" autocomplete="off" />
                                             @Html.ValidationMessageFor(model => model.Patient.Address, "", new { @class = "text-danger" })
                                         </div> 
                                     </div>
@@ -259,7 +259,7 @@
                                                 điện thoại</label>
                                             <input id="PhoneNumber" name="PhoneNumber"
                                                 class="form-input w-full mt-1 p-2 border rounded"
-                                                placeholder="Nhập số điện thoại" value="0123456789" />
+                                                placeholder="Nhập số điện thoại" />
                                             @Html.ValidationMessageFor(model => model.Patient.PhoneNumber, "", new {
                                                                                         @class = "text-danger" })
                                         </div>
@@ -268,7 +268,7 @@
                                                 class="block text-sm font-medium text-gray-700">Email</label>
                                             <input id="Email" name="Email"
                                                 class="form-input w-full mt-1 p-2 border rounded"
-                                                placeholder="Nhập email" value="test@example.com" />
+                                                placeholder="Nhập email" />
                                             @Html.ValidationMessageFor(model => model.Patient.EmailAddress, "", new {
                                                                                         @class = "text-danger" })
                                         </div>
@@ -302,7 +302,7 @@
                                             class="block text-sm font-medium text-gray-700">Số thẻ BHYT</label>
                                         <input id="HealthInsuranceNumber" name="HealthInsuranceNumber"
                                             class="form-input w-full mt-1 p-2 border rounded"
-                                            placeholder="Nhập số thẻ BHYT" value="BH123456789" />
+                                            placeholder="Nhập số thẻ BHYT" />
                                         @Html.ValidationMessageFor(model => model.Patient.HealthInsuranceNumber, "", new
                                                                                 { @class = "text-danger" })
                                     </div>
@@ -311,7 +311,7 @@
                                             class="block text-sm font-medium text-gray-700">Ngày hết hạn</label>
                                         <input id="HealthInsuranceExpiryDate" name="HealthInsuranceExpiryDate"
                                             class="form-input w-full mt-1 p-2 border rounded flatpickr"
-                                            placeholder="Nhập ngày hết hạn" type="text" value="31/12/2024" />
+                                            placeholder="Nhập ngày hết hạn" type="text" />
                                         @Html.ValidationMessageFor(model => model.Patient.HealthInsuranceExpiryDate, "",
                                                                                 new { @class = "text-danger" })
                                     </div>

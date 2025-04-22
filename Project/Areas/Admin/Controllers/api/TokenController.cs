@@ -45,7 +45,7 @@ namespace Project.Areas.Admin.Controllers.Api
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTime.Now.AddDays(1)
+                Expires = DateTime.Now.AddHours(1)
             });
 
             return Ok(new { success = true, message = "Token đã được làm mới." });

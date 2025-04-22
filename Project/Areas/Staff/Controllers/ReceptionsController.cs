@@ -353,6 +353,7 @@ namespace Project.Areas.Staff.Controllers
                 {
                     return Json(new { success = false, message = "Phiếu khám không tồn tại" });
                 }
+                ViewBag.TreatmentRecordId = treatmentRecord.Id;
 
                 // Check if treatment record is in a valid state for editing
                 if (treatmentRecord.Status == TreatmentStatus.DaKetThuc)
@@ -367,15 +368,18 @@ namespace Project.Areas.Staff.Controllers
                     return Json(new { success = false, message = "Bệnh nhân không tồn tại" });
                 }
 
+
                 _mapper.Map(dto.Patient, patient);
                 patient.UpdatedBy = employee.Name;
                 patient.UpdatedDate = DateTime.Now;
 
                 if (dto.Patient.ImageFile != null && dto.Patient.ImageFile.Length > 0)
                 {
-                    var imagePath = await _imageService.SaveImageAsync(dto.Patient.ImageFile, "Patients");
-                    patient.Images = imagePath;
+                    patient.Images = await _imageService.SaveImageAsync(dto.Patient.ImageFile, "Patients");
                 }
+
+                ViewBag.PatientId = patient.Id;
+                ViewBag.ExistingImage = patient.Images;
 
                 await _patientRepository.UpdateAsync(patient);
 
@@ -410,6 +414,8 @@ namespace Project.Areas.Staff.Controllers
 
                     await _healthInsuranceRepository.UpdateAsync(healthInsurance);
                 }
+
+                ViewBag.HealthInsuranceId = healthInsurance?.Id;
 
                 // Create new treatment record detail if provided
                 if (dto.NewTreatmentRecordDetail != null)
@@ -493,16 +499,7 @@ namespace Project.Areas.Staff.Controllers
             }
             catch (Exception ex)
             {
-                string errorMessage = ex.Message;
-                if (ex.InnerException != null)
-                {
-                    errorMessage += "\nInner Exception: " + ex.InnerException.Message;
-                    if (ex.InnerException.InnerException != null)
-                    {
-                        errorMessage += "\nInner Inner Exception: " + ex.InnerException.InnerException.Message;
-                    }
-                }
-                return Json(new { success = false, message = errorMessage });
+                return Json(new { success = false, message = ex.Message });
             }
         }
     }

@@ -45,7 +45,7 @@ const utils = {
 const tokenHandler = {
     async renew() {
         try {
-            const response = await fetch('/Admin/Account/RenewToken', {
+            const response = await fetch('/api/token/renew', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
