@@ -1,10 +1,10 @@
 // Các hằng số
 const CONSTANTS = {
     MAX_WARNING_DURATION: 60 * 1000, // 1 phút tối đa để quyết định
-    WARNING_THRESHOLD: 10 * 1000, // 10 giây trước khi hết hạn
+    WARNING_THRESHOLD: 60 * 60 * 1000, // 1 giờ trước khi hết hạn
     CHECK_INTERVAL: 5 * 1000, // Kiểm tra mỗi 5 giây
     LONG_CHECK_INTERVAL: 30 * 1000, // Kiểm tra mỗi 30 giây khi còn nhiều thời gian
-    ONE_MINUTE: 60 * 1000
+    ONE_HOUR: 60 * 60 * 1000
 };
 
 // Trạng thái hệ thống
@@ -46,7 +46,7 @@ const tokenHandler = {
     async renew() {
         try {
             const response = await fetch('/api/token/renew', {
-                method: 'POST',
+                method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
             });
             
@@ -154,7 +154,7 @@ function startTokenMonitoring() {
     if (state.isWarningDisplayed) return;
 
     // Điều chỉnh tần suất kiểm tra dựa trên thời gian còn lại
-    if (timeUntilExpiration <= CONSTANTS.ONE_MINUTE) {
+    if (timeUntilExpiration <= CONSTANTS.ONE_HOUR) {
         utils.setInterval(CONSTANTS.CHECK_INTERVAL);
     } else {
         utils.setInterval(CONSTANTS.LONG_CHECK_INTERVAL);
