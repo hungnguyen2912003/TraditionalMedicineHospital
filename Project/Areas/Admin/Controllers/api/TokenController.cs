@@ -40,12 +40,23 @@ namespace Project.Areas.Admin.Controllers.Api
             }
 
             var newToken = _jwtManager.GenerateToken(username, roleType);
+            var expirationTime = DateTime.UtcNow.AddHours(1);
+            var cookieExpirationTime = expirationTime.AddMinutes(1);
+
             Response.Cookies.Append("AuthToken", newToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTime.Now.AddSeconds(20)
+                Expires = cookieExpirationTime
+            });
+
+            Response.Cookies.Append("TokenExpiration", ((DateTimeOffset)expirationTime).ToUnixTimeMilliseconds().ToString(), new CookieOptions
+            {
+                HttpOnly = false,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = cookieExpirationTime
             });
 
             return Ok(new { success = true, message = "Token đã được làm mới." });

@@ -61,8 +61,8 @@ namespace Project.Areas.Admin.Controllers
                 if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
                 {
                     var token = _jwtManager.GenerateToken(user.Username, user.Role);
-                    var expirationTime = DateTime.UtcNow.AddHours(1).AddMinutes(1);
-                    var cookieExpirationTime = expirationTime;
+                    var expirationTime = DateTime.UtcNow.AddHours(1);
+                    var cookieExpirationTime = expirationTime.AddMinutes(1);
 
                     Response.Cookies.Append("AuthToken", token, new CookieOptions
                     {

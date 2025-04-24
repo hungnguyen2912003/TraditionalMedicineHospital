@@ -1,10 +1,10 @@
 // Các hằng số
 const CONSTANTS = {
     MAX_WARNING_DURATION: 60 * 1000, // 1 phút tối đa để quyết định
-    WARNING_THRESHOLD: 60 * 60 * 1000, // 1 giờ trước khi hết hạn
-    CHECK_INTERVAL: 5 * 1000, // Kiểm tra mỗi 5 giây
+    WARNING_THRESHOLD: 60 * 1000, // Cảnh báo trước khi hết hạn 1 phút
+    CHECK_INTERVAL: 5 * 1000, // Kiểm tra mỗi 5 giây khi gần hết hạn
     LONG_CHECK_INTERVAL: 30 * 1000, // Kiểm tra mỗi 30 giây khi còn nhiều thời gian
-    ONE_HOUR: 60 * 60 * 1000
+    ONE_MINUTE: 60 * 1000
 };
 
 // Trạng thái hệ thống
@@ -12,7 +12,9 @@ const state = {
     isWarningDisplayed: false,
     warningStartTime: null,
     warningDialog: null,
-    checkInterval: null
+    checkInterval: null,
+    lastLogTime: null,
+    isRenewing: false
 };
 
 // Hàm tiện ích
@@ -38,12 +40,24 @@ const utils = {
     setInterval(interval) {
         utils.clearInterval();
         state.checkInterval = setInterval(startTokenMonitoring, interval);
+    },
+
+    logTimeRemaining(timeUntilExpiration) {
+        const now = Date.now();
+        if (!state.lastLogTime || (now - state.lastLogTime) >= 1000) {
+            const seconds = Math.floor(timeUntilExpiration / 1000);
+            console.log(`Thời gian còn lại: ${seconds} giây`);
+            state.lastLogTime = now;
+        }
     }
 };
 
 // Hàm xử lý token
 const tokenHandler = {
     async renew() {
+        if (state.isRenewing) return false;
+        state.isRenewing = true;
+        
         try {
             const response = await fetch('/api/token/renew', {
                 method: 'GET',
@@ -53,23 +67,38 @@ const tokenHandler = {
             if (response.ok) {
                 const result = await response.json();
                 if (result.success) {
+                    // Reset all states
                     if (state.warningDialog) {
                         state.warningDialog.close();
                         state.warningDialog = null;
                     }
                     state.isWarningDisplayed = false;
                     state.warningStartTime = null;
+                    state.lastLogTime = null;
+                    state.isRenewing = false;
+                    
+                    // Clear existing interval
+                    utils.clearInterval();
+                    
+                    // Wait for the new cookie to be set
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Start monitoring with new token
                     startTokenMonitoring();
                     return true;
                 }
             }
+            state.isRenewing = false;
             return false;
-        } catch {
+        } catch (error) {
+            state.isRenewing = false;
             return false;
         }
     },
 
     showWarningDialog() {
+        if (state.isRenewing) return;
+        
         if (typeof $.confirm === 'undefined') {
             if (confirm('Thời gian làm việc trên web sắp hết, bạn có muốn tiếp tục không?')) {
                 tokenHandler.renew();
@@ -151,17 +180,17 @@ function startTokenMonitoring() {
     const now = Date.now();
     const timeUntilExpiration = expirationTime - now;
 
-    if (state.isWarningDisplayed) return;
+    if (state.isWarningDisplayed || state.isRenewing) return;
 
     // Điều chỉnh tần suất kiểm tra dựa trên thời gian còn lại
-    if (timeUntilExpiration <= CONSTANTS.ONE_HOUR) {
+    if (timeUntilExpiration <= CONSTANTS.ONE_MINUTE) {
         utils.setInterval(CONSTANTS.CHECK_INTERVAL);
     } else {
         utils.setInterval(CONSTANTS.LONG_CHECK_INTERVAL);
     }
 
     // Hiển thị cảnh báo khi cần
-    if (timeUntilExpiration <= CONSTANTS.WARNING_THRESHOLD && !state.isWarningDisplayed) {
+    if (timeUntilExpiration <= CONSTANTS.WARNING_THRESHOLD && !state.isWarningDisplayed && !state.isRenewing) {
         state.isWarningDisplayed = true;
         state.warningStartTime = now;
         tokenHandler.showWarningDialog();
