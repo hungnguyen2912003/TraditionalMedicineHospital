@@ -11,6 +11,23 @@ namespace Project.Repositories.Implementations
         {
         }
 
+        public async Task<IEnumerable<Room>> GetRoomsByTreatmentMethodAsync(Guid id)
+        {
+            return await _context.rooms
+                .Include(r => r.TreatmentMethod)
+                .Where(r => r.TreatmentMethodId == id)
+                .Select(r => new Room
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    Code = r.Code,
+                    Description = r.Description,
+                    TreatmentMethodId = r.TreatmentMethodId,
+                    TreatmentMethod = r.TreatmentMethod
+                })
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Room>> GetAllAdvancedAsync()
         {
             return await _context.rooms

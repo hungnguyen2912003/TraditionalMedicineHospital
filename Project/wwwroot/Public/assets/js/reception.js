@@ -32,6 +32,9 @@ document.addEventListener('alpine:init', () => {
 
                 // Then initialize components once
                 this.initializeComponents();
+
+                // Add event listeners for treatment dates
+                this.setupTreatmentDateListeners();
             } catch (error) {
                 console.error('Error initializing reception:', error);
                 notyf.error('Có lỗi xảy ra khi khởi tạo form');
@@ -75,9 +78,13 @@ document.addEventListener('alpine:init', () => {
                     return false;
                 }
 
-                // Parse regulation effective dates
+                // Parse regulation effective dates and format them with slashes
                 const regStart = this.parseDate(r.effectiveStartDate);
                 const regEnd = this.parseDate(r.effectiveEndDate);
+
+                // Format dates for display
+                r.effectiveStartDate = regStart ? `${regStart.getDate().toString().padStart(2, '0')}/${(regStart.getMonth() + 1).toString().padStart(2, '0')}/${regStart.getFullYear()}` : '';
+                r.effectiveEndDate = regEnd ? `${regEnd.getDate().toString().padStart(2, '0')}/${(regEnd.getMonth() + 1).toString().padStart(2, '0')}/${regEnd.getFullYear()}` : '';
 
                 // Check if regulation's effective period overlaps with treatment period
                 // and regulation starts before treatment ends
@@ -89,6 +96,14 @@ document.addEventListener('alpine:init', () => {
          * Add a new regulation
          */
         addRegulation() {
+            const startDate = document.getElementById('StartDate').value;
+            const endDate = document.getElementById('EndDate').value;
+
+            if (!startDate || !endDate) {
+                notyf.error('Vui lòng chọn thời gian điều trị trước khi thêm quy định');
+                return;
+            }
+
             if (this.regulations.length >= 5) {
                 notyf.error('Không thể thêm quá 5 quy định cho một phiếu điều trị');
                 return;
@@ -110,18 +125,48 @@ document.addEventListener('alpine:init', () => {
             };
             this.regulations.push(newRegulation);
 
-            // Initialize Choices.js for the new regulation select after the template is rendered
+            // Initialize select for the new regulation after the template is rendered
             this.$nextTick(() => {
                 const index = this.regulations.length - 1;
                 const selectElement = document.getElementById(`regulationId-${index}`);
                 if (selectElement) {
-                    new Choices(selectElement, {
-                        removeItemButton: true,
-                        searchEnabled: true,
-                        placeholder: true,
-                        placeholderValue: 'Chọn quy định',
-                        noResultsText: 'Không tìm thấy kết quả',
-                        itemSelectText: ''
+                    // Check if treatment dates are selected
+                    const hasStartDate = document.getElementById('StartDate').value.trim() !== '';
+                    const hasEndDate = document.getElementById('EndDate').value.trim() !== '';
+
+                    if (!hasStartDate || !hasEndDate) {
+                        selectElement.disabled = true;
+                        selectElement.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+
+                    // Get currently selected regulation IDs
+                    const selectedIds = this.regulations
+                        .map(r => r.RegulationId)
+                        .filter(id => id !== '');
+
+                    // Filter out already selected regulations
+                    const availableChoices = availableRegs.filter(r => !selectedIds.includes(r.id.toString()));
+
+                    // Clear existing options
+                    selectElement.innerHTML = '';
+
+                    // Add default option
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.text = 'Chọn quy định';
+                    selectElement.appendChild(defaultOption);
+
+                    // Add available regulations
+                    availableChoices.forEach(reg => {
+                        const option = document.createElement('option');
+                        option.value = reg.id;
+                        option.text = `${reg.name} (${reg.effectiveStartDate} - ${reg.effectiveEndDate})`;
+                        selectElement.appendChild(option);
+                    });
+
+                    // Add change event listener
+                    selectElement.addEventListener('change', (e) => {
+                        this.onRegulationChange(index, e.target.value);
                     });
                 }
             });
@@ -497,6 +542,10 @@ document.addEventListener('alpine:init', () => {
                 element._flatpickr.destroy();
             }
 
+            // Get treatment end date
+            const treatmentEndDate = document.getElementById('EndDate').value;
+            const treatmentEnd = this.parseDate(treatmentEndDate);
+
             // Find the selected regulation
             const regulation = this.availableRegulations.find(r => r.id.toString() === regulationId);
 
@@ -517,15 +566,18 @@ document.addEventListener('alpine:init', () => {
             const startDate = this.parseDate(regulation.effectiveStartDate);
             const endDate = this.parseDate(regulation.effectiveEndDate);
 
+            // Use the earlier of regulation end date and treatment end date as the max date
+            const maxDate = treatmentEnd && endDate ? (treatmentEnd < endDate ? treatmentEnd : endDate) : (treatmentEnd || endDate);
+
             flatpickr(element, {
                 dateFormat: "d/m/Y",
                 allowInput: true,
                 minDate: startDate,
-                maxDate: endDate,
+                maxDate: maxDate,
                 disable: [
                     function (date) {
-                        // Disable dates outside the effective range
-                        return date < startDate || date > endDate;
+                        // Disable dates outside the effective range and after treatment end date
+                        return date < startDate || date > maxDate;
                     }
                 ]
             });
@@ -535,8 +587,22 @@ document.addEventListener('alpine:init', () => {
          * Parse date string (dd/mm/yyyy) to Date object
          */
         parseDate(dateStr) {
-            const [day, month, year] = dateStr.split('/').map(Number);
-            return new Date(year, month - 1, day);
+            try {
+                // Handle different date formats
+                if (dateStr.includes('/')) { // dd/mm/yyyy
+                    const [day, month, year] = dateStr.split('/').map(Number);
+                    return new Date(year, month - 1, day);
+                } else if (dateStr.includes(' ') && dateStr.split(' ').length === 3) {
+                    const [day, month, year] = dateStr.split(' ').map(Number);
+                    return new Date(year, month - 1, day);
+                } else if (dateStr.includes('-')) {
+                    return new Date(dateStr);
+                } else {
+                    return null;
+                }
+            } catch (error) {
+                return null;
+            }
         },
 
         /**
@@ -562,11 +628,61 @@ document.addEventListener('alpine:init', () => {
                             dateField._flatpickr.setDate(treatmentStartDate);
                         }
                     }
+
+                    // Update all other regulation selects
+                    this.updateAllRegulationSelects();
                 } else {
                     // Clear execution date if regulation is deselected
                     this.regulations[index].ExecutionDate = '';
                 }
             }
+        },
+
+        /**
+         * Update all regulation select boxes
+         */
+        updateAllRegulationSelects() {
+            const availableRegs = this.getAvailableRegulationsForAdd();
+            const selectedIds = this.regulations
+                .map(r => r.RegulationId)
+                .filter(id => id !== '');
+
+            // Update each select box
+            this.regulations.forEach((regulation, index) => {
+                const selectElement = document.getElementById(`regulationId-${index}`);
+                if (selectElement && !selectedIds.includes(regulation.RegulationId)) {
+                    // Get available regulations excluding current selection
+                    const currentSelectedId = regulation.RegulationId;
+                    const availableChoices = availableRegs.filter(r => 
+                        !selectedIds.includes(r.id.toString()) || r.id.toString() === currentSelectedId
+                    );
+
+                    // Store current selection
+                    const currentValue = selectElement.value;
+
+                    // Clear existing options
+                    selectElement.innerHTML = '';
+
+                    // Add default option
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.text = 'Chọn quy định';
+                    selectElement.appendChild(defaultOption);
+
+                    // Add available regulations
+                    availableChoices.forEach(reg => {
+                        const option = document.createElement('option');
+                        option.value = reg.id;
+                        option.text = `${reg.name} (${reg.effectiveStartDate} - ${reg.effectiveEndDate})`;
+                        selectElement.appendChild(option);
+                    });
+
+                    // Restore current selection if it exists
+                    if (currentValue) {
+                        selectElement.value = currentValue;
+                    }
+                }
+            });
         },
 
         /**
@@ -688,21 +804,7 @@ document.addEventListener('alpine:init', () => {
                 "Address": { required: true, minlength: 5, maxlength: 500 },
                 "Email": { email: true },
                 "HealthInsuranceNumber": {
-                    required: () => $('#HasHealthInsurance').is(':checked'),
-                    remote: {
-                        url: "/api/validation/healthinsurance/check",
-                        type: "GET",
-                        data: {
-                            type: "numberhealthinsurance",
-                            entityType: "healthinsurance",
-                            value: function () { return $("#HealthInsuranceNumber").val(); }
-                        },
-                        dataFilter: function (data) {
-                            return JSON.parse(data) === true;
-                        }
-                    },
-                    minlength: 15,
-                    maxlength: 15
+                    required: () => $('#HasHealthInsurance').is(':checked')
                 },
                 "HealthInsuranceExpiryDate": {
                     required: () => $('#HasHealthInsurance').is(':checked'),
@@ -764,12 +866,7 @@ document.addEventListener('alpine:init', () => {
                     maxlength: "Địa chỉ không được vượt quá 500 ký tự."
                 },
                 "Email": { email: "Email không hợp lệ." },
-                "HealthInsuranceNumber": { 
-                    required: "Số thẻ BHYT không được bỏ trống.",
-                    remote: "Số thẻ BHYT đã được đăng ký trước đó trên hệ thống",
-                    minlength: "Số thẻ BHYT phải có đủ 15 ký tự.",
-                    maxlength: "Số thẻ BHYT phải có đủ 15 ký tự."
-                },
+                "HealthInsuranceNumber": { required: "Số thẻ BHYT không được bỏ trống." },
                 "HealthInsuranceExpiryDate": {
                     required: "Ngày hết hạn không được bỏ trống.",
                     dateFormat: "Ngày hết hạn không hợp lệ.",
@@ -977,6 +1074,47 @@ document.addEventListener('alpine:init', () => {
         validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(email);
+        },
+
+        /**
+         * Set up listeners for treatment date changes
+         */
+        setupTreatmentDateListeners() {
+            const startDateInput = document.getElementById('StartDate');
+            const endDateInput = document.getElementById('EndDate');
+            const warningDiv = document.getElementById('regulationDateWarning');
+
+            const updateRegulationState = () => {
+                const hasStartDate = startDateInput.value.trim() !== '';
+                const hasEndDate = endDateInput.value.trim() !== '';
+                const regulationSelects = document.querySelectorAll('[id^="regulationId-"]');
+
+                if (!hasStartDate || !hasEndDate) {
+                    // Disable all regulation selects
+                    regulationSelects.forEach(select => {
+                        select.disabled = true;
+                        select.classList.add('opacity-50', 'cursor-not-allowed');
+                    });
+                    if (warningDiv) warningDiv.style.display = 'block';
+                } else {
+                    // Enable all regulation selects
+                    regulationSelects.forEach(select => {
+                        select.disabled = false;
+                        select.classList.remove('opacity-50', 'cursor-not-allowed');
+                    });
+                    if (warningDiv) warningDiv.style.display = 'none';
+                }
+            };
+
+            if (startDateInput) {
+                startDateInput.addEventListener('change', updateRegulationState);
+            }
+            if (endDateInput) {
+                endDateInput.addEventListener('change', updateRegulationState);
+            }
+
+            // Initial state check
+            updateRegulationState();
         }
     }));
 });

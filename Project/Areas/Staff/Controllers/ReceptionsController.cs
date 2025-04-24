@@ -316,6 +316,11 @@ namespace Project.Areas.Staff.Controllers
                 model.Patient.HealthInsurancePlaceOfRegistration = healthInsurance.PlaceOfRegistration;
             }
 
+            // Set ViewBag values for the view
+            ViewBag.TreatmentRecordId = treatmentRecord.Id;
+            ViewBag.PatientId = patient.Id;
+            ViewBag.ExistingImage = patient.Images;
+
             return View(model);
         }
 

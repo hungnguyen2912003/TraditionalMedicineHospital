@@ -2,6 +2,7 @@
 @model Project.Areas.Staff.Models.Entities.TreatmentRecord
 @using Project.Models.Enums
 @using System.ComponentModel.DataAnnotations
+@using System.Globalization
 
 @{
     ViewData["Title"] = "Chi tiết phiếu điều trị";
@@ -136,12 +137,12 @@
                                     <div class="w-full sm:w-1/2">
                                         <label for="StartDate">Ngày bắt đầu</label>
                                         <input id="StartDate" class="form-input" readonly
-                                            value="@Model.StartDate.ToString("dd/MM/yyyy")" />
+                                            value="@Model.StartDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" />
                                     </div>
                                     <div class="w-full sm:w-1/2">
                                         <label for="EndDate">Ngày kết thúc</label>
                                         <input id="EndDate" class="form-input" readonly
-                                            value="@Model.EndDate.ToString("dd/MM/yyyy")" />
+                                            value="@Model.EndDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" />
                                     </div>
                                 </div>
                                 <div class="w-full sm:col-span-2">
@@ -188,7 +189,7 @@
                                     <div class="w-full sm:w-1/2">
                                         <label for="DateOfBirth">Ngày sinh</label>
                                         <input id="DateOfBirth" type="text" class="form-input" readonly
-                                            value="@Model.Patient.DateOfBirth.ToString("dd/MM/yyyy")" />
+                                            value="@Model.Patient.DateOfBirth.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" />
                                     </div>
                                     <div class="w-full sm:w-1/2">
                                         <label for="IdentityNumber">Căn cước công dân</label>
@@ -214,11 +215,11 @@
                                         <input id="Email" type="text" class="form-input" readonly
                                             value="@Model.Patient.EmailAddress" />
                                     </div>
-                        </div>
-                        </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                        </div>
+                </div>
                 <div class="mt-6 w-full xl:mt-0 xl:w-96">
                     <div class="panel mb-5">
                         <div>
@@ -250,25 +251,25 @@
                         @if (Model.Patient.HealthInsurance != null)
                         {
                             <div class="grid grid-cols-1 gap-4">
-                        <div>
+                                <div>
                                     <label>Mã thẻ BHYT</label>
                                     <input type="text" class="form-input" readonly
                                         value="@Model.Patient.HealthInsurance.Code" />
-                        </div>
-                        <div>
+                                </div>
+                                <div>
                                     <label>Số thẻ BHYT</label>
                                     <input type="text" class="form-input" readonly
                                         value="@Model.Patient.HealthInsurance.Number" />
-                        </div>
-                        <div>
+                                </div>
+                                <div>
                                     <label>Nơi đăng ký KCB ban đầu</label>
                                     <input type="text" class="form-input" readonly
                                         value="@Model.Patient.HealthInsurance.PlaceOfRegistration" />
-                        </div>
-                        <div>
+                                </div>
+                                <div>
                                     <label>Ngày hết hạn</label>
                                     <input type="text" class="form-input" readonly
-                                        value="@Model.Patient.HealthInsurance.ExpiryDate.ToString("dd/MM/yyyy")" />
+                                        value="@Model.Patient.HealthInsurance.ExpiryDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" />
                                 </div>
                             </div>
                         }
@@ -365,8 +366,8 @@
                                                     <td>@assignmentIndex</td>
                                                     <td>@assignment.Code</td>
                                                     <td>@assignment.Employee.Name</td>
-                                                    <td>@assignment.StartDate.ToString("dd/MM/yyyy")</td>
-                                                    <td>@assignment.EndDate.ToString("dd/MM/yyyy")</td>
+                                                    <td>@assignment.StartDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
+                                                    <td>@assignment.EndDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
                                                     <td>
                                                         <button type="button" class="view-note-btn"
                                                             onclick="showNoteModal('@(assignment.Note?.Replace("'", "\\'"))', 'assignment', '@assignment.Employee.Name')">
@@ -422,7 +423,7 @@
                                                     <td>@regulationIndex</td>
                                                     <td>@regulation.Code</td>
                                                     <td>@regulation.Regulation.Name</td>
-                                                    <td>@regulation.ExecutionDate.ToString("dd/MM/yyyy")</td>
+                                                    <td>@regulation.ExecutionDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
                                                     <td>
                                                         <button type="button" class="view-note-btn"
                                                             onclick="showNoteModal('@(regulation.Note?.Replace("'", "\\'"))', 'regulation', '@regulation.Code')">

@@ -1,6 +1,8 @@
 @model Project.Areas.Staff.Models.DTOs.ReceptionDTO.ReceptionEditDto
 @using Project.Models.Enums
 @using System.ComponentModel.DataAnnotations
+@using System.Globalization
+
 
 @{
     ViewData["Title"] = "Chỉnh sửa tiếp nhận";
@@ -13,38 +15,23 @@
     var existingImage = ViewBag.ExistingImage;
 }
 
+<input type="hidden" id="existingImage" value="@existingImage" />
+
 <div class="overlay" id="loadingOverlay">
     <span
         class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
 </div>
 
-<ul class="flex space-x-2 rtl:space-x-reverse mb-4">
-    <li>
-        <a href="javascript:;" class="text-primary hover:underline">Lập phiếu & Tiếp nhận bệnh nhân</a>
-    </li>
-    <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-        <span>Cập nhật phiếu tiếp nhận</span>
-    </li>
-</ul>
-
-<form id="receptionForm" method="post" enctype="multipart/form-data" asp-action="Edit"
-    x-data="receptionEdit"
-    x-init="
-        allRooms = window.roomsData || [];
-        availableRegulations = window.regulationsData || [];
-        $nextTick(() => initializeComponents())
-    ">
+<form id="receptionForm" method="post" enctype="multipart/form-data" asp-action="Edit">
 
     @Html.AntiForgeryToken()
 
-    <!-- Add hidden fields to store IDs -->
-    <input type="hidden" id="treatmentRecordId" value="@treatmentRecordId" />
-    <input type="hidden" id="patientId" value="@patientId" />
-    <input type="hidden" id="healthInsuranceId" value="@healthInsuranceId" />
+    <input type="hidden" id="treatmentRecordId" name="TreatmentRecord.Id" value="@treatmentRecordId" />
+    <input type="hidden" id="patientId" name="Patient.Id" value="@patientId" />
+    <input type="hidden" id="healthInsuranceId" name="HealthInsurance.Id" value="@healthInsuranceId" />
 
-    <div x-data="{tab: 'treatment-record', hasHealthInsurance: false}">
-        <ul
-            class="mb-5 overflow-y-auto whitespace-nowrap border-b border-[#ebedf2] font-semibold dark:border-[#191e3a] sm:flex">
+    <div x-data="editData">
+        <ul class="mb-5 overflow-y-auto whitespace-nowrap border-b border-[#ebedf2] font-semibold dark:border-[#191e3a] sm:flex">
             <li class="inline-block">
                 <a href="javascript:;"
                     class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
@@ -139,7 +126,7 @@
                                         <div class="w-full sm:w-1/2">
                                             <label for="Diagnosis">Chẩn đoán</label>
                                             <div class="select-wrapper">
-                                                <select id="Diagnosis" name="Diagnosis" class="form-input w-full mt-1 p-2 border rounded choices">
+                                                <select id="Diagnosis" name="TreatmentRecord.Diagnosis" class="form-input w-full mt-1 p-2 border rounded choices">
                                                     <option value="">Chọn chẩn đoán</option>
                                                     @foreach (var diagnosis in Enum.GetValues(typeof(Project.Models.Enums.DiagnosisType)))
                                                     {
@@ -166,14 +153,14 @@
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full sm:w-1/2">
                                             <label for="StartDate">Ngày bắt đầu</label>
-                                            <input id="StartDate" name="StartDate" class="form-input flatpickr" type="text"
+                                            <input id="StartDate" name="TreatmentRecord.StartDate" class="form-input flatpickr" type="text"
                                                 placeholder="Chọn ngày bắt đầu" value="@Model.TreatmentRecord.StartDate.ToString("dd/MM/yyyy")" />
                                             @Html.ValidationMessageFor(model => model.TreatmentRecord.StartDate, "", new { @class =
                                                 "text-danger" })                                        
                                         </div>
                                         <div class="w-full sm:w-1/2">
                                             <label for="EndDate">Ngày kết thúc</label>
-                                            <input id="EndDate" name="EndDate" class="form-input flatpickr" type="text"
+                                            <input id="EndDate" name="TreatmentRecord.EndDate" class="form-input flatpickr" type="text"
                                                 placeholder="Chọn ngày kết thúc" value="@Model.TreatmentRecord.EndDate.ToString("dd/MM/yyyy")" />
                                             @Html.ValidationMessageFor(model => model.TreatmentRecord.EndDate, "", new { @class =
                                                 "text-danger" })                                        
@@ -217,7 +204,7 @@
                                         <div class="w-full sm:w-1/2">
                                             <label for="Name" class="block text-sm font-medium text-gray-700">Họ tên
                                                 bệnh nhân</label>
-                                            <input id="Name" name="Name"
+                                            <input id="Name" name="Patient.Name"
                                                 class="form-input w-full mt-1 p-2 border rounded"
                                                 placeholder="Nhập họ tên bệnh nhân" value="Nguyễn Văn A" />
                                             @Html.ValidationMessageFor(model => model.Patient.Name, "", new { @class =
@@ -229,12 +216,19 @@
                                             <label for="Gender" class="block text-sm font-medium text-gray-700">Giới
                                                 tính</label>
                                             <div class="select-wrapper">
-                                                <select id="Gender" name="Gender"
+                                                <select id="Gender" name="Patient.Gender"
                                                     class="form-input w-full mt-1 p-2 border rounded choices">
                                                     <option value="">Chọn giới tính</option>
                                                     @foreach (var gender in ViewBag.GenderOptions)
                                                     {
-                                                        <option value="@gender.Value" selected="@(gender.Value.ToString() == "1")">@gender.Text</option>
+                                                        if (gender.Value == (int)Model.Patient.Gender)
+                                                        {
+                                                            <option value="@gender.Value" selected>@gender.Text</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@gender.Value">@gender.Text</option>
+                                                        }
                                                     }
                                                 </select>
                                             </div>
@@ -244,7 +238,7 @@
                                         <div class="w-full sm:w-1/2">
                                             <label for="DateOfBirth"
                                                 class="block text-sm font-medium text-gray-700">Ngày sinh</label>
-                                            <input id="DateOfBirth" name="DateOfBirth"
+                                            <input id="DateOfBirth" name="Patient.DateOfBirth"
                                                 class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                                 placeholder="Nhập ngày sinh" type="text" value="01/01/1990" />
                                             @Html.ValidationMessageFor(model => model.Patient.DateOfBirth, "", new {
@@ -254,7 +248,7 @@
                                             <label for="IdentityNumber"
                                                 class="block text-sm font-medium text-gray-700">Căn cước công
                                                 dân</label>
-                                            <input id="IdentityNumber" name="IdentityNumber"
+                                            <input id="IdentityNumber" name="Patient.IdentityNumber"
                                                 class="form-input w-full mt-1 p-2 border rounded"
                                                 placeholder="Nhập căn cước công dân" value="123456789" />
                                             @Html.ValidationMessageFor(model => model.Patient.IdentityNumber, "", new {
@@ -264,7 +258,7 @@
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full address-container">
                                             <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ</label>
-                                            <input id="Address" type="text" name="Address" class="form-input w-full mt-1 p-2 border rounded" 
+                                            <input id="Address" type="text" name="Patient.Address" class="form-input w-full mt-1 p-2 border rounded" 
                                                 placeholder="Nhập địa chỉ" autocomplete="off" value="123 Đường ABC, Quận 1, TP.HCM" />
                                             @Html.ValidationMessageFor(model => model.Patient.Address, "", new { @class = "text-danger" })
                                         </div> 
@@ -273,7 +267,7 @@
                                         <div class="w-full sm:w-1/2">
                                             <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Số
                                                 điện thoại</label>
-                                            <input id="PhoneNumber" name="PhoneNumber"
+                                            <input id="PhoneNumber" name="Patient.PhoneNumber"
                                                 class="form-input w-full mt-1 p-2 border rounded"
                                                 placeholder="Nhập số điện thoại" value="0123456789" />
                                             @Html.ValidationMessageFor(model => model.Patient.PhoneNumber, "", new {
@@ -282,7 +276,7 @@
                                         <div class="w-full sm:w-1/2">
                                             <label for="Email"
                                                 class="block text-sm font-medium text-gray-700">Email</label>
-                                            <input id="Email" name="Email"
+                                            <input id="Email" name="Patient.EmailAddress"
                                                 class="form-input w-full mt-1 p-2 border rounded"
                                                 placeholder="Nhập email" value="test@example.com" />
                                             @Html.ValidationMessageFor(model => model.Patient.EmailAddress, "", new {
@@ -305,7 +299,7 @@
                                             </svg>
                                         </div>
                                         <p class="text-base font-medium text-gray-700 mb-1">
-                                            Kéo và thả ảnh vào đây
+                                            Kéo thả hoặc nhấp để chọn ảnh
                                         </p>
                                         <p class="text-sm text-gray-500">
                                             hoặc click để chọn file
@@ -346,10 +340,11 @@
                         <div class="panel mb-5">
                             <label class="inline-flex cursor-pointer">
                                 <input type="checkbox" class="form-checkbox" name="HasHealthInsurance"
-                                    x-model="hasHealthInsurance" id="HasHealthInsurance" :checked="hasHealthInsurance" disabled/>
-                                <span class="text-sm font-medium text-gray-700 ml-2">Bệnh nhân có thẻ bảo hiểm y
-                                    tế</span>
+                                    x-model="hasHealthInsurance" id="HasHealthInsurance" 
+                                    :checked="@((!string.IsNullOrEmpty(Model.Patient.HealthInsuranceNumber) || !string.IsNullOrEmpty(Model.Patient.HealthInsuranceCode)).ToString().ToLower())" />
+                                <span class="text-sm font-medium text-gray-700 ml-2">Bệnh nhân có thẻ bảo hiểm y tế</span>
                             </label>
+                            
                             <!-- Thông tin thẻ BHYT -->
                             <div x-show="hasHealthInsurance" class="mt-5">
                                 <h6 class="mb-5 text-lg font-bold">Thông tin thẻ BHYT</h6>
@@ -358,7 +353,7 @@
                                         <input type="hidden" id="HealthInsuranceCode" name="Patient.HealthInsuranceCode" value="@Model.Patient.HealthInsuranceCode" />
                                         <label for="HealthInsuranceNumber"
                                             class="block text-sm font-medium text-gray-700">Số thẻ BHYT</label>
-                                        <input id="HealthInsuranceNumber" name="HealthInsuranceNumber"
+                                        <input id="HealthInsuranceNumber" name="Patient.HealthInsuranceNumber"
                                             class="form-input w-full mt-1 p-2 border rounded"
                                             placeholder="Nhập số thẻ BHYT" value="@Model.Patient.HealthInsuranceNumber" />
                                         @Html.ValidationMessageFor(model => model.Patient.HealthInsuranceNumber, "", new
@@ -367,9 +362,9 @@
                                     <div class="w-full">
                                         <label for="HealthInsuranceExpiryDate"
                                             class="block text-sm font-medium text-gray-700">Ngày hết hạn</label>
-                                        <input id="HealthInsuranceExpiryDate" name="HealthInsuranceExpiryDate"
+                                        <input id="HealthInsuranceExpiryDate" name="Patient.HealthInsuranceExpiryDate"
                                             class="form-input w-full mt-1 p-2 border rounded flatpickr"
-                                            placeholder="Nhập ngày hết hạn" type="text" value="@Model.Patient.HealthInsuranceExpiryDate?.ToString("dd/MM/yyyy")" />
+                                            placeholder="Nhập ngày hết hạn" type="text" value="@Model.Patient.HealthInsuranceExpiryDate?.ToString("dd/MM/yyyy")"/>
                                         @Html.ValidationMessageFor(model => model.Patient.HealthInsuranceExpiryDate, "",
                                                                                 new { @class = "text-danger" })
                                     </div>
@@ -379,7 +374,7 @@
                                             bệnh</label>
                                         <div class="select-wrapper">
                                             <select id="HealthInsurancePlaceOfRegistration"
-                                                name="HealthInsurancePlaceOfRegistration"
+                                                name="Patient.HealthInsurancePlaceOfRegistration"
                                                 class="form-input w-full mt-1 p-2 border rounded choices">
                                                 <option value="">Chọn nơi đăng ký</option>
                                                 @foreach (var place in Enum.GetValues(typeof(Project.Models.Enums.HealthInsuranceRegistrationPlace)))
@@ -446,7 +441,7 @@
                                                     <td>@detail.TreatmentMethodName</td>
                                                     <td>
                                                         <button type="button" class="view-note-btn"
-                                                            onclick="showNoteModal('@(detail.Note?.Replace("'", "\\'"))', 'treatment', '@detail.Code')">
+                                                            @@click="displayNote('@(detail.Note?.Replace("'", "\\'"))', 'treatment', '@detail.Code')">
                                                             Xem ghi chú
                                                         </button>
                                                     </td>
@@ -590,11 +585,11 @@
                                                     <td>@assignmentIndex</td>
                                                     <td>@assignment.Code</td>
                                                     <td>@assignment.EmployeeName</td>
-                                                    <td>@assignment.StartDate.ToString("dd/MM/yyyy")</td>
-                                                    <td>@assignment.EndDate.ToString("dd/MM/yyyy")</td>
+                                                    <td>@assignment.StartDate.ToString("dd/MM/yyyy", CultureInfo.GetCultureInfo("vi-VN"))</td>
+                                                    <td>@assignment.EndDate.ToString("dd/MM/yyyy", CultureInfo.GetCultureInfo("vi-VN"))</td>
                                                     <td>
                                                         <button type="button" class="view-note-btn"
-                                                            onclick="showNoteModal('@(assignment.Note?.Replace("'", "\\'"))', 'assignment', '@assignment.EmployeeName')">
+                                                            @@click="displayNote('@(assignment.Note?.Replace("'", "\\'"))', 'assignment', '@assignment.EmployeeName')">
                                                             Xem ghi chú
                                                         </button>
                                                     </td>
@@ -672,7 +667,7 @@
                                                 @Html.ValidationMessageFor(model => model.NewAssignment.EndDate, "", new { @class = "text-danger" })
                                             </div>                                        
                                         </div>
-                                        <div id="assignmentDateWarning" class="text-sm text-amber-400 mb-4" style="display: none;">
+                                        <div id="assignmentDateWarning" class="text-sm text-amber-400 mb-4" style="display: none; color: coral; font-weight: bold;">
                                             <div class="flex items-center">
                                                 <svg class="w-4 h-4 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                     <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
@@ -704,15 +699,9 @@
                         <div class="px-6">
                             <div class="flex justify-between items-center mb-5">
                                 <h4 class="text-lg font-bold">Quy định điều trị</h4>
-                                <button type="button" class="btn btn-primary" onclick="addRegulation()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                        stroke-linejoin="round" class="h-5 w-5">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    </svg>
-                                    <span class="ml-2">Thêm quy định</span>
-                                </button>
+                                <button type="button" class="btn btn-primary mb-4"
+                                    @@click="addRegulation()">
+                                Thêm quy định</button>
                             </div>
 
                             <div id="regulationsList">
@@ -720,30 +709,33 @@
                                 {
                                     foreach (var regulation in Model.Regulations)
                                     {
-                                        <div class="regulation-item mb-6 p-4 border rounded-lg">
-                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                <div class="form-group">
-                                                    <label>Quy định</label>
-                                                    <select class="form-select regulation-select" disabled>
-                                                        <option value="@regulation.RegulationId">@regulation.RegulationName</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label>Ngày thực hiện</label>
-                                                    <input type="text" class="form-input regulation-date flatpickr" 
-                                                        value="@regulation.ExecutionDate.ToString("dd/MM/yyyy")" disabled />
-                                                </div>
-                                                <div class="form-group">
-                                                    <label>Ghi chú</label>
-                                                    <input type="text" class="form-input" value="@regulation.Note" disabled />
-                                                </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div class="form-group">
+                                                <label>Quy định</label>
+                                                <select class="form-select regulation-select" disabled>
+                                                    <option value="@regulation.RegulationId">@regulation.RegulationName</option>
+                                                </select>
                                             </div>
-                                            <div class="flex justify-end mt-4">
-                                                <button type="button" class="btn btn-danger" 
-                                                    onclick="removeRegulation('@regulation.Code')">
-                                                    Xóa
-                                                </button>
+                                            <div class="form-group">
+                                                <label>Ngày thực hiện</label>
+                                                <input type="text" class="form-input regulation-date flatpickr" 
+                                                    value="@regulation.ExecutionDate.ToString("dd/MM/yyyy")" disabled />
                                             </div>
+                                            <div class="form-group">
+                                                <label>Ghi chú</label>
+                                                <button type="button" class="view-note-btn inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" 
+                                                     @@click="displayNote('@(regulation.Note?.Replace("'", "\\'"))', 'regulation', '@regulation.Code')">
+                                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
+                                                         <path d="M12 7.75C11.5858 7.75 11.25 8.08579 11.25 8.5V15.5C11.25 15.9142 11.5858 16.25 12 16.25C12.4142 16.25 12.75 15.9142 12.75 15.5V8.5C12.75 8.08579 12.4142 7.75 12 7.75Z" fill="currentColor"/>
+                                                         <path d="M12 17.75C11.4477 17.75 11 18.1977 11 18.75C11 19.3023 11.4477 19.75 12 19.75C12.5523 19.75 13 19.3023 13 18.75C13 18.1977 12.5523 17.75 12 17.75Z" fill="currentColor"/>
+                                                         <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.75C6.89137 2.75 2.75 6.89137 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25C17.1086 21.25 21.25 17.1086 21.25 12C21.25 6.89137 17.1086 2.75 12 2.75ZM4.25 12C4.25 7.71979 7.71979 4.25 12 4.25C16.2802 4.25 19.75 7.71979 19.75 12C19.75 16.2802 16.2802 19.75 12 19.75C7.71979 19.75 4.25 16.2802 4.25 12Z" fill="currentColor"/>
+                                                     </svg>
+                                                     Xem ghi chú
+                                                 </button>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-end mt-4">
+                                            <input type="button" class="btn btn-danger" style="cursor: pointer;" value="Xóa" @@click="regulations.splice(index, 1)" />
                                         </div>
                                     }
                                 }
@@ -790,34 +782,6 @@
     <a href="@Url.Action("Index", "TreatmentRecords")" class="btn btn-secondary">Quay lại</a>
 </div>
 
-<!-- Thêm modal cho ghi chú -->
-<div class="fixed inset-0 bg-[black]/60 z-[999] hidden modal-overlay" id="noteModal">
-    <div class="flex items-center justify-center min-h-screen px-4">
-        <div
-            class="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-lg my-8 modal-content bg-white dark:bg-[#121c2c] shadow-xl">
-            <div
-                class="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3 border-b dark:border-[#1b2e4b]">
-                <h5 class="font-bold text-lg" id="noteModalTitle">Ghi chú</h5>
-                <button type="button" class="text-white-dark hover:text-dark" onclick="closeNoteModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                        class="w-6 h-6">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-            <div class="p-5">
-                <p id="noteContent" class="text-base"></p>
-            </div>
-            <div class="py-3 px-5 border-t dark:border-[#1b2e4b] text-right">
-                <button type="button" class="btn btn-outline-danger" onclick="closeNoteModal()">
-                    Đóng
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <style>
     .table-striped {
@@ -906,53 +870,6 @@
         transform: translateY(-1px);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-
-    /* Modal Animations */
-    @@keyframes modalFadeIn {
-        from {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-
-    @@keyframes modalFadeOut {
-        from {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        to {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-    }
-
-    .modal-overlay {
-        transition: opacity 0.2s ease-in-out;
-    }
-
-    .modal-content {
-        animation: modalFadeIn 0.3s ease-out forwards;
-    }
-
-    .modal-closing {
-        animation: modalFadeOut 0.2s ease-in forwards;
-    }
 </style>
 
-
-<script src="~/Public/assets/js/receptionEdit.js"></script>
-
-<script>
-    // Pass data to JavaScript
-    window.existingImage = '@(existingImage ?? "")';
-    window.existingImageUrl = '@(Url.Content($"~/{existingImage}"))';
-    window.hasHealthInsurance = @Model.Patient.HasHealthInsurance.ToString().ToLower();
-    window.treatmentRecord = @Html.Raw(Json.Serialize(Model.TreatmentRecord));
-    window.assignments = @Html.Raw(Json.Serialize(Model.Assignments));
-</script>
+<script src="~/Public/assets/js/reception-edit.js?v=@DateTime.Now.Ticks"></script>
