@@ -20,14 +20,9 @@ namespace Project.Areas.Admin.Models.Entities
         [Required]
         public decimal Cost { get; set; }
 
-        // ForeignKey
-        public Guid DepartmentId { get; set; }
-
         /////////////////////////////////////////////////////
         /// Relationships
         /// 
-        [ForeignKey("DepartmentId")]
-        public required virtual Department Department { get; set; }
         public virtual ICollection<Room> Rooms { get; set; } = new HashSet<Room>();
     }
 }

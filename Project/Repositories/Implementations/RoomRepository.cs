@@ -16,15 +16,15 @@ namespace Project.Repositories.Implementations
             return await _context.rooms
                 .Include(r => r.TreatmentMethod)
                 .Where(r => r.TreatmentMethodId == id)
-                .Select(r => new Room
-                {
-                    Id = r.Id,
-                    Name = r.Name,
-                    Code = r.Code,
-                    Description = r.Description,
-                    TreatmentMethodId = r.TreatmentMethodId,
-                    TreatmentMethod = r.TreatmentMethod
-                })
+                //.Select(r => new Room
+                //{
+                //    Id = r.Id,
+                //    Name = r.Name,
+                //    Code = r.Code,
+                //    Description = r.Description,
+                //    TreatmentMethodId = r.TreatmentMethodId,
+                //    TreatmentMethod = r.TreatmentMethod
+                //})
                 .ToListAsync();
         }
 

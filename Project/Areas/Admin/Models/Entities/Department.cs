@@ -20,8 +20,7 @@ namespace Project.Areas.Admin.Models.Entities
 
         /////////////////////////////////////////////////////
         /// Relationships
-        /// 
-        public virtual ICollection<TreatmentMethod> TreatmentMethods { get; set; } = new HashSet<TreatmentMethod>();
-        public virtual ICollection<Employee> Employees { get; set; } = new HashSet<Employee>();
+        ///
+        public virtual ICollection<Room> Rooms { get; set; } = new HashSet<Room>();
     }
 }

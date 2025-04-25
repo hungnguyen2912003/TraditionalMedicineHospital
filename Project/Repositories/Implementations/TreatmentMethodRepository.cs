@@ -14,14 +14,14 @@ namespace Project.Repositories.Implementations
         public async Task<IEnumerable<TreatmentMethod>> GetAllAdvancedAsync()
         {
             return await _context.treatments
-                .Include(t => t.Department)
+                //.Include(t => t.Department)
                 .ToListAsync();
         }
 
         public async Task<TreatmentMethod?> GetByIdAdvancedAsync(Guid id)
         {
             return await _context.treatments
-                .Include(t => t.Department)
+                //.Include(t => t.Department)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
@@ -31,7 +31,7 @@ namespace Project.Repositories.Implementations
             var treatmentRecord = await _context.treatmentRecords
                 .Include(tr => tr.Assignments)
                 .ThenInclude(a => a.Employee)
-                .ThenInclude(e => e.Department)
+                //.ThenInclude(e => e.Department)
                 .FirstOrDefaultAsync(tr => tr.Id == treatmentRecordId);
 
             if (treatmentRecord == null || !treatmentRecord.Assignments.Any())
@@ -40,7 +40,7 @@ namespace Project.Repositories.Implementations
             }
 
             // Get the department of the assigned employee
-            var departmentId = treatmentRecord.Assignments.First().Employee.DepartmentId;
+            //var departmentId = treatmentRecord.Assignments.First().Employee.DepartmentId;
 
             // Get treatment methods that are already used in this treatment record
             var usedTreatmentMethodIds = await _context.treatmentRecordDetails
@@ -52,7 +52,7 @@ namespace Project.Repositories.Implementations
             // 1. Belong to the employee's department
             // 2. Haven't been used in this treatment record yet
             return await _context.treatments
-                .Where(t => t.DepartmentId == departmentId && !usedTreatmentMethodIds.Contains(t.Id))
+                //.Where(t => t.DepartmentId == departmentId && !usedTreatmentMethodIds.Contains(t.Id))
                 .ToListAsync();
         }
     }

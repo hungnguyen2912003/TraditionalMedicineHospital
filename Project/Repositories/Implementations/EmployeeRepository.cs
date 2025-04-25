@@ -15,7 +15,7 @@ namespace Project.Repositories.Implementations
         {
             return await _context.employees
                 .Include(m => m.EmployeeCategory)
-                .Include(m => m.Department)
+                .Include(m => m.Room)
                 .ToListAsync();
         }
 
@@ -23,7 +23,7 @@ namespace Project.Repositories.Implementations
         {
             return await _context.employees
                 .Include(m => m.EmployeeCategory)
-                .Include (m => m.Department)
+                .Include (m => m.Room)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
     }

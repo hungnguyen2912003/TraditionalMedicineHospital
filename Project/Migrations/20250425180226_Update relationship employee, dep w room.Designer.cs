@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project.Datas;
 
@@ -11,9 +12,11 @@ using Project.Datas;
 namespace Project.Migrations
 {
     [DbContext(typeof(TraditionalMedicineHospitalDbContext))]
-    partial class TraditionalMedicineHospitalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250425180226_Update relationship employee, dep w room")]
+    partial class Updaterelationshipemployeedepwroom
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,6 +94,9 @@ namespace Project.Migrations
                     b.Property<int>("Degree")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("DepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -140,6 +146,8 @@ namespace Project.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("EmployeeCategoryId");
 
@@ -1150,6 +1158,10 @@ namespace Project.Migrations
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Employee", b =>
                 {
+                    b.HasOne("Project.Areas.Admin.Models.Entities.Department", null)
+                        .WithMany("Employees")
+                        .HasForeignKey("DepartmentId");
+
                     b.HasOne("Project.Areas.Admin.Models.Entities.EmployeeCategory", "EmployeeCategory")
                         .WithMany("Employees")
                         .HasForeignKey("EmployeeCategoryId")
@@ -1381,6 +1393,8 @@ namespace Project.Migrations
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Department", b =>
                 {
+                    b.Navigation("Employees");
+
                     b.Navigation("Rooms");
                 });
 

@@ -19,12 +19,16 @@ namespace Project.Areas.Admin.Models.Entities
         public string? Description { get; set; }
 
         // ForeignKey
+        public Guid DepartmentId { get; set; }
         public Guid TreatmentMethodId { get; set; }
 
         /////////////////////////////////////////////////////
         /// Relationships
+        [ForeignKey("DepartmentId")]
+        public required virtual Department Department { get; set; }
         [ForeignKey("TreatmentMethodId")]
         public required virtual TreatmentMethod TreatmentMethod { get; set; } 
         public virtual ICollection<TreatmentRecordDetail> TreatmentRecordDetails { get; set; } = new HashSet<TreatmentRecordDetail>();
+        public virtual ICollection<Employee> Employees { get; set; } = new HashSet<Employee>();
     }
 }

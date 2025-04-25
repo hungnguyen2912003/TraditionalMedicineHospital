@@ -45,15 +45,15 @@ namespace Project.Areas.Admin.Models.Entities
 
         // Foreign Key
         public Guid EmployeeCategoryId { get; set; }
-        public Guid DepartmentId { get; set; }
+        public Guid RoomId { get; set; }
 
         /////////////////////////////////////////////////////
         /// Relationships
         ///
         [ForeignKey("EmployeeCategoryId")]
         public required virtual EmployeeCategory EmployeeCategory { get; set; }
-        [ForeignKey("DepartmentId")]
-        public required virtual Department Department { get; set; }
+        [ForeignKey("RoomId")]
+        public required virtual Room Room { get; set; }
         public virtual User? User { get; set; }
         public virtual ICollection<Assignment> Assignments { get; set; } = new HashSet<Assignment>();
         public virtual ICollection<Prescription> Prescriptions { get; set; } = new HashSet<Prescription>();
