@@ -125,7 +125,7 @@
                                                     @foreach (var diagnosis in Enum.GetValues(typeof(Project.Models.Enums.DiagnosisType)))
                                                     {
                                                         var displayAttr = diagnosis.GetType()
-                                                            .GetField(diagnosis.ToString())
+                                                            .GetField(diagnosis.ToString() ?? string.Empty)
                                                             ?.GetCustomAttributes(typeof(DisplayAttribute), false)
                                                             .FirstOrDefault() as DisplayAttribute;
                                                         var displayName = displayAttr?.Name ?? diagnosis.ToString();
@@ -317,7 +317,7 @@
                                                 @foreach (var place in Enum.GetValues(typeof(Project.Models.Enums.HealthInsuranceRegistrationPlace)))
                                                 {
                                                     var displayAttr = place.GetType()
-                                                        .GetField(place.ToString())
+                                                        .GetField(place.ToString() ?? string.Empty)
                                                         ?.GetCustomAttributes(typeof(DisplayAttribute), false)
                                                         .FirstOrDefault() as DisplayAttribute;
                                                     var displayName = displayAttr?.Name ?? place.ToString();

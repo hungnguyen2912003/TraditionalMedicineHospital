@@ -1,12 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
+using Project.Areas.Staff.Models.DTOs;
 using Project.Repositories.Interfaces;
 
 namespace Project.Areas.Admin.Controllers.Api
@@ -18,21 +13,30 @@ namespace Project.Areas.Admin.Controllers.Api
     {
         private readonly IRoomRepository _roomRepository;
         private readonly ITreatmentMethodRepository _treatmentMethodRepository;
+        private readonly ITreatmentRecordDetailRepository _treatmentRecordDetailRepository;
+        private readonly IAssignmentRepository _assignmentRepository;
+        private readonly IEmployeeRepository _employeeRepository;
 
         public UtilsController(
             IRoomRepository roomRepository,
-            ITreatmentMethodRepository treatmentMethodRepository)
+            ITreatmentMethodRepository treatmentMethodRepository,
+            ITreatmentRecordDetailRepository treatmentRecordDetailRepository,
+            IAssignmentRepository assignmentRepository,
+            IEmployeeRepository employeeRepository)
         {
             _roomRepository = roomRepository;
             _treatmentMethodRepository = treatmentMethodRepository;
+            _treatmentRecordDetailRepository = treatmentRecordDetailRepository;
+            _assignmentRepository = assignmentRepository;
+            _employeeRepository = employeeRepository;
         }
 
-        [HttpGet("GetAvailableTreatmentMethods")]
+        [HttpGet("GetAvailableTreatmentMethods/{treatmentRecordId}")]
         public async Task<ActionResult<IEnumerable<TreatmentMethod>>> GetAvailableTreatmentMethods(Guid treatmentRecordId)
         {
             if (treatmentRecordId == Guid.Empty)
             {
-                return BadRequest("Invalid treatment record ID");
+                return BadRequest("Mã bản ghi điều trị không hợp lệ");
             }
 
             try
@@ -46,12 +50,12 @@ namespace Project.Areas.Admin.Controllers.Api
             }
         }
 
-        [HttpGet("GetRoomsByTreatmentMethod")]
+        [HttpGet("GetRoomsByTreatmentMethod/{id}")]
         public async Task<ActionResult<IEnumerable<Room>>> GetRoomsByTreatmentMethod(Guid id)
         {
             if (id == Guid.Empty)
             {
-                return BadRequest("Invalid treatment method ID");
+                return BadRequest("Mã phương pháp điều trị không hợp lệ");
             }
 
             try
@@ -63,6 +67,149 @@ namespace Project.Areas.Admin.Controllers.Api
                 }
 
                 return Ok(rooms);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("GetTreatmentDetail/{code}")]
+        public async Task<ActionResult<TreatmentRecordDetailDto>> GetTreatmentDetail(string code)
+        {
+            if (string.IsNullOrEmpty(code))
+            {
+                return BadRequest("Mã chi tiết bản ghi điều trị không hợp lệ");
+            }
+
+            try
+            {
+                var detail = await _treatmentRecordDetailRepository.GetDetailWithNamesAsync(code);
+                if (detail == null)
+                {
+                    return NotFound($"Chi tiết bản ghi điều trị với mã {code} không tồn tại");
+                }
+
+                return Ok(detail);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("UpdateTreatmentDetail")]
+        public async Task<IActionResult> UpdateTreatmentDetail([FromBody] TreatmentRecordDetailUpdateDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var detail = await _treatmentRecordDetailRepository.GetByCodeAsync(model.Code);
+                if (detail == null)
+                {
+                    return NotFound($"Chi tiết bản ghi điều trị với mã {model.Code} không tồn tại");
+                }
+
+                detail.RoomId = model.RoomId;
+                detail.Note = model.Note;
+
+                await _treatmentRecordDetailRepository.UpdateAsync(detail);
+
+                var updatedDetail = await _treatmentRecordDetailRepository.GetDetailWithNamesAsync(model.Code);
+                return Ok(updatedDetail);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("GetAssignment/{code}")]
+        public async Task<ActionResult<AssignmentDto>> GetAssignment(string code)
+        {
+            if (string.IsNullOrEmpty(code))
+            {
+                return BadRequest("Mã phân công không hợp lệ");
+            }
+
+            try
+            {
+                var assignment = await _assignmentRepository.GetByCodeAsync(code);
+                if (assignment == null)
+                {
+                    return NotFound($"Phân công với mã {code} không tồn tại");
+                }
+
+                var dto = new AssignmentDto
+                {
+                    Code = assignment.Code,
+                    DoctorName = assignment.Employee.Name,
+                    StartDate = assignment.StartDate.ToString("dd/MM/yyyy"),
+                    EndDate = assignment.EndDate.ToString("dd/MM/yyyy"),
+                    Note = assignment.Note
+                };
+
+                return Ok(dto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("UpdateAssignment")]
+        public async Task<ActionResult<AssignmentDto>> UpdateAssignment([FromBody] AssignmentUpdateDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var assignment = await _assignmentRepository.GetByCodeAsync(model.Code);
+                if (assignment == null)
+                {
+                    return NotFound($"Phân công với mã {model.Code} không tồn tại");
+                }
+
+                // Parse dates
+                if (DateTime.TryParseExact(model.StartDate, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime startDate))
+                {
+                    assignment.StartDate = startDate;
+                }
+                else
+                {
+                    return BadRequest("Ngày bắt đầu không hợp lệ");
+                }
+
+                if (DateTime.TryParseExact(model.EndDate, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime endDate))
+                {
+                    assignment.EndDate = endDate;
+                }
+                else
+                {
+                    return BadRequest("Ngày kết thúc không hợp lệ");
+                }
+
+                assignment.Note = model.Note;
+
+                await _assignmentRepository.UpdateAsync(assignment);
+
+                var dto = new AssignmentDto
+                {
+                    Code = assignment.Code,
+                    DoctorName = assignment.Employee.Name,
+                    StartDate = assignment.StartDate.ToString("dd/MM/yyyy"),
+                    EndDate = assignment.EndDate.ToString("dd/MM/yyyy"),
+                    Note = assignment.Note
+                };
+
+                return Ok(dto);
             }
             catch (Exception ex)
             {

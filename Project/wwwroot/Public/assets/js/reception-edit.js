@@ -1,5 +1,115 @@
 Dropzone.autoDiscover = false;
 
+// Lưu trữ ghi chú để có thể truy cập nhanh mà không cần gọi API
+const noteStorage = new Map();
+let isInitialized = false;
+
+// Store current doctor info globally
+let currentDoctor = null;
+
+// Hàm lấy thông tin bác sĩ hiện tại
+async function getCurrentDoctor() {
+    try {
+        console.log('Sending request with credentials...');
+        
+        const response = await fetch('/api/Auth/GetCurrentDoctor', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            throw new Error(`Network response was not ok: ${response.status} - ${errorText}`);
+        }
+
+        const data = await response.json();
+        if (data.success) {
+            currentDoctor = {
+                id: data.id,
+                name: data.name,
+                userId: data.userId
+            };
+            console.log('Current doctor info loaded:', currentDoctor);
+            return currentDoctor;
+        } else {
+            throw new Error(data.message || 'Failed to get current doctor info');
+        }
+    } catch (error) {
+        console.error('Error getting current doctor:', error);
+        notyf.error('Không thể lấy thông tin bác sĩ hiện tại');
+        throw error;
+    }
+}
+
+// Đảm bảo thông tin bác sĩ được tải trước khi thực hiện các thao tác
+async function ensureCurrentDoctor() {
+    if (!currentDoctor) {
+        await getCurrentDoctor();
+    }
+    return currentDoctor;
+}
+
+// Hàm hiển thị ghi chú toàn cục
+function displayNote(note, type, identifier) {
+    if (!note) {
+        note = 'Không có ghi chú';
+    }
+
+    let title = '';
+    if (type === 'treatment') {
+        title = `Ghi chú điều trị - ${identifier}`;
+    } else if (type === 'assignment') {
+        title = `Ghi chú phân công - ${identifier}`;
+    } else if (type === 'regulation') {
+        title = `Ghi chú quy định - ${identifier}`;
+    } else {
+        title = `Ghi chú ${type} - ${identifier}`;
+    }
+    
+    $.confirm({
+        title: title,
+        content: note,
+        type: 'blue',
+        typeAnimated: true,
+        theme: 'modern',
+        boxWidth: '500px',
+        useBootstrap: false,
+        buttons: {
+            close: {
+                text: 'ĐÓNG',
+                btnClass: 'btn-default'
+            }
+        }
+    });
+}
+
+function setupNoteButton(button, code, note) {
+    // Lưu ghi chú vào storage
+    noteStorage.set(code, note || '');
+    
+    // Xóa event cũ (nếu có) và thêm event mới
+    button.off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        displayNote(noteStorage.get(code), 'treatment', code);
+    });
+    
+    // Cập nhật style của button
+    if (note) {
+        button.removeClass('btn-secondary').addClass('btn-info');
+    } else {
+        button.removeClass('btn-info').addClass('btn-secondary');
+    }
+}
+
 document.addEventListener('alpine:init', () => {
     Alpine.data('editData', () => ({
         dropzone: null,
@@ -10,50 +120,106 @@ document.addEventListener('alpine:init', () => {
         regulations: [],
         allRegulations: [],
 
+        // Sử dụng hàm displayNote toàn cục thông qua wrapper
         displayNote(note, type, identifier) {
-            let title = '';
-            if (type === 'treatment') {
-                title = `Ghi chú điều trị - ${identifier}`;
-            } else if (type === 'assignment') {
-                title = `Ghi chú phân công - ${identifier}`;
-            } else if (type === 'regulation') {
-                title = `Ghi chú quy định - ${identifier}`;
-            } else {
-                title = 'Ghi chú';
+            // Ngăn chặn sự kiện click từ Alpine nếu đã có event handler jQuery
+            if (type === 'treatment' && noteStorage.has(identifier)) {
+                return;
             }
+            displayNote(note, type, identifier);
+        },
 
-            $.confirm({
-                title: title,
-                content: note || 'Không có ghi chú',
-                type: 'blue',
-                typeAnimated: true,
-                theme: 'modern',
-                boxWidth: '800px',
-                useBootstrap: false,
-                draggable: false,
-                buttons: {
-                    close: {
-                        text: 'Đóng',
-                        btnClass: 'btn-blue',
-                        action: function() {}
+        areTreatmentDatesSelected() {
+            const startDateElement = document.getElementById('treatmentRecordStartDate');
+            const endDateElement = document.getElementById('treatmentRecordEndDate');
+            
+            if (!startDateElement || !endDateElement) {
+                console.warn('Treatment date elements not found');
+                return false;
+            }
+            
+            const startDate = startDateElement.value;
+            const endDate = endDateElement.value;
+            return startDate && endDate;
+        },
+
+        updateRegulationSelectsState() {
+            const regulationSelects = document.querySelectorAll('[id^="regulationId-"]');
+            const areDatesSelected = this.areTreatmentDatesSelected();
+            
+            regulationSelects.forEach(select => {
+                if (!areDatesSelected) {
+                    select.disabled = true;
+                    select.classList.add('opacity-50', 'cursor-not-allowed');
+                    // Show warning if parent container exists
+                    const warningContainer = select.closest('.grid')?.querySelector('.text-sm');
+                    if (warningContainer) {
+                        warningContainer.innerHTML = `
+                            <div class="flex items-center whitespace-nowrap">
+                                <svg class="w-4 h-4 inline-block mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="flex-shrink-0">Vui lòng chọn thời gian điều trị trước khi chọn quy định!</span>
+                            </div>
+                        `;
+                        warningContainer.style.display = 'block';
+                        warningContainer.style.color = 'coral';
+                        warningContainer.style.fontWeight = 'bold';
+                    }
+                } else {
+                    select.disabled = false;
+                    select.classList.remove('opacity-50', 'cursor-not-allowed');
+                    // Hide warning if parent container exists
+                    const warningContainer = select.closest('.grid')?.querySelector('.text-sm');
+                    if (warningContainer) {
+                        warningContainer.style.display = 'none';
                     }
                 }
             });
         },
 
-        init() {
-            this.setupDropzone();
-            this.setupFlatpickr();
-            this.setupChoices();
-            this.setupValidation();
+        setupDateListeners() {
+            const startDateInput = document.getElementById('treatmentRecordStartDate');
+            const endDateInput = document.getElementById('treatmentRecordEndDate');
+
+            const updateState = () => {
+                this.updateRegulationSelectsState();
+            };
+
+            startDateInput.addEventListener('change', updateState);
+            endDateInput.addEventListener('change', updateState);
+        },
+
+        async init() {
+            if (isInitialized) return;
             
-            // Initialize hasHealthInsurance from template data
+            // Lấy thông tin bác sĩ trước khi khởi tạo các thành phần khác
+            await getCurrentDoctor();
+            
+            this.setupChoices();
+            this.setupFlatpickr();
+            this.setupDropzone();
+            this.setupValidation();
+            this.setupDateListeners();
+            this.updateRegulationSelectsState();
+            
             const healthInsuranceNumber = document.querySelector('[name="Patient.HealthInsuranceNumber"]')?.value;
             const healthInsuranceCode = document.querySelector('[name="Patient.HealthInsuranceCode"]')?.value;
             this.hasHealthInsurance = !!(healthInsuranceNumber || healthInsuranceCode);
+            
             $('select').on('focus', function () {
                 $(this).trigger('click');
             });
+            
+            // Khởi tạo các nút xem ghi chú
+            $('button[data-note]').each(function() {
+                const button = $(this);
+                const code = button.data('code');
+                const note = button.data('note');
+                setupNoteButton(button, code, note);
+            });
+            
+            isInitialized = true;
         },
 
         setupChoices() {
@@ -123,7 +289,7 @@ document.addEventListener('alpine:init', () => {
             const treatmentMethodWarning = document.getElementById('treatmentMethodWarning');
             const treatmentMethodSelect = document.getElementById('treatmentRecordDetailTreatmentMethod');
             
-            fetch(`/api/Utils/GetAvailableTreatmentMethods?treatmentRecordId=${treatmentRecordId}`)
+            fetch(`/api/Utils/GetAvailableTreatmentMethods/${treatmentRecordId}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
@@ -167,31 +333,42 @@ document.addEventListener('alpine:init', () => {
 
         setupFlatpickr() {
             const self = this;
-            const treatmentStartDateInput = document.getElementById('StartDate');
-            const treatmentEndDateInput = document.getElementById('EndDate');
-            const assignmentStartDateInput = document.getElementById('assignmentStartDate');
-            const assignmentEndDateInput = document.getElementById('assignmentEndDate');
-            const assignmentDateWarning = document.getElementById('assignmentDateWarning');
+            
+            // Initialize flatpickr for DateOfBirth and HealthInsuranceExpirationDate
+            flatpickr(".flatpickr", {
+                dateFormat: "d/m/Y",
+                allowInput: true
+            });
+
+            // Get all required elements
+            const elements = {
+                treatmentStartDate: document.getElementById('treatmentRecordStartDate'),
+                treatmentEndDate: document.getElementById('treatmentRecordEndDate'),
+                assignmentStartDate: document.getElementById('assignmentStartDate'),
+                assignmentEndDate: document.getElementById('assignmentEndDate'),
+                assignmentDateWarning: document.getElementById('assignmentDateWarning')
+            };
+
+            // Check if all required elements exist
+            for (const [key, element] of Object.entries(elements)) {
+                if (!element) {
+                    console.warn(`Required element ${key} is missing`);
+                    return;
+                }
+            }
 
             // Function to check and update assignment date inputs state
             const updateAssignmentDateState = () => {
-                const treatmentStartDate = treatmentStartDateInput.value;
-                const treatmentEndDate = treatmentEndDateInput.value;
+                const treatmentStartDate = elements.treatmentStartDate.value;
+                const treatmentEndDate = elements.treatmentEndDate.value;
                 const hasValidTreatmentDates = treatmentStartDate && treatmentEndDate;
 
                 // Enable/disable assignment date inputs
-                assignmentStartDateInput.disabled = !hasValidTreatmentDates;
-                assignmentEndDateInput.disabled = !hasValidTreatmentDates;
+                elements.assignmentStartDate.disabled = !hasValidTreatmentDates;
+                elements.assignmentEndDate.disabled = !hasValidTreatmentDates;
 
-                // Remove readonly attribute - it should not be there
-                assignmentStartDateInput.removeAttribute('readonly');
-                assignmentEndDateInput.removeAttribute('readonly');
-
-                // Show/hide warning message
-                assignmentDateWarning.style.display = hasValidTreatmentDates ? 'none' : 'block';
-
-                // Update visual state of inputs
-                [assignmentStartDateInput, assignmentEndDateInput].forEach(input => {
+                // Update visual state
+                [elements.assignmentStartDate, elements.assignmentEndDate].forEach(input => {
                     if (hasValidTreatmentDates) {
                         input.classList.remove('opacity-50', 'cursor-not-allowed');
                     } else {
@@ -199,36 +376,53 @@ document.addEventListener('alpine:init', () => {
                         input.value = '';
                     }
                 });
+
+                // Show/hide warning message
+                elements.assignmentDateWarning.style.display = hasValidTreatmentDates ? 'none' : 'block';
             };
 
             // Initial state check
             updateAssignmentDateState();
 
-            // Setup flatpickr for treatment dates
-            flatpickr(treatmentStartDateInput, {
-                dateFormat: "d/m/Y",
-                onChange: function(selectedDates, dateStr) {
-                    updateAssignmentDateState();
-                }
-            });
+            try {
+                // Setup flatpickr for treatment dates with validation
+                const commonConfig = {
+                    dateFormat: "d/m/Y",
+                    allowInput: true,
+                    onClose: updateAssignmentDateState
+                };
 
-            flatpickr(treatmentEndDateInput, {
-                dateFormat: "d/m/Y",
-                onChange: function(selectedDates, dateStr) {
-                    updateAssignmentDateState();
-                }
-            });
+                // Treatment start date
+                flatpickr(elements.treatmentStartDate, {
+                    ...commonConfig,
+                    onChange: function(selectedDates, dateStr) {
+                        updateAssignmentDateState();
+                    }
+                });
 
-            // Setup flatpickr for assignment dates - without readonly
-            flatpickr(assignmentStartDateInput, {
-                dateFormat: "d/m/Y",
-                allowInput: true
-            });
+                // Treatment end date
+                flatpickr(elements.treatmentEndDate, {
+                    ...commonConfig,
+                    onChange: function(selectedDates, dateStr) {
+                        updateAssignmentDateState();
+                    }
+                });
 
-            flatpickr(assignmentEndDateInput, {
-                dateFormat: "d/m/Y",
-                allowInput: true
-            });
+                // Assignment dates
+                flatpickr(elements.assignmentStartDate, {
+                    ...commonConfig,
+                    minDate: elements.treatmentStartDate.value || 'today'
+                });
+
+                flatpickr(elements.assignmentEndDate, {
+                    ...commonConfig,
+                    minDate: elements.assignmentStartDate.value || 'today'
+                });
+
+            } catch (error) {
+                console.error('Error initializing flatpickr:', error);
+                this.showError('Có lỗi xảy ra khi khởi tạo các trường ngày tháng');
+            }
         },
 
         setupDropzone() {
@@ -338,7 +532,7 @@ document.addEventListener('alpine:init', () => {
             treatmentMethodWarning.style.display = 'none';
 
             // Fetch rooms based on treatment method
-            fetch(`/api/Utils/GetRoomsByTreatmentMethod?id=${treatmentMethodId}`)
+            fetch(`/api/Utils/GetRoomsByTreatmentMethod/${treatmentMethodId}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
@@ -823,6 +1017,11 @@ document.addEventListener('alpine:init', () => {
          * Add a new regulation
          */
         addRegulation() {
+            if (!this.areTreatmentDatesSelected()) {
+                notyf.error('Vui lòng chọn thời gian điều trị trước khi chọn quy định!');
+                return;
+            }
+
             if (this.regulations.length >= 5) {
                 notyf.error('Không thể thêm quá 5 quy định cho một phiếu điều trị');
                 return;
@@ -891,4 +1090,291 @@ document.addEventListener('alpine:init', () => {
             }
         }
     }));
-}); 
+});
+
+// Khởi tạo các nút xem ghi chú khi trang load
+$(document).ready(function() {
+    // Tìm tất cả các nút xem ghi chú và thiết lập event handler
+    $('button[data-note]').each(function() {
+        const button = $(this);
+        const code = button.data('code');
+        const note = button.data('note');
+        setupNoteButton(button, code, note);
+    });
+});
+
+function editTreatmentDetail(code) {
+    // Đảm bảo có thông tin bác sĩ trước
+    ensureCurrentDoctor().then(() => {
+        // Lấy thông tin chi tiết điều trị từ API
+        $.get(`/api/Utils/GetTreatmentDetail/${code}`, function(detail) {
+            console.log('Treatment Detail:', detail);
+
+            if (!detail) {
+                notyf.error('Không tìm thấy thông tin điều trị');
+                return;
+            }
+
+            // Debug information
+            console.log('Current doctor:', currentDoctor);
+            console.log('Detail doctor name:', detail.doctorName);
+            console.log('Are they equal?', detail.doctorName === currentDoctor?.name);
+
+            // Check if current doctor has permission
+            if (!currentDoctor || detail.doctorName !== currentDoctor.name) {
+                notyf.error('Bạn không có quyền chỉnh sửa bản ghi của bác sĩ khác');
+                return;
+            }
+
+            if (!detail.treatmentMethodId) {
+                notyf.error('Không tìm thấy thông tin phương pháp điều trị');
+                return;
+            }
+
+            $.confirm({
+                title: 'Chỉnh sửa thông tin điều trị',
+                content: `
+                    <form>
+                        <div class="flex gap-4 mb-4">
+                            <div class="form-group flex-1">
+                                <label class="font-semibold mb-2">Mã chi tiết</label>
+                                <input type="text" class="form-input w-full" value="${detail.code}" readonly>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="font-semibold mb-2">Phương pháp điều trị</label>
+                                <select class="form-select w-full" id="treatmentRecordDetailTreatmentMethod">
+                                    <option value="${detail.treatmentMethodId}">${detail.treatmentMethodName}</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="font-semibold mb-2">Phòng điều trị</label>
+                                <select class="form-select w-full" id="treatmentRecordDetailRoom">
+                                    <option value="${detail.roomId}">${detail.roomName}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="font-semibold mb-2">Ghi chú</label>
+                            <textarea class="form-textarea w-full" rows="3">${detail.note || ''}</textarea>
+                        </div>
+                    </form>`,
+                type: 'blue',
+                typeAnimated: true,
+                theme: 'modern',
+                columnClass: 'medium',
+                boxWidth: '1000px',
+                useBootstrap: false,
+                buttons: {
+                    save: {
+                        text: 'Lưu',
+                        btnClass: 'btn-primary',
+                        action: function() {
+                            const roomId = this.$content.find('#treatmentRecordDetailRoom').val();
+                            const note = this.$content.find('textarea').val();
+
+                            if (!roomId) {
+                                notyf.warning('Vui lòng chọn phòng điều trị');
+                                return false;
+                            }
+
+                            // Gửi request cập nhật
+                            $.ajax({
+                                url: '/api/Utils/UpdateTreatmentDetail',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    code: code,
+                                    roomId: roomId,
+                                    note: note || ''
+                                }),
+                                success: function(response) {
+                                    // Cập nhật thông tin trên bảng
+                                    const row = $(`tr:has(td:contains('${code}'))`);
+                                    row.find('td:eq(2)').text(response.roomName);
+                                    row.find('td:eq(3)').text(response.treatmentMethodName);
+                                    
+                                    // Cập nhật nút xem ghi chú
+                                    const noteButton = row.find('td:eq(4)').find('button');
+                                    setupNoteButton(noteButton, response.code, response.note);
+
+                                    // Hiển thị thông báo thành công
+                                    notyf.success('Đã cập nhật thông tin điều trị');
+                                },
+                                error: function(xhr) {
+                                    notyf.error(xhr.responseText || 'Có lỗi xảy ra khi cập nhật thông tin');
+                                }
+                            });
+                        }
+                    },
+                    close: {
+                        text: 'Đóng',
+                        btnClass: 'btn-default'
+                    }
+                },
+                onContentReady: function() {
+                    const roomSelect = this.$content.find('#treatmentRecordDetailRoom');
+                    console.log('Treatment Method ID:', detail.treatmentMethodId);
+
+                    // Load danh sách phòng theo phương pháp điều trị
+                    $.get(`/api/Utils/GetRoomsByTreatmentMethod/${detail.treatmentMethodId}`, function(rooms) {
+                        console.log('Rooms:', rooms);
+                        
+                        if (!rooms || rooms.length === 0) {
+                            notyf.error('Không tìm thấy phòng phù hợp với phương pháp điều trị này');
+                            return;
+                        }
+                        
+                        rooms.forEach(room => {
+                            const option = new Option(room.name, room.id, false, room.id === detail.roomId);
+                            roomSelect.append(option);
+                        });
+                    }).fail(function(xhr) {
+                        if (xhr.status === 404) {
+                            notyf.error('Không tìm thấy phòng phù hợp với phương pháp điều trị này');
+                        } else {
+                            notyf.error('Không thể tải danh sách phòng');
+                        }
+                    });
+                }
+            });
+        }).catch(error => {
+            console.error('Error getting treatment detail:', error);
+            notyf.error('Không thể tải thông tin điều trị');
+        });
+    }).catch(error => {
+        console.error('Error ensuring current doctor:', error);
+        notyf.error('Không thể xác thực thông tin bác sĩ');
+    });
+}
+
+function editAssignment(code) {
+    // Đảm bảo có thông tin bác sĩ trước
+    ensureCurrentDoctor().then(() => {
+        $.get(`/api/Utils/GetAssignment/${code}`, function(assignment) {
+            console.log('Assignment:', assignment);
+
+            if (!assignment) {
+                notyf.error('Không tìm thấy thông tin phân công');
+                return;
+            }
+
+            // Debug information
+            console.log('Current doctor:', currentDoctor);
+            console.log('Assignment doctor name:', assignment.doctorName);
+            console.log('Are they equal?', assignment.doctorName === currentDoctor?.name);
+
+            // Check if current doctor has permission
+            if (!currentDoctor || assignment.doctorName !== currentDoctor.name) {
+                notyf.error('Bạn không có quyền chỉnh sửa bản ghi của bác sĩ khác');
+                return;
+            }
+
+            $.confirm({
+                title: 'Chỉnh sửa phân công',
+                content: `
+                    <form>
+                        <div class="flex gap-4 mb-4">
+                            <div class="form-group flex-1">
+                                <label class="font-semibold mb-2">Mã phân công</label>
+                                <input type="text" class="form-input w-full" value="${assignment.code}" readonly>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="font-semibold mb-2">Bác sĩ phân công</label>
+                                <input type="text" class="form-input w-full" value="${assignment.doctorName}" readonly>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 mb-4">
+                            <div class="form-group flex-1">
+                                <label class="font-semibold mb-2">Ngày bắt đầu</label>
+                                <input type="text" class="form-input w-full flatpickr" id="assignmentStartDate" value="${assignment.startDate}">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="font-semibold mb-2">Ngày kết thúc</label>
+                                <input type="text" class="form-input w-full flatpickr" id="assignmentEndDate" value="${assignment.endDate}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="font-semibold mb-2">Ghi chú</label>
+                            <textarea class="form-textarea w-full" rows="3">${assignment.note || ''}</textarea>
+                        </div>
+                    </form>`,
+                type: 'blue',
+                typeAnimated: true,
+                theme: 'modern',
+                columnClass: 'medium',
+                boxWidth: '1000px',
+                useBootstrap: false,
+                buttons: {
+                    save: {
+                        text: 'Lưu',
+                        btnClass: 'btn-primary',
+                        action: function() {
+                            const startDate = this.$content.find('#assignmentStartDate').val();
+                            const endDate = this.$content.find('#assignmentEndDate').val();
+                            const note = this.$content.find('textarea').val();
+
+                            if (!startDate || !endDate) {
+                                notyf.error('Vui lòng nhập đầy đủ ngày bắt đầu và kết thúc');
+                                return false;
+                            }
+                            
+                            // Gửi request cập nhật
+                            $.ajax({
+                                url: '/api/Utils/UpdateAssignment',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    code: code,
+                                    startDate: startDate,
+                                    endDate: endDate,
+                                    note: note || ''
+                                }),
+                                success: function(response) {
+                                    // Cập nhật thông tin trên bảng
+                                    const row = $(`tr:has(td:contains('${code}'))`);
+                                    row.find('td:eq(3)').text(response.startDate);
+                                    row.find('td:eq(4)').text(response.endDate);
+
+                                    // Cập nhật nút xem ghi chú
+                                    const noteButton = row.find('td:eq(5)').find('button');
+                                    setupNoteButton(noteButton, response.code, response.note);
+        
+                                    // Hiển thị thông báo thành công
+                                    notyf.success('Đã cập nhật thông tin phân công');                                   
+                                },
+                                error: function(xhr) {
+                                    notyf.error(xhr.responseText || 'Có lỗi xảy ra khi cập nhật thông tin');
+                                }
+                            });
+                        }
+                    },
+                    close: {
+                        text: 'Đóng',
+                        btnClass: 'btn-default'
+                    }
+                },
+                onContentReady: function() {
+                    const startDateInput = this.$content.find('#assignmentStartDate');
+                    const endDateInput = this.$content.find('#assignmentEndDate');
+
+                    // Initialize flatpickr for date inputs
+                    flatpickr(startDateInput, {
+                        dateFormat: "d/m/Y",
+                        allowInput: true
+                    });
+
+                    flatpickr(endDateInput, {
+                        dateFormat: "d/m/Y",
+                        allowInput: true
+                    });
+                }
+            });
+        }).catch(error => {
+            console.error('Error ensuring current doctor:', error);
+            notyf.error('Không thể xác thực thông tin bác sĩ');
+        });
+    }).catch(error => {
+        console.error('Error ensuring current doctor:', error);
+        notyf.error('Không thể xác thực thông tin bác sĩ');
+    });
+}

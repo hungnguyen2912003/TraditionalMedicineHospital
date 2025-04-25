@@ -152,15 +152,15 @@
                                     </div>
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full sm:w-1/2">
-                                            <label for="StartDate">Ngày bắt đầu</label>
-                                            <input id="StartDate" name="TreatmentRecord.StartDate" class="form-input flatpickr" type="text"
+                                            <label for="treatmentRecordStartDate">Ngày bắt đầu</label>
+                                            <input id="treatmentRecordStartDate" name="TreatmentRecord.StartDate" class="form-input flatpickr" type="text"
                                                 placeholder="Chọn ngày bắt đầu" value="@Model.TreatmentRecord.StartDate.ToString("dd/MM/yyyy")" />
                                             @Html.ValidationMessageFor(model => model.TreatmentRecord.StartDate, "", new { @class =
                                                 "text-danger" })                                        
                                         </div>
                                         <div class="w-full sm:w-1/2">
-                                            <label for="EndDate">Ngày kết thúc</label>
-                                            <input id="EndDate" name="TreatmentRecord.EndDate" class="form-input flatpickr" type="text"
+                                            <label for="treatmentRecordEndDate">Ngày kết thúc</label>
+                                            <input id="treatmentRecordEndDate" name="TreatmentRecord.EndDate" class="form-input flatpickr" type="text"
                                                 placeholder="Chọn ngày kết thúc" value="@Model.TreatmentRecord.EndDate.ToString("dd/MM/yyyy")" />
                                             @Html.ValidationMessageFor(model => model.TreatmentRecord.EndDate, "", new { @class =
                                                 "text-danger" })                                        
@@ -446,7 +446,7 @@
                                                         </button>
                                                     </td>
                                                     <td class="flex items-center justify-center">
-                                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="editTreatmentDetail('@detail.Code')">
+                                                        <button type="button" class="btn btn-info btn-sm" onclick="editTreatmentDetail('@detail.Code')">
                                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5">
                                                                 <path d="M15.2869 3.15178L14.3601 4.07866L5.83882 12.5999L5.83881 12.5999C5.26166 13.1771 4.97308 13.4656 4.7249 13.7838C4.43213 14.1592 4.18114 14.5653 3.97634 14.995C3.80273 15.3593 3.67368 15.7465 3.41556 16.5208L2.32181 19.8021L2.05445 20.6042C1.92743 20.9852 2.0266 21.4053 2.31063 21.6894C2.59466 21.9734 3.01478 22.0726 3.39584 21.9456L4.19792 21.6782L7.47918 20.5844C8.25353 20.3263 8.6407 20.1973 9.00498 20.0237C9.43469 19.8189 9.84082 19.5679 10.2162 19.2751C10.5344 19.0269 10.8229 18.7383 11.4001 18.1612L11.4001 18.1612L19.9213 9.63993L20.8482 8.71306C22.3839 7.17735 22.3839 4.68748 20.8482 3.15178C19.3125 1.61607 16.8226 1.61607 15.2869 3.15178Z" stroke="currentColor" stroke-width="1.5" />
                                                                 <path opacity="0.5" d="M14.36 4.07812C14.36 4.07812 14.4759 6.04774 16.2138 7.78564C17.9517 9.52354 19.9213 9.6394 19.9213 9.6394M4.19789 21.6777L2.32178 19.8015" stroke="currentColor" stroke-width="1.5" />
@@ -536,11 +536,8 @@
 
                                         <!-- Nút lưu và hủy -->
                                         <div class="flex justify-end gap-4 mt-4">
-                                            <button type="button" class="btn btn-outline-danger" @@click="showAddTreatmentForm = false">
+                                            <button type="button" class="btn btn-danger" @@click="showAddTreatmentForm = false">
                                                 Hủy
-                                            </button>
-                                            <button type="submit" class="btn btn-primary">
-                                                Lưu
                                             </button>
                                         </div>
                                     </div>
@@ -594,7 +591,7 @@
                                                         </button>
                                                     </td>
                                                     <td class="flex items-center justify-center">
-                                                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                                        <button type="button" class="btn btn-info btn-sm"
                                                             onclick="editAssignment('@assignment.Code')">
                                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                                                 xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5">
@@ -694,94 +691,125 @@
         <!-- Phần 5: Quy định điều trị -->
         <div x-show="tab === 'regulations'" x-cloak>
             <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
-                <div class="pt-5">
-                    <div class="panel px-0 py-6">
+                <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
+                    <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
                         <div class="px-6">
-                            <div class="flex justify-between items-center mb-5">
-                                <h4 class="text-lg font-bold">Quy định điều trị</h4>
-                                <button type="button" class="btn btn-primary mb-4"
-                                    @@click="addRegulation()">
-                                Thêm quy định</button>
-                            </div>
-
-                            <div id="regulationsList">
-                                @if (Model.Regulations != null && Model.Regulations.Any())
-                                {
-                                    foreach (var regulation in Model.Regulations)
-                                    {
-                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div class="form-group">
-                                                <label>Quy định</label>
-                                                <select class="form-select regulation-select" disabled>
-                                                    <option value="@regulation.RegulationId">@regulation.RegulationName</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Ngày thực hiện</label>
-                                                <input type="text" class="form-input regulation-date flatpickr" 
-                                                    value="@regulation.ExecutionDate.ToString("dd/MM/yyyy")" disabled />
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Ghi chú</label>
-                                                <button type="button" class="view-note-btn inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" 
-                                                     @@click="displayNote('@(regulation.Note?.Replace("'", "\\'"))', 'regulation', '@regulation.Code')">
-                                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
-                                                         <path d="M12 7.75C11.5858 7.75 11.25 8.08579 11.25 8.5V15.5C11.25 15.9142 11.5858 16.25 12 16.25C12.4142 16.25 12.75 15.9142 12.75 15.5V8.5C12.75 8.08579 12.4142 7.75 12 7.75Z" fill="currentColor"/>
-                                                         <path d="M12 17.75C11.4477 17.75 11 18.1977 11 18.75C11 19.3023 11.4477 19.75 12 19.75C12.5523 19.75 13 19.3023 13 18.75C13 18.1977 12.5523 17.75 12 17.75Z" fill="currentColor"/>
-                                                         <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.75C6.89137 2.75 2.75 6.89137 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25C17.1086 21.25 21.25 17.1086 21.25 12C21.25 6.89137 17.1086 2.75 12 2.75ZM4.25 12C4.25 7.71979 7.71979 4.25 12 4.25C16.2802 4.25 19.75 7.71979 19.75 12C19.75 16.2802 16.2802 19.75 12 19.75C7.71979 19.75 4.25 16.2802 4.25 12Z" fill="currentColor"/>
-                                                     </svg>
-                                                     Xem ghi chú
-                                                 </button>
-                                            </div>
-                                        </div>
-                                        <div class="flex justify-end mt-4">
-                                            <input type="button" class="btn btn-danger" style="cursor: pointer;" value="Xóa" @@click="regulations.splice(index, 1)" />
-                                        </div>
-                                    }
-                                }
-                            </div>
-
-                            <!-- Template for new regulation -->
-                            <template id="regulationTemplate">
-                                <div class="regulation-item mb-6 p-4 border rounded-lg">
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div class="form-group">
-                                            <label>Quy định</label>
-                                            <select class="form-select regulation-select" required>
-                                                <option value="">Chọn quy định</option>
-                                                <!-- Options will be populated by JavaScript -->
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Ngày thực hiện</label>
-                                            <input type="text" class="form-input regulation-date flatpickr" 
-                                                placeholder="Chọn ngày" required />
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Ghi chú</label>
-                                            <input type="text" class="form-input" placeholder="Nhập ghi chú" />
-                                        </div>
-                                    </div>
-                                    <div class="flex justify-end mt-4">
-                                        <button type="button" class="btn btn-danger" onclick="removeNewRegulation(this)">
-                                            Xóa
+                            <h6 class="mb-5 text-lg font-bold">Quy định điều trị</h6>
+                            <div class="flex flex-col lg:flex-row gap-6">
+                                <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
+                                    <!-- Nút thêm mới quy định -->
+                                    <div class="flex justify-between items-center mb-6">
+                                        <button type="button" class="btn btn-primary" @@click="addRegulation()">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 inline-block mr-2">
+                                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"></circle>
+                                                <path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                            </svg>
+                                            Thêm quy định
                                         </button>
                                     </div>
+
+                                    <!-- Danh sách quy định hiện tại -->
+                                    <div id="regulationsList" class="space-y-6">
+                                        @if (Model.Regulations != null && Model.Regulations.Any())
+                                        {
+                                            foreach (var regulation in Model.Regulations)
+                                            {
+                                                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg dark:bg-gray-800">
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-weight: bold;">Quy định</label>
+                                                        <select class="form-select w-full" disabled>
+                                                            <option value="@regulation.RegulationId">@regulation.RegulationName</option>
+                                                        </select>                                                   
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-weight: bold;">Ngày thực hiện</label>
+                                                        <input type="text" class="form-input w-full regulation-date flatpickr" 
+                                                            value="@(regulation.ExecutionDate.ToString("dd/MM/yyyy", CultureInfo.GetCultureInfo("vi-VN")))" disabled />                                                        
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-weight: bold;">Ghi chú</label>
+                                                        <button type="button" class="btn btn-info w-full" 
+                                                            @@click="displayNote('@(regulation.Note?.Replace("'", "\\'"))', 'regulation', '@regulation.Code')">
+                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
+                                                                <path d="M12 7.75C11.5858 7.75 11.25 8.08579 11.25 8.5V15.5C11.25 15.9142 11.5858 16.25 12 16.25C12.4142 16.25 12.75 15.9142 12.75 15.5V8.5C12.75 8.08579 12.4142 7.75 12 7.75Z" fill="currentColor"/>
+                                                                <path d="M12 17.75C11.4477 17.75 11 18.1977 11 18.75C11 19.3023 11.4477 19.75 12 19.75C12.5523 19.75 13 19.3023 13 18.75C13 18.1977 12.5523 17.75 12 17.75Z" fill="currentColor"/>
+                                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.75C6.89137 2.75 2.75 6.89137 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25C17.1086 21.25 21.25 17.1086 21.25 12C21.25 6.89137 17.1086 2.75 12 2.75ZM4.25 12C4.25 7.71979 7.71979 4.25 12 4.25C16.2802 4.25 19.75 7.71979 19.75 12C19.75 16.2802 16.2802 19.75 12 19.75C7.71979 19.75 4.25 16.2802 4.25 12Z" fill="currentColor"/>
+                                                            </svg>
+                                                            Xem ghi chú
+                                                        </button>                                                        
+                                                    </div>
+                                                    <div class="flex items-end">
+                                                        <button type="button" class="btn btn-danger w-full" @@click="removeRegulation('@regulation.Code')">
+                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
+                                                                <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                                <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                                <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                                <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                                <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                            </svg>
+                                                            Xóa
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="text-center text-gray-500 py-8">
+                                                <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                                </svg>
+                                                <p class="text-lg font-medium">Chưa có quy định nào được thêm</p>
+                                                <p class="text-sm mt-2">Nhấn nút "Thêm quy định" để bắt đầu thêm quy định mới</p>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <!-- Template cho quy định mới -->
+                                    <template id="regulationTemplate">
+                                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg dark:bg-gray-800 mt-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quy định</label>
+                                                <select class="form-select w-full regulation-select" required>
+                                                    <option value="">Chọn quy định</option>
+                                                </select>                                                
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ngày thực hiện</label>
+                                                <input type="text" class="form-input w-full regulation-date flatpickr" 
+                                                    placeholder="Chọn ngày" required />
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ghi chú</label>
+                                                <input type="text" class="form-input w-full" placeholder="Nhập ghi chú" />
+                                            </div>
+                                            <div class="flex items-end">
+                                                <button type="button" class="btn btn-danger w-full" onclick="removeNewRegulation(this)">
+                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
+                                                        <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                        <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                        <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                        <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                        <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                    </svg>
+                                                    Xóa
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </template>
                                 </div>
-                            </template>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div>     
     </div>
+    <div class="flex justify-end mt-4">
+        <button type="button" class="btn btn-primary mr-2" @@click="submitForm()">Lưu</button>
+        <a href="@Url.Action("Index", "TreatmentRecords")" class="btn btn-secondary">Quay lại</a>
+    </div>      
 </form>
-
-<!-- Nút quay lại -->
-<div class="flex justify-end mt-4">
-    <a href="@Url.Action("Index", "TreatmentRecords")" class="btn btn-secondary">Quay lại</a>
-</div>
-
 
 <style>
     .table-striped {

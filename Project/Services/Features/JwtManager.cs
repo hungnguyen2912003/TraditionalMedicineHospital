@@ -28,7 +28,9 @@ namespace Project.Services.Features
 
             var claims = new[]
             {
+                new Claim(ClaimTypes.Name, username),
                 new Claim(JwtRegisteredClaimNames.Sub, username),
+                new Claim(ClaimTypes.NameIdentifier, username),
                 new Claim(ClaimTypes.Role, role.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)

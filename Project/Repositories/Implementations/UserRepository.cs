@@ -40,5 +40,13 @@ namespace Project.Repositories.Implementations
                     (u.Employee != null && u.Employee.Code == identifier) ||
                     (u.Employee != null && u.Employee.EmailAddress == identifier));
         }
+
+        public async Task<Employee?> GetCurrentEmployee(Guid userId)
+        {
+            var user = await _context.users
+                .Include(u => u.Employee)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+            return user?.Employee;
+        }
     }
 }

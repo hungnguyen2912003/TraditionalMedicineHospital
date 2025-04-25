@@ -35,6 +35,13 @@ namespace Project.Repositories.Implementations
                 .Where(a => a.TreatmentRecordId == treatmentRecordId && a.IsActive)
                 .ToListAsync();
         }
+
+        public new async Task<Assignment?> GetByCodeAsync(string code)
+        {
+            return await _context.assignments
+                .Include(a => a.Employee)
+                .FirstOrDefaultAsync(a => a.Code == code);
+        }
     }
 }
 
