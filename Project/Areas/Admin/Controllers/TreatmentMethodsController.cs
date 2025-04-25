@@ -93,7 +93,7 @@ namespace Project.Areas.Admin.Controllers
             if (entity == null) return NotFound();
             var dto = _mapper.Map<TreatmentMethodDto>(entity);
 
-            ViewBag.DepId = entity.Id;
+            ViewBag.TreatmentMethodId = entity.Id;
 
             await _viewBagHelper.BaseViewBag(ViewData);
 

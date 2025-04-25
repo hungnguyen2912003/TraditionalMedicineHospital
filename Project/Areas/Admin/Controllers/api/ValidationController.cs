@@ -6,7 +6,7 @@ namespace Project.Areas.Admin.Controllers.api
 {
     [Route("api/validation/{entityType}")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class ValidationController : ControllerBase
     {
         private readonly IServiceProvider _serviceProvider;
