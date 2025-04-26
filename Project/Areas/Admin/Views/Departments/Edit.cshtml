@@ -93,8 +93,8 @@
                         Name: {
                             required: true,
                             minlength: 6,
-                            maxlength: 20,
-                            customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
+                            maxlength: 500,
+                            customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 \-]*$/,
                             remote: {
                                 url: "/api/validation/department/check",
                                 type: "GET",
@@ -122,18 +122,11 @@
                         }
                     },
                     messages: {
-                        Code: {
-                            required: "Mã Khoa không được bỏ trống.",
-                            minlength: "Mã phải có ít nhất 4 ký tự.",
-                            maxlength: "Mã không được vượt quá 10 ký tự.",
-                            customPattern: "Mã phải bắt đầu bằng chữ cái và chỉ chứa chữ cái hoặc số.",
-                            remote: "Mã Khoa đã tồn tại."
-                        },
                         Name: {
                             required: "Tên Khoa không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 6 ký tự.",
-                            maxlength: "Tên không được vượt quá 50 ký tự.",
-                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng.",
+                            maxlength: "Tên không được vượt quá 500 ký tự.",
+                            customPattern: "Tên phải bắt đầu bằng chữ cái.",
                             remote: "Tên Khoa đã tồn tại."
                         }
                     },
