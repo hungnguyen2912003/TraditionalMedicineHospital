@@ -21,6 +21,7 @@ namespace Project.Areas.Admin.Controllers
         private readonly IImageService _imgService;
         private readonly ViewBagHelper _viewBagHelper;
         private readonly CodeGeneratorHelper _codeGenerator;
+        private readonly IRoomRepository _roomRepository;
         public EmployeesController
         (
             IEmployeeRepository repository,
@@ -28,7 +29,8 @@ namespace Project.Areas.Admin.Controllers
             IMapper mapper,
             IImageService imgService,
             ViewBagHelper viewBagHelper,
-            CodeGeneratorHelper codeGenerator
+            CodeGeneratorHelper codeGenerator,
+            IRoomRepository roomRepository
         )
         {
             _repository = repository;
@@ -37,6 +39,7 @@ namespace Project.Areas.Admin.Controllers
             _imgService = imgService;
             _viewBagHelper = viewBagHelper;
             _codeGenerator = codeGenerator;
+            _roomRepository = roomRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -297,6 +300,26 @@ namespace Project.Areas.Admin.Controllers
             }
 
             return RedirectToAction("Trash");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetRoomsByDepartment(Guid departmentId)
+        {
+            if (departmentId == Guid.Empty)
+            {
+                return Json(new { success = false, message = "Vui lòng chọn khoa." });
+            }
+
+            try
+            {
+                var rooms = await _roomRepository.GetRoomsByDepartmentAsync(departmentId);
+                var roomList = rooms.Select(r => new { id = r.Id, name = r.Name }).ToList();
+                return Json(new { success = true, rooms = roomList });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+            }
         }
     }
 }

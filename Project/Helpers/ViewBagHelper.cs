@@ -61,7 +61,7 @@ namespace Project.Helpers
                     if (user != null && user.Employee != null)
                     {
                         userId = user.Employee.Id;
-                        //depId = user.Employee.Room.Dep;
+                        depId = user.Employee.Room.DepartmentId;
                     }
                 }
             }
@@ -109,10 +109,10 @@ namespace Project.Helpers
             var treatmentMethods = await _treatmentRepository.GetAllAsync();
             if (depId.HasValue)
             {
-                //viewData["TreatmentMethods_Reception"] = treatmentMethods
-                //    .Where(tm => tm.IsActive && tm.DepartmentId == depId)
-                //    .Select(tm => new { tm.Id, tm.Name })
-                //    .ToList();
+                viewData["TreatmentMethods_Reception"] = treatmentMethods
+                   .Where(tm => tm.IsActive && tm.Rooms.Any(r => r.DepartmentId == depId))
+                   .Select(tm => new { tm.Id, tm.Name })
+                   .ToList();
             }
 
             viewData["TreatmentMethods"] = treatmentMethods

@@ -14,6 +14,7 @@ namespace Project.Areas.Admin.Controllers
     public class RoomsController : Controller
     {
         private readonly IRoomRepository _repository;
+        private readonly IEmployeeRepository _employeeRepository;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
         private readonly CodeGeneratorHelper _codeGenerator;
@@ -21,12 +22,14 @@ namespace Project.Areas.Admin.Controllers
         public RoomsController
         (
             IRoomRepository repository,
+            IEmployeeRepository employeeRepository,
             IMapper mapper,
             ViewBagHelper viewBagHelper,
             CodeGeneratorHelper codeGenerator
         )
         {
             _repository = repository;
+            _employeeRepository = employeeRepository;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
             _codeGenerator = codeGenerator;
@@ -143,6 +146,29 @@ namespace Project.Areas.Admin.Controllers
             if (_repository == null)
             {
                 TempData["ErrorMessage"] = "Hệ thống gặp lỗi, vui lòng thử lại sau.";
+                return RedirectToAction("Trash");
+            }
+
+            var rooms = new List<Room>();
+            foreach (var id in ids)
+            {
+                var room = await _repository.GetByIdAsync(id);
+                if (room == null) continue;
+                var e = await _employeeRepository.GetAllAdvancedAsync();
+                var hasEmployees = e.Any(x => x.RoomId == id);
+                if (hasEmployees)
+                {
+                    rooms.Add(room);
+                }
+            }
+
+            if (rooms.Any())
+            {
+                var names = string.Join(", ", rooms.Select(c => $"\"{c.Name}\""));
+                var message = rooms.Count == 1
+                    ? $"Không thể xóa phòng {names} vì vẫn còn nhân sự đang làm việc trong phòng này."
+                    : $"Không thể xóa các phòng: {names} vì vẫn còn nhân sự đang làm việc trong phòng này.";
+                TempData["ErrorMessage"] = message;
                 return RedirectToAction("Trash");
             }
 

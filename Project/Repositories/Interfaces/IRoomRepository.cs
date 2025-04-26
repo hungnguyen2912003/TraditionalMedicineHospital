@@ -7,5 +7,6 @@ namespace Project.Repositories.Interfaces
         Task<IEnumerable<Room>> GetAllAdvancedAsync();
         Task<Room?> GetByIdAdvancedAsync(Guid id);
         Task<IEnumerable<Room>> GetRoomsByTreatmentMethodAsync(Guid id);
+        Task<IEnumerable<Room>> GetRoomsByDepartmentAsync(Guid departmentId);
     }
 }

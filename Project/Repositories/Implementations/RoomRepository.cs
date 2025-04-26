@@ -16,15 +16,36 @@ namespace Project.Repositories.Implementations
             return await _context.rooms
                 .Include(r => r.TreatmentMethod)
                 .Where(r => r.TreatmentMethodId == id)
-                //.Select(r => new Room
-                //{
-                //    Id = r.Id,
-                //    Name = r.Name,
-                //    Code = r.Code,
-                //    Description = r.Description,
-                //    TreatmentMethodId = r.TreatmentMethodId,
-                //    TreatmentMethod = r.TreatmentMethod
-                //})
+                .Select(r => new Room
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    Code = r.Code,
+                    Description = r.Description,
+                    TreatmentMethodId = r.TreatmentMethodId,
+                    TreatmentMethod = r.TreatmentMethod,
+                    DepartmentId = r.DepartmentId,
+                    Department = r.Department
+                })
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Room>> GetRoomsByDepartmentAsync(Guid departmentId)
+        {
+            return await _context.rooms
+                .Include(r => r.TreatmentMethod)
+                .Where(r => r.DepartmentId == departmentId && r.IsActive)
+                .Select(r => new Room
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    Code = r.Code,
+                    Description = r.Description,
+                    TreatmentMethodId = r.TreatmentMethodId,
+                    TreatmentMethod = r.TreatmentMethod,
+                    DepartmentId = r.DepartmentId,
+                    Department = r.Department
+                })
                 .ToListAsync();
         }
 
@@ -32,6 +53,8 @@ namespace Project.Repositories.Implementations
         {
             return await _context.rooms
                 .Include(m => m.TreatmentMethod)
+                .Include(m => m.Department)
+                .Include(m => m.Employees)
                 .ToListAsync();
         }
 
@@ -39,6 +62,8 @@ namespace Project.Repositories.Implementations
         {
             return await _context.rooms
                 .Include(m => m.TreatmentMethod)
+                .Include(m => m.Department)
+                .Include(m => m.Employees)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
     }
