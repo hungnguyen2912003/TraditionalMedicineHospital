@@ -40,6 +40,28 @@
                                     <input id="Name" type="text" name="Name" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập tên phòng" value="@Model.Name" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                <div class="w-full sm:w-1/2">
+                                    <label for="DepartmentId" class="block text-sm font-medium text-gray-700">Khoa phụ trách</label>
+                                    <div class="select-wrapper">
+                                        <select id="DepartmentId" name="DepartmentId" class="form-input w-full mt-1 p-2 border rounded">
+                                            <option value="">Chọn khoa</option>
+                                            @foreach (var d in ViewBag.Departments)
+                                            {
+                                                if (d.Id == Model.DepartmentId)
+                                                {
+                                                    <option value="@d.Id" selected>@d.Name</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@d.Id">@d.Name</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
+                                </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="TreatmentMethodId" class="block text-sm font-medium text-gray-700">Phương pháp điều trị</label>
                                     <div class="select-wrapper">
@@ -158,6 +180,9 @@
                         },
                         TreatmentMethodId: {
                             required: true
+                        },
+                        DepartmentId: {
+                            required: true
                         }
                     },
                     messages: {
@@ -177,6 +202,9 @@
                         },
                         TreatmentMethodId: {
                             required: "Phương pháp điều trị không được bỏ trống."
+                        },
+                        DepartmentId: {
+                            required: "Khoa phụ trách không được bỏ trống."
                         }
                     },
                     errorElement: "div",
@@ -228,6 +256,7 @@
                 formData.append('Name', document.getElementById('Name').value);
                 formData.append('Description', document.getElementById('Description').value);
                 formData.append('TreatmentMethodId', $('#TreatmentMethodId').val());
+                formData.append('DepartmentId', $('#DepartmentId').val());
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
                 formData.append('__RequestVerificationToken', token);
             },

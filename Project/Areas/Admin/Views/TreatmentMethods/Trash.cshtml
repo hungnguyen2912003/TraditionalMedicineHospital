@@ -20,6 +20,8 @@
     <div x-data="list">
         <div class="panel border-[#e0e6ed] px-0 dark:border-[#1b2e4b] mt-3">
             <div class="px-5">
+                <h6 class="text-2xl font-bold mb-5">Thùng rác phương pháp điều trị</h6>
+                <hr class="mb-5">
                 <div class="md:absolute md:top-5 ltr:md:left-5 rtl:md:right-5">
                     <div class="mb-5 flex items-center gap-2">
                         <div>
@@ -121,7 +123,6 @@
                 const tableData = this.filteredList.map(entity => [
                     `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
                     entity.code,
-                    entity.depName,
                     entity.name,
                     entity.isActive ?
                     '<svg x-tooltip="Đang hoạt động" class="w-5 h-5 mx-auto" width="24" height="24" fill="#000000" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="green" d="M13 4.1974q0 .3097-.21677.5265L7.17806 10.329l-1.0529 1.0529q-.21677.2168-.52645.2168-.30968 0-.52645-.2168L4.01935 10.329 1.21677 7.5264Q1 7.3097 1 7t.21677-.5265l1.05291-1.0529q.21677-.2167.52645-.2167.30968 0 .52645.2167l2.27613 2.2839 5.07871-5.0864q.21677-.2168.52645-.2168.30968 0 .52645.2168l1.05291 1.0529Q13 3.8877 13 4.1974z"></path></g></svg>'
@@ -158,7 +159,6 @@
                         headings: [
                             '<input type="checkbox" class="form-checkbox" />',
                             'Mã phương pháp điều trị',
-                            'Khoa phụ trách',
                             'Tên phương pháp điều trị',
                             'Hoạt động',
                             'Thao tác'
@@ -189,14 +189,14 @@
                             }
                         },
                         {
-                            select: 4,
+                            select: 3,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;
                             }
                         },
                         {
-                            select: 5,
+                            select: 4,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;

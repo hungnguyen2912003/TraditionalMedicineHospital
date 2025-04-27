@@ -65,17 +65,14 @@
     </div>
     <div class="panel">
         <div>
-            <h6 class="mb-5 text-lg font-bold">Thông Tin Chung</h6>
+            <h6 class="mb-5 text-2xl font-bold">Thông tin chi tiết phương pháp điều trị: @Model.Name</h6>
+            <hr class="mb-5">
             <div class="flex flex-col sm:flex-row">
-                <div class="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2">
+                <div class="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-3">
                     <div>
                         <label for="code">Mã phương pháp điều trị</label>
                         <input id="code" type="text" class="form-input" value="@Model.Code" readonly>
                     </div>
-                    @* <div> *@
-                    @*     <label for="dep">Khoa phụ trách</label> *@
-                    @*     <input id="dep" type="text" value="@Model.Department?.Name" readonly class="form-input"> *@
-                    @* </div> *@
                     <div>
                         <label for="name">Tên phương pháp điều trị</label>
                         <input id="name" type="text" value="@Model.Name" readonly class="form-input">
@@ -84,10 +81,14 @@
                         <label for="cost">Chi phí phương pháp điều trị</label>
                         <input id="cost" type="text" class="form-input" value="@Model.Cost" data-raw-value="@Model.Cost" readonly>
                     </div>
-                    <div class="sm:col-span-2">
-                        <label for="description">Mô tả phương pháp điều trị</label>
-                        <textarea id="description" name="Description" class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" readonly>@(Model.Description ?? "Không có mô tả")</textarea>
-                    </div>
+                </div>
+            </div>
+            <div class="sm:col-span-3 mt-5">
+                <label for="description">Mô tả phương pháp điều trị</label>
+                <textarea id="description" name="Description" class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" readonly>@(Model.Description ?? "Không có mô tả")</textarea>
+            </div>
+            <div class="flex flex-col sm:flex-row mt-5">
+                <div class="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2">
                     <div>
                         <label for="createdDate">Ngày tạo</label>
                         <input id="createdDate" type="text" value="@Model.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly class="form-input">
@@ -106,7 +107,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </hr>
     </div>
 </div>
 

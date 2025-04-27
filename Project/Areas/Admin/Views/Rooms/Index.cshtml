@@ -137,6 +137,7 @@
                     `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
                     entity.code,
                     entity.name,
+                    entity.departmentName,
                     entity.treatmentName,
                     entity.isActive ?
                     '<svg x-tooltip="Đang hoạt động" class="w-5 h-5 mx-auto" width="24" height="24" fill="#000000" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="green" d="M13 4.1974q0 .3097-.21677.5265L7.17806 10.329l-1.0529 1.0529q-.21677.2168-.52645.2168-.30968 0-.52645-.2168L4.01935 10.329 1.21677 7.5264Q1 7.3097 1 7t.21677-.5265l1.05291-1.0529q.21677-.2167.52645-.2167.30968 0 .52645.2167l2.27613 2.2839 5.07871-5.0864q.21677-.2168.52645-.2168.30968 0 .52645.2168l1.05291 1.0529Q13 3.8877 13 4.1974z"></path></g></svg>'
@@ -174,6 +175,7 @@
                             '<input type="checkbox" class="form-checkbox" />',
                             'Mã phòng',
                             'Tên phòng',
+                            'Khoa phụ trách',
                             'Phương pháp điều trị',
                             'Hoạt động',
                             'Thao tác'
@@ -205,14 +207,14 @@
                             }
                         },
                         {
-                            select: 4,
+                            select: 5,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;
                             }
                         },
                         {
-                            select: 5,
+                            select: 6,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;

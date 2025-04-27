@@ -73,10 +73,6 @@
                         <input id="code" type="text" class="form-input" value="@Model.Code" readonly>
                     </div>
                     <div>
-                        <label for="dep">Phòng thực hiện phương pháp điều trị</label>
-                        <input id="dep" type="text" value="@Model.TreatmentMethod?.Name" readonly class="form-input">
-                    </div>
-                    <div>
                         <label for="name">Tên phòng</label>
                         <input id="name" type="text" value="@Model.Name" readonly class="form-input">
                     </div>
@@ -84,6 +80,16 @@
                         <label for="description">Mô tả phòng</label>
                         <textarea id="description" name="Description" class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" readonly>@(Model.Description ?? "Không có mô tả")</textarea>
                     </div>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row">
+                <div>
+                    <label for="department">Khoa phụ trách</label>
+                    <input id="department" type="text" value="@Model.Department?.Name" readonly class="form-input">
+                </div>
+                <div>
+                    <label for="treatmentMethod">Phương pháp điều trị</label>
+                    <input id="treatmentMethod" type="text" value="@Model.TreatmentMethod?.Name" readonly class="form-input">
                 </div>
             </div>
             <div class="flex flex-col sm:flex-row">

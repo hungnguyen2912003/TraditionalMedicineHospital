@@ -9,5 +9,7 @@ namespace Project.Areas.Admin.Models.DTOs
         public string? Description { get; set; }
         public Guid TreatmentMethodId { get; set; }
         public string TreatmentName { get; set; } = string.Empty;
+        public Guid DepartmentId { get; set; }
+        public string DepartmentName { get; set; } = string.Empty;
     }
 }

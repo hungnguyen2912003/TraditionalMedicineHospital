@@ -23,7 +23,8 @@
         <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
             <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
                 <div class="px-6">
-                    <div class="text-lg font-semibold mb-6">Thêm thông tin phương pháp điều trị</div>
+                    <div class="text-2xl font-bold mb-6">Thêm thông tin phương pháp điều trị</div>
+                    <hr class="mb-6">
                     <div class="flex flex-col lg:flex-row gap-6">
                         <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
@@ -32,22 +33,6 @@
                                     <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" value="@Model.Code" readonly />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
-                                <div class="w-full sm:w-1/2">
-                                    <label for="DepartmentId" class="block text-sm font-medium text-gray-700">Khoa phụ trách</label>
-                                    <div class="select-wrapper">
-                                        <select id="DepartmentId" name="DepartmentId" class="form-input w-full mt-1 p-2 border rounded">
-                                            <option value="">Chọn khoa</option>
-                                            @foreach (var dep in ViewBag.Departments)
-                                            {
-                                                <option value="@dep.Id">@dep.Name</option>
-                                            }
-                                        </select>
-                                    </div>
-                                    @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
-                                </div>
-
-                            </div>
-                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Tên phương pháp điều trị</label>
                                     <input id="Name" type="text" name="Name" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập tên phương pháp điều trị" />
@@ -149,14 +134,11 @@
                 $("#myForm").validate({
                     ignore: [],
                     rules: {
-                        DepartmentId: {
-                            required: true
-                        },
                         Name: {
                             required: true,
                             minlength: 6,
-                            maxlength: 20,
-                            customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
+                            maxlength: 50,
+                            customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 \-]*$/,
                             remote: {
                                 url: "/api/validation/treatmentmethod/check",
                                 type: "GET",
@@ -188,14 +170,11 @@
                         }
                     },
                     messages: {
-                        DepartmentId: {
-                            required: "Khoa phụ trách phương pháp điều trị không được bỏ trống."
-                        },
                         Name: {
                             required: "Tên phương pháp điều trị không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 6 ký tự.",
                             maxlength: "Tên không được vượt quá 50 ký tự.",
-                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng.",
+                            customPattern: "Tên phải bắt đầu bằng chữ cái.",
                             remote: "Tên phương pháp điều trị này đã tồn tại."
                         },
                         Cost: {
@@ -252,7 +231,6 @@
             appendFormData(formData) {
                 formData.append('Code', $('#Code').val());
                 formData.append('Name', $('#Name').val());
-                formData.append('DepartmentId', $('#DepartmentId').val());
                 formData.append('Cost', $('#Cost').val());
                 formData.append('Description', $('#Description').val());
                 const token = $('input[name="__RequestVerificationToken"]').val();
