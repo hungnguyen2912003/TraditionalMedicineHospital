@@ -1,0 +1,85 @@
+@model Project.Areas.Admin.Models.ViewModels.UserViewModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Chi tiết tài khoản người dùng";
+    Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
+}
+
+<ul class="flex space-x-2 rtl:space-x-reverse">
+    <li>
+        <a href="javascript:;" class="text-primary hover:underline">Tài khoản người dùng</a>
+    </li>
+    <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+        <span>Xem chi tiết</span>
+    </li>
+</ul>
+
+<div x-data="details">
+    <div class="mb-3 mt-3 flex flex-wrap items-center justify-between gap-4">
+        <div>
+            <button type="button"
+                class="btn btn-secondary w-full py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600"
+                @@click = "goBack()" >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5">
+                    <path
+                        d="M4 10L3.29289 10.7071L2.58579 10L3.29289 9.29289L4 10ZM21 18C21 18.5523 20.5523 19 20 19C19.4477 19 19 18.5523 19 18L21 18ZM8.29289 15.7071L3.29289 10.7071L4.70711 9.29289L9.70711 14.2929L8.29289 15.7071ZM3.29289 9.29289L8.29289 4.29289L9.70711 5.70711L4.70711 10.7071L3.29289 9.29289ZM4 9L14 9L14 11L4 11L4 9ZM21 16L21 18L19 18L19 16L21 16ZM14 9C17.866 9 21 12.134 21 16L19 16C19 13.2386 16.7614 11 14 11L14 9Z"
+                        fill="white" />
+                </svg>
+                Trở về
+            </button>
+        </div>
+    </div>
+    <div class="panel">
+        <div>
+            <h6 class="mb-5 text-2xl font-bold">Thông tin chi tiết tài khoản: @Model.Username</h6>
+            <hr class="mb-5">
+            <div class="flex flex-col sm:flex-row">
+                <div class="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                        <label for="username">Tên đăng nhập</label>
+                        <input id="username" type="text" class="form-input" value="@Model.Username" readonly>
+                    </div>
+                    <div>
+                        <label for="role">Vai trò</label>
+                        <input id="role" type="text" value="@Model.Role.ToString()" readonly class="form-input">
+                    </div>
+                    <div>
+                        <label for="employeeName">Nhân sự liên kết</label>
+                        <input id="employeeName" type="text" value="@(Model.EmployeeName ?? "Không có")" readonly
+                            class="form-input">
+                    </div>
+                    <div>
+                        <label for="isActive">Trạng thái</label>
+                        <input id="isActive" type="text" value="@(Model.IsActive ? "Đang hoạt động" : "Ngừng")" readonly
+                            class="form-input">
+                    </div>
+                    <div>
+                        <label for="createdBy">Người tạo</label>
+                        <input id="createdBy" type="text" value="@Model.CreatedBy" readonly class="form-input">
+                    </div>
+                    <div>
+                        <label for="createdDate">Ngày tạo</label>
+                        <input id="createdDate" type="text"
+                            value="@Model.CreatedDate.ToString("dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture)"
+                            readonly class="form-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('details', () => ({
+            print() {
+                window.print();
+            },
+            goBack() {
+                window.location.href = '/Admin/Users/';
+            }
+        }));
+    });
+</script>

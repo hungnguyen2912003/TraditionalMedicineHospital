@@ -48,5 +48,12 @@ namespace Project.Repositories.Implementations
                 .FirstOrDefaultAsync(u => u.Id == userId);
             return user?.Employee;
         }
+
+        public async Task<IEnumerable<User>> GetAllAdvancedAsync()
+        {
+            return await _context.users
+                .Include(u => u.Employee)
+                .ToListAsync();
+        }
     }
 }

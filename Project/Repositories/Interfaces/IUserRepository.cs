@@ -9,5 +9,6 @@ namespace Project.Repositories.Interfaces
         new Task<User?> GetByCodeAsync(string code);
         Task<User?> GetByIdentifierAsync(string identifier);
         Task<Employee?> GetCurrentEmployee(Guid userId);
+        Task<IEnumerable<User>> GetAllAdvancedAsync();
     }
 }
