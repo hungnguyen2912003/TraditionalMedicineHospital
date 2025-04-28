@@ -44,6 +44,18 @@ namespace Project.Models.Enums
         Traphaco = 13,
 
         [Display(Name = "Pymepharco (Việt Nam)")]
-        Pymepharco = 14
+        Pymepharco = 14,
+        [Display(Name = "Công ty Đông Dược (Việt Nam)")]
+        DongDuoc = 15,
+        [Display(Name = "Dược Phẩm Tâm Bình (Việt Nam)")]
+        TamBinh = 16,
+        [Display(Name = "Dược Phẩm Hoa Linh (Việt Nam)")]
+        HoaLinh = 17,
+        [Display(Name = "Công ty Dược TW (Việt Nam)")]
+        TW = 18,
+        [Display(Name = "Dược Phẩm Mekophar (Việt Nam)")]
+        Mekophar = 19,
+        [Display(Name = "Dược Phẩm Sao Thái Dương (Việt Nam)")]
+        SaoThaiDuong = 20
     }
 }

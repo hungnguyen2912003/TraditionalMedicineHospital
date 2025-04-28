@@ -1,4 +1,6 @@
-﻿namespace Project.Areas.Admin.Models.ViewModels
+﻿using Project.Models.Enums;
+
+namespace Project.Areas.Admin.Models.ViewModels
 {
     public class MedicineViewModel
     {
@@ -8,7 +10,7 @@
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
         public int StockUnit { get; set; }
-        public string Manufacturer { get; set; } = string.Empty;
+        public ManufacturerType Manufacturer { get; set; }
         public DateTime ManufacturedDate { get; set; }
         public DateTime ExpiryDate { get; set; }
         public bool IsActive { get; set; }

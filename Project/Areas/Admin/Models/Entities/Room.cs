@@ -14,7 +14,7 @@ namespace Project.Areas.Admin.Models.Entities
         [StringLength(10)]
         public string Code { get; set; } = string.Empty;
         [Required]
-        [StringLength(500)]
+        [StringLength(50)]
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
 
@@ -27,7 +27,7 @@ namespace Project.Areas.Admin.Models.Entities
         [ForeignKey("DepartmentId")]
         public required virtual Department Department { get; set; }
         [ForeignKey("TreatmentMethodId")]
-        public required virtual TreatmentMethod TreatmentMethod { get; set; } 
+        public required virtual TreatmentMethod TreatmentMethod { get; set; }
         public virtual ICollection<TreatmentRecordDetail> TreatmentRecordDetails { get; set; } = new HashSet<TreatmentRecordDetail>();
         public virtual ICollection<Employee> Employees { get; set; } = new HashSet<Employee>();
     }

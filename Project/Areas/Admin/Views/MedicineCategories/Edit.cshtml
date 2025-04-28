@@ -27,7 +27,8 @@
         <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
             <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
                 <div class="px-6">
-                    <div class="text-lg font-semibold mb-6">Chỉnh sửa thông tin loại thuốc</div>
+                    <div class="text-2xl font-bold mb-6">Chỉnh sửa thông tin loại thuốc: @Model.Name</div>
+                    <hr class="mb-6">
                     <div class="flex flex-col lg:flex-row gap-6">
                         <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
@@ -99,7 +100,6 @@
 
 
 <script>
-    Dropzone.autoDiscover = false;
 
     $.validator.addMethod("customPattern", function (value, element, regex) {
         return this.optional(element) || regex.test(value);
@@ -107,24 +107,6 @@
 
     document.addEventListener('alpine:init', () => {
         Alpine.data('editData', () => ({
-            dropzone: null,
-
-            init() {
-                const fileInput = document.getElementById('fileInput');
-                fileInput.addEventListener('change', (event) => {
-                    const file = event.target.files[0];
-                    if (file) {
-                        if (this.dropzone.files.length > 0) {
-                            this.dropzone.removeAllFiles();
-                        }
-                        this.dropzone.addFile(file);
-                    }
-                });
-
-                this.setupValidation();
-            },
-
-
             setupValidation() {
                 $("#myForm").validate({
                     rules: {
@@ -222,22 +204,18 @@
 
                     const id = document.querySelector('input[name="Id"]').value;
 
-                    if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
-                        this.dropzone.processQueue();
-                    } else {
-                        const formData = new FormData(form);
-                        formData.append('Id', id);
-                        fetch('/Admin/MedicineCategories/Edit', {
-                            method: 'POST',
-                            body: formData
-                        })
-                            .then(response => response.json())
-                            .then(this.handleResponse)
-                            .catch(error => {
-                                overlay.style.display = 'none';
-                                notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
-                            });
-                    }
+                    const formData = new FormData(form);
+                    formData.append('Id', id);
+                    fetch('/Admin/MedicineCategories/Edit', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(this.handleResponse)
+                        .catch(error => {
+                            overlay.style.display = 'none';
+                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                        });
                 }
                 else {
                     notyf.error("Vui lòng kiểm tra lại thông tin nhập.");

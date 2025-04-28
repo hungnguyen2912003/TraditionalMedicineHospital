@@ -11,6 +11,11 @@ namespace Project.Models.Enums
         [Display(Name = "Hộp")]
         Hop = 3,
         [Display(Name = "Gói")]
-        Goi = 4
+        Goi = 4,
+        [Display(Name = "Viên")]
+        Vien = 5,
+        [Display(Name = "Lọ")]
+        Lo = 6
+
     }
 }
