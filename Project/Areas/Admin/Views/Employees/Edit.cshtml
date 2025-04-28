@@ -105,8 +105,7 @@
                                             <option value="">Chọn phương pháp điều trị</option>
                                             @foreach (var method in ViewBag.TreatmentMethods)
                                             {
-                                                var departmentIds = ((IEnumerable<object>)method.DepartmentIds).Select(x =>
-                                                Guid.Parse(x.ToString() ?? ""));
+                                                var departmentIds = (IEnumerable<Guid>)method.DepartmentIds;
                                                 if (departmentIds.Contains(Model.DepartmentId))
                                                 {
                                                     if (method.Id == Model.TreatmentMethodId)
@@ -435,6 +434,32 @@
                     this.warningMessage = '';
                 } else {
                     this.warningMessage = 'Vui lòng chọn Khoa trước khi chọn Phương pháp điều trị';
+                }
+
+                // Nếu đã có DepartmentId, load lại danh sách phương pháp điều trị
+                const depId = document.getElementById('DepartmentId').value;
+                const selectedTreatmentMethodId = document.getElementById('TreatmentMethodId').value;
+                if (depId) {
+                    fetch(`/api/Utils/GetTreatmentMethodsByDepartment/${depId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            this.treatmentMethods = data;
+                            // XÓA HẾT OPTION CŨ TRƯỚC KHI SET CHO CHOICES
+                            const treatmentMethodSelect = document.getElementById('TreatmentMethodId');
+                            treatmentMethodSelect.innerHTML = '';
+                            this.treatmentMethodChoices.clearStore(); // clear Choices data nếu cần
+
+                            this.treatmentMethodChoices.setChoices(
+                                data.map(method => ({
+                                    value: method.id || method.Id,
+                                    label: method.name || method.Name,
+                                    selected: (method.id || method.Id) == selectedTreatmentMethodId
+                                })), 'value', 'label', false
+                            );
+                            if (selectedTreatmentMethodId) {
+                                this.treatmentMethodChoices.setChoiceByValue(selectedTreatmentMethodId);
+                            }
+                        });
                 }
             },
 
@@ -871,6 +896,11 @@
                         .then(res => res.json())
                         .then(data => {
                             this.treatmentMethods = data;
+                            // XÓA HẾT OPTION CŨ TRƯỚC KHI SET CHO CHOICES
+                            const treatmentMethodSelect = document.getElementById('TreatmentMethodId');
+                            treatmentMethodSelect.innerHTML = '';
+                            this.treatmentMethodChoices.clearStore(); // clear Choices data nếu cần
+
                             this.treatmentMethodChoices.setChoices(
                                 data.map(method => ({
                                     value: method.id || method.Id,
