@@ -73,10 +73,6 @@ namespace Project.Areas.Admin.Controllers
                 entity.CreatedDate = DateTime.UtcNow;
                 entity.IsActive = true;
 
-                if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
-                {
-                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
-                }
                 await _repository.CreateAsync(entity);
                 return Json(new { success = true, message = "Thêm loại thuốc thành công!" });
             }
@@ -94,7 +90,6 @@ namespace Project.Areas.Admin.Controllers
             var dto = _mapper.Map<MedicineCategoryDto>(entity);
 
             ViewBag.MedicineCategoryId = entity.Id;
-            ViewBag.ExistingImage = entity.Images;
 
             return View(dto);
         }
@@ -112,10 +107,6 @@ namespace Project.Areas.Admin.Controllers
                 entity.UpdatedBy = "Admin";
                 entity.UpdatedDate = DateTime.UtcNow;
 
-                if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
-                {
-                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "MedicineCategories");
-                }
 
                 await _repository.UpdateAsync(entity);
                 return Json(new { success = true, message = "Cập nhật loại thuốc thành công!" });
@@ -179,10 +170,6 @@ namespace Project.Areas.Admin.Controllers
                 var entity = await _repository.GetByIdAsync(id);
                 if (entity != null)
                 {
-                    if (!string.IsNullOrEmpty(entity.Images))
-                    {
-                        _imgService.DeleteImage(entity.Images, "MedicineCategories");
-                    }
                     await _repository.DeleteAsync(id);
                     delList.Add(entity);
                 }

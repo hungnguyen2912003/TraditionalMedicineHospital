@@ -16,7 +16,6 @@ namespace Project.Areas.Admin.Models.Entities
         [StringLength(50)]
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public string? Images { get; set; }
 
         /////////////////////////////////////////////////////
         /// Relationship
