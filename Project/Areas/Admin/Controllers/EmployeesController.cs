@@ -7,6 +7,7 @@ using Project.Areas.Admin.Models.ViewModels;
 using Project.Helpers;
 using Project.Models.Enums;
 using Project.Repositories.Interfaces;
+using Project.Services.Features;
 using Project.Services.Interfaces;
 
 namespace Project.Areas.Admin.Controllers
@@ -22,6 +23,7 @@ namespace Project.Areas.Admin.Controllers
         private readonly ViewBagHelper _viewBagHelper;
         private readonly CodeGeneratorHelper _codeGenerator;
         private readonly IRoomRepository _roomRepository;
+        private readonly EmailService _emailService;
         public EmployeesController
         (
             IEmployeeRepository repository,
@@ -30,7 +32,8 @@ namespace Project.Areas.Admin.Controllers
             IImageService imgService,
             ViewBagHelper viewBagHelper,
             CodeGeneratorHelper codeGenerator,
-            IRoomRepository roomRepository
+            IRoomRepository roomRepository,
+            EmailService emailService
         )
         {
             _repository = repository;
@@ -40,6 +43,7 @@ namespace Project.Areas.Admin.Controllers
             _viewBagHelper = viewBagHelper;
             _codeGenerator = codeGenerator;
             _roomRepository = roomRepository;
+            _emailService = emailService;
         }
 
         public async Task<IActionResult> Index()
@@ -107,6 +111,22 @@ namespace Project.Areas.Admin.Controllers
                 };
 
                 await _userRepository.CreateAsync(user);
+
+                if (!string.IsNullOrEmpty(entity.EmailAddress))
+                {
+                    var subject = "Tài khoản nhân viên mới đã được đăng ký trên hệ thống Bệnh viện Y học cổ truyền Nha Trang";
+                    var body = $@"
+                        <h2>Xin chào {entity.Name},</h2>
+                        <p>Bạn đã được cấp tài khoản nhân viên tại hệ thống Bệnh viện Y học cổ truyền Nha Trang.</p>
+                        <p>Tài khoản của bạn là:</p>
+                        <p><b>Mã nhân viên (Username):</b> {entity.Code}</p>
+                        <p><b>Mật khẩu mặc định:</b> 11111111</p>
+                        <p>Bạn có thể sử dụng mã nhân viên hoặc email để đăng nhập vào hệ thống.</p>
+                        <p>Vui lòng đăng nhập tại <a href='https://localhost:5285/login'>trang đăng nhập</a> và đổi mật khẩu ngay lần đầu đăng nhập.</p>
+                        <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>
+                    ";
+                    _ = Task.Run(() => _emailService.SendEmailAsync(entity.EmailAddress, subject, body));
+                }
 
                 return Json(new { success = true, message = "Thêm nhân sự thành công!" });
             }
@@ -300,26 +320,6 @@ namespace Project.Areas.Admin.Controllers
             }
 
             return RedirectToAction("Trash");
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetRoomsByDepartment(Guid departmentId)
-        {
-            if (departmentId == Guid.Empty)
-            {
-                return Json(new { success = false, message = "Vui lòng chọn khoa." });
-            }
-
-            try
-            {
-                var rooms = await _roomRepository.GetRoomsByDepartmentAsync(departmentId);
-                var roomList = rooms.Select(r => new { id = r.Id, name = r.Name }).ToList();
-                return Json(new { success = true, rooms = roomList });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
-            }
         }
     }
 }

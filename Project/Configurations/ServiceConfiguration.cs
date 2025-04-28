@@ -28,7 +28,7 @@ namespace Project.Configurations
 
             builder.Services.AddScoped<EmailService>();
             builder.Services.AddScoped<JwtManager>();
-            builder.Services.Configure<GoongSettings>(builder.Configuration.GetSection("Goong"));
+            builder.Services.Configure<GoongSettings>(builder.Configuration.GetSection("GoongSettings"));
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

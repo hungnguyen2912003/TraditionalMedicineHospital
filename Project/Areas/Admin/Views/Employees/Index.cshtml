@@ -21,6 +21,8 @@
     <div x-data="list">
     <div class="panel border-[#e0e6ed] px-0 dark:border-[#1b2e4b] mt-3">
         <div class="px-5">
+            <h6 class="text-2xl font-bold mb-5">Danh sách nhân sự</h6>
+            <hr class="mb-5">
             <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
                 <div class="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
                     <div>
@@ -137,13 +139,15 @@
                     `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
                     entity.code,
                     entity.categoryName,
-                    entity.depName,
                     entity.name,
                     getEnumDisplayName('GenderType', entity.gender),
                     entity.dateOfBirth ? new Date(entity.dateOfBirth).toLocaleDateString('vi-VN') : 'Không xác định',
                     entity.address || 'Không có dữ liệu',
                     entity.emailAddress,
                     entity.phoneNumber,
+                    entity.departmentName,
+                    entity.treatmentMethodName,
+                    entity.roomName,
                     getEnumDisplayName('DegreeType', entity.degree),
                     getEnumDisplayName('ProfessionalQualificationType', entity.professionalQualification),
                     entity.startDate ? new Date(entity.startDate).toLocaleDateString('vi-VN') : 'Không xác định',
@@ -184,13 +188,15 @@
                             '<input type="checkbox" class="form-checkbox" />',
                             'Mã nhân sự',
                             'Loại nhân sự',
-                            'Thuộc Khoa',
                             'Họ tên nhân sự',
                             'Giới tính',
                             'Ngày sinh',
                             'Địa chỉ',
                             'Email',
                             'Số điện thoại',
+                            'Khoa',
+                            'Phương pháp điều trị',
+                            'Phòng làm việc',
                             'Bằng cấp',
                             'Chuyên môn',
                             'Ngày vào làm',
@@ -225,14 +231,14 @@
                             }
                         },
                         {
-                            select: 14,
+                            select: 16,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;
                             }
                         },
                         {
-                            select: 15,
+                            select: 17,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;

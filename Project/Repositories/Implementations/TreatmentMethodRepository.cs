@@ -55,5 +55,12 @@ namespace Project.Repositories.Implementations
                 //.Where(t => t.DepartmentId == departmentId && !usedTreatmentMethodIds.Contains(t.Id))
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<TreatmentMethod>> GetAllByDepartmentAsync(Guid departmentId)
+        {
+            return await _context.treatments
+                .Where(t => t.Rooms.Any(r => r.DepartmentId == departmentId))
+                .ToListAsync();
+        }
     }
 }

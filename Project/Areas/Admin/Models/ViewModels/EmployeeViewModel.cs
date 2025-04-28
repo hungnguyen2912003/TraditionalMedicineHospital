@@ -15,7 +15,9 @@ namespace Project.Areas.Admin.Models.ViewModels
         public EmployeeStatus Status { get; set; }
         public bool IsActive { get; set; }
         public string CategoryName { get; set; } = string.Empty;
-        public string DepName { get; set; } = string.Empty;
+        public string DepartmentName { get; set; } = string.Empty;
+        public string TreatmentMethodName { get; set; } = string.Empty;
+        public string RoomName { get; set; } = string.Empty;
         public DegreeType Degree { get; set; }
         public ProfessionalQualificationType ProfessionalQualification { get; set; }
         public string Address { get; set; } = string.Empty;

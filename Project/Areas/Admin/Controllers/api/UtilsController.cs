@@ -31,25 +31,27 @@ namespace Project.Areas.Admin.Controllers.Api
             _employeeRepository = employeeRepository;
         }
 
-        [HttpGet("GetAvailableTreatmentMethods/{treatmentRecordId}")]
-        public async Task<ActionResult<IEnumerable<TreatmentMethod>>> GetAvailableTreatmentMethods(Guid treatmentRecordId)
+        /////////////////////////////////////////////////////////////////////////////////
+        // Rooms
+        [HttpGet("GetRoomsByDepartment/{id}")]
+        public async Task<ActionResult<IEnumerable<Room>>> GetRoomsByDepartment(Guid id)
         {
-            if (treatmentRecordId == Guid.Empty)
+            if (id == Guid.Empty)
             {
-                return BadRequest("Mã bản ghi điều trị không hợp lệ");
+                return BadRequest("Mã khoa không hợp lệ");
             }
 
             try
             {
-                var methods = await _treatmentMethodRepository.GetAvailableTreatmentMethodsAsync(treatmentRecordId);
-                return Ok(methods);
+                var rooms = await _roomRepository.GetRoomsByDepartmentAsync(id);
+                var roomList = rooms.Select(r => new { id = r.Id, name = r.Name }).ToList();
+                return Ok(roomList);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
-
         [HttpGet("GetRoomsByTreatmentMethod/{id}")]
         public async Task<ActionResult<IEnumerable<Room>>> GetRoomsByTreatmentMethod(Guid id)
         {
@@ -74,6 +76,48 @@ namespace Project.Areas.Admin.Controllers.Api
             }
         }
 
+        /////////////////////////////////////////////////////////////////////////////////
+        // Treatment methods
+        [HttpGet("GetTreatmentMethodsByDepartment/{depId}")]
+        public async Task<ActionResult<IEnumerable<TreatmentMethod>>> GetTreatmentMethodsByDepartment(Guid depId)
+        {
+            if (depId == Guid.Empty)
+            {
+                return BadRequest("Mã khoa không hợp lệ");
+            }
+
+            try
+            {
+                var methods = await _treatmentMethodRepository.GetAllByDepartmentAsync(depId);
+                return Ok(methods);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+
+        [HttpGet("GetAvailableTreatmentMethods/{treatmentRecordId}")]
+        public async Task<ActionResult<IEnumerable<TreatmentMethod>>> GetAvailableTreatmentMethods(Guid treatmentRecordId)
+        {
+            if (treatmentRecordId == Guid.Empty)
+            {
+                return BadRequest("Mã bản ghi điều trị không hợp lệ");
+            }
+
+            try
+            {
+                var methods = await _treatmentMethodRepository.GetAvailableTreatmentMethodsAsync(treatmentRecordId);
+                return Ok(methods);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        // Treatment details
         [HttpGet("GetTreatmentDetail/{code}")]
         public async Task<ActionResult<TreatmentRecordDetailDto>> GetTreatmentDetail(string code)
         {
@@ -128,6 +172,7 @@ namespace Project.Areas.Admin.Controllers.Api
             }
         }
 
+        // Assignments
         [HttpGet("GetAssignment/{code}")]
         public async Task<ActionResult<AssignmentDto>> GetAssignment(string code)
         {

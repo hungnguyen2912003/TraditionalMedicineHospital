@@ -26,7 +26,8 @@
         <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
             <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
                 <div class="px-6">
-                    <div class="text-lg font-semibold mb-6">Thêm thông tin nhân sự</div>
+                    <div class="text-2xl font-bold mb-6">Thêm thông tin nhân sự</div>
+                    <hr class="mb-6">
                     <div class="flex flex-col lg:flex-row gap-6">
                         <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
@@ -45,14 +46,12 @@
                                         placeholder="Nhập họ tên nhân sự" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
-                            </div>
-                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="EmployeeCategoryId" class="block text-sm font-medium text-gray-700">Loại
                                         nhân sự</label>
                                     <div class="select-wrapper">
                                         <select id="EmployeeCategoryId" name="EmployeeCategoryId"
-                                            class="form-input w-full mt-1 p-2 border rounded">
+                                            class="form-input w-full mt-1 p-2 border rounded choices">
                                             <option value="">Chọn loại nhân sự</option>
                                             @foreach (var category in ViewBag.EmployeeCategories)
                                             {
@@ -63,12 +62,15 @@
                                     @Html.ValidationMessageFor(model => model.EmployeeCategoryId, "", new { @class =
                                     "text-danger" })
                                 </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="DepartmentId" class="block text-sm font-medium text-gray-700">Nhân sự
                                         thuộc Khoa</label>
                                     <div class="select-wrapper">
                                         <select id="DepartmentId" name="DepartmentId"
-                                            class="form-input w-full mt-1 p-2 border rounded">
+                                            class="form-input w-full mt-1 p-2 border rounded"
+                                            x-on:change="onDepartmentChange($event)">
                                             <option value="">Chọn khoa</option>
                                             @foreach (var dep in ViewBag.Departments)
                                             {
@@ -79,26 +81,43 @@
                                     @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class =
                                     "text-danger" })
                                 </div>
-                            </div>
-                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                <div class="w-full sm:w-1/2">
+                                    <label for="TreatmentMethodId" class="block text-sm font-medium text-gray-700">Phương pháp điều trị</label>
+                                    <div class="select-wrapper">
+                                        <select id="TreatmentMethodId" name="TreatmentMethodId"
+                                            class="form-input w-full mt-1 p-2 border rounded" x-on:change="onTreatmentMethodChange($event)" disabled>
+                                            <option value="">Chọn phương pháp điều trị</option>
+                                        </select>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.TreatmentMethodId, "", new { @class = "text-danger" })
+                                </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="RoomId" class="block text-sm font-medium text-gray-700">Phòng làm
                                         việc</label>
                                     <div class="select-wrapper">
                                         <select id="RoomId" name="RoomId"
                                             class="form-input w-full mt-1 p-2 border rounded" disabled>
-                                            <option value="">Vui lòng chọn khoa trước</option>
+                                            <option value="">Chọn phòng làm việc</option>
                                         </select>
                                     </div>
-                                    @Html.ValidationMessageFor(model => model.RoomId, "", new { @class = "text-danger"
-                                                                        })
+                                    @Html.ValidationMessageFor(model => model.RoomId, "", new { @class = "text-danger" })
                                 </div>
+                            </div>
+                            <div class="w-full col-span-3 mb-5">
+                                <div x-show="warningMessage" class="flex items-center transition-all" style="color: coral; font-weight: bold;">
+                                    <svg class="w-4 h-4 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span x-text="warningMessage"></span>
+                                </div>    
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Gender" class="block text-sm font-medium text-gray-700">Giới
                                         tính</label>
                                     <div class="select-wrapper">
                                         <select id="Gender" name="Gender"
-                                            class="form-input w-full mt-1 p-2 border rounded">
+                                            class="form-input w-full mt-1 p-2 border rounded choices">
                                             <option value="">Chọn loại giới tính</option>
                                             @foreach (var gender in ViewBag.GenderOptions)
                                             {
@@ -106,11 +125,8 @@
                                             }
                                         </select>
                                     </div>
-                                    @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger"
-                                                                        })
-                                </div>
-                            </div>
-                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                    @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
+                                </div>                                
                                 <div class="w-full sm:w-1/2">
                                     <label for="DateOfBirth" class="block text-sm font-medium text-gray-700">Ngày
                                         sinh</label>
@@ -136,8 +152,7 @@
                                     <input id="Address" type="text" name="Address"
                                         class="form-input w-full mt-1 p-2 border rounded address-autocomplete"
                                         placeholder="Nhập địa chỉ" autocomplete="off" />
-                                    @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger"
-                                                                        })
+                                    @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
@@ -164,7 +179,7 @@
                                     <label class="block text-sm font-medium text-gray-700">Thông tin bằng cấp</label>
                                     <div class="select-wrapper">
                                         <select id="Degree" name="Degree"
-                                            class="form-input w-full mt-1 p-2 border rounded">
+                                            class="form-input w-full mt-1 p-2 border rounded choices">
                                             <option value="">Chọn bằng cấp</option>
                                             @foreach (var degree in ViewBag.DegreeOptions)
                                             {
@@ -180,7 +195,7 @@
                                         môn</label>
                                     <div class="select-wrapper">
                                         <select id="ProfessionalQualification" name="ProfessionalQualification"
-                                            class="form-input w-full mt-1 p-2 border rounded">
+                                            class="form-input w-full mt-1 p-2 border rounded choices">
                                             <option value="">Chọn trình độ chuyên môn</option>
                                             @foreach (var qualification in ViewBag.ProfessionalOptions)
                                             {
@@ -204,12 +219,10 @@
                     </div>
                     <div class="mt-4">
                         <label class="block text-sm font-medium text-gray-700">Thông tin ngày bắt đầu làm việc</label>
-                        <div>
-                            <input id="StartDate" type="text" name="StartDate"
-                                class="form-input w-full mt-1 p-2 border rounded flatpickr"
-                                placeholder="Nhập ngày bắt đầu làm" />
-                            @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
-                        </div>
+                        <input id="StartDate" type="text" name="StartDate"
+                            class="form-input w-full mt-1 p-2 border rounded flatpickr"
+                            placeholder="Nhập ngày bắt đầu làm" />
+                        @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
                     </div>
                 </div>
                 <div class="panel">
@@ -275,13 +288,23 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('addData', () => ({
             dropzone: null,
+            selectedDepartmentId: '',
+            selectedTreatmentMethodId: '',
+            treatmentMethods: [],
+            rooms: [],
+            treatmentMethodChoices: null,
+            roomChoices: null,
+            departmentChoices: null,
+            warningMessage: 'Vui lòng chọn Khoa trước khi chọn Phương pháp điều trị',
 
             init() {
                 this.setupDropzone();
                 this.setupValidation();
                 this.setupDateTimePicker();
                 this.setupChoices();
-                this.setupDepartmentChangeHandler();
+                this.treatmentMethodChoices.disable();
+                this.roomChoices.disable();
+                this.departmentChoices.enable();
             },
 
             setupDateTimePicker() {
@@ -292,7 +315,7 @@
             },
 
             setupChoices() {
-                const selectElements = document.querySelectorAll('select.form-input');
+                const selectElements = document.querySelectorAll('.choices');
                 selectElements.forEach(select => {
                     new Choices(select, {
                         searchEnabled: true,
@@ -302,38 +325,30 @@
                         noChoicesText: 'Không có lựa chọn nào',
                         itemSelectText: ''
                     });
+                });                  
+                this.departmentChoices = new Choices('#DepartmentId', {
+                    searchEnabled: true,
+                    searchPlaceholderValue: 'Tìm kiếm...',
+                    removeItemButton: true,
+                    noResultsText: 'Không tìm thấy kết quả',
+                    noChoicesText: 'Không có lựa chọn nào',
+                    itemSelectText: ''
                 });
-            },
-
-            setupDepartmentChangeHandler() {
-                const departmentSelect = document.getElementById('DepartmentId');
-                const roomSelect = document.getElementById('RoomId');
-
-                departmentSelect.addEventListener('change', async () => {
-                    const departmentId = departmentSelect.value;
-                    roomSelect.disabled = !departmentId;
-
-                    if (!departmentId) {
-                        roomSelect.innerHTML = '<option value="">Vui lòng chọn khoa trước</option>';
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch(`/Admin/Employees/GetRoomsByDepartment?departmentId=${departmentId}`);
-                        const data = await response.json();
-
-                        if (data.success) {
-                            roomSelect.innerHTML = '<option value="">Chọn phòng</option>';
-                            data.rooms.forEach(room => {
-                                roomSelect.innerHTML += `<option value="${room.id}">${room.name}</option>`;
-                            });
-                        } else {
-                            notyf.error(data.message || "Không thể tải danh sách phòng.");
-                        }
-                    } catch (error) {
-                        notyf.error("Có lỗi xảy ra khi tải danh sách phòng.");
-                        console.error(error);
-                    }
+                this.treatmentMethodChoices = new Choices('#TreatmentMethodId', {
+                    searchEnabled: true,
+                    searchPlaceholderValue: 'Tìm kiếm...',
+                    removeItemButton: true,
+                    noResultsText: 'Không tìm thấy kết quả',
+                    noChoicesText: 'Không có lựa chọn nào',
+                    itemSelectText: ''
+                });
+                this.roomChoices = new Choices('#RoomId', {
+                    searchEnabled: true,
+                    searchPlaceholderValue: 'Tìm kiếm...',
+                    removeItemButton: true,
+                    noResultsText: 'Không tìm thấy kết quả',
+                    noChoicesText: 'Không có lựa chọn nào',
+                    itemSelectText: ''
                 });
             },
 
@@ -376,7 +391,7 @@
                         Name: {
                             required: true,
                             minlength: 6,
-                            maxlength: 20,
+                            maxlength: 50,
                             customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/
                         },
                         Gender: {
@@ -489,10 +504,10 @@
                         EmployeeCategoryId: {
                             required: true
                         },
-                        DepartmentId: {
+                        RoomId: {
                             required: true
                         },
-                        RoomId: {
+                        TreatmentMethodId: {
                             required: true
                         }
                     },
@@ -500,7 +515,7 @@
                         Name: {
                             required: "Tên nhân sự không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 6 ký tự.",
-                            maxlength: "Tên không được vượt quá 20 ký tự.",
+                            maxlength: "Tên không được vượt quá 50 ký tự.",
                             customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số, khoảng trắng hoặc dấu ngoặc đơn."
                         },
                         Gender: {
@@ -547,11 +562,11 @@
                         EmployeeCategoryId: {
                             required: "Loại nhân sự không được bỏ trống."
                         },
-                        DepartmentId: {
-                            required: "Khoa không được bỏ trống."
-                        },
                         RoomId: {
                             required: "Phòng làm việc không được bỏ trống."
+                        },
+                        TreatmentMethodId: {
+                            required: "Phương pháp điều trị không được bỏ trống."
                         }
                     },
                     errorElement: "div",
@@ -609,8 +624,8 @@
                 formData.append('ProfessionalQualification', document.getElementById('ProfessionalQualification').value);
                 formData.append('StartDate', document.getElementById('StartDate').value);
                 formData.append('EmployeeCategoryId', document.getElementById('EmployeeCategoryId').value);
-                formData.append('DepartmentId', document.getElementById('DepartmentId').value);
                 formData.append('RoomId', document.getElementById('RoomId').value);
+                formData.append('TreatmentMethodId', document.getElementById('TreatmentMethodId').value);
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
                 formData.append('__RequestVerificationToken', token);
             },
@@ -660,6 +675,61 @@
 
             goBack() {
                 window.location.href = '/Admin/Employees/';
+            },
+
+            onDepartmentChange(e) {
+                this.selectedDepartmentId = e.target.value;
+                this.selectedTreatmentMethodId = '';
+                this.treatmentMethods = [];
+                this.rooms = [];
+                this.treatmentMethodChoices.clearStore();
+                this.roomChoices.clearStore();
+
+                if (!this.selectedDepartmentId) {
+                    this.warningMessage = 'Vui lòng chọn Khoa trước khi chọn Phương pháp điều trị';
+                    this.treatmentMethodChoices.disable();
+                    this.roomChoices.disable();
+                } else {
+                    this.warningMessage = 'Vui lòng chọn Phương pháp điều trị trước khi chọn Phòng';
+                    this.treatmentMethodChoices.enable();
+                    this.roomChoices.disable();
+                    fetch(`/api/Utils/GetTreatmentMethodsByDepartment/${this.selectedDepartmentId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            this.treatmentMethods = data;
+                            this.treatmentMethodChoices.setChoices(
+                                data.map(method => ({
+                                    value: method.id || method.Id,
+                                    label: method.name || method.Name
+                                })), 'value', 'label', false
+                            );
+                        });
+                }
+            },
+
+            onTreatmentMethodChange(e) {
+                this.selectedTreatmentMethodId = e.target.value;
+                this.rooms = [];
+                this.roomChoices.clearStore();
+
+                if (!this.selectedTreatmentMethodId) {
+                    this.warningMessage = 'Vui lòng chọn Phương pháp điều trị trước khi chọn Phòng';
+                    this.roomChoices.disable();
+                } else {
+                    this.warningMessage = '';
+                    this.roomChoices.enable();
+                    fetch(`/api/Utils/GetRoomsByTreatmentMethod/${this.selectedTreatmentMethodId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            this.rooms = data;
+                            this.roomChoices.setChoices(
+                                data.map(room => ({
+                                    value: room.id || room.Id,
+                                    label: room.name || room.Name
+                                })), 'value', 'label', false
+                            );
+                        });
+                }
             }
         }));
     });

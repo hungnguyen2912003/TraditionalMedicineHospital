@@ -117,7 +117,12 @@ namespace Project.Helpers
 
             viewData["TreatmentMethods"] = treatmentMethods
                 .Where(tm => tm.IsActive)
-                .Select(tm => new { tm.Id, tm.Name })
+                .Select(tm => new
+                {
+                    tm.Id,
+                    tm.Name,
+                    DepartmentIds = tm.Rooms.Select(r => r.DepartmentId).Distinct().ToList()
+                })
                 .ToList();
 
             var rooms = await _roomRepository.GetAllAsync();
@@ -125,9 +130,9 @@ namespace Project.Helpers
                 .Where(r => r.IsActive)
                 .Select(r => new
                 {
-                    id = r.Id,
-                    name = r.Name,
-                    treatmentMethodId = r.TreatmentMethodId
+                    r.Id,
+                    r.Name,
+                    r.TreatmentMethodId
                 })
                 .ToList();
 

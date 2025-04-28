@@ -20,5 +20,6 @@ namespace Project.Areas.Admin.Models.DTOs
         public Guid EmployeeCategoryId { get; set; }
         public Guid DepartmentId { get; set; }
         public Guid RoomId { get; set; }
+        public Guid TreatmentMethodId { get; set; }
     }
 }
