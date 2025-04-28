@@ -319,6 +319,26 @@
                             placeholder="Nhập ngày bắt đầu làm" value="@Model.StartDate.ToString("dd/MM/yyyy")" />
                         @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
                     </div>
+                    <div class="mt-4">
+                        <label for="Status" class="block text-sm font-medium text-gray-700">Tình trạng làm việc</label>
+                        <div class="select-wrapper">
+                            <select id="Status" name="Status" class="form-input w-full mt-1 p-2 border rounded choices">
+                                <option value="">Chọn tình trạng làm việc</option>
+                                @foreach (var status in ViewBag.StatusOptions)
+                                {
+                                    if (status.Value == (int)Model.Status)
+                                    {
+                                        <option value="@status.Value" selected>@status.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@status.Value">@status.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+                    </div>
                 </div>
                 <div class="panel">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
@@ -696,6 +716,9 @@
                         },
                         RoomId: {
                             required: true
+                        },
+                        Status: {
+                            required: true
                         }
                     },
                     messages: {
@@ -757,6 +780,9 @@
                         },
                         RoomId: {
                             required: "Phòng làm việc không được bỏ trống."
+                        },
+                        Status: {
+                            required: "Tình trạng làm việc không được bỏ trống."
                         }
                     },
                     errorElement: "div",

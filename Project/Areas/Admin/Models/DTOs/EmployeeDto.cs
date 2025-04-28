@@ -21,5 +21,6 @@ namespace Project.Areas.Admin.Models.DTOs
         public Guid DepartmentId { get; set; }
         public Guid RoomId { get; set; }
         public Guid TreatmentMethodId { get; set; }
+        public bool IsActive { get; set; }
     }
 }
