@@ -25,6 +25,7 @@ namespace Project.Areas.Staff.Models.DTOs.ReceptionDTO
         public string? HealthInsuranceNumber { get; set; }
         public DateTime? HealthInsuranceExpiryDate { get; set; }
         public string? HealthInsurancePlaceOfRegistration { get; set; }
+        public bool? HealthInsuranceIsRightRoute { get; set; }
 
     }
 }

@@ -35,7 +35,8 @@ namespace Project.Mappers
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.HealthInsuranceCode))
                 .ForMember(dest => dest.Number, opt => opt.MapFrom(src => src.HealthInsuranceNumber))
                 .ForMember(dest => dest.ExpiryDate, opt => opt.MapFrom(src => src.HealthInsuranceExpiryDate))
-                .ForMember(dest => dest.PlaceOfRegistration, opt => opt.MapFrom(src => src.HealthInsurancePlaceOfRegistration));
+                .ForMember(dest => dest.PlaceOfRegistration, opt => opt.MapFrom(src => src.HealthInsurancePlaceOfRegistration))
+                .ForMember(dest => dest.IsRightRoute, opt => opt.MapFrom(src => src.HealthInsuranceIsRightRoute));
 
             // Treatment record
             CreateMap<ReceptionTreatmentRecordDto, TreatmentRecord>()

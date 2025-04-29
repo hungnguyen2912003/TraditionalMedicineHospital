@@ -13,7 +13,6 @@ document.addEventListener('alpine:init', () => {
         roomChoices: null,
         regulations: [],
         availableRegulations: [],
-        hasHealthInsurance: true,
         images: [],
         errors: {},
         choicesInstances: {}, // Store Choices instances
@@ -30,10 +29,11 @@ document.addEventListener('alpine:init', () => {
                 this.allRooms = window.roomsData || [];
                 this.availableRegulations = window.regulationsData || [];
 
-                // Then initialize components once
-                this.initializeComponents();
-
-                // Add event listeners for treatment dates
+                // Initialize all components
+                this.setupDropzone();
+                this.setupValidation();
+                this.setupDateTimePicker();
+                this.setupChoices();
                 this.setupTreatmentDateListeners();
             } catch (error) {
                 console.error('Error initializing reception:', error);
@@ -208,16 +208,6 @@ document.addEventListener('alpine:init', () => {
         },
 
         /**
-         * Initialize all form components
-         */
-        initializeComponents() {
-            this.setupDropzone();
-            this.setupValidation();
-            this.setupDateTimePicker();
-            this.setupChoices();
-        },
-
-        /**
          * Set up Dropzone for image uploads
          */
         setupDropzone() {
@@ -239,15 +229,12 @@ document.addEventListener('alpine:init', () => {
                             this.removeFile(this.files[0]);
                         }
                     });
-
                     this.on('sending', (file, xhr, formData) => {
                         self.appendFormData(formData);
                     });
-
                     this.on('success', (file, response) => {
                         self.handleResponse(response);
                     });
-
                     this.on('error', (file, errorMessage) => {
                         const overlay = document.getElementById('loadingOverlay');
                         overlay.style.display = 'none';
@@ -275,13 +262,13 @@ document.addEventListener('alpine:init', () => {
             formData.append('Patient.PhoneNumber', document.getElementById('PhoneNumber').value);
             formData.append('Patient.EmailAddress', document.getElementById('Email').value);
             formData.append('Patient.HasHealthInsurance', document.getElementById('HasHealthInsurance').checked);
-
             // Append health insurance data if exists
             if (document.getElementById('HasHealthInsurance').checked) {
                 formData.append('Patient.HealthInsuranceCode', document.getElementById('HealthInsuranceCode').value);
                 formData.append('Patient.HealthInsuranceNumber', document.getElementById('HealthInsuranceNumber').value);
                 formData.append('Patient.HealthInsuranceExpiryDate', document.getElementById('HealthInsuranceExpiryDate').value);
                 formData.append('Patient.HealthInsurancePlaceOfRegistration', document.getElementById('HealthInsurancePlaceOfRegistration').value);
+                formData.append('Patient.HealthInsuranceIsRightRoute', document.getElementById('HealthInsuranceIsRightRoute').checked);
             }
 
             // Append treatment record detail data
@@ -323,7 +310,6 @@ document.addEventListener('alpine:init', () => {
         setupChoices() {
             const selectElements = document.querySelectorAll('select.choices');
             selectElements.forEach(select => {
-                // Skip if already initialized or is room select
                 if (select.id === 'treatmentRecordDetailRoom' || select.choices) return;
 
                 const choices = new Choices(select, {
@@ -335,9 +321,8 @@ document.addEventListener('alpine:init', () => {
                     itemSelectText: ''
                 });
 
-                // Store the instance
                 this.choicesInstances[select.id] = choices;
-                select.choices = choices; // Mark as initialized
+                select.choices = choices;
             });
 
             this.initRoomChoices();
@@ -708,303 +693,194 @@ document.addEventListener('alpine:init', () => {
          * Set up form validation
          */
         setupValidation() {
-            const self = this;
-            const validationRules = this.getValidationRules();
-            const validationMessages = this.getValidationMessages();
-
-            // Add custom validation method for CCCD based on age
+            // Add custom validation methods
             $.validator.addMethod("requiredIfOver14", function (value, element) {
                 const dateOfBirth = $("#DateOfBirth").val();
-                if (!dateOfBirth) return true; // Skip validation if DOB not entered
-
-                const isOver14 = self.isOver14(dateOfBirth);
-                if (isOver14) {
-                    return value.trim().length > 0;
-                }
-                return true;
+                if (!dateOfBirth) return true;
+                return this.isOver14(dateOfBirth) ? value.trim().length > 0 : true;
             }, "Người trên 14 tuổi bắt buộc phải nhập CCCD");
 
-            // Add custom validation method for health insurance expiry date
             $.validator.addMethod("notExpired", function (value, element) {
-                if (!value) return true; // Skip validation if no date entered
-
+                if (!value) return true;
                 const parts = value.split('/');
                 const expiryDate = new Date(parts[2], parts[1] - 1, parts[0]);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-
                 return expiryDate >= today;
             }, "Thẻ BHYT đã hết hạn");
 
             $("#receptionForm").validate({
                 ignore: [],
-                rules: validationRules,
-                messages: validationMessages,
+                rules: {
+                    "Name": { required: true, minlength: 2, maxlength: 50 },
+                    "DateOfBirth": { required: true, dateFormat: true },
+                    "Gender": { required: true },
+                    "IdentityNumber": {
+                        requiredIfOver14: true,
+                        minlength: 9,
+                        maxlength: 12,
+                        remote: {
+                            url: "/api/validation/patient/check",
+                            type: "GET",
+                            data: {
+                                type: "identitynumber",
+                                entityType: "patient",
+                                value: function () { return $("#IdentityNumber").val(); }
+                            },
+                            dataFilter: function (data) {
+                                return JSON.parse(data) === true;
+                            }
+                        }
+                    },
+                    "PhoneNumber": {
+                        required: true,
+                        phone: true,
+                        remote: {
+                            url: "/api/validation/patient/check",
+                            type: "GET",
+                            data: {
+                                type: "phone",
+                                entityType: "patient",
+                                value: function () { return $("#PhoneNumber").val(); }
+                            },
+                            dataFilter: function (data) {
+                                return JSON.parse(data) === true;
+                            }
+                        }
+                    },
+                    "Address": { required: true, minlength: 5, maxlength: 500 },
+                    "Email": { email: true },
+                    "HealthInsuranceNumber": {
+                        required: () => $('#HasHealthInsurance').is(':checked')
+                    },
+                    "HealthInsuranceExpiryDate": {
+                        required: () => $('#HasHealthInsurance').is(':checked'),
+                        dateFormat: true,
+                        notExpired: true
+                    },
+                    "HealthInsurancePlaceOfRegistration": {
+                        required: () => $('#HasHealthInsurance').is(':checked')
+                    },
+                    "Diagnosis": { required: true },
+                    "StartDate": { required: true, dateFormat: true, notPastDate: true },
+                    "EndDate": { required: true, dateFormat: true, endDateAfterStartDate: true },
+                    "TreatmentRecordDetail.TreatmentMethodId": { required: true },
+                    "TreatmentRecordDetail.RoomId": { required: true },
+                    "Assignment.StartDate": {
+                        required: true,
+                        dateFormat: true,
+                        notPastDate: true,
+                        assignmentStartDateValid: true
+                    },
+                    "Assignment.EndDate": {
+                        required: true,
+                        dateFormat: true,
+                        endDateAfterStartDate: true,
+                        assignmentEndDateValid: true
+                    }
+                },
+                messages: {
+                    "Name": {
+                        required: "Họ và tên không được bỏ trống.",
+                        minlength: "Họ và tên phải có ít nhất 2 ký tự.",
+                        maxlength: "Họ và tên không được vượt quá 50 ký tự."
+                    },
+                    "DateOfBirth": {
+                        required: "Ngày sinh không được bỏ trống.",
+                        dateFormat: "Ngày sinh không hợp lệ."
+                    },
+                    "Gender": { required: "Giới tính không được bỏ trống." },
+                    "IdentityNumber": {
+                        requiredIfOver14: "Người trên 14 tuổi bắt buộc phải nhập CCCD",
+                        minlength: "Số CMND/CCCD phải có ít nhất 9 ký tự.",
+                        maxlength: "Số CMND/CCCD không được vượt quá 12 ký tự.",
+                        remote: "Số CMND/CCCD đã được đăng ký trước đó trên hệ thống"
+                    },
+                    "PhoneNumber": {
+                        required: "Số điện thoại không được bỏ trống.",
+                        phone: "Số điện thoại không hợp lệ.",
+                        remote: "Số điện thoại đã được đăng ký trước đó trên hệ thống"
+                    },
+                    "Address": {
+                        required: "Địa chỉ không được bỏ trống.",
+                        minlength: "Địa chỉ phải có ít nhất 5 ký tự.",
+                        maxlength: "Địa chỉ không được vượt quá 500 ký tự."
+                    },
+                    "Email": { email: "Email không hợp lệ." },
+                    "HealthInsuranceNumber": { required: "Số thẻ BHYT không được bỏ trống." },
+                    "HealthInsuranceExpiryDate": {
+                        required: "Ngày hết hạn không được bỏ trống.",
+                        dateFormat: "Ngày hết hạn không hợp lệ.",
+                        notExpired: "Thẻ BHYT đã hết hạn"
+                    },
+                    "HealthInsurancePlaceOfRegistration": { required: "Nơi đăng ký không được bỏ trống." },
+                    "Diagnosis": { required: "Chẩn đoán không được bỏ trống." },
+                    "StartDate": {
+                        required: "Ngày bắt đầu không được bỏ trống.",
+                        dateFormat: "Ngày bắt đầu không hợp lệ."
+                    },
+                    "EndDate": {
+                        required: "Ngày kết thúc không được bỏ trống.",
+                        dateFormat: "Ngày kết thúc không hợp lệ."
+                    },
+                    "TreatmentRecordDetail.TreatmentMethodId": { required: "Phương pháp điều trị không được bỏ trống." },
+                    "TreatmentRecordDetail.RoomId": { required: "Phòng điều trị không được bỏ trống." },
+                    "Assignment.StartDate": {
+                        required: "Ngày bắt đầu không được bỏ trống.",
+                        dateFormat: "Ngày bắt đầu không hợp lệ.",
+                        notPastDate: "Ngày bắt đầu không thể là ngày trong quá khứ.",
+                        assignmentStartDateValid: "Ngày bắt đầu phân công không được trước ngày bắt đầu điều trị"
+                    },
+                    "Assignment.EndDate": {
+                        required: "Ngày kết thúc không được bỏ trống.",
+                        dateFormat: "Ngày kết thúc không hợp lệ.",
+                        endDateAfterStartDate: "Ngày kết thúc phải sau ngày bắt đầu.",
+                        assignmentEndDateValid: "Ngày kết thúc phân công không được sau ngày kết thúc điều trị"
+                    }
+                },
                 errorElement: "div",
                 errorClass: "text-danger",
-                highlight: this.highlightError,
-                unhighlight: this.unhighlightError,
-                errorPlacement: this.placeError,
-                onfocusout: this.validateOnFocusOut,
-                onkeyup: false
+                highlight: function (element) {
+                    if ($(element).is('select')) {
+                        const choicesContainer = $(element).closest('.select-wrapper').find('.choices__inner');
+                        choicesContainer.addClass("border-red-500");
+                    } else {
+                        $(element).addClass("border-red-500");
+                    }
+                },
+                unhighlight: function (element) {
+                    if ($(element).is('select')) {
+                        const choicesContainer = $(element).closest('.select-wrapper').find('.choices__inner');
+                        choicesContainer.removeClass("border-red-500");
+                    } else {
+                        $(element).removeClass("border-red-500");
+                    }
+                },
+                errorPlacement: function (error, element) {
+                    if (element.is('select')) {
+                        const wrapper = element.closest('.select-wrapper');
+                        error.insertAfter(wrapper.length ? wrapper : element);
+                    } else {
+                        error.insertAfter(element);
+                    }
+                },
+                onfocusout: function (element) {
+                    if ($(element).val() === '' || $(element).val().length > 0) {
+                        $(element).valid();
+                    }
+                }
             });
 
             // Add validation for select elements
             $('select.form-input').on('change', function () {
                 $(this).valid();
             });
-
-            // Add validation when date of birth changes
-            $("#DateOfBirth").on('change', function () {
-                $("#IdentityNumber").valid();
-            });
         },
 
         /**
-         * Get validation rules for the form
-         */
-        getValidationRules() {
-            return {
-                "Name": { required: true, minlength: 2, maxlength: 50 },
-                "DateOfBirth": { required: true, dateFormat: true },
-                "Gender": { required: true },
-                "IdentityNumber": {
-                    requiredIfOver14: true,
-                    minlength: 9,
-                    maxlength: 12,
-                    remote: {
-                        url: "/api/validation/patient/check",
-                        type: "GET",
-                        data: {
-                            type: "identitynumber",
-                            entityType: "patient",
-                            value: function () { return $("#IdentityNumber").val(); }
-                        },
-                        dataFilter: function (data) {
-                            return JSON.parse(data) === true;
-                        }
-                    }
-                },
-                "PhoneNumber": {
-                    required: true,
-                    phone: true,
-                    remote: {
-                        url: "/api/validation/patient/check",
-                        type: "GET",
-                        data: {
-                            type: "phone",
-                            entityType: "patient",
-                            value: function () { return $("#PhoneNumber").val(); }
-                        },
-                        dataFilter: function (data) {
-                            return JSON.parse(data) === true;
-                        }
-                    }
-                },
-                "Address": { required: true, minlength: 5, maxlength: 500 },
-                "Email": { email: true },
-                "HealthInsuranceNumber": {
-                    required: () => $('#HasHealthInsurance').is(':checked')
-                },
-                "HealthInsuranceExpiryDate": {
-                    required: () => $('#HasHealthInsurance').is(':checked'),
-                    dateFormat: true,
-                    notExpired: true
-                },
-                "HealthInsurancePlaceOfRegistration": {
-                    required: () => $('#HasHealthInsurance').is(':checked')
-                },
-                "Diagnosis": { required: true },
-                "StartDate": { required: true, dateFormat: true, notPastDate: true },
-                "EndDate": { required: true, dateFormat: true, endDateAfterStartDate: true },
-                "TreatmentRecordDetail.TreatmentMethodId": { required: true },
-                "TreatmentRecordDetail.RoomId": { required: true },
-                "Assignment.StartDate": {
-                    required: true,
-                    dateFormat: true,
-                    notPastDate: true,
-                    assignmentStartDateValid: true
-                },
-                "Assignment.EndDate": {
-                    required: true,
-                    dateFormat: true,
-                    endDateAfterStartDate: true,
-                    assignmentEndDateValid: true
-                }
-            };
-        },
-
-        /**
-         * Get validation messages for the form
-         */
-        getValidationMessages() {
-            return {
-                "Name": {
-                    required: "Họ và tên không được bỏ trống.",
-                    minlength: "Họ và tên phải có ít nhất 2 ký tự.",
-                    maxlength: "Họ và tên không được vượt quá 50 ký tự."
-                },
-                "DateOfBirth": {
-                    required: "Ngày sinh không được bỏ trống.",
-                    dateFormat: "Ngày sinh không hợp lệ."
-                },
-                "Gender": { required: "Giới tính không được bỏ trống." },
-                "IdentityNumber": {
-                    requiredIfOver14: "Người trên 14 tuổi bắt buộc phải nhập CCCD",
-                    minlength: "Số CMND/CCCD phải có ít nhất 9 ký tự.",
-                    maxlength: "Số CMND/CCCD không được vượt quá 12 ký tự.",
-                    remote: "Số CMND/CCCD đã được đăng ký trước đó trên hệ thống"
-                },
-                "PhoneNumber": {
-                    required: "Số điện thoại không được bỏ trống.",
-                    phone: "Số điện thoại không hợp lệ.",
-                    remote: "Số điện thoại đã được đăng ký trước đó trên hệ thống"
-                },
-                "Address": {
-                    required: "Địa chỉ không được bỏ trống.",
-                    minlength: "Địa chỉ phải có ít nhất 5 ký tự.",
-                    maxlength: "Địa chỉ không được vượt quá 500 ký tự."
-                },
-                "Email": { email: "Email không hợp lệ." },
-                "HealthInsuranceNumber": { required: "Số thẻ BHYT không được bỏ trống." },
-                "HealthInsuranceExpiryDate": {
-                    required: "Ngày hết hạn không được bỏ trống.",
-                    dateFormat: "Ngày hết hạn không hợp lệ.",
-                    notExpired: "Thẻ BHYT đã hết hạn"
-                },
-                "HealthInsurancePlaceOfRegistration": { required: "Nơi đăng ký không được bỏ trống." },
-                "Diagnosis": { required: "Chẩn đoán không được bỏ trống." },
-                "StartDate": {
-                    required: "Ngày bắt đầu không được bỏ trống.",
-                    dateFormat: "Ngày bắt đầu không hợp lệ."
-                },
-                "EndDate": {
-                    required: "Ngày kết thúc không được bỏ trống.",
-                    dateFormat: "Ngày kết thúc không hợp lệ."
-                },
-                "TreatmentRecordDetail.TreatmentMethodId": { required: "Phương pháp điều trị không được bỏ trống." },
-                "TreatmentRecordDetail.RoomId": { required: "Phòng điều trị không được bỏ trống." },
-                "Assignment.StartDate": {
-                    required: "Ngày bắt đầu không được bỏ trống.",
-                    dateFormat: "Ngày bắt đầu không hợp lệ.",
-                    notPastDate: "Ngày bắt đầu không thể là ngày trong quá khứ.",
-                    assignmentStartDateValid: "Ngày bắt đầu phân công không được trước ngày bắt đầu điều trị"
-                },
-                "Assignment.EndDate": {
-                    required: "Ngày kết thúc không được bỏ trống.",
-                    dateFormat: "Ngày kết thúc không hợp lệ.",
-                    endDateAfterStartDate: "Ngày kết thúc phải sau ngày bắt đầu.",
-                    assignmentEndDateValid: "Ngày kết thúc phân công không được sau ngày kết thúc điều trị"
-                }
-            };
-        },
-
-        /**
-         * Highlight validation errors
-         */
-        highlightError(element) {
-            if ($(element).is('select')) {
-                const choicesContainer = $(element).closest('.select-wrapper').find('.choices__inner');
-                choicesContainer.addClass("border-red-500");
-            } else {
-                $(element).addClass("border-red-500");
-            }
-        },
-
-        /**
-         * Remove highlight from valid fields
-         */
-        unhighlightError(element) {
-            if ($(element).is('select')) {
-                const choicesContainer = $(element).closest('.select-wrapper').find('.choices__inner');
-                choicesContainer.removeClass("border-red-500");
-            } else {
-                $(element).removeClass("border-red-500");
-            }
-        },
-
-        /**
-         * Place error messages
-         */
-        placeError(error, element) {
-            if (element.is('select')) {
-                const wrapper = element.closest('.select-wrapper');
-                error.insertAfter(wrapper.length ? wrapper : element);
-            } else {
-                error.insertAfter(element);
-            }
-        },
-
-        /**
-         * Validate on focus out
-         */
-        validateOnFocusOut(element) {
-            if ($(element).val() === '' || $(element).val().length > 0) {
-                $(element).valid();
-            }
-        },
-
-        /**
-         * Filter rooms based on treatment method
-         */
-        filterRooms(treatmentMethodId) {
-            console.log('Treatment Method ID:', treatmentMethodId);
-            console.log('All Rooms:', this.allRooms);
-
-            const roomSelect = document.getElementById('treatmentRecordDetailRoom');
-            const warningDiv = document.getElementById('treatmentMethodWarning');
-            const hiddenInput = document.querySelector('input[name="TreatmentRecordDetail.RoomId"]');
-
-            if (!treatmentMethodId) {
-                if (this.roomChoices) {
-                    this.roomChoices.clearStore();
-                    this.roomChoices.setChoices([{ value: '', label: 'Chọn phòng' }], 'value', 'label', true);
-                    this.roomChoices.disable();
-                }
-                if (hiddenInput) hiddenInput.value = '';
-                warningDiv.style.display = 'block';
-                return;
-            }
-
-            warningDiv.style.display = 'none';
-
-            // Filter rooms
-            const filteredRooms = this.allRooms.filter(room => {
-                const roomMethodId = String(room.treatmentMethodId || '').toLowerCase().trim();
-                const selectedMethodId = String(treatmentMethodId).toLowerCase().trim();
-                return roomMethodId === selectedMethodId;
-            });
-
-            console.log('Filtered Rooms:', filteredRooms);
-
-            // Update choices
-            if (this.roomChoices) {
-                this.roomChoices.clearStore();
-
-                const choices = [
-                    { value: '', label: 'Chọn phòng' },
-                    ...filteredRooms.map(room => ({
-                        value: room.id,
-                        label: room.name
-                    }))
-                ];
-
-                this.roomChoices.setChoices(choices, 'value', 'label', true);
-
-                if (filteredRooms.length > 0) {
-                    this.roomChoices.enable();
-                } else {
-                    this.roomChoices.disable();
-                    if (hiddenInput) hiddenInput.value = '';
-                }
-            }
-        },
-
-        /**
-         * Submit the form
+         * Submit form handler
          */
         submitForm() {
-            const form = document.getElementById('receptionForm');
             if (!$("#receptionForm").valid()) {
                 notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
                 return;
@@ -1017,24 +893,22 @@ document.addEventListener('alpine:init', () => {
                 if (this.dropzone?.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
                     this.dropzone.processQueue();
                 } else {
-                    const formData = new FormData(form);
+                    const formData = new FormData(document.getElementById('receptionForm'));
                     this.appendFormData(formData);
 
                     fetch('/Staff/Receptions/Create', {
                         method: 'POST',
                         body: formData
                     })
-                        .then(response => response.json())
-                        .then(this.handleResponse)
-                        .catch(error => {
-                            overlay.style.display = 'none';
-                            console.error('Error submitting form:', error);
-                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error.message);
-                        });
+                    .then(response => response.json())
+                    .then(this.handleResponse)
+                    .catch(error => {
+                        overlay.style.display = 'none';
+                        notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error.message);
+                    });
                 }
             } catch (error) {
                 overlay.style.display = 'none';
-                console.error('Error in submitForm:', error);
                 notyf.error("Có lỗi xảy ra: " + error.message);
             }
         },

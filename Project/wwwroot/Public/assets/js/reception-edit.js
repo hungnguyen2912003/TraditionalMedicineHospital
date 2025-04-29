@@ -115,6 +115,7 @@ document.addEventListener('alpine:init', () => {
         dropzone: null,
         tab: 'treatment-record',
         hasHealthInsurance: false,
+        isRightRoute: false,
         showAddTreatmentForm: false,
         showAddAssignmentForm: false,
         regulations: [],
@@ -206,6 +207,9 @@ document.addEventListener('alpine:init', () => {
             const healthInsuranceNumber = document.querySelector('[name="Patient.HealthInsuranceNumber"]')?.value;
             const healthInsuranceCode = document.querySelector('[name="Patient.HealthInsuranceCode"]')?.value;
             this.hasHealthInsurance = !!(healthInsuranceNumber || healthInsuranceCode);
+
+            const healthInsuranceIsRightRoute = document.querySelector('[name="Patient.HealthInsuranceIsRightRoute"]')?.value;
+            this.isRightRoute = !!(healthInsuranceIsRightRoute);
             
             $('select').on('focus', function () {
                 $(this).trigger('click');

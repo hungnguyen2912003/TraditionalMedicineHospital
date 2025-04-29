@@ -411,6 +411,12 @@
                                         @Html.ValidationMessageFor(model =>
                                             model.Patient.HealthInsurancePlaceOfRegistration, "", new { @class = "text-danger" })
                                     </div>
+                                    <div class="w-full mt-2">
+                                        <input type="checkbox" class="form-checkbox" name="HealthInsuranceIsRightRoute"
+                                            x-model="isRightRoute" id="HealthInsuranceIsRightRoute" value="@Model.Patient.HealthInsuranceIsRightRoute"/>
+                                        <span class="text-sm font-medium text-gray-700 ml-2">Thẻ bảo hiểm đúng tuyến KCB<span
+                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></span>
+                                    </div>  
                                 </div>
                             </div>
                         </div>

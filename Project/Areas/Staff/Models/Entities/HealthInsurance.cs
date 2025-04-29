@@ -14,7 +14,6 @@ namespace Project.Areas.Staff.Models.Entities
         public string Number { get; set; } = string.Empty;
         public DateTime ExpiryDate { get; set; }
         public string PlaceOfRegistration { get; set; } = string.Empty;
-        [Required]
         public bool IsRightRoute { get; set; }
 
         //Foreign key

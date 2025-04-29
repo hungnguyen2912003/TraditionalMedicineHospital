@@ -21,7 +21,7 @@
     ">
     @Html.AntiForgeryToken()
 
-    <div x-data="{tab: 'treatment-record', hasHealthInsurance: false}">
+    <div x-data="{tab: 'treatment-record', hasHealthInsurance: false, isRightRoute: false}">
         <ul
             class="mb-5 overflow-y-auto whitespace-nowrap border-b border-[#ebedf2] font-semibold dark:border-[#191e3a] sm:flex">
             <li class="inline-block">
@@ -118,8 +118,7 @@
                                                 value="@Model.TreatmentRecord.Code" />                                        
                                         </div>
                                         <div class="w-full sm:w-1/2">
-                                            <label for="Diagnosis">Chẩn đoán<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            <label for="Diagnosis">Chẩn đoán<span class="text-danger">&nbsp*</span></label>
                                             <div class="select-wrapper">
                                                 <select id="Diagnosis" name="Diagnosis" class="form-input w-full mt-1 p-2 border rounded choices">
                                                     <option value="">Chọn chẩn đoán</option>
@@ -342,8 +341,7 @@
                                             model.Patient.HealthInsurancePlaceOfRegistration, "", new { @class = "text-danger" })
                                     </div>
                                     <div class="w-full mt-2">
-                                        <input type="checkbox" class="form-checkbox" name="IsRightRoute"
-                                            x-model="isRightRoute" id="IsRightRoute" />
+                                        <input type="checkbox" class="form-checkbox" x-model="isRightRoute" id="HealthInsuranceIsRightRoute" name="HealthInsuranceIsRightRoute">
                                         <span class="text-sm font-medium text-gray-700 ml-2">Thẻ bảo hiểm đúng tuyến KCB<span
                                 class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></span>
                                     </div>                                    
