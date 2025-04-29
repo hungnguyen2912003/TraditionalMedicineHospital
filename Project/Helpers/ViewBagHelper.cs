@@ -65,7 +65,6 @@ namespace Project.Helpers
                     }
                 }
             }
-
             viewData["UserId"] = userId;
             viewData["DepId"] = depId;
 

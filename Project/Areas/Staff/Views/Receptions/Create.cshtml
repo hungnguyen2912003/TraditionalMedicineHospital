@@ -238,7 +238,7 @@
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full address-container">
                                             <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ</label>
-                                            <input id="Address" type="text" name="Address" class="form-input w-full mt-1 p-2 border rounded" 
+                                            <input id="Address" type="text" name="Address" class="form-input w-full mt-1 p-2 border rounded address-autocomplete" 
                                                 placeholder="Nhập địa chỉ" autocomplete="off" value="123 Đường ABC, Quận 1, TP.HCM" />
                                             @Html.ValidationMessageFor(model => model.Patient.Address, "", new { @class = "text-danger" })
                                         </div> 
@@ -328,6 +328,11 @@
                                         @Html.ValidationMessageFor(model =>
                                             model.Patient.HealthInsurancePlaceOfRegistration, "", new { @class = "text-danger" })
                                     </div>
+                                    <div class="w-full mt-2">
+                                        <input type="checkbox" class="form-checkbox" name="IsRightRoute"
+                                            x-model="isRightRoute" id="IsRightRoute" />
+                                        <span class="text-sm font-medium text-gray-700 ml-2">Thẻ bảo hiểm đúng tuyến KCB</span>
+                                    </div>                                    
                                 </div>
                             </div>
                         </div>
@@ -536,7 +541,7 @@
     </div>
 </form>
 
-<script src="~/Public/assets/js/reception.js"></script>
+<script src="~/Public/assets/js/reception-create.js"></script>
 <script>
     window.roomsData = @Html.Raw(Json.Serialize(ViewBag.Rooms));
     window.regulationsData = @Html.Raw(Json.Serialize(ViewBag.Regulations));
