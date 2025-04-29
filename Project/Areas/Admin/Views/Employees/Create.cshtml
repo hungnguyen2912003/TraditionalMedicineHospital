@@ -40,7 +40,8 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Tên nhân
-                                        sự</label>
+                                        sự<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập họ tên nhân sự" />
@@ -48,7 +49,8 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="EmployeeCategoryId" class="block text-sm font-medium text-gray-700">Loại
-                                        nhân sự</label>
+                                        nhân sự<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="EmployeeCategoryId" name="EmployeeCategoryId"
                                             class="form-input w-full mt-1 p-2 border rounded choices">
@@ -66,7 +68,8 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="DepartmentId" class="block text-sm font-medium text-gray-700">Nhân sự
-                                        thuộc Khoa</label>
+                                        thuộc Khoa<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="DepartmentId" name="DepartmentId"
                                             class="form-input w-full mt-1 p-2 border rounded"
@@ -82,7 +85,8 @@
                                     "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="TreatmentMethodId" class="block text-sm font-medium text-gray-700">Phương pháp điều trị</label>
+                                    <label for="TreatmentMethodId" class="block text-sm font-medium text-gray-700">Phương pháp điều trị<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="TreatmentMethodId" name="TreatmentMethodId"
                                             class="form-input w-full mt-1 p-2 border rounded" x-on:change="onTreatmentMethodChange($event)" disabled>
@@ -93,7 +97,8 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="RoomId" class="block text-sm font-medium text-gray-700">Phòng làm
-                                        việc</label>
+                                        việc<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="RoomId" name="RoomId"
                                             class="form-input w-full mt-1 p-2 border rounded" disabled>
@@ -114,7 +119,8 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Gender" class="block text-sm font-medium text-gray-700">Giới
-                                        tính</label>
+                                        tính<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="Gender" name="Gender"
                                             class="form-input w-full mt-1 p-2 border rounded choices">
@@ -129,7 +135,8 @@
                                 </div>                                
                                 <div class="w-full sm:w-1/2">
                                     <label for="DateOfBirth" class="block text-sm font-medium text-gray-700">Ngày
-                                        sinh</label>
+                                        sinh<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="DateOfBirth" type="text" name="DateOfBirth"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                         placeholder="Nhập ngày sinh" />
@@ -138,7 +145,8 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="IdentityNumber" class="block text-sm font-medium text-gray-700">Căn cước
-                                        công dân</label>
+                                        công dân<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="IdentityNumber" type="text" name="IdentityNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập căn cước công dân" />
@@ -148,7 +156,8 @@
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full address-container">
-                                    <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ</label>
+                                    <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="Address" type="text" name="Address"
                                         class="form-input w-full mt-1 p-2 border rounded address-autocomplete"
                                         placeholder="Nhập địa chỉ" autocomplete="off" />
@@ -158,7 +167,8 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Số điện
-                                        thoại</label>
+                                        thoại<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="PhoneNumber" type="text" name="PhoneNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập số điện thoại" />
@@ -167,7 +177,8 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="EmailAddress"
-                                        class="block text-sm font-medium text-gray-700">Email</label>
+                                        class="block text-sm font-medium text-gray-700">Email<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="EmailAddress" type="text" name="EmailAddress"
                                         class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập email" />
                                     @Html.ValidationMessageFor(model => model.EmailAddress, "", new { @class =
@@ -176,7 +187,8 @@
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label class="block text-sm font-medium text-gray-700">Thông tin bằng cấp</label>
+                                    <label class="block text-sm font-medium text-gray-700">Thông tin bằng cấp<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="Degree" name="Degree"
                                             class="form-input w-full mt-1 p-2 border rounded choices">
@@ -192,7 +204,8 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label class="block text-sm font-medium text-gray-700">Thông tin trình độ chuyên
-                                        môn</label>
+                                        môn<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="ProfessionalQualification" name="ProfessionalQualification"
                                             class="form-input w-full mt-1 p-2 border rounded choices">
@@ -218,7 +231,8 @@
                         <div class="dropzone flex-1" id="imageDropzone"></div>
                     </div>
                     <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700">Thông tin ngày bắt đầu làm việc</label>
+                        <label class="block text-sm font-medium text-gray-700">Thông tin ngày bắt đầu làm việc<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                         <input id="StartDate" type="text" name="StartDate"
                             class="form-input w-full mt-1 p-2 border rounded flatpickr"
                             placeholder="Nhập ngày bắt đầu làm" />

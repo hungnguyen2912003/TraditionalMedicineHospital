@@ -38,7 +38,8 @@
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Name" class="block text-sm font-medium text-gray-700">Tên thuốc</label>
+                                    <label for="Name" class="block text-sm font-medium text-gray-700">Tên thuốc<span
+                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập tên thuốc" />
@@ -46,7 +47,8 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="MedicineCategoryId" class="block text-sm font-medium text-gray-700">Loại
-                                        thuốc</label>
+                                        thuốc<span
+                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="MedicineCategoryId" name="MedicineCategoryId"
                                             class="form-input w-full mt-1 p-2 border rounded">
@@ -64,7 +66,8 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Manufacturer" class="block text-sm font-medium text-gray-700">Nhà sản
-                                        xuất</label>
+                                        xuất<span
+                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="Manufacturer" name="Manufacturer"
                                             class="form-input w-full mt-1 p-2 border rounded">
@@ -80,7 +83,8 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="ManufacturedDate" class="block text-sm font-medium text-gray-700">Ngày
-                                        sản xuất</label>
+                                        sản xuất<span
+                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="ManufacturedDate" type="text" name="ManufacturedDate"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                         placeholder="Nhập ngày sản xuất" />
@@ -89,7 +93,8 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="ExpiryDate" class="block text-sm font-medium text-gray-700">Ngày hết
-                                        hạn</label>
+                                        hạn<span
+                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="ExpiryDate" type="text" name="ExpiryDate"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                         placeholder="Nhập ngày hết hạn" />
@@ -110,7 +115,8 @@
                             <hr class="my-6 border-[#e0e6ed] dark:border-[#1b2e4b]">
                             <div>
                                 <label for="ActiveIngredient" class="block text-sm font-medium text-gray-700">Thành phần
-                                    thuốc</label>
+                                    thuốc<span
+                                        class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                 <textarea id="ActiveIngredient" name="ActiveIngredient"
                                     class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]"
                                     placeholder="Nhập thành phần thuốc..."></textarea>
@@ -128,13 +134,15 @@
                         <div class="dropzone flex-1" id="imageDropzone"></div>
                     </div>
                     <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700">Nhập số lượng tồn kho</label>
+                        <label class="block text-sm font-medium text-gray-700">Nhập số lượng tồn kho<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                         <input id="StockQuantity" type="number" name="StockQuantity"
                             class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số lượng" />
                         @Html.ValidationMessageFor(model => model.StockQuantity, "", new { @class = "text-danger" })
                     </div>
                     <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700">Nhập đơn vị tồn kho</label>
+                        <label class="block text-sm font-medium text-gray-700">Nhập đơn vị tồn kho<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                         <div class="select-wrapper">
                             <select id="StockUnit" name="StockUnit" class="form-input w-full mt-1 p-2 border rounded">
                                 <option value="">Chọn đơn vị</option>
@@ -147,11 +155,12 @@
                         @Html.ValidationMessageFor(model => model.StockUnit, "", new { @class = "text-danger" })
                     </div>
                     <div class="mt-4">
-                        <label for="Price" class="block text-sm font-medium text-gray-700">Giá bán</label>
+                        <label for="Price" class="block text-sm font-medium text-gray-700">Giá bán<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                         <div class="flex items-center">
                             <input id="Price" type="text" name="Price"
-                                class="form-input w-full mt-1 p-2 border rounded price-input"
-                                placeholder="Nhập giá bán" />
+                                class="form-input w-full mt-1 p-2 border rounded price-input" placeholder="Nhập giá bán"
+                                <span class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span>/>
                             <span class="ml-2 text-gray-700" style="font-weight: 900">VND</span>
                         </div>
                         @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })

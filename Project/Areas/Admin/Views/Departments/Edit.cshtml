@@ -40,7 +40,8 @@
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Name" class="block text-sm font-medium text-gray-700">Tên Khoa</label>
+                                    <label for="Name" class="block text-sm font-medium text-gray-700">Tên Khoa<span
+                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập tên Khoa"
                                         value="@Model.Name" />

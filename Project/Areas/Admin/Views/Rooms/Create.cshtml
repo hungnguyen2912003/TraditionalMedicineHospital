@@ -38,7 +38,8 @@
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Name" class="block text-sm font-medium text-gray-700">Tên phòng</label>
+                                    <label for="Name" class="block text-sm font-medium text-gray-700">Tên phòng<span
+                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập tên phòng" />
@@ -47,8 +48,9 @@
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="DepartmentId"
-                                        class="block text-sm font-medium text-gray-700">Khoa phụ trách</label>
+                                    <label for="DepartmentId" class="block text-sm font-medium text-gray-700">Khoa phụ
+                                        trách<span
+                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="DepartmentId" name="DepartmentId"
                                             class="form-input w-full mt-1 p-2 border rounded">
@@ -59,11 +61,13 @@
                                             }
                                         </select>
                                     </div>
-                                    @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
+                                    @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class =
+                                    "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="TreatmentMethodId"
-                                        class="block text-sm font-medium text-gray-700">Phương pháp điều trị</label>
+                                        class="block text-sm font-medium text-gray-700">Phương pháp điều trị<span
+                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="TreatmentMethodId" name="TreatmentMethodId"
                                             class="form-input w-full mt-1 p-2 border rounded">

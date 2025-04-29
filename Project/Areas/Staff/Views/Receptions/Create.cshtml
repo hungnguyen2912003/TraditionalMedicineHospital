@@ -118,7 +118,8 @@
                                                 value="@Model.TreatmentRecord.Code" />                                        
                                         </div>
                                         <div class="w-full sm:w-1/2">
-                                            <label for="Diagnosis">Chẩn đoán</label>
+                                            <label for="Diagnosis">Chẩn đoán<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <div class="select-wrapper">
                                                 <select id="Diagnosis" name="Diagnosis" class="form-input w-full mt-1 p-2 border rounded choices">
                                                     <option value="">Chọn chẩn đoán</option>
@@ -139,14 +140,16 @@
                                     </div>
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full sm:w-1/2">
-                                            <label for="StartDate">Ngày bắt đầu</label>
+                                            <label for="StartDate">Ngày bắt đầu<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <input id="StartDate" name="StartDate" class="form-input flatpickr" type="text"
                                                 placeholder="Chọn ngày bắt đầu" value="@DateTime.Now.ToString("dd/MM/yyyy")" />
                                             @Html.ValidationMessageFor(model => model.TreatmentRecord.StartDate, "", new { @class =
                                                 "text-danger" })                                        
                                         </div>
                                         <div class="w-full sm:w-1/2">
-                                            <label for="EndDate">Ngày kết thúc</label>
+                                            <label for="EndDate">Ngày kết thúc<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <input id="EndDate" name="EndDate" class="form-input flatpickr" type="text"
                                                 placeholder="Chọn ngày kết thúc" value="@DateTime.Now.AddDays(30).ToString("dd/MM/yyyy")" />
                                             @Html.ValidationMessageFor(model => model.TreatmentRecord.EndDate, "", new { @class =
@@ -190,7 +193,8 @@
                                         </div>
                                         <div class="w-full sm:w-1/2">
                                             <label for="Name" class="block text-sm font-medium text-gray-700">Họ tên
-                                                bệnh nhân</label>
+                                                bệnh nhân<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <input id="Name" name="Name"
                                                 class="form-input w-full mt-1 p-2 border rounded"
                                                 placeholder="Nhập họ tên bệnh nhân" value="Nguyễn Văn A" />
@@ -201,7 +205,8 @@
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full sm:w-1/2">
                                             <label for="Gender" class="block text-sm font-medium text-gray-700">Giới
-                                                tính</label>
+                                                tính<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <div class="select-wrapper">
                                                 <select id="Gender" name="Gender"
                                                     class="form-input w-full mt-1 p-2 border rounded choices">
@@ -217,7 +222,8 @@
                                         </div>
                                         <div class="w-full sm:w-1/2">
                                             <label for="DateOfBirth"
-                                                class="block text-sm font-medium text-gray-700">Ngày sinh</label>
+                                                class="block text-sm font-medium text-gray-700">Ngày sinh<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <input id="DateOfBirth" name="DateOfBirth"
                                                 class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                                 placeholder="Nhập ngày sinh" type="text" value="01/01/1990" />
@@ -227,7 +233,8 @@
                                         <div class="w-full sm:w-1/2">
                                             <label for="IdentityNumber"
                                                 class="block text-sm font-medium text-gray-700">Căn cước công
-                                                dân</label>
+                                                dân<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <input id="IdentityNumber" name="IdentityNumber"
                                                 class="form-input w-full mt-1 p-2 border rounded"
                                                 placeholder="Nhập căn cước công dân" value="123456789" />
@@ -237,7 +244,8 @@
                                     </div>
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full address-container">
-                                            <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ</label>
+                                            <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <input id="Address" type="text" name="Address" class="form-input w-full mt-1 p-2 border rounded address-autocomplete" 
                                                 placeholder="Nhập địa chỉ" autocomplete="off" value="123 Đường ABC, Quận 1, TP.HCM" />
                                             @Html.ValidationMessageFor(model => model.Patient.Address, "", new { @class = "text-danger" })
@@ -246,7 +254,8 @@
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full sm:w-1/2">
                                             <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Số
-                                                điện thoại</label>
+                                                điện thoại<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <input id="PhoneNumber" name="PhoneNumber"
                                                 class="form-input w-full mt-1 p-2 border rounded"
                                                 placeholder="Nhập số điện thoại" value="0123456789" />
@@ -255,7 +264,8 @@
                                         </div>
                                         <div class="w-full sm:w-1/2">
                                             <label for="Email"
-                                                class="block text-sm font-medium text-gray-700">Email</label>
+                                                class="block text-sm font-medium text-gray-700">Email<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <input id="Email" name="Email"
                                                 class="form-input w-full mt-1 p-2 border rounded"
                                                 placeholder="Nhập email" value="test@example.com" />
@@ -289,7 +299,8 @@
                                     <div class="w-full">
                                         <input type="hidden" id="HealthInsuranceCode" name="Patient.HealthInsuranceCode" value="@Model.Patient.HealthInsuranceCode" />
                                         <label for="HealthInsuranceNumber"
-                                            class="block text-sm font-medium text-gray-700">Số thẻ BHYT</label>
+                                            class="block text-sm font-medium text-gray-700">Số thẻ BHYT<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                         <input id="HealthInsuranceNumber" name="HealthInsuranceNumber"
                                             class="form-input w-full mt-1 p-2 border rounded"
                                             placeholder="Nhập số thẻ BHYT" value="BH123456789" />
@@ -298,7 +309,8 @@
                                     </div>
                                     <div class="w-full">
                                         <label for="HealthInsuranceExpiryDate"
-                                            class="block text-sm font-medium text-gray-700">Ngày hết hạn</label>
+                                            class="block text-sm font-medium text-gray-700">Ngày hết hạn<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                         <input id="HealthInsuranceExpiryDate" name="HealthInsuranceExpiryDate"
                                             class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                             placeholder="Nhập ngày hết hạn" type="text" value="31/12/2024" />
@@ -308,7 +320,8 @@
                                     <div class="w-full">
                                         <label for="HealthInsurancePlaceOfRegistration"
                                             class="block text-sm font-medium text-gray-700">Nơi đăng ký khám
-                                            bệnh</label>
+                                            bệnh<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                         <div class="select-wrapper">
                                             <select id="HealthInsurancePlaceOfRegistration"
                                                 name="HealthInsurancePlaceOfRegistration"
@@ -331,7 +344,8 @@
                                     <div class="w-full mt-2">
                                         <input type="checkbox" class="form-checkbox" name="IsRightRoute"
                                             x-model="isRightRoute" id="IsRightRoute" />
-                                        <span class="text-sm font-medium text-gray-700 ml-2">Thẻ bảo hiểm đúng tuyến KCB</span>
+                                        <span class="text-sm font-medium text-gray-700 ml-2">Thẻ bảo hiểm đúng tuyến KCB<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></span>
                                     </div>                                    
                                 </div>
                             </div>
@@ -357,7 +371,8 @@
                                                 value="@Model.TreatmentRecordDetail.Code" />
                                         </div>
                                         <div class="w-full sm:w-1/2">
-                                            <label for="treatmentRecordDetailTreatmentMethod">Phương pháp điều trị</label>
+                                            <label for="treatmentRecordDetailTreatmentMethod">Phương pháp điều trị<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <div class="select-wrapper">
                                                 <select id="treatmentRecordDetailTreatmentMethod" 
                                                         name="TreatmentRecordDetail.TreatmentMethodId"
@@ -373,7 +388,8 @@
                                             @Html.ValidationMessageFor(model => model.TreatmentRecordDetail.TreatmentMethodId, "", new { @class = "text-danger" })
                                         </div>
                                         <div class="w-full sm:w-1/2">
-                                            <label for="treatmentRecordDetailRoom">Phòng điều trị</label>
+                                            <label for="treatmentRecordDetailRoom">Phòng điều trị<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <div class="select-wrapper">
                                                 <select id="treatmentRecordDetailRoom" 
                                                         name="TreatmentRecordDetail.RoomId" 
@@ -422,18 +438,21 @@
                                             <input id="assignmentCode" name="Assignment.Code" class="form-input" readonly value="@Model.Assignment.Code"/>
                                         </div>
                                         <div class="w-full sm:w-1/2">
-                                            <label for="assignmentEmployee">Bác sĩ phân công</label>
+                                            <label for="assignmentEmployee">Bác sĩ phân công<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <input id="assignmentEmployee" name="Assignment.EmployeeId" class="form-input" readonly value="@ViewData["EmployeeName"]"/>
                                         </div>
                                     </div>
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full sm:w-1/2">
-                                            <label for="assignmentStartDate">Ngày bắt đầu</label>
+                                            <label for="assignmentStartDate">Ngày bắt đầu<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <input id="assignmentStartDate" name="Assignment.StartDate" class="form-input flatpickr opacity-50 cursor-not-allowed" type="text" placeholder="Chọn ngày bắt đầu" disabled/>
                                             @Html.ValidationMessageFor(model => model.Assignment.StartDate, "", new { @class = "text-danger" })
                                         </div>
                                         <div class="w-full sm:w-1/2">
-                                            <label for="assignmentEndDate">Ngày kết thúc</label>
+                                            <label for="assignmentEndDate">Ngày kết thúc<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                             <input id="assignmentEndDate" name="Assignment.EndDate" class="form-input flatpickr opacity-50 cursor-not-allowed" type="text" placeholder="Chọn ngày kết thúc" disabled/>
                                             @Html.ValidationMessageFor(model => model.Assignment.EndDate, "", new { @class = "text-danger" })
                                         </div>                                        
@@ -479,7 +498,8 @@
                                             <template x-for="(regulation, index) in regulations" :key="regulation.Code">
                                                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-4 mb-4 border-b pb-4">
                                                     <div>
-                                                        <label :for="'regulationId-' + index">Quy định</label>
+                                                        <label :for="'regulationId-' + index">Quy định<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                                         <select :id="'regulationId-' + index" :name="'Regulations[' + index + '].RegulationId'"
                                                             class="form-select" x-model="regulation.RegulationId"
                                                             @@change="onRegulationChange(index, $event.target.value)">
@@ -490,7 +510,8 @@
                                                         </select>                                                 
                                                     </div>
                                                     <div>
-                                                        <label :for="'executionDate-' + index">Ngày thực hiện</label>
+                                                        <label :for="'executionDate-' + index">Ngày thực hiện<span
+                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                                         <input :id="'executionDate-' + index" :name="'Regulations[' + index + '].ExecutionDate'"
                                                             x-model="regulation.ExecutionDate"
                                                             :disabled="!regulation.RegulationId"

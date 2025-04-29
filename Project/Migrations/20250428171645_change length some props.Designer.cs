@@ -13,7 +13,7 @@ namespace Project.Migrations
 {
     [DbContext(typeof(TraditionalMedicineHospitalDbContext))]
     [Migration("20250428171645_change length some props")]
-    partial class changelengthsomeprops
+    partial class ChangeLengthSomeProps
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
