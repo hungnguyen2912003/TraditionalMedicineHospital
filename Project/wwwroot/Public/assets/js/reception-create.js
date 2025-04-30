@@ -754,6 +754,10 @@ document.addEventListener('alpine:init', () => {
                 return expiryDate >= today;
             }, "Thẻ BHYT đã hết hạn");
 
+            $.validator.addMethod("customPattern", function (value, element, regex) {
+                return this.optional(element) || regex.test(value);
+            }, "Giá trị không hợp lệ.");
+
             $("#receptionForm").validate({
                 ignore: [],
                 rules: {
@@ -796,7 +800,22 @@ document.addEventListener('alpine:init', () => {
                     "Address": { required: true, minlength: 5, maxlength: 500 },
                     "Email": { email: true },
                     "HealthInsuranceNumber": {
-                        required: () => $('#HasHealthInsurance').is(':checked')
+                        required: () => $('#HasHealthInsurance').is(':checked'),
+                        minlength: 15,
+                        maxlength: 15,
+                        customPattern: /^[0-9A-Z]*$/,
+                        remote: {
+                            url: "/api/validation/patient/check",
+                            type: "GET",
+                            data: {
+                                type: "healthinsurance",
+                                entityType: "patient",
+                                value: function () { return $("#HealthInsuranceNumber").val(); }
+                            },
+                            dataFilter: function (data) {
+                                return JSON.parse(data) === true;
+                            }
+                        }
                     },
                     "HealthInsuranceExpiryDate": {
                         required: () => $('#HasHealthInsurance').is(':checked'),
@@ -852,7 +871,13 @@ document.addEventListener('alpine:init', () => {
                         maxlength: "Địa chỉ không được vượt quá 500 ký tự."
                     },
                     "Email": { email: "Email không hợp lệ." },
-                    "HealthInsuranceNumber": { required: "Số thẻ BHYT không được bỏ trống." },
+                    "HealthInsuranceNumber": {
+                        required: "Số thẻ BHYT không được bỏ trống.",
+                        minlength: "Số thẻ BHYT có ít nhất 15 số",
+                        maxlength: "Số thẻ BHYT không được vượt quá 15 số",
+                        customPattern: "Số thẻ BHYT chỉ được nhập số và chữ.",
+                        remote: "Số thẻ BHYT đã được đăng ký trước đó trên hệ thống"
+                    },
                     "HealthInsuranceExpiryDate": {
                         required: "Ngày hết hạn không được bỏ trống.",
                         dateFormat: "Ngày hết hạn không hợp lệ.",

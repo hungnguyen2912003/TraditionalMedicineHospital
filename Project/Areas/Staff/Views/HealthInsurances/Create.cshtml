@@ -203,7 +203,7 @@
                             required: true,
                             minlength: 15,
                             maxlength: 15,
-                            customPattern: /^[0-9]*$/,
+                            customPattern: /^[0-9A-Z]*$/,
                             remote: {
                                 url: "/api/validation/check",
                                 type: "GET",
@@ -237,7 +237,7 @@
                             required: "Số thẻ BHYT không được bỏ trống.",
                             minlength: "Số thẻ BHYT phải có đủ 15 số.",
                             maxlength: "Số thẻ BHYT phải có đủ 15 số.",
-                            customPattern: "Số thẻ BHYT chỉ được nhập số.",
+                            customPattern: "Số thẻ BHYT chỉ được nhập số và chữ.",
                             remote: "Số thẻ BHYT này đã được đăng ký."
                         },
                         ExpiryDate: {

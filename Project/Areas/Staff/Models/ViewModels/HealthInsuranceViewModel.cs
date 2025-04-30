@@ -8,5 +8,6 @@
         public string PlaceOfRegistration { get; set; } = string.Empty;
         public string PatientName { get; set; } = string.Empty;
         public bool IsActive { get; set; }
+        public bool IsRightRoute { get; set; }
     }
 }
