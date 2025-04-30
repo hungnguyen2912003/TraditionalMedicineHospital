@@ -64,59 +64,6 @@ namespace Project.Areas.Staff.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create()
-        {
-            await _viewBagHelper.BaseViewBag(ViewData);
-            var model = new PatientDto
-            {
-                Code = await _codeGenerator.GenerateUniqueCodeAsync(_patientRepository)
-            };
-            return View(model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromForm] PatientDto inputDto)
-        {
-            try
-            {
-                var entity = _mapper.Map<Patient>(inputDto);
-
-                entity.CreatedBy = "Admin";
-                entity.CreatedDate = DateTime.UtcNow;
-                entity.IsActive = true;
-
-                if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
-                {
-                    entity.Images = await _imgService.SaveImageAsync(inputDto.ImageFile, "Patients");
-                }
-
-                await _patientRepository.CreateAsync(entity);
-
-                var user = new User
-                {
-                    Id = Guid.NewGuid(),
-                    Username = entity.Code,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("11111111"),
-                    Role = RoleType.Benhnhan,
-                    CreatedDate = DateTime.UtcNow,
-                    CreatedBy = "Admin",
-                    IsActive = true,
-                    PatientId = entity.Id,
-                    IsFirstLogin = true
-                };
-
-                await _userRepository.CreateAsync(user);
-
-                return Json(new { success = true, message = "Thêm bệnh nhân thành công!" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi thêm bệnh nhân: " + ex.Message });
-            }
-        }
-
-        [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
             var entity = await _patientRepository.GetByIdAsync(id);
