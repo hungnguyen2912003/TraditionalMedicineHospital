@@ -124,8 +124,7 @@
                                                 value="@Model.TreatmentRecord.Code" />                                        
                                         </div>
                                         <div class="w-full sm:w-1/2">
-                                            <label for="Diagnosis">Chẩn đoán<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            <label for="Diagnosis">Chẩn đoán<span class="text-danger">&nbsp*</span></label>
                                             <div class="select-wrapper">
                                                 <select id="Diagnosis" name="TreatmentRecord.Diagnosis" class="form-input w-full mt-1 p-2 border rounded choices">
                                                     <option value="">Chọn chẩn đoán</option>
@@ -412,8 +411,8 @@
                                             model.Patient.HealthInsurancePlaceOfRegistration, "", new { @class = "text-danger" })
                                     </div>
                                     <div class="w-full mt-2">
-                                        <input type="checkbox" class="form-checkbox" name="HealthInsuranceIsRightRoute"
-                                            x-model="isRightRoute" id="HealthInsuranceIsRightRoute" value="@Model.Patient.HealthInsuranceIsRightRoute"/>
+                                        <input type="checkbox" class="form-checkbox" name="Patient.HealthInsuranceIsRightRoute" value="true" id="HealthInsuranceIsRightRoute"
+                                            @(Model.Patient.HealthInsuranceIsRightRoute == true ? "checked" : "")>
                                         <span class="text-sm font-medium text-gray-700 ml-2">Thẻ bảo hiểm đúng tuyến KCB<span
                                             class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></span>
                                     </div>  
@@ -507,30 +506,44 @@
                                                     value="@Model.NewTreatmentRecordDetail.Code" />
                                             </div>
                                             <div class="w-full sm:w-1/2">
-                                                <label for="treatmentRecordDetailTreatmentMethod">Phương pháp điều trị<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                                <label for="treatmentRecordDetailTreatmentMethod">Phương pháp điều trị<span class="text-danger">&nbsp*</span></label>
                                                 <div class="select-wrapper">
                                                     <select id="treatmentRecordDetailTreatmentMethod" 
-                                                            name="NewTreatmentRecordDetail.TreatmentMethodId"
-                                                            class="form-input w-full mt-1 p-2 border rounded choices" 
-                                                            @@change="filterRooms($event.target.value)">
+                                                            name="TreatmentRecordDetail.TreatmentMethodId"
+                                                            class="form-input w-full mt-1 p-2 border rounded choices"
+                                                            disabled
+                                                            x-init="
+                                                                if (window.employeeTreatmentMethod) {
+                                                                    $el.value = window.employeeTreatmentMethod.id;
+                                                                    filterRooms(window.employeeTreatmentMethod.id);
+                                                                }
+                                                            ">
                                                         <option value="">Chọn phương pháp điều trị</option>
                                                         @foreach (var method in ViewBag.TreatmentMethods_Reception)
                                                         {
-                                                            <option value="@method.Id">@method.Name</option>
+                                                            <option value="@method.Id" selected="@(ViewBag.EmployeeTreatmentMethod?.Id == method.Id)">@method.Name</option>
                                                         }
                                                     </select>
+                                                    <input type="hidden" name="TreatmentRecordDetail.TreatmentMethodId" value="@ViewBag.EmployeeTreatmentMethod?.Id" />
                                                 </div>
                                                 @Html.ValidationMessageFor(model => model.NewTreatmentRecordDetail.TreatmentMethodId, "", new { @class = "text-danger" })
                                             </div>
                                             <div class="w-full sm:w-1/2">
-                                                <label for="treatmentRecordDetailRoom">Phòng điều trị<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                                <label for="treatmentRecordDetailRoom">Phòng điều trị<span class="text-danger">&nbsp*</span></label>
                                                 <div class="select-wrapper">
                                                     <select id="treatmentRecordDetailRoom" 
                                                             name="NewTreatmentRecordDetail.RoomId" 
-                                                            class="form-input w-full mt-1 p-2 border rounded choices">
+                                                            class="form-input w-full mt-1 p-2 border rounded choices"
+                                                            x-init="
+                                                                if (window.employeeRoom) {
+                                                                    $el.value = window.employeeRoom.id;
+                                                                }
+                                                            ">
                                                         <option value="">Chọn phòng</option>
+                                                        @if (ViewBag.EmployeeRoom != null)
+                                                        {
+                                                            <option value="@ViewBag.EmployeeRoom.Id" selected="selected">@ViewBag.EmployeeRoom.Name</option>
+                                                        }
                                                     </select>
                                                 </div>
                                                 @Html.ValidationMessageFor(model => model.NewTreatmentRecordDetail.RoomId, "", new { @class = "text-danger" })
@@ -607,7 +620,7 @@
                                                     <td>@assignment.EndDate.ToString("dd/MM/yyyy", CultureInfo.GetCultureInfo("vi-VN"))</td>
                                                     <td>
                                                         <button type="button" class="view-note-btn"
-                                                            @@click="displayNote('@(assignment.Note?.Replace("'", "\\'"))', 'assignment', '@assignment.EmployeeName')">
+                                                            @@click="displayNote('@(assignment.Note?.Replace("'", "\\'"))', 'assignment', '@assignment.Code')">
                                                             Xem ghi chú
                                                         </button>
                                                     </td>
@@ -703,6 +716,11 @@
                                                 placeholder="Nhập ghi chú..."></textarea> 
                                             @Html.ValidationMessageFor(model => model.NewAssignment.Note, "", new { @class = "text-danger" })
                                         </div>
+                                        <div class="flex justify-end mt-4">
+                                            <button type="button" class="btn btn-danger" @@click="showAddAssignmentForm = false">
+                                                Hủy
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -738,17 +756,15 @@
                                         {
                                             foreach (var regulation in Model.Regulations)
                                             {
-                                                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg dark:bg-gray-800">
+                                                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg dark:bg-gray-800" data-regulation-code="@regulation.Code">
                                                     <div>
-                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-weight: bold;">Quy định<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-weight: bold;">Tên quy định<span class="text-danger">&nbsp*</span></label>
                                                         <select class="form-select w-full" disabled>
                                                             <option value="@regulation.RegulationId">@regulation.RegulationName</option>
                                                         </select>                                                   
                                                     </div>
                                                     <div>
-                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-weight: bold;">Ngày thực hiện<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-weight: bold;">Ngày thực hiện<span class="text-danger">&nbsp*</span></label>
                                                         <input type="text" class="form-input w-full regulation-date flatpickr" 
                                                             value="@(regulation.ExecutionDate.ToString("dd/MM/yyyy", CultureInfo.GetCultureInfo("vi-VN")))" disabled />                                                        
                                                     </div>
@@ -756,11 +772,6 @@
                                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" style="font-weight: bold;">Ghi chú</label>
                                                         <button type="button" class="btn btn-info w-full" 
                                                             @@click="displayNote('@(regulation.Note?.Replace("'", "\\'"))', 'regulation', '@regulation.Code')">
-                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
-                                                                <path d="M12 7.75C11.5858 7.75 11.25 8.08579 11.25 8.5V15.5C11.25 15.9142 11.5858 16.25 12 16.25C12.4142 16.25 12.75 15.9142 12.75 15.5V8.5C12.75 8.08579 12.4142 7.75 12 7.75Z" fill="currentColor"/>
-                                                                <path d="M12 17.75C11.4477 17.75 11 18.1977 11 18.75C11 19.3023 11.4477 19.75 12 19.75C12.5523 19.75 13 19.3023 13 18.75C13 18.1977 12.5523 17.75 12 17.75Z" fill="currentColor"/>
-                                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.75C6.89137 2.75 2.75 6.89137 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25C17.1086 21.25 21.25 17.1086 21.25 12C21.25 6.89137 17.1086 2.75 12 2.75ZM4.25 12C4.25 7.71979 7.71979 4.25 12 4.25C16.2802 4.25 19.75 7.71979 19.75 12C19.75 16.2802 16.2802 19.75 12 19.75C7.71979 19.75 4.25 16.2802 4.25 12Z" fill="currentColor"/>
-                                                            </svg>
                                                             Xem ghi chú
                                                         </button>                                                        
                                                     </div>
@@ -795,22 +806,22 @@
                                     <template id="regulationTemplate">
                                         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg dark:bg-gray-800 mt-4">
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quy định</label>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quy định<span class="text-danger">&nbsp*</span></label>
                                                 <select class="form-select w-full regulation-select" required>
                                                     <option value="">Chọn quy định</option>
                                                 </select>                                                
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ngày thực hiện</label>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ngày thực hiện<span class="text-danger">&nbsp*</span></label>
                                                 <input type="text" class="form-input w-full regulation-date flatpickr" 
-                                                    placeholder="Chọn ngày" required />
+                                                    placeholder="Chọn ngày" />
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ghi chú</label>
                                                 <input type="text" class="form-input w-full" placeholder="Nhập ghi chú" />
                                             </div>
                                             <div class="flex items-end">
-                                                <button type="button" class="btn btn-danger w-full" onclick="removeNewRegulation(this)">
+                                                <button type="button" class="btn btn-danger w-full" @@click="removeNewRegulation($el)">
                                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
                                                         <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                                                         <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -927,3 +938,9 @@
 </style>
 
 <script src="~/Public/assets/js/reception-edit.js?v=@DateTime.Now.Ticks"></script>
+<script>
+    window.roomsData = @Html.Raw(Json.Serialize(ViewBag.Rooms));
+    window.regulationsData = @Html.Raw(Json.Serialize(ViewBag.Regulations));
+    window.employeeTreatmentMethod = @Html.Raw(Json.Serialize(ViewBag.EmployeeTreatmentMethod));
+    window.employeeRoom = @Html.Raw(Json.Serialize(ViewBag.EmployeeRoom));
+</script>

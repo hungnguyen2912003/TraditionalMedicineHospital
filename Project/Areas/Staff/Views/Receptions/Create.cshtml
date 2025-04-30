@@ -371,30 +371,44 @@
                                                 value="@Model.TreatmentRecordDetail.Code" />
                                         </div>
                                         <div class="w-full sm:w-1/2">
-                                            <label for="treatmentRecordDetailTreatmentMethod">Phương pháp điều trị<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            <label for="treatmentRecordDetailTreatmentMethod">Phương pháp điều trị<span class="text-danger">&nbsp*</span></label>
                                             <div class="select-wrapper">
                                                 <select id="treatmentRecordDetailTreatmentMethod" 
                                                         name="TreatmentRecordDetail.TreatmentMethodId"
-                                                        class="form-input w-full mt-1 p-2 border rounded choices" 
-                                                        @@change="filterRooms($event.target.value)">
+                                                        class="form-input w-full mt-1 p-2 border rounded choices"
+                                                        disabled
+                                                        x-init="
+                                                            if (window.employeeTreatmentMethod) {
+                                                                $el.value = window.employeeTreatmentMethod.id;
+                                                                filterRooms(window.employeeTreatmentMethod.id);
+                                                            }
+                                                        ">
                                                     <option value="">Chọn phương pháp điều trị</option>
                                                     @foreach (var method in ViewBag.TreatmentMethods_Reception)
                                                     {
-                                                        <option value="@method.Id">@method.Name</option>
+                                                        <option value="@method.Id" selected="@(ViewBag.EmployeeTreatmentMethod?.Id == method.Id)">@method.Name</option>
                                                     }
                                                 </select>
+                                                <input type="hidden" name="TreatmentRecordDetail.TreatmentMethodId" value="@ViewBag.EmployeeTreatmentMethod?.Id" />
                                             </div>
                                             @Html.ValidationMessageFor(model => model.TreatmentRecordDetail.TreatmentMethodId, "", new { @class = "text-danger" })
                                         </div>
                                         <div class="w-full sm:w-1/2">
-                                            <label for="treatmentRecordDetailRoom">Phòng điều trị<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            <label for="treatmentRecordDetailRoom">Phòng điều trị<span class="text-danger">&nbsp*</span></label>
                                             <div class="select-wrapper">
                                                 <select id="treatmentRecordDetailRoom" 
                                                         name="TreatmentRecordDetail.RoomId" 
-                                                        class="form-input w-full mt-1 p-2 border rounded choices">
+                                                        class="form-input w-full mt-1 p-2 border rounded choices"
+                                                        x-init="
+                                                            if (window.employeeRoom) {
+                                                                $el.value = window.employeeRoom.id;
+                                                            }
+                                                        ">
                                                     <option value="">Chọn phòng</option>
+                                                    @if (ViewBag.EmployeeRoom != null)
+                                                    {
+                                                        <option value="@ViewBag.EmployeeRoom.Id" selected="selected">@ViewBag.EmployeeRoom.Name</option>
+                                                    }
                                                 </select>
                                             </div>
                                             @Html.ValidationMessageFor(model => model.TreatmentRecordDetail.RoomId, "", new { @class = "text-danger" })
@@ -498,8 +512,7 @@
                                             <template x-for="(regulation, index) in regulations" :key="regulation.Code">
                                                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-4 mb-4 border-b pb-4">
                                                     <div>
-                                                        <label :for="'regulationId-' + index">Quy định<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                                        <label :for="'regulationId-' + index">Tên quy định<span class="text-danger">&nbsp*</span></label>
                                                         <select :id="'regulationId-' + index" :name="'Regulations[' + index + '].RegulationId'"
                                                             class="form-select" x-model="regulation.RegulationId"
                                                             @@change="onRegulationChange(index, $event.target.value)">
@@ -510,8 +523,7 @@
                                                         </select>                                                 
                                                     </div>
                                                     <div>
-                                                        <label :for="'executionDate-' + index">Ngày thực hiện<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                                        <label :for="'executionDate-' + index">Ngày thực hiện<span class="text-danger">&nbsp*</span></label>
                                                         <input :id="'executionDate-' + index" :name="'Regulations[' + index + '].ExecutionDate'"
                                                             x-model="regulation.ExecutionDate"
                                                             :disabled="!regulation.RegulationId"
@@ -566,4 +578,6 @@
 <script>
     window.roomsData = @Html.Raw(Json.Serialize(ViewBag.Rooms));
     window.regulationsData = @Html.Raw(Json.Serialize(ViewBag.Regulations));
+    window.employeeTreatmentMethod = @Html.Raw(Json.Serialize(ViewBag.EmployeeTreatmentMethod));
+    window.employeeRoom = @Html.Raw(Json.Serialize(ViewBag.EmployeeRoom));
 </script>

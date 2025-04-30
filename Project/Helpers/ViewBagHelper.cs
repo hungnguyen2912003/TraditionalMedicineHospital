@@ -77,6 +77,27 @@ namespace Project.Helpers
                     if (user != null && user.Employee != null)
                     {
                         viewData["EmployeeName"] = user.Employee.Name;
+
+                        // Get employee's treatment method and room
+                        var employeeRoom = user.Employee.Room;
+                        if (employeeRoom != null)
+                        {
+                            var employeeTreatmentMethod = new
+                            {
+                                Id = employeeRoom.TreatmentMethodId,
+                                Name = employeeRoom.TreatmentMethod?.Name
+                            };
+
+                            viewData["EmployeeTreatmentMethod"] = employeeTreatmentMethod;
+                            viewData["EmployeeRoom"] = new
+                            {
+                                Id = employeeRoom.Id,
+                                Name = employeeRoom.Name
+                            };
+
+                            // Only include employee's treatment method in TreatmentMethods_Reception
+                            viewData["TreatmentMethods_Reception"] = new[] { employeeTreatmentMethod };
+                        }
                     }
                 }
             }

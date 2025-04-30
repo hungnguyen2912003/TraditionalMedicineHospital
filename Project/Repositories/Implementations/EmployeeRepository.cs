@@ -32,5 +32,10 @@ namespace Project.Repositories.Implementations
                     .ThenInclude(m => m.TreatmentMethod)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
+
+        public async Task<Employee?> GetByUsernameAsync(string username)
+        {
+            return await _context.employees.FirstOrDefaultAsync(e => e.User!.Username == username);
+        }
     }
 }
