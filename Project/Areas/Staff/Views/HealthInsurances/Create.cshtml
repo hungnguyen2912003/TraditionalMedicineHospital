@@ -50,7 +50,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="Number" class="block text-sm font-medium text-gray-700">Số thẻ
-                                        BHYT</label>
+                                        BHYT<span class="text-danger">&nbsp*</span></label>
                                     <input id="Number" type="text" name="Number"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập số thẻ BHYT" />
@@ -61,7 +61,8 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="ExpiryDate" class="block text-sm font-medium text-gray-700">Ngày hết hạn
-                                        thẻ</label>
+                                        thẻ<span
+                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="ExpiryDate" type="text" name="ExpiryDate"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                         placeholder="Nhập ngày hết hạn thẻ" />
@@ -70,7 +71,8 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="PlaceOfRegistration" class="block text-sm font-medium text-gray-700">Nơi
-                                        đăng ký khám bệnh</label>
+                                        đăng ký khám bệnh<span
+                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="PlaceOfRegistration" name="PlaceOfRegistration"
                                             class="form-input w-full mt-1 p-2 border rounded choices">
@@ -90,7 +92,20 @@
                                     @Html.ValidationMessageFor(model => model.PlaceOfRegistration, "", new { @class =
                                     "text-danger" })
                                 </div>
-
+                                <div class="w-full sm:w-1/2">
+                                    <label class="block text-sm font-medium text-gray-700">Thông tin tuyến KCB<span
+                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                    <div class="select-wrapper">
+                                        <select id="IsRightRoute" name="IsRightRoute"
+                                            class="form-input w-full mt-1 p-2 border rounded choices">
+                                            <option value="">Chọn tuyến KCB</option>
+                                            <option value="true">Đúng tuyến</option>
+                                            <option value="false">Không đúng tuyến</option>
+                                        </select>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.IsRightRoute, "", new { @class
+                                                                        = "text-danger" })
+                                </div>
 
                             </div>
                         </div>
@@ -212,6 +227,9 @@
                         },
                         PatientId: {
                             required: true,
+                        },
+                        IsRightRoute: {
+                            required: true,
                         }
                     },
                     messages: {
@@ -232,6 +250,9 @@
                         },
                         PatientId: {
                             required: "Thẻ của bệnh nhân không được bỏ trống."
+                        },
+                        IsRightRoute: {
+                            required: "Thông tin tuyến KCB không được bỏ trống."
                         }
                     },
                     errorElement: "div",
@@ -282,6 +303,7 @@
                 formData.append('ExpiryDate', document.getElementById('ExpiryDate').value);
                 formData.append('PlaceOfRegistration', document.getElementById('PlaceOfRegistration').value);
                 formData.append('PatientId', document.getElementById('PatientId').value);
+                formData.append('IsRightRoute', document.getElementById('IsRightRoute').value);
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
                 formData.append('__RequestVerificationToken', token);
             },

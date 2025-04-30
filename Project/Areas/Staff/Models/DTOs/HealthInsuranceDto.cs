@@ -7,5 +7,6 @@
         public DateTime ExpiryDate { get; set; }
         public string PlaceOfRegistration { get; set; } = string.Empty;
         public Guid PatientId { get; set; }
+        public bool IsRightRoute { get; set; }
     }
 }
