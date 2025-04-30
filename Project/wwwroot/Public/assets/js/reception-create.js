@@ -18,6 +18,8 @@ document.addEventListener('alpine:init', () => {
         choicesInstances: {}, // Store Choices instances
         assignmentStartPicker: null,
         assignmentEndPicker: null,
+        isRightRoute: false,
+        hasHealthInsurance: false,
 
         /**
          * Initialize the reception component
@@ -30,14 +32,54 @@ document.addEventListener('alpine:init', () => {
                 this.availableRegulations = window.regulationsData || [];
 
                 // Initialize all components
-                this.setupDropzone();
-                this.setupValidation();
-                this.setupDateTimePicker();
-                this.setupChoices();
-                this.setupTreatmentDateListeners();
+                this.$nextTick(() => {
+                    this.setupDropzone();
+                    this.setupChoices();
+                    this.setupDateTimePicker();
+                    this.setupValidation();
+                    this.setupTreatmentDateListeners();
+
+                    // Setup room filtering
+                    const treatmentMethodSelect = document.getElementById('treatmentRecordDetailTreatmentMethod');
+                    if (treatmentMethodSelect) {
+                        treatmentMethodSelect.addEventListener('change', (e) => this.filterRooms(e.target.value));
+                    }
+                });
             } catch (error) {
                 console.error('Error initializing reception:', error);
                 notyf.error('Có lỗi xảy ra khi khởi tạo form');
+            }
+        },
+
+        /**
+         * Filter rooms based on treatment method
+         */
+        filterRooms(treatmentMethodId) {
+            if (!treatmentMethodId) {
+                this.filteredRooms = [];
+                if (this.roomChoices) {
+                    this.roomChoices.clearStore();
+                    this.roomChoices.disable();
+                }
+                return;
+            }
+
+            this.filteredRooms = this.allRooms.filter(room =>
+                room.treatmentMethodId === treatmentMethodId
+            );
+
+            if (this.roomChoices) {
+                this.roomChoices.enable();
+                this.roomChoices.clearStore();
+                this.roomChoices.setChoices(
+                    this.filteredRooms.map(room => ({
+                        value: room.id,
+                        label: room.name
+                    })),
+                    'value',
+                    'label',
+                    true
+                );
             }
         },
 
@@ -262,6 +304,7 @@ document.addEventListener('alpine:init', () => {
             formData.append('Patient.PhoneNumber', document.getElementById('PhoneNumber').value);
             formData.append('Patient.EmailAddress', document.getElementById('Email').value);
             formData.append('Patient.HasHealthInsurance', document.getElementById('HasHealthInsurance').checked);
+
             // Append health insurance data if exists
             if (document.getElementById('HasHealthInsurance').checked) {
                 formData.append('Patient.HealthInsuranceCode', document.getElementById('HealthInsuranceCode').value);
@@ -638,7 +681,7 @@ document.addEventListener('alpine:init', () => {
                 if (selectElement && !selectedIds.includes(regulation.RegulationId)) {
                     // Get available regulations excluding current selection
                     const currentSelectedId = regulation.RegulationId;
-                    const availableChoices = availableRegs.filter(r => 
+                    const availableChoices = availableRegs.filter(r =>
                         !selectedIds.includes(r.id.toString()) || r.id.toString() === currentSelectedId
                     );
 
@@ -693,11 +736,13 @@ document.addEventListener('alpine:init', () => {
          * Set up form validation
          */
         setupValidation() {
+            const self = this; // Store reference to component
+
             // Add custom validation methods
             $.validator.addMethod("requiredIfOver14", function (value, element) {
                 const dateOfBirth = $("#DateOfBirth").val();
                 if (!dateOfBirth) return true;
-                return this.isOver14(dateOfBirth) ? value.trim().length > 0 : true;
+                return self.isOver14(dateOfBirth) ? value.trim().length > 0 : true;
             }, "Người trên 14 tuổi bắt buộc phải nhập CCCD");
 
             $.validator.addMethod("notExpired", function (value, element) {
@@ -864,10 +909,9 @@ document.addEventListener('alpine:init', () => {
                         error.insertAfter(element);
                     }
                 },
-                onfocusout: function (element) {
-                    if ($(element).val() === '' || $(element).val().length > 0) {
-                        $(element).valid();
-                    }
+                submitHandler: function (form) {
+                    self.submitForm();
+                    return false;
                 }
             });
 
@@ -900,12 +944,12 @@ document.addEventListener('alpine:init', () => {
                         method: 'POST',
                         body: formData
                     })
-                    .then(response => response.json())
-                    .then(this.handleResponse)
-                    .catch(error => {
-                        overlay.style.display = 'none';
-                        notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error.message);
-                    });
+                        .then(response => response.json())
+                        .then(this.handleResponse)
+                        .catch(error => {
+                            overlay.style.display = 'none';
+                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error.message);
+                        });
                 }
             } catch (error) {
                 overlay.style.display = 'none';

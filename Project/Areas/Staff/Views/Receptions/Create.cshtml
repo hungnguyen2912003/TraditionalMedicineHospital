@@ -17,7 +17,9 @@
     x-init="
         allRooms = window.roomsData || [];
         availableRegulations = window.regulationsData || [];
-        $nextTick(() => initializeComponents())
+        hasHealthInsurance = false;
+        isRightRoute = false;
+        $nextTick(() => init())
     ">
     @Html.AntiForgeryToken()
 
@@ -341,10 +343,10 @@
                                             model.Patient.HealthInsurancePlaceOfRegistration, "", new { @class = "text-danger" })
                                     </div>
                                     <div class="w-full mt-2">
-                                        <input type="checkbox" class="form-checkbox" x-model="isRightRoute" id="HealthInsuranceIsRightRoute" name="HealthInsuranceIsRightRoute">
+                                        <input type="checkbox" class="form-checkbox" name="Patient.HealthInsuranceIsRightRoute" value="true" id="HealthInsuranceIsRightRoute">
                                         <span class="text-sm font-medium text-gray-700 ml-2">Thẻ bảo hiểm đúng tuyến KCB<span
                                 class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></span>
-                                    </div>                                    
+                                    </div>                                  
                                 </div>
                             </div>
                         </div>
