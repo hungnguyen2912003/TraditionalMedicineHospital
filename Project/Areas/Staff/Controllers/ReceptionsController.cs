@@ -83,7 +83,7 @@ namespace Project.Areas.Staff.Controllers
             {
                 Patient = new ReceptionPatientDto
                 {
-                    Code = await _codeGenerator.GenerateUniqueCodeAsync(_patientRepository),
+                    Code = await _codeGenerator.GenerateNumericCodeAsync(_patientRepository),
                     HealthInsuranceCode = await _codeGenerator.GenerateUniqueCodeAsync(_healthInsuranceRepository)
                 },
                 TreatmentRecord = new ReceptionTreatmentRecordDto
