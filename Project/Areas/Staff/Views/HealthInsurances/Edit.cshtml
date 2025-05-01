@@ -224,7 +224,7 @@
                             maxlength: 15,
                             customPattern: /^[0-9A-Z]*$/,
                             remote: {
-                                url: "/api/validation/check",
+                                url: "/api/validation/healthinsurance/check",
                                 type: "GET",
                                 data: {
                                     entityType: "healthinsurance",
@@ -350,9 +350,12 @@
                 } else {
                     overlay.style.display = 'none';
                     notyf.error(response.message);
+
                     if (response.errors) {
                         response.errors.forEach(error => notyf.error(error));
                     }
+
+                    console.error('Error details:', response);
                 }
             },
 
@@ -371,10 +374,18 @@
                         body: formData
                     })
                         .then(response => response.json())
-                        .then(this.handleResponse)
+                        .then(data => {
+                            console.log('Server response:', data);
+                            this.handleResponse(data);
+                        })
                         .catch(error => {
                             overlay.style.display = 'none';
-                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                            console.error('Error details:', error);
+                            notyf.error("Có lỗi xảy ra: " + (error.message || error));
+
+                            if (error.innerException) {
+                                notyf.error("Chi tiết lỗi: " + error.innerException.message);
+                            }
                         });
                 }
                 else {

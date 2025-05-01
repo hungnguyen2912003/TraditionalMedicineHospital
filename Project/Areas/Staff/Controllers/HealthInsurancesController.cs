@@ -17,19 +17,22 @@ namespace Project.Areas.Staff.Controllers
         private readonly IPatientRepository _patientRepository;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
+        private readonly CodeGeneratorHelper _codeGenerator;
 
         public HealthInsurancesController
         (
             IHealthInsuranceRepository healthInsuranceRepository,
             IPatientRepository patientRepository,
             IMapper mapper,
-            ViewBagHelper viewBagHelper
+            ViewBagHelper viewBagHelper,
+            CodeGeneratorHelper codeGenerator
         )
         {
             _healthInsuranceRepository = healthInsuranceRepository;
             _patientRepository = patientRepository;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
+            _codeGenerator = codeGenerator;
         }
 
         public async Task<IActionResult> Index()
@@ -54,7 +57,11 @@ namespace Project.Areas.Staff.Controllers
         public async Task<IActionResult> Create()
         {
             await _viewBagHelper.GetPatientsWithoutInsurance(ViewData);
-            return View();
+            var model = new HealthInsuranceDto
+            {
+                Code = await _codeGenerator.GenerateUniqueCodeAsync(_healthInsuranceRepository)
+            };
+            return View(model);
         }
 
         [HttpPost]
@@ -63,11 +70,19 @@ namespace Project.Areas.Staff.Controllers
         {
             try
             {
+                // Validate that the patient exists
+                var patient = await _patientRepository.GetByIdAsync(inputDto.PatientId);
+                if (patient == null)
+                {
+                    return Json(new { success = false, message = "Bệnh nhân không tồn tại trong hệ thống." });
+                }
+
                 var entity = _mapper.Map<HealthInsurance>(inputDto);
 
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
                 entity.IsActive = true;
+                entity.PatientId = inputDto.PatientId; // Explicitly set PatientId
 
                 await _healthInsuranceRepository.CreateAsync(entity);
 
@@ -102,16 +117,52 @@ namespace Project.Areas.Staff.Controllers
                 var entity = await _healthInsuranceRepository.GetByIdAdvancedAsync(Id);
                 if (entity == null) return NotFound();
 
+                // Log current state
+                var originalPatientId = entity.PatientId;
+
+                // Map the DTO to entity but exclude PatientId
                 _mapper.Map(inputDto, entity);
+
+                // Ensure PatientId is preserved
+                entity.PatientId = originalPatientId;
+
                 entity.UpdatedBy = "Admin";
                 entity.UpdatedDate = DateTime.UtcNow;
 
-                await _healthInsuranceRepository.UpdateAsync(entity);
-                return Json(new { success = true, message = "Cập nhật thông tin thẻ BHYT thành công!" });
+                // Validate that the patient still exists
+                var patient = await _patientRepository.GetByIdAsync(originalPatientId);
+                if (patient == null)
+                {
+                    return Json(new { success = false, message = "Bệnh nhân không tồn tại trong hệ thống." });
+                }
+
+                try
+                {
+                    await _healthInsuranceRepository.UpdateAsync(entity);
+                    return Json(new { success = true, message = "Cập nhật thông tin thẻ BHYT thành công!" });
+                }
+                catch (Exception updateEx)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Lỗi khi cập nhật thẻ BHYT",
+                        details = updateEx.Message,
+                        innerException = updateEx.InnerException?.Message,
+                        stackTrace = updateEx.StackTrace
+                    });
+                }
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật thẻ BHYT: " + ex.Message });
+                return Json(new
+                {
+                    success = false,
+                    message = "Có lỗi xảy ra khi cập nhật thẻ BHYT",
+                    details = ex.Message,
+                    innerException = ex.InnerException?.Message,
+                    stackTrace = ex.StackTrace
+                });
             }
         }
 

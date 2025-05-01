@@ -31,6 +31,7 @@
                     <hr class="mb-6">
                     <div class="flex flex-col lg:flex-row gap-6">
                         <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
+                            <input type="hidden" asp-for="Code" />
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="PatientId" class="block text-sm font-medium text-gray-700">Chủ
@@ -52,8 +53,8 @@
                                     <label for="Number" class="block text-sm font-medium text-gray-700">Số thẻ
                                         BHYT<span class="text-danger">&nbsp*</span></label>
                                     <input id="Number" type="text" name="Number"
-                                        class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập số thẻ BHYT" />
+                                        class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số thẻ BHYT"
+                                        maxlength="15" />
                                     @Html.ValidationMessageFor(model => model.Number, "", new { @class = "text-danger"
                                                                         })
                                 </div>
@@ -205,7 +206,7 @@
                             maxlength: 15,
                             customPattern: /^[0-9A-Z]*$/,
                             remote: {
-                                url: "/api/validation/check",
+                                url: "/api/validation/healthinsurance/check",
                                 type: "GET",
                                 data: {
                                     entityType: "healthinsurance",
@@ -213,7 +214,18 @@
                                     value: function () { return $("#Number").val(); },
                                 },
                                 dataFilter: function (data) {
-                                    return JSON.parse(data) === true;
+                                    try {
+                                        const response = JSON.parse(data);
+                                        if (response.success) {
+                                            return response.isUnique === true;
+                                        } else {
+                                            notyf.error(response.message || "Lỗi khi kiểm tra tên.");
+                                            return false;
+                                        }
+                                    } catch (e) {
+                                        notyf.error("Lỗi kết nối server.");
+                                        return false;
+                                    }
                                 }
                             }
                         },
@@ -237,7 +249,7 @@
                             required: "Số thẻ BHYT không được bỏ trống.",
                             minlength: "Số thẻ BHYT phải có đủ 15 số.",
                             maxlength: "Số thẻ BHYT phải có đủ 15 số.",
-                            customPattern: "Số thẻ BHYT chỉ được nhập số và chữ.",
+                            customPattern: "Số thẻ BHYT chỉ được nhập số và chữ in hoa.",
                             remote: "Số thẻ BHYT này đã được đăng ký."
                         },
                         ExpiryDate: {
@@ -299,6 +311,7 @@
             },
 
             appendFormData(formData) {
+                formData.append('Code', document.getElementById('Code').value);
                 formData.append('Number', document.getElementById('Number').value);
                 formData.append('ExpiryDate', document.getElementById('ExpiryDate').value);
                 formData.append('PlaceOfRegistration', document.getElementById('PlaceOfRegistration').value);
