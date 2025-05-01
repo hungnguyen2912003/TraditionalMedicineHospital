@@ -32,6 +32,7 @@
                     <hr class="mb-6">
                     <div class="flex flex-col lg:flex-row gap-6">
                         <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
+                            <input type="hidden" asp-for="Code" />
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="PatientId" class="block text-sm font-medium text-gray-700">Chủ
@@ -335,6 +336,7 @@
                 formData.append('PlaceOfRegistration', document.getElementById('PlaceOfRegistration').value);
                 formData.append('PatientId', document.getElementById('PatientId').value);
                 formData.append('IsRightRoute', document.getElementById('IsRightRoute').value);
+                formData.append('Code', document.getElementById('Code').value);
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
                 formData.append('__RequestVerificationToken', token);
             },
