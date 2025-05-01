@@ -13,7 +13,6 @@ using Project.Services.Interfaces;
 namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
     public class EmployeesController : Controller
     {
         private readonly IEmployeeRepository _repository;
@@ -46,6 +45,7 @@ namespace Project.Areas.Admin.Controllers
             _emailService = emailService;
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAdvancedAsync();
@@ -55,6 +55,7 @@ namespace Project.Areas.Admin.Controllers
             return View(viewModelList);
         }
 
+        [Authorize(Roles = "Admin, Nhanvien")]
         public async Task<IActionResult> Details(Guid id)
         {
             var entity = await _repository.GetByIdAdvancedAsync(id);
@@ -66,6 +67,7 @@ namespace Project.Areas.Admin.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {
             await _viewBagHelper.BaseViewBag(ViewData);
@@ -137,6 +139,7 @@ namespace Project.Areas.Admin.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var entity = await _repository.GetByIdAdvancedAsync(id);
@@ -178,6 +181,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Trash()
         {
             var list = await _repository.GetAllAdvancedAsync();
@@ -189,6 +193,7 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
         {
             var ids = new List<Guid>();
@@ -239,6 +244,7 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> MoveToTrash([FromForm] string selectedIds)
         {
             var ids = new List<Guid>();
@@ -282,6 +288,7 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Restore([FromForm] string selectedIds)
         {
             var ids = new List<Guid>();
