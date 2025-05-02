@@ -26,9 +26,9 @@
 
     @Html.AntiForgeryToken()
 
-    <input type="hidden" id="treatmentRecordId" name="TreatmentRecord.Id" value="@treatmentRecordId" />
-    <input type="hidden" id="patientId" name="Patient.Id" value="@patientId" />
-    <input type="hidden" id="healthInsuranceId" name="HealthInsurance.Id" value="@healthInsuranceId" />
+    <input type="hidden" id="treatmentRecordId" name="TreatmentRecordId" value="@treatmentRecordId" />
+    <input type="hidden" id="patientId" name="PatientId" value="@ViewBag.PatientId" />
+    <input type="hidden" id="healthInsuranceId" name="HealthInsuranceId" value="@ViewBag.HealthInsuranceId" />
 
     <div x-data="editData">
         <ul class="mb-5 overflow-y-auto whitespace-nowrap border-b border-[#ebedf2] font-semibold dark:border-[#191e3a] sm:flex">
@@ -120,7 +120,7 @@
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full sm:w-1/2">
                                             <label for="treatmentRecordCode">Mã điều trị</label>
-                                            <input id="treatmentRecordCode" name="Code" class="form-input" readonly
+                                            <input id="treatmentRecordCode" name="TreatmentRecord.Code" class="form-input" readonly
                                                 value="@Model.TreatmentRecord.Code" />                                        
                                         </div>
                                         <div class="w-full sm:w-1/2">
@@ -197,7 +197,7 @@
                                         <div class="w-full sm:w-1/2">
                                             <label for="Code" class="block text-sm font-medium text-gray-700">Mã bệnh
                                                 nhân</label>
-                                            <input id="Code" name="Code"
+                                            <input id="Code" name="Patient.Code"
                                                 class="form-input w-full mt-1 p-2 border rounded" readonly
                                                 value="@Model.Patient.Code" />
                                             @Html.ValidationMessageFor(model => model.Patient.Code, "", new { @class =
@@ -348,9 +348,10 @@
                         </div>
                         <div class="panel mb-5">
                             <label class="inline-flex cursor-pointer">
-                                <input type="checkbox" class="form-checkbox" name="HasHealthInsurance"
+                                <input type="checkbox" class="form-checkbox" name="Patient.HasHealthInsurance"
                                     x-model="hasHealthInsurance" id="HasHealthInsurance" 
-                                    :checked="@((!string.IsNullOrEmpty(Model.Patient.HealthInsuranceNumber) || !string.IsNullOrEmpty(Model.Patient.HealthInsuranceCode)).ToString().ToLower())" />
+                                    data-has-insurance="@(Model.Patient.HasHealthInsurance.ToString().ToLower())"
+                                    :checked="@Model.Patient.HasHealthInsurance.ToString().ToLower()" />
                                 <span class="text-sm font-medium text-gray-700 ml-2">Bệnh nhân có thẻ bảo hiểm y tế</span>
                             </label>
                             
@@ -841,13 +842,12 @@
                 </div>
             </div>
         </div>     
+        <div class="flex justify-end mt-4">
+            <button type="button" class="btn btn-primary mr-2" @@click="update()">Lưu</button>
+            <button type="button" class="btn btn-secondary" @@click="goBack()">Trở lại</button>
+        </div>  
     </div>
-    <div class="flex justify-end mt-4">
-        <button type="button" class="btn btn-primary mr-2" @@click="submitForm()">Lưu</button>
-        <a href="@Url.Action("Index", "TreatmentRecords")" class="btn btn-secondary">Quay lại</a>
-    </div>      
 </form>
-
 <style>
     .table-striped {
         width: 100%;

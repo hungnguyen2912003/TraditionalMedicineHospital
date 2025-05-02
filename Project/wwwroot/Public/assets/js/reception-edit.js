@@ -112,6 +112,7 @@ document.addEventListener('alpine:init', () => {
         regulations: [],
         allRegulations: [],
         isLoading: false,
+        overlay: null,
 
         // Sử dụng hàm displayNote toàn cục thông qua wrapper
         displayNote(note, type, identifier) {
@@ -196,9 +197,19 @@ document.addEventListener('alpine:init', () => {
             this.setupDateListeners();
             this.updateRegulationSelectsState();
 
-            const healthInsuranceNumber = document.querySelector('[name="Patient.HealthInsuranceNumber"]')?.value;
-            const healthInsuranceCode = document.querySelector('[name="Patient.HealthInsuranceCode"]')?.value;
-            this.hasHealthInsurance = !!(healthInsuranceNumber || healthInsuranceCode);
+            // Setup health insurance checkbox
+            const healthInsuranceCheckbox = document.querySelector('[name="Patient.HasHealthInsurance"]');
+            if (healthInsuranceCheckbox) {
+                // Initialize from data attribute
+                this.hasHealthInsurance = healthInsuranceCheckbox.getAttribute('data-has-insurance') === 'true';
+                healthInsuranceCheckbox.checked = this.hasHealthInsurance;
+
+                // Add change event listener
+                healthInsuranceCheckbox.addEventListener('change', (e) => {
+                    this.hasHealthInsurance = e.target.checked;
+                    console.log('Health Insurance State:', this.hasHealthInsurance);
+                });
+            }
 
             const healthInsuranceIsRightRoute = document.querySelector('[name="Patient.HealthInsuranceIsRightRoute"]')?.value;
             this.isRightRoute = !!(healthInsuranceIsRightRoute);
@@ -217,6 +228,9 @@ document.addEventListener('alpine:init', () => {
 
             // Initialize regulations data from ViewBag
             this.allRegulations = window.regulationsData || [];
+
+            // Khởi tạo overlay khi component được tạo
+            this.overlay = document.getElementById('loadingOverlay');
 
             isInitialized = true;
         },
@@ -382,8 +396,8 @@ document.addEventListener('alpine:init', () => {
                 // Show/hide warning message
                 elements.assignmentDateWarning.style.display = hasValidTreatmentDates ? 'none' : 'block';
 
-                // Auto-fill assignment start date with treatment start date
-                if (treatmentStartDate) {
+                // Auto-fill assignment start date with treatment start date ONLY if the assignment start date is empty
+                if (treatmentStartDate && !elements.assignmentStartDate.value) {
                     elements.assignmentStartDate.value = treatmentStartDate;
                     // Trigger flatpickr update
                     elements.assignmentStartDate._flatpickr.setDate(treatmentStartDate);
@@ -454,7 +468,7 @@ document.addEventListener('alpine:init', () => {
                 autoProcessQueue: false,
                 maxFiles: 1,
                 acceptedFiles: 'image/*',
-                addRemoveLinks: false,
+                addRemoveLinks: true,
                 dictDefaultMessage: 'Kéo thả hoặc nhấp để chọn ảnh',
                 paramName: 'Patient.ImageFile',
                 init: function () {
@@ -483,9 +497,7 @@ document.addEventListener('alpine:init', () => {
                             this.removeFile(this.files[0]);
                         }
                         // Show preview container and hide message
-                        const previewContainer = document.querySelector('.dz-preview-container');
                         const messageElement = this.element.querySelector('.dz-message');
-                        if (previewContainer) previewContainer.style.display = 'flex';
                         if (messageElement) messageElement.style.display = 'none';
                     });
 
@@ -590,35 +602,85 @@ document.addEventListener('alpine:init', () => {
         },
 
         appendFormData(formData) {
-            // Append treatment record data
-            formData.append('TreatmentRecord.Code', document.getElementById('treatmentRecordCode').value);
-            formData.append('TreatmentRecord.Diagnosis', document.getElementById('Diagnosis').value);
-            formData.append('TreatmentRecord.StartDate', document.getElementById('StartDate').value);
-            formData.append('TreatmentRecord.EndDate', document.getElementById('EndDate').value);
-            formData.append('TreatmentRecord.Note', document.getElementById('treatmentRecordNote').value);
+            // Treatment record information
+            formData.append('TreatmentRecord.Id', document.getElementById('treatmentRecordId')?.value || '');
+            formData.append('TreatmentRecord.PatientId', document.getElementById('patientId')?.value || '');
+            formData.append('TreatmentRecord.Code', document.querySelector('[name="TreatmentRecord.Code"]')?.value || document.getElementById('treatmentRecordCode')?.value || '');
+            formData.append('TreatmentRecord.Diagnosis', document.querySelector('[name="TreatmentRecord.Diagnosis"]')?.value || '');
+            formData.append('TreatmentRecord.StartDate', document.querySelector('[name="TreatmentRecord.StartDate"]')?.value || '');
+            formData.append('TreatmentRecord.EndDate', document.querySelector('[name="TreatmentRecord.EndDate"]')?.value || '');
+            formData.append('TreatmentRecord.Note', document.querySelector('[name="TreatmentRecord.Note"]')?.value || '');
 
-            // Append patient data
-            formData.append('Patient.Code', document.getElementById('Code').value);
-            formData.append('Patient.Name', document.getElementById('Name').value);
-            formData.append('Patient.DateOfBirth', document.getElementById('DateOfBirth').value);
-            formData.append('Patient.Gender', document.getElementById('Gender').value);
-            formData.append('Patient.IdentityNumber', document.getElementById('IdentityNumber').value);
-            formData.append('Patient.PhoneNumber', document.getElementById('PhoneNumber').value);
-            formData.append('Patient.Address', document.getElementById('Address').value);
-            formData.append('Patient.Email', document.getElementById('Email').value);
+            // Patient information
+            formData.append('Patient.Code', document.querySelector('[name="Patient.Code"]')?.value || document.getElementById('patientCode')?.value || '');
+            formData.append('Patient.Name', document.querySelector('[name="Patient.Name"]')?.value || '');
+            formData.append('Patient.DateOfBirth', document.querySelector('[name="Patient.DateOfBirth"]')?.value || '');
+            formData.append('Patient.Gender', document.querySelector('[name="Patient.Gender"]')?.value || '');
+            formData.append('Patient.IdentityNumber', document.querySelector('[name="Patient.IdentityNumber"]')?.value || '');
+            formData.append('Patient.PhoneNumber', document.querySelector('[name="Patient.PhoneNumber"]')?.value || '');
+            formData.append('Patient.Address', document.querySelector('[name="Patient.Address"]')?.value || '');
+            formData.append('Patient.EmailAddress', document.querySelector('[name="Patient.EmailAddress"]')?.value || '');
 
-            // Append health insurance data if exists
-            const hasHealthInsurance = document.getElementById('HasHealthInsurance').checked;
+            // Health insurance information
+            const healthInsuranceCheckbox = document.querySelector('[name="Patient.HasHealthInsurance"]');
+            const hasHealthInsurance = healthInsuranceCheckbox ? healthInsuranceCheckbox.checked : false;
             formData.append('Patient.HasHealthInsurance', hasHealthInsurance);
 
+            // Health insurance information (if applicable)
             if (hasHealthInsurance) {
-                formData.append('Patient.HealthInsuranceCode', document.getElementById('HealthInsuranceCode').value);
-                formData.append('Patient.HealthInsuranceNumber', document.getElementById('HealthInsuranceNumber').value);
-                formData.append('Patient.HealthInsuranceExpiryDate', document.getElementById('HealthInsuranceExpiryDate').value);
-                formData.append('Patient.HealthInsurancePlaceOfRegistration', document.getElementById('HealthInsurancePlaceOfRegistration').value);
-                formData.append('Patient.HealthInsuranceIsRightRoute', document.getElementById('HealthInsuranceIsRightRoute').checked);
+                formData.append('Patient.HealthInsuranceCode', document.querySelector('[name="Patient.HealthInsuranceCode"]')?.value || '');
+                formData.append('Patient.HealthInsuranceNumber', document.querySelector('[name="Patient.HealthInsuranceNumber"]')?.value || '');
+                formData.append('Patient.HealthInsuranceExpiryDate', document.querySelector('[name="Patient.HealthInsuranceExpiryDate"]')?.value || '');
+                formData.append('Patient.HealthInsurancePlaceOfRegistration', document.querySelector('[name="Patient.HealthInsurancePlaceOfRegistration"]')?.value || '');
+                formData.append('Patient.HealthInsuranceIsRightRoute', document.querySelector('[name="Patient.HealthInsuranceIsRightRoute"]')?.checked || false);
             }
 
+            // New treatment record detail (if form is shown)
+            const showAddTreatmentForm = document.querySelector("[x-show='showAddTreatmentForm']");
+            if (showAddTreatmentForm && window.getComputedStyle(showAddTreatmentForm).display !== 'none') {
+                // Get treatment method select element
+                const treatmentMethodSelect = document.getElementById('treatmentRecordDetailTreatmentMethod');
+                const treatmentMethodId = treatmentMethodSelect ? treatmentMethodSelect.value : '';
+                const roomId = document.querySelector('[name="NewTreatmentRecordDetail.RoomId"]')?.value;
+                const note = document.querySelector('[name="NewTreatmentRecordDetail.Note"]')?.value;
+
+                formData.append('NewTreatmentRecordDetail.Code', document.querySelector('[name="NewTreatmentRecordDetail.Code"]')?.value || this.generateCode());
+                formData.append('NewTreatmentRecordDetail.TreatmentMethodId', treatmentMethodId);
+                formData.append('NewTreatmentRecordDetail.RoomId', roomId || '');
+                formData.append('NewTreatmentRecordDetail.Note', note || '');
+            }
+
+            // New assignment (if form is shown)
+            const showAddAssignmentForm = document.querySelector("[x-show='showAddAssignmentForm']");
+            if (showAddAssignmentForm && window.getComputedStyle(showAddAssignmentForm).display !== 'none') {
+                formData.append('NewAssignment.Code', document.querySelector('[name="NewAssignment.Code"]')?.value || this.generateCode());
+                formData.append('NewAssignment.StartDate', document.querySelector('[name="NewAssignment.StartDate"]')?.value || '');
+                formData.append('NewAssignment.EndDate', document.querySelector('[name="NewAssignment.EndDate"]')?.value || '');
+                formData.append('NewAssignment.Note', document.querySelector('[name="NewAssignment.Note"]')?.value || '');
+            }
+
+            // Regulations
+            const regulationElements = document.querySelectorAll('[data-regulation-code]');
+            regulationElements.forEach((element, index) => {
+                const regulationId = element.querySelector('select')?.value;
+                const regulationDate = element.querySelector('.regulation-date')?.value;
+                if (regulationId) {
+                    formData.append(`Regulations[${index}].RegulationId`, regulationId);
+                    formData.append(`Regulations[${index}].Date`, regulationDate || '');
+                }
+            });
+
+            // Current employee ID
+            const currentEmployeeId = document.getElementById('currentEmployeeId')?.value;
+            if (currentEmployeeId) {
+                formData.append('CurrentEmployeeId', currentEmployeeId);
+            }
+
+            // Append antiforgery token
+            const antiforgeryToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+            if (antiforgeryToken) {
+                formData.append('__RequestVerificationToken', antiforgeryToken);
+            }
         },
 
         handleResponse(response) {
@@ -628,6 +690,7 @@ document.addEventListener('alpine:init', () => {
                     window.location.href = '/Staff/TreatmentRecords';
                 }, 1500);
             } else {
+                this.overlay.style.display = 'none';
                 notyf.error(response.message);
             }
         },
@@ -782,7 +845,7 @@ document.addEventListener('alpine:init', () => {
                                 type: "identitynumber",
                                 entityType: "patient",
                                 value: function () { return $("#IdentityNumber").val(); },
-                                id: function () { return $("#healthInsuranceId").val(); }
+                                id: function () { return $("#patientId").val(); }
                             },
                             dataFilter: function (data) {
                                 try {
@@ -790,7 +853,7 @@ document.addEventListener('alpine:init', () => {
                                     if (response.success) {
                                         return response.isUnique === true;
                                     } else {
-                                        notyf.error(response.message || "Lỗi khi kiểm tra tên.");
+                                        notyf.error(response.message || "Lỗi khi kiểm tra CCCD.");
                                         return false;
                                     }
                                 } catch (e) {
@@ -815,8 +878,7 @@ document.addEventListener('alpine:init', () => {
                     },
                     "TreatmentRecord.StartDate": {
                         required: true,
-                        dateFormat: true,
-                        notPastDate: true
+                        dateFormat: true
                     },
                     "TreatmentRecord.EndDate": {
                         required: true,
@@ -828,13 +890,15 @@ document.addEventListener('alpine:init', () => {
                     },
                     "Patient.HealthInsuranceNumber": {
                         required: () => $('#HasHealthInsurance').is(':checked'),
+                        minlength: 15,
+                        maxlength: 15,
                         customPattern: /^[0-9A-Z]*$/,
                         remote: {
                             url: "/api/validation/healthinsurance/check",
                             type: "GET",
                             data: {
-                                type: "numberhealthinsurance",
                                 entityType: "healthinsurance",
+                                type: "numberhealthinsurance",
                                 value: function () { return $("#HealthInsuranceNumber").val(); },
                                 id: function () { return $("#healthInsuranceId").val(); }
                             },
@@ -844,7 +908,7 @@ document.addEventListener('alpine:init', () => {
                                     if (response.success) {
                                         return response.isUnique === true;
                                     } else {
-                                        notyf.error(response.message || "Lỗi khi kiểm tra tên.");
+                                        notyf.error(response.message || "Lỗi khi kiểm tra số BHYT.");
                                         return false;
                                     }
                                 } catch (e) {
@@ -852,9 +916,7 @@ document.addEventListener('alpine:init', () => {
                                     return false;
                                 }
                             }
-                        },
-                        minlength: 15,
-                        maxlength: 15
+                        }
                     },
                     "Patient.HealthInsuranceExpiryDate": {
                         required: () => $('#HasHealthInsurance').is(':checked'),
@@ -863,16 +925,6 @@ document.addEventListener('alpine:init', () => {
                     },
                     "Patient.HealthInsurancePlaceOfRegistration": {
                         required: () => $('#HasHealthInsurance').is(':checked')
-                    },
-                    "NewTreatmentRecordDetail.TreatmentMethodId": {
-                        required: function () {
-                            return $("#showAddTreatmentForm").is(":visible");
-                        }
-                    },
-                    "NewTreatmentRecordDetail.RoomId": {
-                        required: function () {
-                            return $("#showAddTreatmentForm").is(":visible");
-                        }
                     },
                     "NewAssignment.StartDate": {
                         required: function () {
@@ -925,8 +977,7 @@ document.addEventListener('alpine:init', () => {
                     },
                     "TreatmentRecord.StartDate": {
                         required: "Ngày bắt đầu không được bỏ trống",
-                        dateFormat: "Ngày bắt đầu không hợp lệ",
-                        notPastDate: "Ngày bắt đầu không được là ngày trong quá khứ"
+                        dateFormat: "Ngày bắt đầu không hợp lệ"
                     },
                     "TreatmentRecord.EndDate": {
                         required: "Ngày kết thúc không được bỏ trống",
@@ -938,10 +989,10 @@ document.addEventListener('alpine:init', () => {
                     },
                     "Patient.HealthInsuranceNumber": {
                         required: "Số BHYT không được bỏ trống",
-                        minlength: "Số BHYT có ít nhất 15 số",
-                        maxlength: "Số BHYT không được vượt quá 15 số",
-                        customPattern: "Số BHYT chỉ được nhập số và chữ.",
-                        remote: "Số BHYT không hợp lệ"
+                        minlength: "Số BHYT phải có 15 ký tự",
+                        maxlength: "Số BHYT phải có 15 ký tự",
+                        customPattern: "Số BHYT chỉ được nhập số và chữ in hoa",
+                        remote: "Số BHYT đã được đăng ký trên hệ thống"
                     },
                     "Patient.HealthInsuranceExpiryDate": {
                         required: "Ngày hết hạn không được bỏ trống",
@@ -950,12 +1001,6 @@ document.addEventListener('alpine:init', () => {
                     },
                     "Patient.HealthInsurancePlaceOfRegistration": {
                         required: "Nơi đăng ký không được bỏ trống"
-                    },
-                    "NewTreatmentRecordDetail.TreatmentMethodId": {
-                        required: "Vui lòng chọn phương pháp điều trị"
-                    },
-                    "NewTreatmentRecordDetail.RoomId": {
-                        required: "Vui lòng chọn phòng điều trị"
                     },
                     "NewAssignment.StartDate": {
                         required: "Ngày bắt đầu không được bỏ trống",
@@ -1018,27 +1063,89 @@ document.addEventListener('alpine:init', () => {
 
         update() {
             const form = document.getElementById('receptionForm');
-            if ($(form).valid()) {
-                const overlay = document.getElementById('loadingOverlay');
-                overlay.style.display = 'flex';
+            if (!form) {
+                notyf.error("Không tìm thấy form. Vui lòng tải lại trang.");
+                return;
+            }
+
+            if (!$(form).valid()) {
+                notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
+                return;
+            }
+
+            try {
+                if (!this.overlay) {
+                    notyf.error("Không tìm thấy overlay loading. Vui lòng tải lại trang.");
+                    return;
+                }
+                this.overlay.style.display = 'flex';
+
+                // Kiểm tra dropzone
+                if (!this.dropzone) {
+                    notyf.error("Không tìm thấy dropzone. Vui lòng tải lại trang.");
+                    this.overlay.style.display = 'none';
+                    return;
+                }
 
                 if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
                     this.dropzone.processQueue();
                 } else {
-                    const formData = new FormData(form);
+                    const formData = new FormData();
+
+                    // Append other form data
+                    this.appendFormData(formData);
+
+                    // Log để debug
+                    console.log("Form data trước khi gửi:");
+                    for (let pair of formData.entries()) {
+                        console.log(pair[0] + ': ' + pair[1]);
+                    }
+
                     fetch('/Staff/Receptions/Edit', {
                         method: 'POST',
                         body: formData
                     })
-                        .then(response => response.json())
-                        .then(this.handleResponse)
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(text => {
+                                    throw new Error(`HTTP error! status: ${response.status}, message: ${text}`);
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(response => {
+                            this.handleResponse(response);
+                        })
                         .catch(error => {
-                            overlay.style.display = 'none';
-                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                            this.overlay.style.display = 'none';
+                            console.error("Chi tiết lỗi:", error);
+
+                            // Hiển thị thông báo lỗi chi tiết hơn
+                            if (error.name === 'TypeError') {
+                                notyf.error(`Lỗi dữ liệu: ${error.message}. Vui lòng kiểm tra lại thông tin nhập.`);
+                            } else if (error.message.includes('HTTP error')) {
+                                notyf.error(`Lỗi kết nối server: ${error.message}. Vui lòng thử lại sau.`);
+                            } else {
+                                notyf.error(`Lỗi: ${error.message}. Vui lòng liên hệ admin.`);
+                            }
                         });
                 }
-            } else {
-                notyf.error("Vui lòng kiểm tra lại thông tin đã nhập");
+            } catch (error) {
+                if (this.overlay) {
+                    this.overlay.style.display = 'none';
+                }
+                console.error("Chi tiết lỗi:", {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
+
+                // Hiển thị thông báo lỗi chi tiết
+                if (error.name === 'TypeError') {
+                    notyf.error(`Lỗi dữ liệu: ${error.message}. Vui lòng kiểm tra lại thông tin nhập.`);
+                } else {
+                    notyf.error(`Lỗi xử lý: ${error.message}. Vui lòng liên hệ admin.`);
+                }
             }
         },
 
@@ -1234,6 +1341,10 @@ document.addEventListener('alpine:init', () => {
                     regulation.ExecutionDate = value;
                 }
             }
+        },
+
+        goBack() {
+            window.history.back();
         }
     }));
 });

@@ -80,6 +80,23 @@ document.addEventListener('alpine:init', () => {
                     'label',
                     true
                 );
+
+                // If there's only one room, select it automatically
+                if (this.filteredRooms.length === 1) {
+                    const roomId = this.filteredRooms[0].id;
+                    const roomSelect = document.getElementById('treatmentRecordDetailRoom');
+
+                    // Set the value directly on the select element first
+                    if (roomSelect) {
+                        roomSelect.value = roomId;
+                    }
+
+                    // Then update Choices.js
+                    this.roomChoices.setChoiceByValue(roomId);
+
+                    // The validation will be handled by the change event listener
+                    // that we set up in initRoomChoices
+                }
             }
         },
 
@@ -287,6 +304,12 @@ document.addEventListener('alpine:init', () => {
         },
 
         appendFormData(formData) {
+            // Get antiforgery token first
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (tokenInput) {
+                formData.append('__RequestVerificationToken', tokenInput.value);
+            }
+
             // Append treatment record data
             formData.append('TreatmentRecord.Code', document.getElementById('treatmentRecordCode').value);
             formData.append('TreatmentRecord.Diagnosis', document.getElementById('Diagnosis').value);
@@ -330,21 +353,17 @@ document.addEventListener('alpine:init', () => {
             const regulationElements = document.querySelectorAll('[id^="regulationId-"]');
             regulationElements.forEach((element, index) => {
                 const regulationId = element.value;
-                const executionDate = document.getElementById(`executionDate-${index}`).value;
-                const note = document.getElementById(`note-${index}`).value;
-                const code = document.querySelector(`[name="Regulations[${index}].Code"]`).value;
-
                 if (regulationId) {
+                    const executionDate = document.getElementById(`executionDate-${index}`).value;
+                    const note = document.getElementById(`note-${index}`).value;
+                    const code = document.querySelector(`[name="Regulations[${index}].Code"]`).value;
+
                     formData.append(`Regulations[${index}].Code`, code);
                     formData.append(`Regulations[${index}].RegulationId`, regulationId);
                     formData.append(`Regulations[${index}].ExecutionDate`, executionDate);
                     formData.append(`Regulations[${index}].Note`, note);
                 }
             });
-
-            // Add antiforgery token
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-            formData.append('__RequestVerificationToken', token);
         },
 
         /**
@@ -382,15 +401,6 @@ document.addEventListener('alpine:init', () => {
                 this.roomChoices.destroy();
             }
 
-            // Create a hidden input for the room ID if it doesn't exist
-            let hiddenInput = document.querySelector('input[name="TreatmentRecordDetail.RoomId"]');
-            if (!hiddenInput) {
-                hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'TreatmentRecordDetail.RoomId';
-                roomSelect.parentNode.appendChild(hiddenInput);
-            }
-
             this.roomChoices = new Choices(roomSelect, {
                 searchEnabled: true,
                 searchPlaceholderValue: 'Tìm kiếm phòng...',
@@ -404,8 +414,10 @@ document.addEventListener('alpine:init', () => {
                     // Add change event listener after initialization
                     roomSelect.addEventListener('change', (e) => {
                         const selectedValue = e.target.value;
-                        hiddenInput.value = selectedValue;
-                        console.log('Room selected:', selectedValue);
+                        // Trigger validation only if value changes by user interaction
+                        if (selectedValue) {
+                            $(roomSelect).valid();
+                        }
                     });
                 }
             });
@@ -746,7 +758,9 @@ document.addEventListener('alpine:init', () => {
             }, "Người trên 14 tuổi bắt buộc phải nhập CCCD");
 
             $.validator.addMethod("notExpired", function (value, element) {
-                if (!value) return true;
+                // Only validate if health insurance checkbox is checked and there is a value
+                if (!$('#HasHealthInsurance').is(':checked') || !value) return true;
+
                 const parts = value.split('/');
                 const expiryDate = new Date(parts[2], parts[1] - 1, parts[0]);
                 const today = new Date();
@@ -777,7 +791,18 @@ document.addEventListener('alpine:init', () => {
                                 value: function () { return $("#IdentityNumber").val(); }
                             },
                             dataFilter: function (data) {
-                                return JSON.parse(data) === true;
+                                try {
+                                    const response = JSON.parse(data);
+                                    if (response.success) {
+                                        return response.isUnique === true;
+                                    } else {
+                                        notyf.error(response.message || "Lỗi khi kiểm tra.");
+                                        return false;
+                                    }
+                                } catch (e) {
+                                    notyf.error("Lỗi kết nối server.");
+                                    return false;
+                                }
                             }
                         }
                     },
@@ -793,17 +818,36 @@ document.addEventListener('alpine:init', () => {
                                 value: function () { return $("#PhoneNumber").val(); }
                             },
                             dataFilter: function (data) {
-                                return JSON.parse(data) === true;
+                                try {
+                                    const response = JSON.parse(data);
+                                    if (response.success) {
+                                        return response.isUnique === true;
+                                    } else {
+                                        notyf.error(response.message || "Lỗi khi kiểm tra.");
+                                        return false;
+                                    }
+                                } catch (e) {
+                                    notyf.error("Lỗi kết nối server.");
+                                    return false;
+                                }
                             }
                         }
                     },
                     "Address": { required: true, minlength: 5, maxlength: 500 },
                     "Email": { email: true },
                     "HealthInsuranceNumber": {
-                        required: () => $('#HasHealthInsurance').is(':checked'),
-                        minlength: 15,
-                        maxlength: 15,
-                        customPattern: /^[0-9A-Z]*$/,
+                        required: function () {
+                            return $('#HasHealthInsurance').is(':checked');
+                        },
+                        minlength: function () {
+                            return $('#HasHealthInsurance').is(':checked') ? 15 : 0;
+                        },
+                        maxlength: function () {
+                            return $('#HasHealthInsurance').is(':checked') ? 15 : undefined;
+                        },
+                        customPattern: function () {
+                            return $('#HasHealthInsurance').is(':checked') ? /^[0-9A-Z]*$/ : undefined;
+                        },
                         remote: {
                             url: "/api/validation/patient/check",
                             type: "GET",
@@ -813,17 +857,39 @@ document.addEventListener('alpine:init', () => {
                                 value: function () { return $("#HealthInsuranceNumber").val(); }
                             },
                             dataFilter: function (data) {
-                                return JSON.parse(data) === true;
+                                // Only validate if checkbox is checked
+                                if (!$('#HasHealthInsurance').is(':checked')) return true;
+
+                                try {
+                                    const response = JSON.parse(data);
+                                    if (response.success) {
+                                        return response.isUnique === true;
+                                    } else {
+                                        notyf.error(response.message || "Lỗi khi kiểm tra.");
+                                        return false;
+                                    }
+                                } catch (e) {
+                                    notyf.error("Lỗi kết nối server.");
+                                    return false;
+                                }
                             }
                         }
                     },
                     "HealthInsuranceExpiryDate": {
-                        required: () => $('#HasHealthInsurance').is(':checked'),
-                        dateFormat: true,
-                        notExpired: true
+                        required: function () {
+                            return $('#HasHealthInsurance').is(':checked');
+                        },
+                        dateFormat: function () {
+                            return $('#HasHealthInsurance').is(':checked');
+                        },
+                        notExpired: function () {
+                            return $('#HasHealthInsurance').is(':checked');
+                        }
                     },
                     "HealthInsurancePlaceOfRegistration": {
-                        required: () => $('#HasHealthInsurance').is(':checked')
+                        required: function () {
+                            return $('#HasHealthInsurance').is(':checked');
+                        }
                     },
                     "Diagnosis": { required: true },
                     "StartDate": { required: true, dateFormat: true, notPastDate: true },
@@ -883,7 +949,9 @@ document.addEventListener('alpine:init', () => {
                         dateFormat: "Ngày hết hạn không hợp lệ.",
                         notExpired: "Thẻ BHYT đã hết hạn"
                     },
-                    "HealthInsurancePlaceOfRegistration": { required: "Nơi đăng ký không được bỏ trống." },
+                    "HealthInsurancePlaceOfRegistration": {
+                        required: "Nơi đăng ký không được bỏ trống."
+                    },
                     "Diagnosis": { required: "Chẩn đoán không được bỏ trống." },
                     "StartDate": {
                         required: "Ngày bắt đầu không được bỏ trống.",
@@ -944,6 +1012,25 @@ document.addEventListener('alpine:init', () => {
             $('select.form-input').on('change', function () {
                 $(this).valid();
             });
+
+            // Add event listener for checkbox change
+            $('#HasHealthInsurance').on('change', function () {
+                if (!$(this).is(':checked')) {
+                    // Clear validation errors for health insurance fields when unchecked
+                    const form = $("#receptionForm");
+                    const validator = form.validate();
+                    validator.resetForm();
+
+                    // Clear the fields
+                    $('#HealthInsuranceNumber').val('');
+                    $('#HealthInsuranceExpiryDate').val('');
+                    $('#HealthInsurancePlaceOfRegistration').val('');
+
+                    // Remove error classes
+                    $('.health-insurance-field').removeClass('error border-red-500');
+                    $('.health-insurance-error').remove();
+                }
+            });
         },
 
         /**
@@ -967,9 +1054,17 @@ document.addEventListener('alpine:init', () => {
 
                     fetch('/Staff/Receptions/Create', {
                         method: 'POST',
-                        body: formData
+                        body: formData,
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        }
                     })
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
                         .then(this.handleResponse)
                         .catch(error => {
                             overlay.style.display = 'none';
@@ -1058,6 +1153,10 @@ document.addEventListener('alpine:init', () => {
 
             // Initial state check
             updateRegulationState();
+        },
+
+        goBack() {
+            window.history.back();
         }
     }));
 });

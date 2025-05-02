@@ -319,6 +319,7 @@ namespace Project.Areas.Staff.Controllers
             // Set ViewBag values for the view
             ViewBag.TreatmentRecordId = treatmentRecord.Id;
             ViewBag.PatientId = patient.Id;
+            ViewBag.HealthInsuranceId = healthInsurance?.Id;
             ViewBag.ExistingImage = patient.Images;
 
             return View(model);
@@ -330,6 +331,73 @@ namespace Project.Areas.Staff.Controllers
         {
             try
             {
+                // Log all incoming data
+                Console.WriteLine("\n=== RECEPTION EDIT DATA START ===");
+
+                // Patient Data
+                Console.WriteLine("\n--- PATIENT INFO ---");
+                Console.WriteLine($"Patient Code: {dto.Patient?.Code}");
+                Console.WriteLine($"Patient Name: {dto.Patient?.Name}");
+                Console.WriteLine($"Patient Gender: {dto.Patient?.Gender}");
+                Console.WriteLine($"Patient DateOfBirth: {dto.Patient?.DateOfBirth}");
+                Console.WriteLine($"Patient IdentityNumber: {dto.Patient?.IdentityNumber}");
+                Console.WriteLine($"Patient PhoneNumber: {dto.Patient?.PhoneNumber}");
+                Console.WriteLine($"Patient Address: {dto.Patient?.Address}");
+                Console.WriteLine($"Patient EmailAddress: {dto.Patient?.EmailAddress}");
+
+                // Health Insurance Data
+                Console.WriteLine("\n--- HEALTH INSURANCE INFO ---");
+                Console.WriteLine($"Has Health Insurance: {dto.Patient?.HasHealthInsurance}");
+                if (dto.Patient?.HasHealthInsurance == true)
+                {
+                    Console.WriteLine($"Insurance Code: {dto.Patient?.HealthInsuranceCode}");
+                    Console.WriteLine($"Insurance Number: {dto.Patient?.HealthInsuranceNumber}");
+                    Console.WriteLine($"Insurance Expiry Date: {dto.Patient?.HealthInsuranceExpiryDate}");
+                    Console.WriteLine($"Insurance Place: {dto.Patient?.HealthInsurancePlaceOfRegistration}");
+                    Console.WriteLine($"Insurance Is Right Route: {dto.Patient?.HealthInsuranceIsRightRoute}");
+                }
+
+                // Treatment Record Data
+                Console.WriteLine("\n--- TREATMENT RECORD INFO ---");
+                Console.WriteLine($"Treatment Record ID: {dto.TreatmentRecord?.Id}");
+                Console.WriteLine($"Treatment Record Code: {dto.TreatmentRecord?.Code}");
+                Console.WriteLine($"Treatment Start Date: {dto.TreatmentRecord?.StartDate}");
+                Console.WriteLine($"Treatment End Date: {dto.TreatmentRecord?.EndDate}");
+                Console.WriteLine($"Treatment Diagnosis: {dto.TreatmentRecord?.Diagnosis}");
+                Console.WriteLine($"Treatment Note: {dto.TreatmentRecord?.Note}");
+
+                // New Treatment Record Detail
+                if (dto.NewTreatmentRecordDetail != null)
+                {
+                    Console.WriteLine("\n--- NEW TREATMENT DETAIL ---");
+                    Console.WriteLine($"Detail Code: {dto.NewTreatmentRecordDetail.Code}");
+                    Console.WriteLine($"Treatment Method ID: {dto.NewTreatmentRecordDetail.TreatmentMethodId}");
+                    Console.WriteLine($"Room ID: {dto.NewTreatmentRecordDetail.RoomId}");
+                    Console.WriteLine($"Note: {dto.NewTreatmentRecordDetail.Note}");
+                }
+
+                // New Assignment
+                if (dto.NewAssignment != null)
+                {
+                    Console.WriteLine("\n--- NEW ASSIGNMENT ---");
+                    Console.WriteLine($"Assignment Code: {dto.NewAssignment.Code}");
+                    Console.WriteLine($"Start Date: {dto.NewAssignment.StartDate}");
+                    Console.WriteLine($"End Date: {dto.NewAssignment.EndDate}");
+                    Console.WriteLine($"Note: {dto.NewAssignment.Note}");
+                }
+
+                // Regulations
+                if (dto.Regulations != null && dto.Regulations.Any())
+                {
+                    Console.WriteLine("\n--- REGULATIONS ---");
+                    foreach (var reg in dto.Regulations)
+                    {
+                        Console.WriteLine($"Regulation ID: {reg.RegulationId}, Date: {reg.ExecutionDate}");
+                    }
+                }
+
+                Console.WriteLine("\n=== RECEPTION EDIT DATA END ===\n");
+
                 // Get user info from token
                 var token = Request.Cookies["AuthToken"];
                 if (string.IsNullOrEmpty(token))
@@ -420,10 +488,13 @@ namespace Project.Areas.Staff.Controllers
                     await _healthInsuranceRepository.UpdateAsync(healthInsurance);
                 }
 
-                ViewBag.HealthInsuranceId = healthInsurance?.Id;
+
 
                 // Create new treatment record detail if provided
-                if (dto.NewTreatmentRecordDetail != null)
+                if (dto.NewTreatmentRecordDetail != null &&
+                    (dto.NewTreatmentRecordDetail.TreatmentMethodId != Guid.Empty ||
+                     dto.NewTreatmentRecordDetail.RoomId != Guid.Empty ||
+                     !string.IsNullOrEmpty(dto.NewTreatmentRecordDetail.Note)))
                 {
                     if (dto.NewTreatmentRecordDetail.TreatmentMethodId == Guid.Empty)
                     {
@@ -452,7 +523,10 @@ namespace Project.Areas.Staff.Controllers
                 }
 
                 // Create new assignment if provided
-                if (dto.NewAssignment != null)
+                if (dto.NewAssignment != null &&
+                    (dto.NewAssignment.StartDate != default ||
+                     dto.NewAssignment.EndDate != default ||
+                     !string.IsNullOrEmpty(dto.NewAssignment.Note)))
                 {
                     if (dto.NewAssignment.StartDate == default)
                     {
