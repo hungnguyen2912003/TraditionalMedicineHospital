@@ -110,7 +110,7 @@ document.addEventListener('alpine:init', () => {
         showAddTreatmentForm: false,
         showAddAssignmentForm: false,
         regulations: [],
-        allRegulations: [],
+        allRegulations: window.regulationsData || [],
         isLoading: false,
         overlay: null,
 
@@ -1156,193 +1156,190 @@ document.addEventListener('alpine:init', () => {
             return 'REG' + Math.random().toString(36).substr(2, 9).toUpperCase();
         },
 
-        /**
-         * Get available regulations that can be added
-         */
-        getAvailableRegulationsForAdd() {
-            const treatmentStartDate = document.getElementById('treatmentRecordStartDate').value;
-            const treatmentEndDate = document.getElementById('treatmentRecordEndDate').value;
-
-            if (!treatmentStartDate || !treatmentEndDate) {
-                notyf.error('Vui lòng chọn thời gian điều trị trước khi thêm quy định');
-                return [];
-            }
-
-            // Convert dates to Date objects for comparison
-            const startDate = this.parseVietnameseDate(treatmentStartDate);
-            const endDate = this.parseVietnameseDate(treatmentEndDate);
-
-            // Get existing regulation IDs to exclude
-            const existingRegulationIds = Array.from(document.querySelectorAll('[data-regulation-code]'))
-                .map(el => el.querySelector('select').value);
-
-            // Filter regulations that are:
-            // 1. Active during treatment period
-            // 2. Not already added
-            return this.allRegulations.filter(regulation => {
-                if (existingRegulationIds.includes(regulation.id)) {
-                    return false;
-                }
-
-                const regulationStartDate = this.parseVietnameseDate(regulation.effectiveStartDate);
-                const regulationEndDate = this.parseVietnameseDate(regulation.effectiveEndDate);
-
-                return regulationStartDate <= endDate && regulationEndDate >= startDate;
-            });
-        },
-
-        parseVietnameseDate(dateStr) {
-            // Convert dd/MM/yyyy to Date object
-            const [day, month, year] = dateStr.split('/').map(Number);
-            return new Date(year, month - 1, day);
-        },
-
         addRegulation() {
-            const availableRegulations = this.getAvailableRegulationsForAdd();
-
-            if (availableRegulations.length === 0) {
-                notyf.error('Không còn quy định hợp lệ để thêm');
+            if (this.regulations.length >= 5) {
+                notyf.error('Không thể thêm quá 5 quy định cho một phiếu điều trị');
                 return;
             }
-
-            // Clone template
-            const template = document.getElementById('regulationTemplate');
-            const newRegulation = template.content.cloneNode(true);
-
-            // Get select element from cloned template
-            const select = newRegulation.querySelector('.regulation-select');
-
-            // Add options
-            availableRegulations.forEach(regulation => {
-                const option = document.createElement('option');
-                option.value = regulation.id;
-                option.textContent = `${regulation.name} (${regulation.effectiveStartDate} - ${regulation.effectiveEndDate})`;
-                select.appendChild(option);
+            const availableRegs = this.getAvailableRegulationsForAdd();
+            if (availableRegs.length === 0) {
+                notyf.error('Không có quy định nào phù hợp trong khoảng thời gian điều trị.');
+                return;
+            }
+            const code = 'REG' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            this.regulations.push({
+                Code: code,
+                RegulationId: '',
+                ExecutionDate: '',
+                Note: ''
             });
-
-            // Generate a unique code for the new regulation
-            const newRegulationCode = this.generateCode();
-            const regulationDiv = newRegulation.querySelector('.grid');
-            regulationDiv.setAttribute('data-regulation-code', newRegulationCode);
-
-            // Add to list
-            document.getElementById('regulationsList').appendChild(newRegulation);
-
-            // Get treatment record dates
-            const treatmentStartDate = document.getElementById('treatmentRecordStartDate').value;
-            const treatmentEndDate = document.getElementById('treatmentRecordEndDate').value;
-
-            // Initialize flatpickr for the new date input
-            const dateInput = newRegulation.querySelector('.regulation-date');
-            if (dateInput) {
+            this.$nextTick(() => {
+                this.initFlatpickrForAll();
+            });
+        },
+        removeRegulation(index) {
+            this.regulations.splice(index, 1);
+        },
+        getAvailableRegulationsForAdd() {
+            // Lấy ngày bắt đầu/kết thúc điều trị
+            const treatmentStart = document.getElementById('treatmentRecordStartDate')?.value;
+            const treatmentEnd = document.getElementById('treatmentRecordEndDate')?.value;
+            if (!treatmentStart || !treatmentEnd) return [];
+            const startDate = this.parseVNDate(treatmentStart);
+            const endDate = this.parseVNDate(treatmentEnd);
+            // Lấy các RegulationId đã chọn
+            const selectedIds = this.regulations.map(r => r.RegulationId).filter(id => id);
+            // Lọc quy định hợp lệ
+            return this.allRegulations.filter(r => {
+                if (selectedIds.includes(r.id.toString())) return false;
+                const regStart = this.parseVNDate(r.effectiveStartDate);
+                const regEnd = this.parseVNDate(r.effectiveEndDate);
+                // Quy định phải giao với khoảng điều trị
+                return regStart <= endDate && regEnd >= startDate;
+            });
+        },
+        getAvailableRegulations(currentIndex) {
+            // Lấy ngày bắt đầu/kết thúc điều trị
+            const treatmentStart = document.getElementById('treatmentRecordStartDate')?.value;
+            const treatmentEnd = document.getElementById('treatmentRecordEndDate')?.value;
+            if (!treatmentStart || !treatmentEnd) return [];
+            const startDate = this.parseVNDate(treatmentStart);
+            const endDate = this.parseVNDate(treatmentEnd);
+            // Lấy các RegulationId đã chọn ở dòng khác
+            const selectedIds = this.regulations.map((r, idx) => idx !== currentIndex ? r.RegulationId : null).filter(id => id);
+            return this.allRegulations.filter(r => {
+                if (selectedIds.includes(r.id.toString())) return false;
+                const regStart = this.parseVNDate(r.effectiveStartDate);
+                const regEnd = this.parseVNDate(r.effectiveEndDate);
+                return regStart <= endDate && regEnd >= startDate;
+            });
+        },
+        onRegulationChange(index, value) {
+            this.regulations[index].RegulationId = value;
+            this.regulations[index].ExecutionDate = '';
+            this.$nextTick(() => {
+                this.initFlatpickrForAll();
+            });
+        },
+        initFlatpickrForAll() {
+            this.regulations.forEach((reg, idx) => {
+                const dateInput = document.getElementById('executionDate-' + idx);
+                if (!dateInput) return;
+                if (dateInput._flatpickr) {
+                    dateInput._flatpickr.destroy();
+                }
+                if (!reg.RegulationId) {
+                    dateInput.value = '';
+                    dateInput.disabled = true;
+                    dateInput.classList.add('opacity-50', 'cursor-not-allowed');
+                    dateInput.style.cursor = 'not-allowed';
+                    return;
+                }
+                // Lấy ngày hiệu lực của quy định
+                const regulation = this.allRegulations.find(r => r.id.toString() === reg.RegulationId);
+                if (!regulation) return;
+                // Lấy ngày bắt đầu và kết thúc điều trị
+                const treatmentStart = document.getElementById('treatmentRecordStartDate')?.value;
+                const treatmentEnd = document.getElementById('treatmentRecordEndDate')?.value;
+                // minDate: lớn nhất giữa ngày hiệu lực và ngày bắt đầu điều trị
+                // maxDate: nhỏ nhất giữa ngày hết hiệu lực và ngày kết thúc điều trị
+                const minDate = this.maxDateVN(regulation.effectiveStartDate, treatmentStart);
+                const maxDate = this.minDateVN(regulation.effectiveEndDate, treatmentEnd);
+                dateInput.disabled = false;
+                dateInput.classList.remove('opacity-50', 'cursor-not-allowed');
+                dateInput.style.cursor = '';
                 flatpickr(dateInput, {
-                    dateFormat: "d/m/Y",
-                    minDate: treatmentStartDate,
-                    maxDate: treatmentEndDate,
-                    required: true,
+                    dateFormat: 'd/m/Y',
+                    minDate: minDate,
+                    maxDate: maxDate,
                     allowInput: true,
                     onChange: (selectedDates, dateStr) => {
-                        if (selectedDates.length > 0) {
-                            dateInput.classList.remove('error');
-                        }
+                        this.regulations[idx].ExecutionDate = dateStr;
                     }
                 });
+            });
+        },
+        maxDateVN(date1, date2) {
+            const d1 = this.parseVNDate(date1);
+            const d2 = this.parseVNDate(date2);
+            if (!d1) return date2;
+            if (!d2) return date1;
+            return d1 > d2 ? date1 : date2;
+        },
+        minDateVN(date1, date2) {
+            const d1 = this.parseVNDate(date1);
+            const d2 = this.parseVNDate(date2);
+            if (!d1) return date2;
+            if (!d2) return date1;
+            return d1 < d2 ? date1 : date2;
+        },
+        parseVNDate(str) {
+            if (!str) return null;
+            const [day, month, year] = str.split('/').map(Number);
+            return new Date(year, month - 1, day);
+        },
+        setupChoices() {
+            // Khởi tạo choices cho tất cả select có class 'choices'
+            const selectElements = document.querySelectorAll('.choices');
+            selectElements.forEach(select => {
+                // Skip if already initialized or is treatment method or room select
+                if (select.id === 'treatmentRecordDetailRoom' ||
+                    select.id === 'treatmentRecordDetailTreatmentMethod' ||
+                    select.choices) return;
 
-                // Add change event to select
-                select.addEventListener('change', () => {
-                    if (select.value) {
-                        select.classList.remove('error');
-                    }
+                new Choices(select, {
+                    searchEnabled: true,
+                    searchPlaceholderValue: 'Tìm kiếm...',
+                    removeItemButton: true,
+                    noResultsText: 'Không tìm thấy kết quả',
+                    noChoicesText: 'Không có lựa chọn nào',
+                    itemSelectText: ''
                 });
+            });
+
+            this.initRoomChoices();
+            this.initTreatmentMethodChoices();
+        },
+        initRoomChoices() {
+            const roomSelect = document.getElementById('treatmentRecordDetailRoom');
+            if (!roomSelect || roomSelect.choices) return; // Skip if already initialized
+
+            if (this.roomChoices) {
+                this.roomChoices.destroy();
             }
-        },
 
-        removeRegulation(code) {
-            $.confirm({
-                title: 'Xác nhận',
-                content: 'Bạn có chắc chắn muốn xóa quy định này không?',
-                type: 'red',
-                typeAnimated: true,
-                theme: 'modern',
-                columnClass: 'medium',
-                boxWidth: '400px',
-                useBootstrap: false,
-                buttons: {
-                    confirm: {
-                        text: 'Xóa',
-                        btnClass: 'btn-red',
-                        action: function () {
-                            const regulationElement = document.querySelector(`[data-regulation-code="${code}"]`);
-                            if (regulationElement) {
-                                regulationElement.remove();
-                            }
-                            notyf.success('Xóa quy định thành công');
-                        }
-                    },
-                    cancel: {
-                        text: 'Hủy',
-                        btnClass: 'btn-default'
-                    }
-                }
+            this.roomChoices = new Choices(roomSelect, {
+                searchEnabled: true,
+                searchPlaceholderValue: 'Tìm kiếm phòng...',
+                removeItemButton: true,
+                noResultsText: 'Không tìm thấy phòng',
+                noChoicesText: 'Không có phòng nào',
+                itemSelectText: '',
+                placeholder: true,
+                placeholderValue: 'Chọn phòng'
             });
-        },
 
-        removeNewRegulation(element) {
-            $.confirm({
-                title: 'Xác nhận',
-                content: 'Bạn có chắc chắn muốn xóa quy định này không?',
-                type: 'red',
-                typeAnimated: true,
-                theme: 'modern',
-                columnClass: 'medium',
-                boxWidth: '400px',
-                useBootstrap: false,
-                buttons: {
-                    confirm: {
-                        text: 'Xóa',
-                        btnClass: 'btn-red',
-                        action: function () {
-                            const container = element.closest('[data-regulation-code]');
-                            if (container) {
-                                container.remove();
-                            }
-                            notyf.success('Xóa quy định thành công');
-                        }
-                    },
-                    cancel: {
-                        text: 'Hủy',
-                        btnClass: 'btn-default'
-                    }
-                }
+            roomSelect.choices = this.roomChoices; // Mark as initialized
+            this.roomChoices.disable(); // Initially disable room select
+        },
+        initTreatmentMethodChoices() {
+            const treatmentMethodSelect = document.getElementById('treatmentRecordDetailTreatmentMethod');
+            if (!treatmentMethodSelect || treatmentMethodSelect.choices) return;
+
+            const treatmentMethodChoices = new Choices(treatmentMethodSelect, {
+                searchEnabled: true,
+                searchPlaceholderValue: 'Tìm kiếm phương pháp điều trị...',
+                removeItemButton: false,
+                noResultsText: 'Không tìm thấy kết quả',
+                noChoicesText: 'Không có phương pháp điều trị nào',
+                itemSelectText: '',
+                allowHTML: true
             });
-        },
 
-        getAvailableRegulations(currentIndex) {
-            const existingRegulationIds = this.regulations
-                .map((r, index) => index !== currentIndex ? r.RegulationId : null)
-                .filter(id => id !== null);
-            return this.allRegulations.filter(r => !existingRegulationIds.includes(r.id));
+            // Disable the select since it's pre-filled with employee's treatment method
+            treatmentMethodChoices.disable();
+            treatmentMethodSelect.classList.add('opacity-75');
         },
-
-        initRegulationDatePicker(element, selectedDate) {
-            flatpickr(element, {
-                dateFormat: "d/m/Y",
-                defaultDate: selectedDate,
-                onChange: (dateStr) => {
-                    this.onRegulationChange(this.regulations.findIndex(r => r.RegulationId === dateStr), dateStr);
-                }
-            });
-        },
-
-        onRegulationChange(index, value) {
-            if (index !== -1 && value) {
-                const regulation = this.regulations.find(r => r.RegulationId === value);
-                if (regulation) {
-                    regulation.ExecutionDate = value;
-                }
-            }
-        },
-
         goBack() {
             window.history.back();
         }
