@@ -11,6 +11,8 @@ namespace Project.Areas.Staff.Models.DTOs.ReceptionDTO
         public Guid TreatmentRecordId { get; set; }
         public Guid TreatmentMethodId { get; set; }
         public string? CreatedBy { get; set; }
+        public string? EmployeeName { get; set; }
+        public Guid EmployeeId { get; set; }
 
         // Navigation properties
         public string? TreatmentMethodName { get; set; }

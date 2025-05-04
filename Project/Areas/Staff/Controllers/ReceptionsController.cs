@@ -29,6 +29,7 @@ namespace Project.Areas.Staff.Controllers
         private readonly IMapper _mapper;
         private readonly IImageService _imageService;
         private readonly IRoomRepository _roomRepository;
+        private readonly IEmployeeRepository _employeeRepository;
         public ReceptionsController(
             IPatientRepository patientRepository,
             IHealthInsuranceRepository healthInsuranceRepository,
@@ -42,7 +43,8 @@ namespace Project.Areas.Staff.Controllers
             JwtManager jwtManager,
             IMapper mapper,
             IImageService imageService,
-            IRoomRepository roomRepository
+            IRoomRepository roomRepository,
+            IEmployeeRepository employeeRepository
         )
         {
             _patientRepository = patientRepository;
@@ -58,6 +60,7 @@ namespace Project.Areas.Staff.Controllers
             _mapper = mapper;
             _imageService = imageService;
             _roomRepository = roomRepository;
+            _employeeRepository = employeeRepository;
         }
 
         [HttpGet]
@@ -134,7 +137,7 @@ namespace Project.Areas.Staff.Controllers
 
                 // Create patient
                 var patient = _mapper.Map<Patient>(dto.Patient);
-                patient.CreatedBy = employee.Name;
+                patient.CreatedBy = employee.Code;
                 patient.CreatedDate = DateTime.Now;
                 patient.IsActive = true;
 
@@ -154,7 +157,7 @@ namespace Project.Areas.Staff.Controllers
                     if (healthInsurance != null)
                     {
                         healthInsurance.PatientId = patient.Id;
-                        healthInsurance.CreatedBy = employee.Name;
+                        healthInsurance.CreatedBy = employee.Code;
                         healthInsurance.CreatedDate = DateTime.Now;
                         healthInsurance.IsActive = true;
 
@@ -165,7 +168,7 @@ namespace Project.Areas.Staff.Controllers
                 // Create treatment record
                 var treatmentRecord = _mapper.Map<TreatmentRecord>(dto.TreatmentRecord);
                 treatmentRecord.PatientId = patient.Id;
-                treatmentRecord.CreatedBy = employee.Name;
+                treatmentRecord.CreatedBy = employee.Code;
                 treatmentRecord.CreatedDate = DateTime.Now;
                 treatmentRecord.IsActive = true;
                 treatmentRecord.Status = TreatmentStatus.DangDieuTri;
@@ -175,7 +178,7 @@ namespace Project.Areas.Staff.Controllers
                 // Create treatment record detail
                 var treatmentRecordDetail = _mapper.Map<TreatmentRecordDetail>(dto.TreatmentRecordDetail);
                 treatmentRecordDetail.TreatmentRecordId = treatmentRecord.Id;
-                treatmentRecordDetail.CreatedBy = employee.Name;
+                treatmentRecordDetail.CreatedBy = employee.Code;
                 treatmentRecordDetail.CreatedDate = DateTime.Now;
                 treatmentRecordDetail.IsActive = true;
 
@@ -201,7 +204,7 @@ namespace Project.Areas.Staff.Controllers
                     {
                         var treatmentRecordRegulation = _mapper.Map<TreatmentRecord_Regulation>(regulationDto);
                         treatmentRecordRegulation.TreatmentRecordId = treatmentRecord.Id;
-                        treatmentRecordRegulation.CreatedBy = employee.Name;
+                        treatmentRecordRegulation.CreatedBy = employee.Code;
                         treatmentRecordRegulation.CreatedDate = DateTime.Now;
                         treatmentRecordRegulation.IsActive = true;
 
@@ -213,7 +216,7 @@ namespace Project.Areas.Staff.Controllers
                 var assignment = _mapper.Map<Assignment>(dto.Assignment);
                 assignment.TreatmentRecordId = treatmentRecord.Id;
                 assignment.EmployeeId = employee.Id;
-                assignment.CreatedBy = employee.Name;
+                assignment.CreatedBy = employee.Code;
                 assignment.CreatedDate = DateTime.Now;
                 assignment.IsActive = true;
 
@@ -279,7 +282,20 @@ namespace Project.Areas.Staff.Controllers
             var healthInsurance = await _healthInsuranceRepository.GetByPatientIdAsync(patient.Id);
 
             // Get treatment record details
-            var treatmentRecordDetails = await _treatmentRecordDetailRepository.GetByTreatmentRecordIdAsync(treatmentRecord.Id);
+            var details = await _treatmentRecordDetailRepository.GetByTreatmentRecordIdAsync(treatmentRecord.Id);
+            var detailDtos = _mapper.Map<List<ReceptionTreatmentRecordDetailDto>>(details);
+
+            // Get employees
+            var employeeCodes = details.Select(x => x.CreatedBy).Distinct().ToList();
+            var employees = await _employeeRepository.GetByCodesAsync(employeeCodes);
+
+            // Map employees to detailDtos
+            foreach (var dto in detailDtos)
+            {
+                var emp = employees.FirstOrDefault(e => e.Code == dto.CreatedBy);
+                dto.EmployeeName = emp?.Name ?? "Không rõ";
+                dto.EmployeeId = emp?.Id ?? Guid.Empty;
+            }
 
             // Get assignments
             var assignments = await _assignmentRepository.GetByTreatmentRecordIdAsync(treatmentRecord.Id);
@@ -292,7 +308,7 @@ namespace Project.Areas.Staff.Controllers
             {
                 Patient = _mapper.Map<ReceptionPatientDto>(patient),
                 TreatmentRecord = _mapper.Map<ReceptionTreatmentRecordDto>(treatmentRecord),
-                TreatmentRecordDetails = _mapper.Map<List<ReceptionTreatmentRecordDetailDto>>(treatmentRecordDetails),
+                TreatmentRecordDetails = detailDtos,
                 Assignments = _mapper.Map<List<ReceptionAssignmentDto>>(assignments),
                 Regulations = _mapper.Map<List<ReceptionTreatmentRecordRegulationDto>>(regulations),
                 NewTreatmentRecordDetail = new ReceptionTreatmentRecordDetailDto
@@ -421,12 +437,16 @@ namespace Project.Areas.Staff.Controllers
                 var employee = user.Employee;
 
                 // Check if user has permission to edit this treatment record
+                if (dto.TreatmentRecord == null)
+                {
+                    return Json(new { success = false, message = "Dữ liệu phiếu khám không hợp lệ" });
+                }
+
                 var treatmentRecord = await _treatmentRecordRepository.GetByIdAsync(dto.TreatmentRecord.Id);
                 if (treatmentRecord == null)
                 {
                     return Json(new { success = false, message = "Phiếu khám không tồn tại" });
                 }
-                ViewBag.TreatmentRecordId = treatmentRecord.Id;
 
                 // Check if treatment record is in a valid state for editing
                 if (treatmentRecord.Status == TreatmentStatus.DaKetThuc)
@@ -441,6 +461,10 @@ namespace Project.Areas.Staff.Controllers
                     return Json(new { success = false, message = "Bệnh nhân không tồn tại" });
                 }
 
+                if (dto.Patient == null)
+                {
+                    return Json(new { success = false, message = "Dữ liệu bệnh nhân không hợp lệ" });
+                }
 
                 _mapper.Map(dto.Patient, patient);
                 patient.UpdatedBy = employee.Name;
@@ -450,9 +474,6 @@ namespace Project.Areas.Staff.Controllers
                 {
                     patient.Images = await _imageService.SaveImageAsync(dto.Patient.ImageFile, "Patients");
                 }
-
-                ViewBag.PatientId = patient.Id;
-                ViewBag.ExistingImage = patient.Images;
 
                 await _patientRepository.UpdateAsync(patient);
 
@@ -464,7 +485,7 @@ namespace Project.Areas.Staff.Controllers
                     {
                         healthInsurance = _mapper.Map<HealthInsurance>(dto.Patient);
                         healthInsurance.PatientId = patient.Id;
-                        healthInsurance.CreatedBy = employee.Name;
+                        healthInsurance.CreatedBy = employee.Code;
                         healthInsurance.CreatedDate = DateTime.Now;
                         healthInsurance.IsActive = true;
 
@@ -488,8 +509,6 @@ namespace Project.Areas.Staff.Controllers
                     await _healthInsuranceRepository.UpdateAsync(healthInsurance);
                 }
 
-
-
                 // Create new treatment record detail if provided
                 if (dto.NewTreatmentRecordDetail != null &&
                     (dto.NewTreatmentRecordDetail.TreatmentMethodId != Guid.Empty ||
@@ -508,7 +527,7 @@ namespace Project.Areas.Staff.Controllers
 
                     var treatmentRecordDetail = _mapper.Map<TreatmentRecordDetail>(dto.NewTreatmentRecordDetail);
                     treatmentRecordDetail.TreatmentRecordId = dto.TreatmentRecord.Id;
-                    treatmentRecordDetail.CreatedBy = employee.Name;
+                    treatmentRecordDetail.CreatedBy = employee.Code;
                     treatmentRecordDetail.CreatedDate = DateTime.Now;
                     treatmentRecordDetail.IsActive = true;
 
@@ -546,7 +565,7 @@ namespace Project.Areas.Staff.Controllers
                     var assignment = _mapper.Map<Assignment>(dto.NewAssignment);
                     assignment.TreatmentRecordId = dto.TreatmentRecord.Id;
                     assignment.EmployeeId = employee.Id;
-                    assignment.CreatedBy = employee.Name;
+                    assignment.CreatedBy = employee.Code;
                     assignment.CreatedDate = DateTime.Now;
                     assignment.IsActive = true;
 
@@ -554,22 +573,49 @@ namespace Project.Areas.Staff.Controllers
                 }
 
                 // Update regulations
-                if (dto.Regulations != null && dto.Regulations.Any())
+                if (dto.Regulations != null)
                 {
                     var existingRegulations = await _treatmentRecordRegulationRepository.GetByTreatmentRecordIdAsync(dto.TreatmentRecord.Id);
                     var existingRegulationIds = existingRegulations.Select(r => r.RegulationId).ToList();
+                    var newRegulationIds = dto.Regulations.Select(r => r.RegulationId).ToList();
 
+                    // 1. XÓA những quy định đã bị loại khỏi form
+                    var toDelete = existingRegulations.Where(r => !newRegulationIds.Contains(r.RegulationId)).ToList();
+                    foreach (var reg in toDelete)
+                    {
+                        await _treatmentRecordRegulationRepository.DeleteAsync(reg.Id);
+                    }
+
+                    // 2. THÊM mới những quy định vừa thêm
                     foreach (var regulationDto in dto.Regulations)
                     {
                         if (!existingRegulationIds.Contains(regulationDto.RegulationId))
                         {
                             var treatmentRecordRegulation = _mapper.Map<TreatmentRecord_Regulation>(regulationDto);
                             treatmentRecordRegulation.TreatmentRecordId = dto.TreatmentRecord.Id;
-                            treatmentRecordRegulation.CreatedBy = employee.Name;
+                            treatmentRecordRegulation.CreatedBy = employee.Code;
                             treatmentRecordRegulation.CreatedDate = DateTime.Now;
                             treatmentRecordRegulation.IsActive = true;
 
+                            if (string.IsNullOrWhiteSpace(treatmentRecordRegulation.Code))
+                            {
+                                treatmentRecordRegulation.Code = await _codeGenerator.GenerateUniqueCodeAsync(_treatmentRecordRegulationRepository);
+                            }
+
                             await _treatmentRecordRegulationRepository.CreateAsync(treatmentRecordRegulation);
+                        }
+                        else
+                        {
+                            // Nếu muốn cập nhật Note hoặc ExecutionDate cho quy định cũ, có thể update ở đây
+                            var existing = existingRegulations.FirstOrDefault(r => r.RegulationId == regulationDto.RegulationId);
+                            if (existing != null)
+                            {
+                                existing.ExecutionDate = regulationDto.ExecutionDate;
+                                existing.Note = regulationDto.Note;
+                                existing.UpdatedBy = employee.Name;
+                                existing.UpdatedDate = DateTime.Now;
+                                await _treatmentRecordRegulationRepository.UpdateAsync(existing);
+                            }
                         }
                     }
                 }

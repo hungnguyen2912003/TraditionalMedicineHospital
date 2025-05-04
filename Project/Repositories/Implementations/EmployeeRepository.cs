@@ -37,5 +37,10 @@ namespace Project.Repositories.Implementations
         {
             return await _context.employees.FirstOrDefaultAsync(e => e.User!.Username == username);
         }
+
+        public async Task<IEnumerable<Employee>> GetByCodesAsync(IEnumerable<string> codes)
+        {
+            return await _context.employees.Where(e => codes.Contains(e.Code)).ToListAsync();
+        }
     }
 }

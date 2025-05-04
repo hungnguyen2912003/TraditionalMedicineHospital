@@ -443,6 +443,7 @@
                                                 <th>Mã chi tiết</th>
                                                 <th>Phòng điều trị</th>
                                                 <th>Phương pháp điều trị</th>
+                                                <th>Người thực hiện</th>
                                                 <th>Ghi chú</th>
                                                 <th>Thao tác</th>
                                             </tr>
@@ -458,6 +459,7 @@
                                                     <td>@detail.Code</td>
                                                     <td>@detail.RoomName</td>
                                                     <td>@detail.TreatmentMethodName</td>
+                                                    <td>@detail.EmployeeName</td>
                                                     <td>
                                                         <button type="button" class="view-note-btn"
                                                             @@click="displayNote('@(detail.Note?.Replace("'", "\\'"))', 'treatment', '@detail.Code')">
@@ -487,7 +489,8 @@
 
                             <!-- Nút thêm mới -->
                             <div class="flex justify-end mb-5">
-                                <button type="button" class="btn btn-primary" @@click="showAddTreatmentForm = true">
+                                <button type="button" class="btn btn-primary"
+                                    @@click="handleAddTreatment()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
                                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"></circle>
                                         <path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
@@ -658,7 +661,8 @@
 
                             <!-- Nút thêm mới -->
                             <div class="flex justify-end mb-5">
-                                <button type="button" class="btn btn-primary" @@click="showAddAssignmentForm = true">
+                                <button type="button" class="btn btn-primary"
+                                    @@click="handleAddAssignment()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
                                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"></circle>
                                         <path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
@@ -678,8 +682,7 @@
                                                     value="@Model.NewAssignment.Code" />
                                             </div>
                                             <div class="w-full sm:w-1/2">
-                                                <label for="assignmentEmployee">Bác sĩ phân công<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                                <label for="assignmentEmployee">Bác sĩ phân công<span class="text-danger">&nbsp*</span></label>
                                                 <input id="assignmentEmployee" class="form-input" readonly 
                                                     value="@ViewData["EmployeeName"]"/>
                                             </div>
@@ -740,7 +743,6 @@
                             <h6 class="mb-5 text-lg font-bold">Quy định điều trị</h6>
                             <div class="flex flex-col lg:flex-row gap-6">
                                 <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
-                                    <!-- KHÔNG x-data ở đây nữa, chỉ dùng editData ở ngoài -->
                                     <div class="w-full">
                                         <div class="flex justify-between items-center mb-6">
                                             <button type="button" class="btn btn-primary" @@click="addRegulation()">
@@ -758,10 +760,18 @@
                                             <p class="text-lg font-medium">Chưa có quy định nào được thêm</p>
                                             <p class="text-sm mt-2">Nhấn nút "Thêm quy định" để bắt đầu thêm quy định mới</p>
                                         </div>
+                                        <!-- Header cho các cột -->
+                                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-4 mb-2">
+                                            <div><span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tên quy định</span></div>
+                                            <div><span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Ngày thực hiện</span></div>
+                                            <div><span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Ghi chú</span></div>
+                                            <div></div>
+                                        </div>
+                                        <!-- Danh sách quy định -->
                                         <template x-for="(regulation, index) in regulations" :key="regulation.Code">
                                             <div class="grid grid-cols-1 gap-5 sm:grid-cols-4 mb-4 border-b pb-4" :data-regulation-code="regulation.Code">
-                                                <div>
-                                                    <label :for="'regulationId-' + index" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tên quy định<span class="text-danger">&nbsp;*</span></label>
+                                                <!-- Cột 1: Quy định -->
+                                                <div class="flex flex-col">
                                                     <select :id="'regulationId-' + index" :name="'Regulations[' + index + '].RegulationId'"
                                                         class="form-select w-full regulation-select" x-model="regulation.RegulationId"
                                                         @@change="onRegulationChange(index, $event.target.value)">
@@ -771,8 +781,8 @@
                                                         </template>
                                                     </select>
                                                 </div>
-                                                <div>
-                                                    <label :for="'executionDate-' + index" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ngày thực hiện<span class="text-danger">&nbsp;*</span></label>
+                                                <!-- Cột 2: Ngày thực hiện -->
+                                                <div class="flex flex-col">
                                                     <input :id="'executionDate-' + index" :name="'Regulations[' + index + '].ExecutionDate'"
                                                         x-model="regulation.ExecutionDate"
                                                         :disabled="!regulation.RegulationId"
@@ -780,13 +790,21 @@
                                                         class="form-input w-full regulation-date flatpickr"
                                                         type="text" placeholder="Chọn ngày thực hiện" readonly />
                                                 </div>
-                                                <div>
-                                                    <label :for="'note-' + index" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ghi chú</label>
-                                                    <input :id="'note-' + index" :name="'Regulations[' + index + '].Note'"
-                                                        x-model="regulation.Note"
-                                                        class="form-input w-full" placeholder="Nhập ghi chú" />
+                                                <!-- Cột 3: Ghi chú -->
+                                                <div class="flex flex-col">
+                                                    <template x-if="regulation.isOld">
+                                                        <button type="button" class="btn btn-info w-full" @@click="displayNote(regulation.Note, 'regulation', regulation.Code)">
+                                                            Xem ghi chú
+                                                        </button>
+                                                    </template>
+                                                    <template x-if="!regulation.isOld">
+                                                        <input :id="'note-' + index" :name="'Regulations[' + index + '].Note'"
+                                                            x-model="regulation.Note"
+                                                            class="form-input w-full" placeholder="Nhập ghi chú" />
+                                                    </template>
                                                     <input type="hidden" :name="'Regulations[' + index + '].Code'" :value="regulation.Code" />
                                                 </div>
+                                                <!-- Cột 4: Xóa -->
                                                 <div class="flex items-end">
                                                     <button type="button" class="btn btn-danger w-full" @@click="removeRegulation(index)">
                                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
@@ -799,6 +817,7 @@
                                                         Xóa
                                                     </button>
                                                 </div>
+                                                <!-- Cảnh báo nếu chưa chọn quy định -->
                                                 <div x-show="!regulation.RegulationId" class="sm:col-span-4 text-sm" style="color: coral; font-weight: bold;">
                                                     <div class="flex items-center whitespace-nowrap">
                                                         <svg class="w-4 h-4 inline-block mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -919,4 +938,7 @@
     window.employeeTreatmentMethod = @Html.Raw(Json.Serialize(ViewBag.EmployeeTreatmentMethod));
     window.employeeRoom = @Html.Raw(Json.Serialize(ViewBag.EmployeeRoom));
     window.initialRegulations = @Html.Raw(Json.Serialize(Model.Regulations ?? new List<Project.Areas.Staff.Models.DTOs.ReceptionDTO.ReceptionTreatmentRecordRegulationDto>()));
+    window.treatmentRecordDetailsData = @Html.Raw(Json.Serialize(Model.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.DTOs.ReceptionDTO.ReceptionTreatmentRecordDetailDto>()));
+    window.assignmentsData = @Html.Raw(Json.Serialize(Model.Assignments ?? new List<Project.Areas.Staff.Models.DTOs.ReceptionDTO.ReceptionAssignmentDto>()));
+    window.currentEmployeeId = '@Model.CurrentEmployeeId';
 </script>

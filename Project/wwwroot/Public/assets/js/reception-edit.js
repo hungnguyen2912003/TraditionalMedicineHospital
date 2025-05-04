@@ -113,6 +113,9 @@ document.addEventListener('alpine:init', () => {
         allRegulations: window.regulationsData || [],
         isLoading: false,
         overlay: null,
+        TreatmentRecordDetails: window.treatmentRecordDetailsData || [],
+        Assignments: window.assignmentsData || [],
+        currentEmployeeId: window.currentEmployeeId || '',
 
         // Sử dụng hàm displayNote toàn cục thông qua wrapper
         displayNote(note, type, identifier) {
@@ -190,6 +193,63 @@ document.addEventListener('alpine:init', () => {
             // Lấy thông tin bác sĩ trước khi khởi tạo các thành phần khác
             await getCurrentDoctor();
 
+            // Khởi tạo regulations từ initialRegulations nếu có
+            if (window.initialRegulations && Array.isArray(window.initialRegulations) && window.initialRegulations.length > 0) {
+                this.regulations = window.initialRegulations.map(r => {
+                    // Tra cứu tên quy định từ allRegulations
+                    let regulationName = '';
+                    if (window.regulationsData && Array.isArray(window.regulationsData)) {
+                        const found = window.regulationsData.find(item => item.id?.toString() === r.regulationId?.toString());
+                        if (found) regulationName = found.name;
+                    }
+                    return {
+                        Code: r.code,
+                        RegulationId: r.regulationId,
+                        RegulationName: regulationName,
+                        ExecutionDate: r.executionDate ? this.formatVNDate(r.executionDate) : '',
+                        Note: r.note || '',
+                        isOld: true
+                    };
+                });
+                await this.$nextTick();
+            }
+
+
+            // Nếu đã có regulations, tự động gán vào các input tương ứng cho từng dòng
+            for (let i = 0; i < this.regulations.length; i++) {
+                const reg = this.regulations[i];
+                // Gán cho select
+                const select = document.getElementById('regulationId-' + i);
+                if (select && reg.RegulationId) {
+                    select.value = reg.RegulationId;
+                    // Nếu option chưa có, thêm option để hiển thị đúng tên
+                    let found = false;
+                    for (let j = 0; j < select.options.length; j++) {
+                        if (select.options[j].value == reg.RegulationId) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        const opt = document.createElement('option');
+                        opt.value = reg.RegulationId;
+                        opt.text = reg.RegulationName || 'Đã chọn';
+                        opt.selected = true;
+                        select.appendChild(opt);
+                    }
+                }
+                // Gán cho ngày thực hiện
+                const dateInput = document.getElementById('executionDate-' + i);
+                if (dateInput && reg.ExecutionDate) {
+                    dateInput.value = reg.ExecutionDate;
+                }
+                // Gán cho ghi chú
+                const noteInput = document.getElementById('note-' + i);
+                if (noteInput && reg.Note) {
+                    noteInput.value = reg.Note;
+                }
+            }
+
             this.setupChoices();
             this.setupFlatpickr();
             this.setupDropzone();
@@ -207,7 +267,6 @@ document.addEventListener('alpine:init', () => {
                 // Add change event listener
                 healthInsuranceCheckbox.addEventListener('change', (e) => {
                     this.hasHealthInsurance = e.target.checked;
-                    console.log('Health Insurance State:', this.hasHealthInsurance);
                 });
             }
 
@@ -233,6 +292,17 @@ document.addEventListener('alpine:init', () => {
             this.overlay = document.getElementById('loadingOverlay');
 
             isInitialized = true;
+        },
+
+        // Thêm hàm formatVNDate để chuyển ngày ISO sang dd/MM/yyyy
+        formatVNDate(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '';
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
         },
 
         setupChoices() {
@@ -468,7 +538,7 @@ document.addEventListener('alpine:init', () => {
                 autoProcessQueue: false,
                 maxFiles: 1,
                 acceptedFiles: 'image/*',
-                addRemoveLinks: true,
+                addRemoveLinks: false,
                 dictDefaultMessage: 'Kéo thả hoặc nhấp để chọn ảnh',
                 paramName: 'Patient.ImageFile',
                 init: function () {
@@ -660,14 +730,11 @@ document.addEventListener('alpine:init', () => {
             }
 
             // Regulations
-            const regulationElements = document.querySelectorAll('[data-regulation-code]');
-            regulationElements.forEach((element, index) => {
-                const regulationId = element.querySelector('select')?.value;
-                const regulationDate = element.querySelector('.regulation-date')?.value;
-                if (regulationId) {
-                    formData.append(`Regulations[${index}].RegulationId`, regulationId);
-                    formData.append(`Regulations[${index}].Date`, regulationDate || '');
-                }
+            this.regulations.forEach((reg, index) => {
+                formData.append(`Regulations[${index}].Code`, reg.Code || '');
+                formData.append(`Regulations[${index}].RegulationId`, reg.RegulationId || '');
+                formData.append(`Regulations[${index}].ExecutionDate`, reg.ExecutionDate || '');
+                formData.append(`Regulations[${index}].Note`, reg.Note || '');
             });
 
             // Current employee ID
@@ -1062,6 +1129,29 @@ document.addEventListener('alpine:init', () => {
         },
 
         update() {
+            const currentId = (window.currentEmployeeId || '').toLowerCase();
+            const hasTreatment = (window.treatmentRecordDetailsData || []).some(d => (d.employeeId || '').toLowerCase() === currentId);
+            const hasAssignment = (window.assignmentsData || []).some(a => (a.employeeId || '').toLowerCase() === currentId);
+
+            // Kiểm tra trạng thái form "Thêm mới"
+            const isAddingTreatment = this.showAddTreatmentForm;
+            const isAddingAssignment = this.showAddAssignmentForm;
+
+            // Bác sĩ mới: chưa có bản ghi nào
+            const isNewDoctor = !hasTreatment && !hasAssignment;
+
+            if (isNewDoctor) {
+                // Nếu chỉ điền 1 trong 2
+                if (isAddingTreatment && !isAddingAssignment) {
+                    notyf.error("Bạn cần bổ sung thông tin phân công");
+                    return;
+                }
+                if (!isAddingTreatment && isAddingAssignment) {
+                    notyf.error("Bạn cần bổ sung thông tin điều trị");
+                    return;
+                }
+            }
+
             const form = document.getElementById('receptionForm');
             if (!form) {
                 notyf.error("Không tìm thấy form. Vui lòng tải lại trang.");
@@ -1095,11 +1185,6 @@ document.addEventListener('alpine:init', () => {
                     // Append other form data
                     this.appendFormData(formData);
 
-                    // Log để debug
-                    console.log("Form data trước khi gửi:");
-                    for (let pair of formData.entries()) {
-                        console.log(pair[0] + ': ' + pair[1]);
-                    }
 
                     fetch('/Staff/Receptions/Edit', {
                         method: 'POST',
@@ -1153,7 +1238,12 @@ document.addEventListener('alpine:init', () => {
          * Generate a random code
          */
         generateCode() {
-            return 'REG' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 10; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
         },
 
         addRegulation() {
@@ -1166,12 +1256,13 @@ document.addEventListener('alpine:init', () => {
                 notyf.error('Không có quy định nào phù hợp trong khoảng thời gian điều trị.');
                 return;
             }
-            const code = 'REG' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            const code = this.generateCode();
             this.regulations.push({
                 Code: code,
                 RegulationId: '',
                 ExecutionDate: '',
-                Note: ''
+                Note: '',
+                isOld: false
             });
             this.$nextTick(() => {
                 this.initFlatpickrForAll();
@@ -1199,20 +1290,35 @@ document.addEventListener('alpine:init', () => {
             });
         },
         getAvailableRegulations(currentIndex) {
-            // Lấy ngày bắt đầu/kết thúc điều trị
             const treatmentStart = document.getElementById('treatmentRecordStartDate')?.value;
             const treatmentEnd = document.getElementById('treatmentRecordEndDate')?.value;
             if (!treatmentStart || !treatmentEnd) return [];
             const startDate = this.parseVNDate(treatmentStart);
             const endDate = this.parseVNDate(treatmentEnd);
-            // Lấy các RegulationId đã chọn ở dòng khác
             const selectedIds = this.regulations.map((r, idx) => idx !== currentIndex ? r.RegulationId : null).filter(id => id);
-            return this.allRegulations.filter(r => {
+            let available = this.allRegulations.filter(r => {
                 if (selectedIds.includes(r.id.toString())) return false;
                 const regStart = this.parseVNDate(r.effectiveStartDate);
                 const regEnd = this.parseVNDate(r.effectiveEndDate);
                 return regStart <= endDate && regEnd >= startDate;
             });
+            // Nếu regulation hiện tại đã chọn nhưng không có trong allRegulations, thêm vào option
+            const currentReg = this.regulations[currentIndex];
+            if (currentReg && currentReg.RegulationId && currentReg.RegulationName) {
+                const exists = available.some(r => r.id.toString() === currentReg.RegulationId.toString());
+                if (!exists) {
+                    available = [
+                        {
+                            id: currentReg.RegulationId,
+                            name: currentReg.RegulationName,
+                            effectiveStartDate: '',
+                            effectiveEndDate: ''
+                        },
+                        ...available
+                    ];
+                }
+            }
+            return available;
         },
         onRegulationChange(index, value) {
             this.regulations[index].RegulationId = value;
@@ -1241,8 +1347,6 @@ document.addEventListener('alpine:init', () => {
                 // Lấy ngày bắt đầu và kết thúc điều trị
                 const treatmentStart = document.getElementById('treatmentRecordStartDate')?.value;
                 const treatmentEnd = document.getElementById('treatmentRecordEndDate')?.value;
-                // minDate: lớn nhất giữa ngày hiệu lực và ngày bắt đầu điều trị
-                // maxDate: nhỏ nhất giữa ngày hết hiệu lực và ngày kết thúc điều trị
                 const minDate = this.maxDateVN(regulation.effectiveStartDate, treatmentStart);
                 const maxDate = this.minDateVN(regulation.effectiveEndDate, treatmentEnd);
                 dateInput.disabled = false;
@@ -1342,6 +1446,32 @@ document.addEventListener('alpine:init', () => {
         },
         goBack() {
             window.history.back();
+        },
+        handleAddTreatment() {
+            const currentId = (window.currentEmployeeId || '').toLowerCase();
+
+            const exists = (window.treatmentRecordDetailsData || []).some(d =>
+                (d.employeeId || '').toLowerCase() === currentId
+            );
+
+            if (exists) {
+                notyf.error('Bạn đã tham gia vào phiếu điều trị này rồi');
+                return;
+            }
+            this.showAddTreatmentForm = true;
+        },
+        handleAddAssignment() {
+            const currentId = (window.currentEmployeeId || '').toLowerCase();
+
+            const exists = (window.assignmentsData || []).some(a =>
+                (a.employeeId || '').toLowerCase() === currentId
+            );
+
+            if (exists) {
+                notyf.error('Bạn đã tham gia vào phiếu điều trị này rồi');
+                return;
+            }
+            this.showAddAssignmentForm = true;
         }
     }));
 });
@@ -1368,13 +1498,15 @@ function editTreatmentDetail(code) {
     ensureCurrentDoctor().then(() => {
         // Lấy thông tin chi tiết điều trị từ API
         $.get(`/api/Utils/GetTreatmentDetail/${code}`, function (detail) {
+            console.log('currentDoctor:', currentDoctor);
+            console.log('detail:', detail);
 
             if (!detail) {
                 notyf.error('Không tìm thấy thông tin điều trị');
                 return;
             }
 
-            if (!currentDoctor || detail.doctorName !== currentDoctor.name) {
+            if (!currentDoctor || (detail.employeeId || '').toLowerCase() !== (currentDoctor.id || '').toLowerCase()) {
                 notyf.error('Bạn không có quyền chỉnh sửa bản ghi của bác sĩ khác');
                 return;
             }
@@ -1387,7 +1519,7 @@ function editTreatmentDetail(code) {
             $.confirm({
                 title: 'Chỉnh sửa thông tin điều trị',
                 content: `
-                    <form>
+                    <form id="treatmentEditForm">
                         <div class="flex gap-4 mb-4">
                             <div class="form-group flex-1">
                                 <label class="font-semibold mb-2">Mã chi tiết</label>
@@ -1467,9 +1599,11 @@ function editTreatmentDetail(code) {
                 onContentReady: function () {
                     const roomSelect = this.$content.find('#treatmentRecordDetailRoom');
 
+                    // Xóa hết option cũ trước khi thêm mới
+                    roomSelect.empty();
+
                     // Load danh sách phòng theo phương pháp điều trị
                     $.get(`/api/Utils/GetRoomsByTreatmentMethod/${detail.treatmentMethodId}`, function (rooms) {
-
                         if (!rooms || rooms.length === 0) {
                             notyf.error('Không tìm thấy phòng phù hợp với phương pháp điều trị này');
                             return;
@@ -1515,7 +1649,7 @@ function editAssignment(code) {
             $.confirm({
                 title: 'Chỉnh sửa phân công',
                 content: `
-                    <form>
+                    <form id="assignmentEditForm">
                         <div class="flex gap-4 mb-4">
                             <div class="form-group flex-1">
                                 <label class="font-semibold mb-2">Mã phân công</label>
@@ -1529,17 +1663,18 @@ function editAssignment(code) {
                         <div class="flex gap-4 mb-4">
                             <div class="form-group flex-1">
                                 <label class="font-semibold mb-2">Ngày bắt đầu</label>
-                                <input type="text" class="form-input w-full flatpickr" id="assignmentStartDate" value="${assignment.startDate}">
+                                <input type="text" class="form-input w-full" id="assignmentStartDate" name="assignmentStartDate" value="${assignment.startDate}">
                             </div>
                             <div class="form-group flex-1">
                                 <label class="font-semibold mb-2">Ngày kết thúc</label>
-                                <input type="text" class="form-input w-full flatpickr" id="assignmentEndDate" value="${assignment.endDate}">
+                                <input type="text" class="form-input w-full" id="assignmentEndDate" name="assignmentEndDate" value="${assignment.endDate}">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="font-semibold mb-2">Ghi chú</label>
                             <textarea class="form-textarea w-full" rows="3">${assignment.note || 'Không có ghi chú'}</textarea>
                         </div>
+                        <div id="assignmentEditError" style="display:none; color:#dc3545; font-weight:bold;"></div>
                     </form>`,
                 type: 'blue',
                 typeAnimated: true,
@@ -1552,6 +1687,13 @@ function editAssignment(code) {
                         text: 'Lưu',
                         btnClass: 'btn-primary',
                         action: function () {
+                            // Ẩn cảnh báo cũ
+                            $("#assignmentEditError").hide().text('');
+
+                            if (!$("#assignmentEditForm").valid()) {
+                                $("#assignmentEditError").text("Vui lòng kiểm tra lại thông tin ngày tháng.").show();
+                                return false;
+                            }
                             const startDate = this.$content.find('#assignmentStartDate').val();
                             const endDate = this.$content.find('#assignmentEndDate').val();
                             const note = this.$content.find('textarea').val();
@@ -1597,19 +1739,56 @@ function editAssignment(code) {
                     }
                 },
                 onContentReady: function () {
-                    const startDateInput = this.$content.find('#assignmentStartDate');
-                    const endDateInput = this.$content.find('#assignmentEndDate');
-
-                    // Initialize flatpickr for date inputs
-                    flatpickr(startDateInput, {
-                        dateFormat: "d/m/Y",
-                        allowInput: true
+                    $("#assignmentEditForm").validate({
+                        rules: {
+                            assignmentStartDate: {
+                                required: true,
+                                dateFormat: true
+                            },
+                            assignmentEndDate: {
+                                required: true,
+                                dateFormat: true,
+                                endDateAfterStartDate: true
+                            }
+                        },
+                        messages: {
+                            assignmentStartDate: {
+                                required: "Vui lòng nhập ngày bắt đầu",
+                                dateFormat: "Ngày phải có định dạng dd/MM/yyyy"
+                            },
+                            assignmentEndDate: {
+                                required: "Vui lòng nhập ngày kết thúc",
+                                dateFormat: "Ngày phải có định dạng dd/MM/yyyy",
+                                endDateAfterStartDate: "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu"
+                            }
+                        },
+                        errorElement: "div",
+                        errorClass: "text-danger",
+                        highlight: function (element) {
+                            $(element).addClass("border-red-500");
+                        },
+                        unhighlight: function (element) {
+                            $(element).removeClass("border-red-500");
+                        },
+                        errorPlacement: function (error, element) {
+                            error.insertAfter(element);
+                        }
                     });
 
-                    flatpickr(endDateInput, {
-                        dateFormat: "d/m/Y",
-                        allowInput: true
-                    });
+                    // Custom method giống như bạn dùng cho treatment record
+                    $.validator.addMethod("dateFormat", function (value, element) {
+                        return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
+                    }, "Ngày phải có định dạng dd/MM/yyyy.");
+
+                    $.validator.addMethod("endDateAfterStartDate", function (value, element) {
+                        var startDate = $("#assignmentStartDate").val();
+                        if (!startDate || !value) return true;
+                        var startParts = startDate.split("/");
+                        var endParts = value.split("/");
+                        var start = new Date(startParts[2], startParts[1] - 1, startParts[0]);
+                        var end = new Date(endParts[2], endParts[1] - 1, endParts[0]);
+                        return end >= start;
+                    }, "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu");
                 }
             });
         }).catch(error => {

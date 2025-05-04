@@ -48,11 +48,21 @@ namespace Project.Repositories.Implementations
             if (detail == null)
                 return null;
 
-            // Get the doctor (employee) from the first active assignment
-            var doctor = detail.TreatmentRecord.Assignments
-                .Where(a => a.IsActive)
-                .Select(a => a.Employee)
-                .FirstOrDefault();
+            // Lấy tên bác sĩ thực hiện từ CreatedBy (username)
+            string doctorName = detail.CreatedBy;
+            Guid employeeId = Guid.Empty;
+            if (!string.IsNullOrEmpty(detail.CreatedBy))
+            {
+                var user = await _context.users
+                    .Include(u => u.Employee)
+                    .FirstOrDefaultAsync(u => u.Username == detail.CreatedBy);
+                if (user?.Employee != null)
+                {
+                    doctorName = user.Employee.Name;
+                    employeeId = user.Employee.Id;
+                }
+            }
+
 
             return new TreatmentRecordDetailDto
             {
@@ -61,8 +71,10 @@ namespace Project.Repositories.Implementations
                 RoomName = detail.Room?.Name ?? string.Empty,
                 TreatmentMethodId = detail.Room?.TreatmentMethodId ?? Guid.Empty,
                 TreatmentMethodName = detail.Room?.TreatmentMethod?.Name ?? string.Empty,
-                DoctorName = doctor?.Name ?? string.Empty,
-                Note = detail.Note ?? string.Empty
+                DoctorName = doctorName ?? string.Empty,
+                Note = detail.Note ?? string.Empty,
+                EmployeeId = employeeId,
+                TreatmentRecordId = detail.TreatmentRecordId
             };
         }
 
@@ -73,7 +85,7 @@ namespace Project.Repositories.Implementations
 
             var existingDetail = await _context.treatmentRecordDetails
                 .FirstOrDefaultAsync(x => x.Id == detail.Id);
-                
+
             if (existingDetail != null)
             {
                 existingDetail.RoomId = detail.RoomId;

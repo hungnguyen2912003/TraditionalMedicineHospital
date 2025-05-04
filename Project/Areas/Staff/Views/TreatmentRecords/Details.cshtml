@@ -423,7 +423,7 @@
                                                     <td>@regulationIndex</td>
                                                     <td>@regulation.Code</td>
                                                     <td>@regulation.Regulation.Name</td>
-                                                    <td>@regulation.ExecutionDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
+                                                    <td>@(regulation.ExecutionDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture))</td>
                                                     <td>
                                                         <button type="button" class="view-note-btn"
                                                             onclick="showNoteModal('@(regulation.Note?.Replace("'", "\\'"))', 'regulation', '@regulation.Code')">

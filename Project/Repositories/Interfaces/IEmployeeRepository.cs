@@ -7,5 +7,6 @@ namespace Project.Repositories.Interfaces
         Task<IEnumerable<Employee>> GetAllAdvancedAsync();
         Task<Employee?> GetByIdAdvancedAsync(Guid id);
         Task<Employee?> GetByUsernameAsync(string username);
+        Task<IEnumerable<Employee>> GetByCodesAsync(IEnumerable<string> codes);
     }
 }
