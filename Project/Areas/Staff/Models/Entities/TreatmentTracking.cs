@@ -1,5 +1,6 @@
 ﻿using Project.Areas.Admin.Models.Entities;
 using Project.Models.Commons;
+using Project.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,6 +15,7 @@ namespace Project.Areas.Staff.Models.Entities
         public string Code { get; set; } = string.Empty;
         public DateTime TreatmentDate { get; set; }
         public string? Note { get; set; }
+        public TrackingStatus Status { get; set; }
 
         /////////////////////////////////////////////////////
         /// Relationships
