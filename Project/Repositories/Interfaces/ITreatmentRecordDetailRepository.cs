@@ -11,7 +11,8 @@ namespace Project.Repositories.Interfaces
         Task<List<TreatmentRecordDetail>> GetByTreatmentRecordIdAsync(Guid treatmentRecordId);
         new Task<TreatmentRecordDetail?> GetByCodeAsync(string code);
         Task<TreatmentRecordDetailDto?> GetDetailWithNamesAsync(string code);
-        new Task UpdateAsync(TreatmentRecordDetail detail);
+        Task<List<Patient>> GetPatientsByRoomIdAsync(Guid roomId);
+        Task<TreatmentRecordDetail?> GetByPatientAndRoomAsync(Guid patientId, Guid roomId);
     }
 }
 

@@ -250,6 +250,15 @@ namespace Project.Helpers
                 })
                 .ToList();
 
+            viewData["TrackingStatusOptions"] = Enum.GetValues(typeof(TrackingStatus))
+                .Cast<TrackingStatus>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
+
             viewData["EnumDisplayNames"] = EnumHelper.GetEnumDisplayNames();
         }
 

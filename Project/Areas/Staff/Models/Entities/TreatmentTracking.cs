@@ -13,7 +13,7 @@ namespace Project.Areas.Staff.Models.Entities
         public Guid Id { get; set; }
         [StringLength(10)]
         public string Code { get; set; } = string.Empty;
-        public DateTime TreatmentDate { get; set; }
+        public DateTime TrackingDate { get; set; }
         public string? Note { get; set; }
         public TrackingStatus Status { get; set; }
 

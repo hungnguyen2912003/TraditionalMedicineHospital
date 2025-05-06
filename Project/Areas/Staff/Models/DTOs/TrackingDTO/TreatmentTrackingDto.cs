@@ -1,0 +1,20 @@
+using System;
+using Project.Models.Enums;
+
+namespace Project.Areas.Staff.Models.DTOs.TrackingDTO
+{
+    public class TreatmentTrackingDto
+    {
+        public Guid Id { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public DateTime TrackingDate { get; set; }
+        public string? Note { get; set; }
+        public TrackingStatus Status { get; set; }
+        public Guid TreatmentRecordDetailId { get; set; }
+        public Guid PatientId { get; set; }
+        public string PatientName { get; set; } = string.Empty;
+        public Guid RoomId { get; set; }
+        public string RoomName { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
+    }
+}

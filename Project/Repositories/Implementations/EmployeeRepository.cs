@@ -42,5 +42,13 @@ namespace Project.Repositories.Implementations
         {
             return await _context.employees.Where(e => codes.Contains(e.Code)).ToListAsync();
         }
+
+        public async Task<string?> GetRoomNameByEmployeeIdAsync(Guid employeeId)
+        {
+            return await _context.employees
+                .Where(e => e.Id == employeeId && e.IsActive)
+                .Select(e => e.Room!.Name)
+                .FirstOrDefaultAsync();
+        }
     }
 }

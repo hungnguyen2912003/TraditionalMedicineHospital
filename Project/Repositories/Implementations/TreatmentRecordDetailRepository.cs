@@ -78,20 +78,22 @@ namespace Project.Repositories.Implementations
             };
         }
 
-        public new async Task UpdateAsync(TreatmentRecordDetail detail)
+        public async Task<List<Patient>> GetPatientsByRoomIdAsync(Guid roomId)
         {
-            if (detail == null)
-                return;
+            return await _context.treatmentRecordDetails
+                .Where(d => d.RoomId == roomId && d.IsActive && d.TreatmentRecord.IsActive)
+                .Select(d => d.TreatmentRecord.Patient)
+                .Distinct()
+                .ToListAsync();
+        }
 
-            var existingDetail = await _context.treatmentRecordDetails
-                .FirstOrDefaultAsync(x => x.Id == detail.Id);
-
-            if (existingDetail != null)
-            {
-                existingDetail.RoomId = detail.RoomId;
-                existingDetail.Note = detail.Note ?? string.Empty;
-                await _context.SaveChangesAsync();
-            }
+        public async Task<TreatmentRecordDetail?> GetByPatientAndRoomAsync(Guid patientId, Guid roomId)
+        {
+            return await _context.treatmentRecordDetails
+                .Include(d => d.TreatmentRecord)
+                .Where(d => d.TreatmentRecord.PatientId == patientId && d.RoomId == roomId && d.IsActive)
+                .OrderByDescending(d => d.CreatedDate)
+                .FirstOrDefaultAsync();
         }
     }
 }

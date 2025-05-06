@@ -5,10 +5,10 @@ namespace Project.Models.Enums
     public enum TrackingStatus
     {
         [Display(Name = "Có khám")]
-        Present = 1,
+        CoKham = 1,
         [Display(Name = "Đã xin phép")]
-        Excused = 2,
+        XinPhep = 2,
         [Display(Name = "Không khám")]
-        Absent = 3
+        KhongKham = 3
     }
 }
