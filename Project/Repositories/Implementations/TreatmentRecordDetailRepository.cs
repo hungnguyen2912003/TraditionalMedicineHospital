@@ -95,6 +95,32 @@ namespace Project.Repositories.Implementations
                 .OrderByDescending(d => d.CreatedDate)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<List<Patient>> GetPatientsByRoomIdAndDateAsync(Guid roomId, DateTime date)
+        {
+            var start = date.Date;
+            var end = start.AddDays(1);
+
+            // Lấy các detail trong phòng, active, record active
+            var details = await _context.treatmentRecordDetails
+                .Include(d => d.TreatmentRecord)
+                .Include(d => d.TreatmentTracking)
+                .Where(d => d.RoomId == roomId && d.IsActive && d.TreatmentRecord.IsActive)
+                .ToListAsync();
+
+            // Lọc ra các detail chưa có tracking trong ngày
+            var filtered = details
+                .Where(d =>
+                    d.TreatmentTracking == null ||
+                    d.TreatmentTracking.TrackingDate < start ||
+                    d.TreatmentTracking.TrackingDate >= end
+                )
+                .Select(d => d.TreatmentRecord.Patient)
+                .Distinct()
+                .ToList();
+
+            return filtered;
+        }
     }
 }
 

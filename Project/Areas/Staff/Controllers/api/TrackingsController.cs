@@ -41,7 +41,7 @@ namespace Project.Areas.Staff.Controllers.api
         }
 
         [HttpGet("patients-in-room")]
-        public async Task<ActionResult<List<string>>> GetPatientsInRoom()
+        public async Task<ActionResult<List<string>>> GetPatientsInRoom([FromQuery] string? date = null)
         {
             try
             {
@@ -62,11 +62,12 @@ namespace Project.Areas.Staff.Controllers.api
                 if (roomId == Guid.Empty)
                     return NotFound("Không tìm thấy phòng cho bác sĩ này.");
 
-                var patients = await _detailRepo.GetPatientsByRoomIdAsync(roomId);
+                DateTime targetDate = string.IsNullOrEmpty(date) ? DateTime.Today : DateTime.Parse(date);
+
+                var patients = await _detailRepo.GetPatientsByRoomIdAndDateAsync(roomId, targetDate);
                 if (patients == null)
                     return Ok(new List<object>());
 
-                // Nếu muốn trả về cả id và name:
                 return Ok(patients.Select(p => new { id = p.Id, name = p.Name }).ToList());
             }
             catch (Exception ex)
@@ -137,11 +138,12 @@ namespace Project.Areas.Staff.Controllers.api
                 return NotFound("Không tìm thấy thông tin nhân viên.");
 
             var employeeId = user.Employee.Id;
+            var roomId = user.Employee.RoomId;
             var roomName = await _employeeRepository.GetRoomNameByEmployeeIdAsync(employeeId);
             if (roomName == null)
                 return NotFound("Không tìm thấy phòng cho bác sĩ này.");
 
-            return Ok(roomName);
+            return Ok(new { roomId, roomName });
         }
     }
 }

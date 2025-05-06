@@ -13,6 +13,7 @@ namespace Project.Repositories.Interfaces
         Task<TreatmentRecordDetailDto?> GetDetailWithNamesAsync(string code);
         Task<List<Patient>> GetPatientsByRoomIdAsync(Guid roomId);
         Task<TreatmentRecordDetail?> GetByPatientAndRoomAsync(Guid patientId, Guid roomId);
+        Task<List<Patient>> GetPatientsByRoomIdAndDateAsync(Guid roomId, DateTime date);
     }
 }
 

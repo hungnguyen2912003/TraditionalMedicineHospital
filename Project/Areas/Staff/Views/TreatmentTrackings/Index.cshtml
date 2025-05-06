@@ -49,20 +49,6 @@
                                 Thêm theo dõi
                             </a>
                         </div>
-                        <button type="button" x-on:click="moveToTrash" class="btn btn-warning">
-                            <svg class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                                <g id="SVGRepo_iconCarrier">
-                                    <path
-                                        d="M12 10V17M8 10V17M19 9H22M19 14H22M19 19H21M16 6V16.2C16 17.8802 16 18.7202 15.673 19.362C15.3854 19.9265 14.9265 20.3854 14.362 20.673C13.7202 21 12.8802 21 11.2 21H8.8C7.11984 21 6.27976 21 5.63803 20.673C5.07354 20.3854 4.6146 19.9265 4.32698 19.362C4 18.7202 4 17.8802 4 16.2V6M2 6H18M14 6L13.7294 5.18807C13.4671 4.40125 13.3359 4.00784 13.0927 3.71698C12.8779 3.46013 12.6021 3.26132 12.2905 3.13878C11.9376 3 11.523 3 10.6936 3H9.30643C8.47705 3 8.06236 3 7.70951 3.13878C7.39792 3.26132  7.12208 3.46013 6.90729 3.71698C6.66405 4.00784 6.53292 4.40125 6.27064 5.18807L6 6"
-                                        stroke="#ffffff" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                </g>
-                            </svg>
-                            Đưa vào thùng rác
-                        </button>
                     </div>
                     <div class="flex w-1/2 flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
                         <div class="flex gap-3">
@@ -101,31 +87,6 @@
                                 </svg>
                                 Tải xuống
                             </button>
-                            <div>
-                                <a href="/Staff/TreatmentRecords/Trash" class="btn btn-danger">
-                                    <svg class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
-                                        </g>
-                                        <g id="SVGRepo_iconCarrier">
-                                            <path fill-rule="evenodd" clip-rule="evenodd"
-                                                d="M10.3094 2.25002H13.6908C13.9072 2.24988 14.0957 2.24976 14.2737 2.27819C14.977 2.39049 15.5856 2.82915 15.9146 3.46084C15.9978 3.62073 16.0573 3.79961 16.1256 4.00494L16.2373 4.33984C16.2562 4.39653 16.2616 4.41258 16.2661 4.42522C16.4413 4.90933 16.8953 5.23659 17.4099 5.24964C17.4235 5.24998 17.44 5.25004 17.5001 5.25004H20.5001C20.9143 5.25004 21.2501 5.58582 21.2501 6.00004C21.2501 6.41425 20.9143 6.75004 20.5001 6.75004H3.5C3.08579 6.75004 2.75 6.41425 2.75 6.00004C2.75 5.58582 3.08579 5.25004 3.5 5.25004H6.50008C6.56013 5.25004 6.5767 5.24998 6.59023 5.24964C7.10488 5.23659 7.55891 4.90936 7.73402 4.42524C7.73863 4.41251 7.74392 4.39681 7.76291 4.33984L7.87452 4.00496C7.94281 3.79964 8.00233 3.62073 8.08559 3.46084C8.41453 2.82915 9.02313 2.39049 9.72643 2.27819C9.90445 2.24976 10.093 2.24988 10.3094 2.25002ZM9.00815 5.25004C9.05966 5.14902 9.10531 5.04404 9.14458 4.93548C9.1565 4.90251 9.1682 4.86742 9.18322 4.82234L9.28302 4.52292C9.37419 4.24941 9.39519 4.19363 9.41601 4.15364C9.52566 3.94307 9.72853 3.79686 9.96296 3.75942C10.0075 3.75231 10.067 3.75004 10.3553 3.75004H13.6448C13.9331 3.75004 13.9927 3.75231 14.0372 3.75942C14.2716 3.79686 14.4745 3.94307 14.5842 4.15364C14.605 4.19363 14.626 4.2494 14.7171 4.52292L14.8169 4.82216L14.8556 4.9355C14.8949 5.04405 14.9405 5.14902 14.992 5.25004H9.00815Z"
-                                                fill="#ffffff"></path>
-                                            <path
-                                                d="M5.91509 8.45015C5.88754 8.03685 5.53016 7.72415 5.11686 7.7517C4.70357 7.77925 4.39086 8.13663 4.41841 8.54993L4.88186 15.5017C4.96736 16.7844 5.03642 17.8205 5.19839 18.6336C5.36679 19.4789 5.65321 20.185 6.2448 20.7385C6.8364 21.2919 7.55995 21.5308 8.4146 21.6425C9.23662 21.7501 10.275 21.7501 11.5606 21.75H12.4395C13.7251 21.7501 14.7635 21.7501 15.5856 21.6425C16.4402 21.5308 17.1638 21.2919 17.7554 20.7385C18.347 20.185 18.6334 19.4789 18.8018 18.6336C18.9638 17.8206 19.0328 16.7844 19.1183 15.5017L19.5818 8.54993C19.6093 8.13663 19.2966 7.77925 18.8833 7.7517C18.47 7.72415 18.1126 8.03685 18.0851 8.45015L17.6251 15.3493C17.5353 16.6971 17.4713 17.6349 17.3307 18.3406C17.1943 19.025 17.004 19.3873 16.7306 19.6431C16.4572 19.8989 16.083 20.0647 15.391 20.1552C14.6776 20.2485 13.7376 20.25 12.3868 20.25H11.6134C10.2626 20.25 9.32255 20.2485 8.60915 20.1552C7.91715 20.0647 7.54299 19.8989 7.26958 19.6431C6.99617 19.3873 6.80583 19.025 6.66948 18.3406C6.52892 17.6349 6.46489 16.6971 6.37503 15.3493L5.91509 8.45015Z"
-                                                fill="#ffffff"></path>
-                                            <path
-                                                d="M9.42546 10.2538C9.83762 10.2125 10.2052 10.5133 10.2464 10.9254L10.7464 15.9254C10.7876 16.3376 10.4869 16.7051 10.0747 16.7463C9.66256 16.7875 9.29503 16.4868 9.25381 16.0747L8.75381 11.0747C8.7126 10.6625 9.01331 10.295 9.42546 10.2538Z"
-                                                fill="#ffffff"></path>
-                                            <path
-                                                d="M14.5747 10.2538C14.9869 10.295 15.2876 10.6625 15.2464 11.0747L14.7464 16.0747C14.7052 16.4868 14.3376 16.7875 13.9255 16.7463C13.5133 16.7051 13.2126 16.3376 13.2538 15.9254L13.7538 10.9254C13.795 10.5133 14.1626 10.2125 14.5747 10.2538Z"
-                                                fill="#ffffff"></path>
-                                        </g>
-                                    </svg>
-                                    Thùng rác
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -138,7 +99,7 @@
 </form>
 
 <div id="trackingModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate">
         <div id="modalRoomTitle" class="text-2xl font-bold text-green-700 text-center mb-4"></div>
         <table class="w-full text-center mb-4">
             <thead>
@@ -235,21 +196,6 @@
                                 <path opacity="0.5" d="M16.6522 3.45508C16.6522 3.45508 16.7333 4.83381 17.9499 6.05034C19.1664 7.26687 20.5451 7.34797 20.5451 7.34797M10.1002 15.5876L8.4126 13.9" stroke="currentColor" stroke-width="1.5"></path>
                             </svg>
                         </a>
-                        <a href="/Staff/TreatmentTrackings/Details/${entity.id}" class="hover:text-primary" x-tooltip="Xem chi tiết">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-                                <path opacity="0.5" d="M3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C4.97196 6.49956 7.81811 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957Z" stroke="currentColor" stroke-width="1.5"></path>
-                                <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" stroke-width="1.5"></path>
-                            </svg>
-                        </a>
-                        <button type="button" class="hover:text-danger delete-btn" data-id="${entity.id}" x-tooltip="Đưa vào thùng rác">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-                                <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                <path opacity="0.5" d="M6.5 6C6.55588 6 6.58382 6 6.60915 5.99936C7.43259 5.97849 8.15902 5.45491 8.43922 4.68032C8.44784 4.65649 8.45667 4.62999 8.47434 4.57697L8.57143 4.28571C8.65431 4.03708 8.69575 3.91276 8.75071 3.8072C8.97001 3.38607 9.37574 3.09364 9.84461 3.01877C9.96213 3 10.0932 3 10.3553 3H13.6447C13.9068 3 14.0379 3 14.1554 3.01877C14.6243 3.09364 15.03 3.38607 15.2493 3.8072C15.3043 3.91276 15.3457 4.03708 15.4286 4.28571L15.5257 4.57697C15.5433 4.62992 15.5522 4.65651 15.5608 4.68032C15.841 5.45491 16.5674 5.97849 17.3909 5.99936C17.4162 6 17.4441 6 17.5 6" stroke="currentColor" stroke-width="1.5"></path>
-                            </svg>
-                        </button>
                     </div>`
                 ]);
 
@@ -370,39 +316,45 @@
                 const day = String(today.getDate()).padStart(2, '0');
                 const month = String(today.getMonth() + 1).padStart(2, '0');
                 const year = today.getFullYear();
+                const dateStr = `${year}-${month}-${day}`;
 
-                $('#trackingModal').removeClass('hidden');
+                $('#trackingModal').removeClass('hidden closing');
+                $('.modal-content-animate', '#trackingModal').removeClass('animate__fadeOut');
                 $('#modalRoomTitle').html(`Ngày ${day}/${month}/${year} – Phòng ...`);
 
-                $.get('/api/trackings/room-name', function (roomName) {
-                    $('#modalRoomTitle').html(`Ngày ${day}/${month}/${year} – Phòng ${roomName}`);
+                $.get('/api/trackings/room-name', function (data) {
+                    $('#modalRoomTitle').html(`Ngày ${day}/${month}/${year} – Phòng ${data.roomName}`);
+                    $('#trackingModal').data('room-id', data.roomId);
                 });
 
-                $.get('/api/trackings/patients-in-room', function (patients) {
+                $.get(`/api/trackings/patients-in-room?date=${dateStr}`, function (patients) {
                     let rows = '';
-                    patients.forEach((patient, idx) => {
-                        rows += `
-                            <tr data-patient-name="${patient.name}" data-patient-id="${patient.id}">
-                                <td>${idx + 1}</td>
-                                <td>${patient.name}</td>
-                                <td>
-                                    <div class="btn-group d-flex justify-content-center" style="display:flex;gap:8px;">
-                                        <button class="btn btn-success btn-status" data-status="1">Có khám</button>
-                                        <button class="btn btn-warning btn-status" data-status="2">Xin phép</button>
-                                        <button class="btn btn-danger btn-status" data-status="3">Không khám</button>
-                                    </div>
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control note-input" placeholder="Nhập ghi chú..." />
-                                </td>
-                                <td>
-                                    <button class="btn btn-primary btn-save">Lưu</button>
-                                </td>
-                            </tr>
-                        `;
-                    });
+                    if (patients.length === 0) {
+                        rows = `<tr><td colspan="5" style="text-align:center;color:#888;font-style:italic;">Không còn bệnh nhân nào cần chấm theo dõi trong ngày hôm nay</td></tr>`;
+                    } else {
+                        patients.forEach((patient, idx) => {
+                            rows += `
+                                <tr data-patient-name="${patient.name}" data-patient-id="${patient.id}">
+                                    <td>${idx + 1}</td>
+                                    <td>${patient.name}</td>
+                                    <td>
+                                        <div class="btn-group d-flex justify-content-center" style="display:flex;gap:8px;">
+                                            <button class="btn btn-success btn-status" data-status="1">Có khám</button>
+                                            <button class="btn btn-warning btn-status" data-status="2">Xin phép</button>
+                                            <button class="btn btn-danger btn-status" data-status="3">Không khám</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control note-input" placeholder="Nhập ghi chú..." />
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-save">Lưu</button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    }
                     $('#modalPatientTableBody').html(rows);
-                    $('#trackingModal').data('room-id', roomId);
                 });
             },
 
@@ -467,75 +419,113 @@
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
     }
-</style>
 
-<script>
-    $(document).on('click', '.btn-status', function () {
-        var $row = $(this).closest('tr');
-        if ($(this).hasClass('active-status')) {
-            // Nếu đã active thì bỏ chọn
-            $(this).removeClass('active-status');
-        } else {
-            // Nếu chưa active thì chuyển active
-            $row.find('.btn-status').removeClass('active-status');
-            $(this).addClass('active-status');
+    /* Hiệu ứng mở (fade + scale) */
+    @@keyframes modalFadeIn
+    {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
-    });
-</script>
 
-<script>
-    $(document).on('click', '.btn-save', function (e) {
-        e.preventDefault();
-        var $row = $(this).closest('tr');
-        var patientId = $row.data('patient-id');
-        var roomId = $('#trackingModal').data('room-id');
-        var statusBtn = $row.find('.btn-status.active-status');
-        if (statusBtn.length === 0) {
-            notyf.error('Vui lòng chọn trạng thái!');
-            return;
-        }
-        var status = statusBtn.data('status');
-        var note = $row.find('.note-input').val();
-        var trackingDate = new Date().toISOString();
-
-        // Log dữ liệu gửi đi
-        console.log({
-            patientId: patientId,
-            roomId: roomId,
-            status: status,
-            note: note,
-            trackingDate: trackingDate
-        });
-
-        fetch('/api/trackings', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                patientId: patientId,
-                roomId: roomId,
-                status: status,
-                note: note,
-                trackingDate: trackingDate
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success !== false) {
-                    notyf.success('Lưu thành công!');
-                } else {
-                    notyf.error(data.message || 'Lưu thất bại!');
+        @@keyframes modalFadeOut
+        {
+                from {
+                    opacity: 1;
+                    transform: scale(1);
                 }
-            })
-            .catch(() => {
-                notyf.error('Có lỗi khi gửi dữ liệu!');
-            });
-    });
-</script>
 
-<script>
-    $(document).on('click', '#closeTrackingModal', function () {
-        $('#trackingModal').addClass('hidden');
-    });
-</script>
+                to {
+                    opacity: 0;
+                    transform: scale(0.95);
+                }
+            }
+
+            #trackingModal .modal-content-animate {
+                animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            #trackingModal.closing .modal-content-animate {
+                animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+        </style>
+
+        <script>
+            $(document).on('click', '.btn-status', function () {
+                var $row = $(this).closest('tr');
+                if ($(this).hasClass('active-status')) {
+                    // Nếu đã active thì bỏ chọn
+                    $(this).removeClass('active-status');
+                } else {
+                    // Nếu chưa active thì chuyển active
+                    $row.find('.btn-status').removeClass('active-status');
+                    $(this).addClass('active-status');
+                }
+            });
+        </script>
+
+        <script>
+            $(document).on('click', '.btn-save', function (e) {
+                e.preventDefault();
+                var $row = $(this).closest('tr');
+                var patientId = $row.data('patient-id');
+                var roomId = $('#trackingModal').data('room-id');
+                var statusBtn = $row.find('.btn-status.active-status');
+                if (statusBtn.length === 0) {
+                    notyf.error('Vui lòng chọn trạng thái!');
+                    return;
+                }
+                var status = statusBtn.data('status');
+                var note = $row.find('.note-input').val();
+                var trackingDate = new Date().toISOString();
+
+                // Log dữ liệu gửi đi
+                console.log({
+                    patientId: patientId,
+                    roomId: roomId,
+                    status: status,
+                    note: note,
+                    trackingDate: trackingDate
+                });
+
+                fetch('/api/trackings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        patientId: patientId,
+                        roomId: roomId,
+                        status: status,
+                        note: note,
+                        trackingDate: trackingDate
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success !== false) {
+                            notyf.success('Lưu thành công!');
+                        } else {
+                            notyf.error(data.message || 'Lưu thất bại!');
+                        }
+                    })
+                    .catch(() => {
+                        notyf.error('Có lỗi khi gửi dữ liệu!');
+                    });
+            });
+        </script>
+
+        <script>
+            $(document).on('click', '#closeTrackingModal', function () {
+                $('#trackingModal').addClass('closing');
+                setTimeout(function () {
+                    $('#trackingModal').addClass('hidden').removeClass('closing');
+                }, 200); // Thời gian trùng với animation out
+            });
+        </script>
