@@ -114,7 +114,27 @@
             <tbody id="modalPatientTableBody"></tbody>
         </table>
         <div class="flex justify-center">
-            <button id="closeTrackingModal" class="btn btn-secondary px-8 py-2 text-base">ĐÓNG</button>
+            <button id="closeTrackingModal" class="btn btn-secondary px-8 py-2 text-base">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<div id="editTrackingModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-modal-blur">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate">
+        <div id="editModalRoomTitle" class="text-2xl font-bold text-green-700 text-center mb-4"></div>
+        <table class="w-full text-center mb-4">
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Tên bệnh nhân</th>
+                    <th style="text-align:center;">Trạng thái</th>
+                    <th style="text-align:center;">Ghi chú</th>
+                    <th style="text-align:center;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="editModalPatientTableBody"></tbody>
+        </table>
+        <div class="flex justify-center">
+            <button id="closeEditTrackingModal" class="btn btn-secondary px-8 py-2 text-base">Đóng</button>
         </div>
     </div>
 </div>
@@ -133,6 +153,7 @@
                     this.entityList = [];
                 }
                 this.filteredList = [...this.entityList];
+                window.entityList = this.entityList;
                 this.initializeTable();
 
                 document.querySelector('#myTable thead').addEventListener('change', (e) => {
@@ -182,14 +203,16 @@
                     `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
                     entity.code,
                     entity.patientName,
+                    entity.roomName,
                     new Date(entity.trackingDate).toLocaleDateString('vi-VN'),
                     this.getTrackingStatusBadge(entity.status),
-                    entity.isActive ?
-                        '<svg x-tooltip="Đang hoạt động" class="w-5 h-5 mx-auto" width="24" height="24" fill="#000000" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="green" d="M13 4.1974q0 .3097-.21677.5265L7.17806 10.329l-1.0529 1.0529q-.21677.2168-.52645.2168-.30968 0-.52645-.2168L4.01935 10.329 1.21677 7.5264Q1 7.3097 1 7t.21677-.5265l1.05291-1.0529q.21677-.2167.52645-.2167.30968 0 .52645.2167l2.27613 2.2839 5.07871-5.0864q.21677-.2168.52645-.2168.30968 0 .52645.2168l1.05291 1.0529Q13 3.8877 13 4.1974z"></path></g></svg>'
-                        :
-                        '<svg x-tooltip="Không hoạt động" class="w-5 h-5 mx-auto" width="24" height="24" fill="#000000" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="red" d="M13 10.65657q0 .40404-.28283.68686l-1.37374 1.37374Q11.06061 13 10.65657 13t-.68687-.28283L7 9.74747l-2.9697 2.9697Q3.74747 13 3.34343 13q-.40404 0-.68686-.28283l-1.37374-1.37374Q1 11.06061 1 10.65657t.28283-.68687L4.25253 7l-2.9697-2.9697Q1 3.74747 1 3.34343q0-.40404.28283-.68686l1.37374-1.37374Q2.93939 1 3.34343 1t.68687.28283L7 4.25253l2.9697-2.9697Q10.25253 1 10.65657 1q.40404 0 .68686.28283l1.37374 1.37374Q13 2.93939 13 3.34343t-.28283.68687L9.74747 7l2.9697 2.9697Q13 10.25253 13 10.65657z"></path></g></svg>',
                     `<div class="flex gap-4">
-                        <a href="/Staff/TreatmentTrackings/Edit/${entity.id}" class="hover:text-info" x-tooltip="Chỉnh sửa">
+                        <a href="javascript:;" 
+                           class="edit-btn" 
+                           data-id="${entity.id}" 
+                           data-status="${entity.status}" 
+                           data-note="${entity.note || ''}" 
+                           data-doctor-code="${entity.doctorCode}">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5">
                                 <path opacity="0.5" d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
                                 <path d="M17.3009 2.80624L16.652 3.45506L10.6872 9.41993C10.2832 9.82394 10.0812 10.0259 9.90743 10.2487C9.70249 10.5114 9.52679 10.7957 9.38344 11.0965C9.26191 11.3515 9.17157 11.6225 8.99089 12.1646L8.41242 13.9L8.03811 15.0229C7.9492 15.2897 8.01862 15.5837 8.21744 15.7826C8.41626 15.9814 8.71035 16.0508 8.97709 15.9619L10.1 15.5876L11.8354 15.0091C12.3775 14.8284 12.6485 14.7381 12.9035 14.6166C13.2043 14.4732 13.4886 14.2975 13.7513 14.0926C13.9741 13.9188 14.1761 13.7168 14.5801 13.3128L20.5449 7.34795L21.1938 6.69914C22.2687 5.62415 22.2687 3.88124 21.1938 2.80624C20.1188 1.73125 18.3759 1.73125 17.3009 2.80624Z" stroke="currentColor" stroke-width="1.5"></path>
@@ -205,9 +228,9 @@
                             '<input type="checkbox" class="form-checkbox" />',
                             'Mã theo dõi điều trị',
                             'Tên bệnh nhân',
+                            'Tên phòng',
                             'Ngày theo dõi',
                             'Trạng thái',
-                            'Hoạt động',
                             'Thao tác'
                         ],
                         data: tableData
@@ -454,6 +477,37 @@
             #trackingModal.closing .modal-content-animate {
                 animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             }
+
+            #editTrackingModal .modal-content-animate {
+                animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            #editTrackingModal.closing .modal-content-animate {
+                animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            /* Nền mờ xung quanh modal */
+            .bg-modal-blur {
+                background: rgba(30, 41, 59, 0.2);
+                backdrop-filter: blur(6px);
+                -webkit-backdrop-filter: blur(6px);
+            }
+
+            .note-input {
+                border: 2px solid #a3a3a3;
+                border-radius: 8px;
+                padding: 6px 14px;
+                transition: border-color 0.2s, box-shadow 0.2s;
+                outline: none;
+                box-shadow: none;
+            }
+
+            .note-input:focus {
+                border-color: #22c55e;
+                /* xanh lá khi focus */
+                box-shadow: 0 0 0 2px #22c55e33;
+                background: #f6fff8;
+            }
         </style>
 
         <script>
@@ -485,15 +539,6 @@
                 var note = $row.find('.note-input').val();
                 var trackingDate = new Date().toISOString();
 
-                // Log dữ liệu gửi đi
-                console.log({
-                    patientId: patientId,
-                    roomId: roomId,
-                    status: status,
-                    note: note,
-                    trackingDate: trackingDate
-                });
-
                 fetch('/api/trackings', {
                     method: 'POST',
                     headers: {
@@ -511,6 +556,20 @@
                     .then(data => {
                         if (data.success !== false) {
                             notyf.success('Lưu thành công!');
+                            // Xóa dòng bệnh nhân vừa lưu khỏi bảng
+                            $row.remove();
+                            // Cập nhật lại số thứ tự (STT)
+                            $('#modalPatientTableBody tr').each(function (index) {
+                                $(this).find('td').eq(0).text(index + 1);
+                            });
+                            // Nếu không còn bệnh nhân nào, hiển thị dòng thông báo
+                            if ($('#modalPatientTableBody tr').length === 0) {
+                                $('#modalPatientTableBody').html(
+                                    `<tr><td colspan="5" style="text-align:center;color:#888;font-style:italic;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Không còn bệnh nhân nào cần chấm theo dõi trong ngày hôm nay
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </td></tr>`
+                                );
+                            }
                         } else {
                             notyf.error(data.message || 'Lưu thất bại!');
                         }
@@ -526,6 +585,104 @@
                 $('#trackingModal').addClass('closing');
                 setTimeout(function () {
                     $('#trackingModal').addClass('hidden').removeClass('closing');
+                    // Reload lại trang sau khi modal đóng
+                    window.location.reload();
                 }, 200); // Thời gian trùng với animation out
+            });
+        </script>
+
+        <script>
+            let currentEditId = null;
+            const currentEmployeeCode = '@ViewBag.CurrentEmployeeCode'.trim();
+
+            $(document).on('click', '.edit-btn', function () {
+                const doctorCode = ($(this).data('doctor-code') + '').trim();
+                const empCode = (currentEmployeeCode + '').trim();
+                if (doctorCode !== empCode) {
+                    notyf.error('Bạn không có quyền cập nhật bản ghi này');
+                    return;
+                }
+                // Lấy dữ liệu từ entityList (hoặc data attribute)
+                const id = $(this).data('id');
+                const entity = window.entityList?.find(e => e.id === id);
+                currentEditId = id;
+
+                // Set tiêu đề phòng
+                $('#editModalRoomTitle').text(entity ? `Ngày ${new Date(entity.trackingDate).toLocaleDateString('vi-VN')} – Phòng ${entity.roomName}` : '');
+
+                // Set trạng thái, tên bệnh nhân, ghi chú
+                $('#editModalPatientTableBody').empty();
+                $('#editModalPatientTableBody').append(`
+                                                                                                                            <tr>
+                                                                                                                                <td style="font-weight:bold;">${entity ? entity.patientName : ''}</td>
+                                                                                                                                <td style="text-align:center;">
+                                                                                                                                    <div class="btn-group d-flex justify-center" style="display:flex;gap:12px;justify-content:center;">
+                                                                                                                                        <button class="btn btn-success btn-status${entity && entity.status == 1 ? ' active-status' : ''}" data-status="1">Có khám</button>
+                                                                                                                                        <button class="btn btn-warning btn-status${entity && entity.status == 2 ? ' active-status' : ''}" data-status="2">Xin phép</button>
+                                                                                                                                        <button class="btn btn-danger btn-status${entity && entity.status == 3 ? ' active-status' : ''}" data-status="3">Không khám</button>
+                                                                                                                                    </div>
+                                                                                                                                </td>
+                                                                                                                                <td style="text-align:center;">
+                                                                                                                                    <input type="text" class="form-control note-input" placeholder="Nhập ghi chú..." value="${entity && entity.note ? entity.note.replace(/\"/g, '&quot;') : ''}" style="width: 220px; margin: 0 auto;" />
+                                                                                                                                </td>
+                                                                                                                                <td style="text-align:center;">
+                                                                                                                                    <button class="btn btn-primary btn-update">Cập nhật</button>
+                                                                                                                                </td>
+                                                                                                                            </tr>
+                                                                                                                        `);
+
+                $('#editTrackingModal').removeClass('hidden closing');
+            });
+
+            // Chọn trạng thái
+            $('#editTrackingModal .btn-status').on('click', function () {
+                $('#editTrackingModal .btn-status').removeClass('active-status');
+                $(this).addClass('active-status');
+            });
+
+            // Đóng modal với hiệu ứng
+            $('#closeEditTrackingModal').on('click', function () {
+                $('#editTrackingModal').addClass('closing');
+                setTimeout(function () {
+                    $('#editTrackingModal').addClass('hidden').removeClass('closing');
+                    window.location.reload();
+                }, 200);
+            });
+
+            // Submit cập nhật
+            $(document).on('click', '#editModalPatientTableBody .btn-update', function (e) {
+                e.preventDefault();
+
+                const $btn = $(this);
+                if ($btn.prop('disabled')) return;
+
+                $btn.prop('disabled', true);
+
+                const $row = $(this).closest('tr');
+                const status = $row.find('.btn-status.active-status').data('status');
+                const note = $row.find('.note-input').val();
+
+                if (!status) {
+                    notyf.error('Vui lòng chọn trạng thái!');
+                    return;
+                }
+
+                fetch('/api/trackings/' + currentEditId, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ status, note })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            notyf.success('Cập nhật thành công!');
+                        } else {
+                            notyf.error(data.message || 'Cập nhật thất bại!');
+                        }
+                    })
+                    .catch(() => notyf.error('Có lỗi khi gửi dữ liệu!'));
             });
         </script>

@@ -27,7 +27,7 @@ namespace Project.Repositories.Implementations
                     .ThenInclude(d => d.Room)
                         .ThenInclude(tm => tm.TreatmentMethod)
                 .Include(m => m.TreatmentRecordDetails)
-                    .ThenInclude(d => d.TreatmentTracking)
+                    .ThenInclude(d => d.TreatmentTrackings)
                 .Include(m => m.Assignments)
                     .ThenInclude(a => a.Employee)
                 .Include(m => m.TreatmentRecord_Regulations)

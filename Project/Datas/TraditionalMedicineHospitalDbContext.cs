@@ -96,16 +96,16 @@ namespace Project.Datas
                 .HasForeignKey(d => d.TreatmentRecordId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<TreatmentRecordDetail>()
-                .HasOne(d => d.TreatmentTracking)
-                .WithMany(t => t.TreatmentRecordDetails)
-                .HasForeignKey(d => d.TreatmentTrackingId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             modelBuilder.Entity<TreatmentRecord_Regulation>()
                 .HasOne(tr => tr.TreatmentRecord)
                 .WithMany(t => t.TreatmentRecord_Regulations)
                 .HasForeignKey(tr => tr.TreatmentRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TreatmentTracking>()
+                .HasOne(t => t.TreatmentRecordDetail)
+                .WithMany(d => d.TreatmentTrackings)
+                .HasForeignKey(t => t.TreatmentRecordDetailId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

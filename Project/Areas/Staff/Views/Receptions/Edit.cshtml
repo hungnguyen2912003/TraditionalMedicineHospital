@@ -153,7 +153,7 @@
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full sm:w-1/2">
                                             <label for="treatmentRecordStartDate">Ngày bắt đầu<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                class="text-danger">&nbsp*</span></label>
                                             <input id="treatmentRecordStartDate" name="TreatmentRecord.StartDate" class="form-input flatpickr" type="text"
                                                 placeholder="Chọn ngày bắt đầu" value="@Model.TreatmentRecord.StartDate.ToString("dd/MM/yyyy")" />
                                             @Html.ValidationMessageFor(model => model.TreatmentRecord.StartDate, "", new { @class =
@@ -161,7 +161,7 @@
                                         </div>
                                         <div class="w-full sm:w-1/2">
                                             <label for="treatmentRecordEndDate">Ngày kết thúc<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                class="text-danger">&nbsp*</span></label>
                                             <input id="treatmentRecordEndDate" name="TreatmentRecord.EndDate" class="form-input flatpickr" type="text"
                                                 placeholder="Chọn ngày kết thúc" value="@Model.TreatmentRecord.EndDate.ToString("dd/MM/yyyy")" />
                                             @Html.ValidationMessageFor(model => model.TreatmentRecord.EndDate, "", new { @class =
@@ -205,11 +205,10 @@
                                         </div>
                                         <div class="w-full sm:w-1/2">
                                             <label for="Name" class="block text-sm font-medium text-gray-700">Họ tên
-                                                bệnh nhân<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                                bệnh nhân<span class="text-danger">&nbsp*</span></label>
                                             <input id="Name" name="Patient.Name"
                                                 class="form-input w-full mt-1 p-2 border rounded"
-                                                placeholder="Nhập họ tên bệnh nhân" value="Nguyễn Văn A" />
+                                                placeholder="Nhập họ tên bệnh nhân" value="@Model.Patient.Name"/>
                                             @Html.ValidationMessageFor(model => model.Patient.Name, "", new { @class =
                                                                                         "text-danger" })
                                         </div>
@@ -217,8 +216,7 @@
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full sm:w-1/2">
                                             <label for="Gender" class="block text-sm font-medium text-gray-700">Giới
-                                                tính<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                                tính<span class="text-danger">&nbsp*</span></label>
                                             <div class="select-wrapper">
                                                 <select id="Gender" name="Patient.Gender"
                                                     class="form-input w-full mt-1 p-2 border rounded choices">
@@ -242,21 +240,20 @@
                                         <div class="w-full sm:w-1/2">
                                             <label for="DateOfBirth"
                                                 class="block text-sm font-medium text-gray-700">Ngày sinh<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                class="text-danger">&nbsp*</span></label>
                                             <input id="DateOfBirth" name="Patient.DateOfBirth"
                                                 class="form-input w-full mt-1 p-2 border rounded flatpickr"
-                                                placeholder="Nhập ngày sinh" type="text" value="01/01/1990" />
+                                                placeholder="Nhập ngày sinh" type="text" value="@Model.Patient.DateOfBirth.ToString("dd/MM/yyyy")"/>
                                             @Html.ValidationMessageFor(model => model.Patient.DateOfBirth, "", new {
                                                                                         @class = "text-danger" })
                                         </div>
                                         <div class="w-full sm:w-1/2">
                                             <label for="IdentityNumber"
                                                 class="block text-sm font-medium text-gray-700">Căn cước công
-                                                dân<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                                dân<span class="text-danger">&nbsp*</span></label>
                                             <input id="IdentityNumber" name="Patient.IdentityNumber"
                                                 class="form-input w-full mt-1 p-2 border rounded"
-                                                placeholder="Nhập căn cước công dân" value="123456789" />
+                                                placeholder="Nhập căn cước công dân" maxlength="12" value="@Model.Patient.IdentityNumber"/>
                                             @Html.ValidationMessageFor(model => model.Patient.IdentityNumber, "", new {
                                                                                         @class = "text-danger" })
                                         </div>
@@ -264,30 +261,29 @@
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full address-container">
                                             <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                class="text-danger">&nbsp*</span></label>
                                             <input id="Address" type="text" name="Patient.Address" class="form-input w-full mt-1 p-2 border rounded" 
-                                                placeholder="Nhập địa chỉ" autocomplete="off" value="123 Đường ABC, Quận 1, TP.HCM" />
+                                                placeholder="Nhập địa chỉ" autocomplete="off" value="@Model.Patient.Address"/>
                                             @Html.ValidationMessageFor(model => model.Patient.Address, "", new { @class = "text-danger" })
                                         </div> 
                                     </div>
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full sm:w-1/2">
                                             <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Số
-                                                điện thoại<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                                điện thoại<span class="text-danger">&nbsp*</span></label>
                                             <input id="PhoneNumber" name="Patient.PhoneNumber"
                                                 class="form-input w-full mt-1 p-2 border rounded"
-                                                placeholder="Nhập số điện thoại" value="0123456789" />
+                                                placeholder="Nhập số điện thoại" value="@Model.Patient.PhoneNumber" maxlength="11"/>
                                             @Html.ValidationMessageFor(model => model.Patient.PhoneNumber, "", new {
                                                                                         @class = "text-danger" })
                                         </div>
                                         <div class="w-full sm:w-1/2">
                                             <label for="Email"
                                                 class="block text-sm font-medium text-gray-700">Email<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                class="text-danger">&nbsp*</span></label>
                                             <input id="Email" name="Patient.EmailAddress"
                                                 class="form-input w-full mt-1 p-2 border rounded"
-                                                placeholder="Nhập email" value="test@example.com" />
+                                                placeholder="Nhập email" value="@Model.Patient.EmailAddress" />
                                             @Html.ValidationMessageFor(model => model.Patient.EmailAddress, "", new {
                                                                                         @class = "text-danger" })
                                         </div>
@@ -363,17 +359,17 @@
                                         <input type="hidden" id="HealthInsuranceCode" name="Patient.HealthInsuranceCode" value="@Model.Patient.HealthInsuranceCode" />
                                         <label for="HealthInsuranceNumber"
                                             class="block text-sm font-medium text-gray-700">Số thẻ BHYT<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                class="text-danger">&nbsp*</span></label>
                                         <input id="HealthInsuranceNumber" name="Patient.HealthInsuranceNumber"
                                             class="form-input w-full mt-1 p-2 border rounded"
-                                            placeholder="Nhập số thẻ BHYT" value="@Model.Patient.HealthInsuranceNumber" />
+                                            placeholder="Nhập số thẻ BHYT" value="@Model.Patient.HealthInsuranceNumber" maxlength="15"/>
                                         @Html.ValidationMessageFor(model => model.Patient.HealthInsuranceNumber, "", new
                                                                                 { @class = "text-danger" })
                                     </div>
                                     <div class="w-full">
                                         <label for="HealthInsuranceExpiryDate"
                                             class="block text-sm font-medium text-gray-700">Ngày hết hạn<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                class="text-danger">&nbsp*</span></label>
                                         <input id="HealthInsuranceExpiryDate" name="Patient.HealthInsuranceExpiryDate"
                                             class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                             placeholder="Nhập ngày hết hạn" type="text" value="@Model.Patient.HealthInsuranceExpiryDate?.ToString("dd/MM/yyyy")"/>
@@ -383,8 +379,7 @@
                                     <div class="w-full">
                                         <label for="HealthInsurancePlaceOfRegistration"
                                             class="block text-sm font-medium text-gray-700">Nơi đăng ký khám
-                                            bệnh<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            bệnh<span class="text-danger">&nbsp*</span></label>
                                         <div class="select-wrapper">
                                             <select id="HealthInsurancePlaceOfRegistration"
                                                 name="Patient.HealthInsurancePlaceOfRegistration"
@@ -415,7 +410,7 @@
                                         <input type="checkbox" class="form-checkbox" name="Patient.HealthInsuranceIsRightRoute" value="true" id="HealthInsuranceIsRightRoute"
                                             @(Model.Patient.HealthInsuranceIsRightRoute == true ? "checked" : "")>
                                         <span class="text-sm font-medium text-gray-700 ml-2">Thẻ bảo hiểm đúng tuyến KCB<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></span>
+                                            class="text-danger">&nbsp*</span></span>
                                     </div>  
                                 </div>
                             </div>
@@ -690,7 +685,7 @@
                                         <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                             <div class="w-full sm:w-1/2">
                                                 <label for="assignmentStartDate">Ngày bắt đầu<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                class="text-danger">&nbsp*</span></label>
                                                 <input id="assignmentStartDate" name="NewAssignment.StartDate" 
                                                     class="form-input flatpickr" type="text" 
                                                     placeholder="Chọn ngày bắt đầu"/>
@@ -698,7 +693,7 @@
                                             </div>
                                             <div class="w-full sm:w-1/2">
                                                 <label for="assignmentEndDate">Ngày kết thúc<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                class="text-danger">&nbsp*</span></label>
                                                 <input id="assignmentEndDate" name="NewAssignment.EndDate" 
                                                     class="form-input flatpickr" type="text" 
                                                     placeholder="Chọn ngày kết thúc"/>
@@ -760,74 +755,76 @@
                                             <p class="text-lg font-medium">Chưa có quy định nào được thêm</p>
                                             <p class="text-sm mt-2">Nhấn nút "Thêm quy định" để bắt đầu thêm quy định mới</p>
                                         </div>
-                                        <!-- Header cho các cột -->
-                                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-4 mb-2">
-                                            <div><span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tên quy định</span></div>
-                                            <div><span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Ngày thực hiện</span></div>
-                                            <div><span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Ghi chú</span></div>
-                                            <div></div>
-                                        </div>
-                                        <!-- Danh sách quy định -->
-                                        <template x-for="(regulation, index) in regulations" :key="regulation.Code">
-                                            <div class="grid grid-cols-1 gap-5 sm:grid-cols-4 mb-4 border-b pb-4" :data-regulation-code="regulation.Code">
-                                                <!-- Cột 1: Quy định -->
-                                                <div class="flex flex-col">
-                                                    <select :id="'regulationId-' + index" :name="'Regulations[' + index + '].RegulationId'"
-                                                        class="form-select w-full regulation-select" x-model="regulation.RegulationId"
-                                                        @@change="onRegulationChange(index, $event.target.value)">
-                                                        <option value="">Chọn quy định</option>
-                                                        <template x-for="reg in getAvailableRegulations(index)" :key="reg.id">
-                                                            <option :value="reg.id" x-text="reg.name + ' (' + reg.effectiveStartDate + ' - ' + reg.effectiveEndDate + ')'" :selected="regulation.RegulationId == reg.id"></option>
+                                        <div x-show="regulations.length > 0">
+                                            <!-- Header cho các cột -->
+                                            <div class="grid grid-cols-1 gap-5 sm:grid-cols-4 mb-2">
+                                                <div><span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tên quy định</span></div>
+                                                <div><span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Ngày thực hiện</span></div>
+                                                <div><span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Ghi chú</span></div>
+                                                <div></div>
+                                            </div>
+                                            <!-- Danh sách quy định -->
+                                            <template x-for="(regulation, index) in regulations" :key="regulation.Code">
+                                                <div class="grid grid-cols-1 gap-5 sm:grid-cols-4 mb-4 border-b pb-4" :data-regulation-code="regulation.Code">
+                                                    <!-- Cột 1: Quy định -->
+                                                    <div class="flex flex-col">
+                                                        <select :id="'regulationId-' + index" :name="'Regulations[' + index + '].RegulationId'"
+                                                            class="form-select w-full regulation-select" x-model="regulation.RegulationId"
+                                                            @@change="onRegulationChange(index, $event.target.value)">
+                                                            <option value="">Chọn quy định</option>
+                                                            <template x-for="reg in getAvailableRegulations(index)" :key="reg.id">
+                                                                <option :value="reg.id" x-text="reg.name + ' (' + reg.effectiveStartDate + ' - ' + reg.effectiveEndDate + ')'" :selected="regulation.RegulationId == reg.id"></option>
+                                                            </template>
+                                                        </select>
+                                                    </div>
+                                                    <!-- Cột 2: Ngày thực hiện -->
+                                                    <div class="flex flex-col">
+                                                        <input :id="'executionDate-' + index" :name="'Regulations[' + index + '].ExecutionDate'"
+                                                            x-model="regulation.ExecutionDate"
+                                                            :disabled="!regulation.RegulationId"
+                                                            :class="{'opacity-50 cursor-not-allowed': !regulation.RegulationId}"
+                                                            class="form-input w-full regulation-date flatpickr"
+                                                            type="text" placeholder="Chọn ngày thực hiện" readonly />
+                                                    </div>
+                                                    <!-- Cột 3: Ghi chú -->
+                                                    <div class="flex flex-col">
+                                                        <template x-if="regulation.isOld">
+                                                            <button type="button" class="btn btn-info w-full" @@click="displayNote(regulation.Note, 'regulation', regulation.Code)">
+                                                                Xem ghi chú
+                                                            </button>
                                                         </template>
-                                                    </select>
-                                                </div>
-                                                <!-- Cột 2: Ngày thực hiện -->
-                                                <div class="flex flex-col">
-                                                    <input :id="'executionDate-' + index" :name="'Regulations[' + index + '].ExecutionDate'"
-                                                        x-model="regulation.ExecutionDate"
-                                                        :disabled="!regulation.RegulationId"
-                                                        :class="{'opacity-50 cursor-not-allowed': !regulation.RegulationId}"
-                                                        class="form-input w-full regulation-date flatpickr"
-                                                        type="text" placeholder="Chọn ngày thực hiện" readonly />
-                                                </div>
-                                                <!-- Cột 3: Ghi chú -->
-                                                <div class="flex flex-col">
-                                                    <template x-if="regulation.isOld">
-                                                        <button type="button" class="btn btn-info w-full" @@click="displayNote(regulation.Note, 'regulation', regulation.Code)">
-                                                            Xem ghi chú
+                                                        <template x-if="!regulation.isOld">
+                                                            <input :id="'note-' + index" :name="'Regulations[' + index + '].Note'"
+                                                                x-model="regulation.Note"
+                                                                class="form-input w-full" placeholder="Nhập ghi chú" />
+                                                        </template>
+                                                        <input type="hidden" :name="'Regulations[' + index + '].Code'" :value="regulation.Code" />
+                                                    </div>
+                                                    <!-- Cột 4: Xóa -->
+                                                    <div class="flex flex-col">
+                                                        <button type="button" class="btn btn-danger w-full" @@click="removeRegulation(index)">
+                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
+                                                                <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                                <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                                <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                                <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                                <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                            </svg>
+                                                            Xóa
                                                         </button>
-                                                    </template>
-                                                    <template x-if="!regulation.isOld">
-                                                        <input :id="'note-' + index" :name="'Regulations[' + index + '].Note'"
-                                                            x-model="regulation.Note"
-                                                            class="form-input w-full" placeholder="Nhập ghi chú" />
-                                                    </template>
-                                                    <input type="hidden" :name="'Regulations[' + index + '].Code'" :value="regulation.Code" />
-                                                </div>
-                                                <!-- Cột 4: Xóa -->
-                                                <div class="flex items-end">
-                                                    <button type="button" class="btn btn-danger w-full" @@click="removeRegulation(index)">
-                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
-                                                            <path opacity="0.5" d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                                            <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                                            <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                                            <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                                            <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                                        </svg>
-                                                        Xóa
-                                                    </button>
-                                                </div>
-                                                <!-- Cảnh báo nếu chưa chọn quy định -->
-                                                <div x-show="!regulation.RegulationId" class="sm:col-span-4 text-sm" style="color: coral; font-weight: bold;">
-                                                    <div class="flex items-center whitespace-nowrap">
-                                                        <svg class="w-4 h-4 inline-block mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                                        </svg>
-                                                        <span class="flex-shrink-0">Vui lòng chọn quy định trước khi chọn ngày thực hiện!</span>
+                                                    </div>
+                                                    <!-- Cảnh báo nếu chưa chọn quy định -->
+                                                    <div x-show="!regulation.RegulationId" class="sm:col-span-4 text-sm" style="color: coral; font-weight: bold;">
+                                                        <div class="flex items-center whitespace-nowrap">
+                                                            <svg class="w-4 h-4 inline-block mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                            </svg>
+                                                            <span class="flex-shrink-0">Vui lòng chọn quy định trước khi chọn ngày thực hiện!</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </template>
+                                            </template>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -15,7 +15,6 @@ namespace Project.Areas.Staff.Models.Entities
         public string? Note { get; set; }
         //Foreign key
         public Guid TreatmentRecordId { get; set; }
-        public Guid? TreatmentTrackingId { get; set; }
         public Guid RoomId { get; set; }
 
         /////////////////////////////////////////////////////
@@ -25,7 +24,6 @@ namespace Project.Areas.Staff.Models.Entities
         public virtual TreatmentRecord TreatmentRecord { get; set; } = null!;
         [ForeignKey("RoomId")]
         public virtual Room Room { get; set; } = null!;
-        [ForeignKey("TreatmentTrackingId")]
-        public virtual TreatmentTracking? TreatmentTracking { get; set; }
+        public virtual ICollection<TreatmentTracking> TreatmentTrackings { get; set; } = new List<TreatmentTracking>();
     }
 }

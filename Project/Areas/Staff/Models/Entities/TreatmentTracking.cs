@@ -16,10 +16,12 @@ namespace Project.Areas.Staff.Models.Entities
         public DateTime TrackingDate { get; set; }
         public string? Note { get; set; }
         public TrackingStatus Status { get; set; }
+        public Guid? TreatmentRecordDetailId { get; set; }
 
         /////////////////////////////////////////////////////
         /// Relationships
         ///
-        public virtual ICollection<TreatmentRecordDetail> TreatmentRecordDetails { get; set; } = new HashSet<TreatmentRecordDetail>();
+        [ForeignKey("TreatmentRecordDetailId")]
+        public virtual TreatmentRecordDetail? TreatmentRecordDetail { get; set; }
     }
 }

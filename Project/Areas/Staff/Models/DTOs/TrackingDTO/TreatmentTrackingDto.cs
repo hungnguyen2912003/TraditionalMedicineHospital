@@ -11,10 +11,9 @@ namespace Project.Areas.Staff.Models.DTOs.TrackingDTO
         public string? Note { get; set; }
         public TrackingStatus Status { get; set; }
         public Guid TreatmentRecordDetailId { get; set; }
-        public Guid PatientId { get; set; }
-        public string PatientName { get; set; } = string.Empty;
-        public Guid RoomId { get; set; }
-        public string RoomName { get; set; } = string.Empty;
         public bool IsActive { get; set; }
+        public string? PatientName { get; set; }
+        public string? RoomName { get; set; }
+        public string? DoctorCode { get; set; }
     }
 }
