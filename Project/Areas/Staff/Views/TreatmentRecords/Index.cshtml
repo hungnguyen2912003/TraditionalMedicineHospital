@@ -178,10 +178,9 @@
                     `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
                     entity.code,
                     entity.patientName || 'Không có dữ liệu',
-                    entity.diagnosis,
                     entity.startDate ? new Date(entity.startDate).toLocaleDateString('vi-VN') : 'Không xác định',
                     entity.endDate ? new Date(entity.endDate).toLocaleDateString('vi-VN') : 'Không xác định',
-                    getEnumDisplayName('TreatmentStatus', entity.status),
+                    getTreatmentRecordStatusBadge(entity.status),
                     entity.isActive ?
                         '<svg x-tooltip="Đang hoạt động" class="w-5 h-5 mx-auto" width="24" height="24" fill="#000000" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="green" d="M13 4.1974q0 .3097-.21677.5265L7.17806 10.329l-1.0529 1.0529q-.21677.2168-.52645.2168-.30968 0-.52645-.2168L4.01935 10.329 1.21677 7.5264Q1 7.3097 1 7t.21677-.5265l1.05291-1.0529q.21677-.2167.52645-.2167.30968 0 .52645.2167l2.27613 2.2839 5.07871-5.0864q.21677-.2168.52645-.2168.30968 0 .52645.2168l1.05291 1.0529Q13 3.8877 13 4.1974z"></path></g></svg>'
                         :
@@ -218,7 +217,6 @@
                             '<input type="checkbox" class="form-checkbox" />',
                             'Mã phiếu điều trị',
                             'Tên bệnh nhân',
-                            'Chẩn đoán',
                             'Ngày bắt đầu',
                             'Ngày kết thúc',
                             'Trạng thái',
@@ -252,14 +250,14 @@
                             }
                         },
                         {
-                            select: 7,
+                            select: 5,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;
                             }
                         },
                         {
-                            select: 8,
+                            select: 6,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;
@@ -327,6 +325,33 @@
             }
         }));
     });
+
+    function getTreatmentRecordStatusBadge(status) {
+        let text = '';
+        let style = '';
+        switch (status) {
+            case 1: // Đang trong đợt điều trị
+                text = 'Đang điều trị';
+                style = 'background:#3b82f6;color:white;'; // xanh dương
+                break;
+            case 2: // Đã hoàn thành đợt điều trị
+                text = 'Hoàn thành';
+                style = 'background:#22c55e;color:white;'; // xanh lá
+                break;
+            case 3: // Đã kết thúc
+                text = 'Kết thúc';
+                style = 'background:#a3a3a3;color:white;'; // xám
+                break;
+            case 4: // Đã hủy bỏ
+                text = 'Hủy bỏ';
+                style = 'background:#ef4444;color:white;'; // đỏ
+                break;
+            default:
+                text = 'Không xác định';
+                style = 'background:#a3a3a3;color:white;';
+        }
+        return `<span style="display:inline-block;min-width:80px;text-align:center;${style}border-radius:6px;padding:4px 12px;font-size:13px;font-weight:bold;">${text}</span>`;
+    }
 </script>
 
 @if (TempData["SuccessMessage"] != null)
