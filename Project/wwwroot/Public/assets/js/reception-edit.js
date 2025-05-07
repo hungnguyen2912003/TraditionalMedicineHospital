@@ -731,6 +731,8 @@ document.addEventListener('alpine:init', () => {
 
             // Regulations
             this.regulations.forEach((reg, index) => {
+                // Bỏ qua dòng chưa chọn quy định hoặc chưa chọn ngày thực hiện
+                if (!reg.RegulationId || !reg.ExecutionDate) return;
                 formData.append(`Regulations[${index}].Code`, reg.Code || '');
                 formData.append(`Regulations[${index}].RegulationId`, reg.RegulationId || '');
                 formData.append(`Regulations[${index}].ExecutionDate`, reg.ExecutionDate || '');
@@ -798,20 +800,6 @@ document.addEventListener('alpine:init', () => {
             $.validator.addMethod("phone", function (value, element) {
                 return this.optional(element) || /^\+?\d{10,12}$/.test(value);
             }, "Số điện thoại không hợp lệ.");
-
-            $.validator.addMethod("over14", function (value, element) {
-                var dob = $("#TreatmentRecord.StartDate").val();
-                if (!dob) return false;
-                var dateParts = dob.split("/");
-                var dobDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
-                var today = new Date();
-                var age = today.getFullYear() - dobDate.getFullYear();
-                var monthDiff = today.getMonth() - dobDate.getMonth();
-                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
-                    age--;
-                }
-                return age >= 14;
-            }, "Bệnh nhân phải trên 14 tuổi để yêu cầu CCCD.");
 
             $.validator.addMethod("notExpired", function (value, element) {
                 if (!value) return true; // Skip validation if no date entered
@@ -931,16 +919,15 @@ document.addEventListener('alpine:init', () => {
                         }
                     },
                     "Patient.Address": {
-                        required: true,
-                        maxlength: 500
+                        required: true
                     },
                     "Patient.EmailAddress": {
                         email: true
                     },
                     "Patient.PhoneNumber": {
                         required: true,
-                        minlength: 10,
-                        maxlength: 15,
+                        minlength: 11,
+                        maxlength: 11,
                         phone: true
                     },
                     "TreatmentRecord.StartDate": {
@@ -1030,16 +1017,15 @@ document.addEventListener('alpine:init', () => {
                         remote: "Căn cước công dân đã được đăng ký trên hệ thống"
                     },
                     "Patient.Address": {
-                        required: "Địa chỉ không được bỏ trống",
-                        maxlength: "Địa chỉ không được vượt quá 500 ký tự"
+                        required: "Địa chỉ không được bỏ trống"
                     },
                     "Patient.EmailAddress": {
                         email: "Email không hợp lệ"
                     },
                     "Patient.PhoneNumber": {
                         required: "Số điện thoại không được bỏ trống",
-                        minlength: "Số điện thoại phải có ít nhất 10 ký tự",
-                        maxlength: "Số điện thoại không được vượt quá 15 ký tự",
+                        minlength: "Số điện thoại phải có ít nhất 11 ký tự",
+                        maxlength: "Số điện thoại không được vượt quá 11 ký tự",
                         phone: "Số điện thoại không hợp lệ"
                     },
                     "TreatmentRecord.StartDate": {
@@ -1185,6 +1171,11 @@ document.addEventListener('alpine:init', () => {
                     // Append other form data
                     this.appendFormData(formData);
 
+                    if (!validateRegulations()) {
+                        notyf.error("Vui lòng kiểm tra thông tin nhập.");
+                        this.overlay.style.display = 'none';
+                        return;
+                    }
 
                     fetch('/Staff/Receptions/Edit', {
                         method: 'POST',
@@ -1800,3 +1791,55 @@ function editAssignment(code) {
         notyf.error('Không thể xác thực thông tin bác sĩ');
     });
 }
+
+// Validate quy định khi nhấn Lưu
+function validateRegulations() {
+    let isValid = true;
+    // Xóa lỗi cũ và viền đỏ cũ
+    $('.regulation-error').remove();
+    $('.regulation-select, .regulation-date').removeClass('border-red-500');
+
+    // Duyệt qua từng dòng quy định
+    $('[name^="Regulations["]').each(function () {
+        const $row = $(this).closest('.grid');
+        const index = $(this).attr('name').match(/Regulations\[(\d+)\]/)[1];
+        const $regulationSelect = $('#regulationId-' + index);
+        const $executionDate = $('#executionDate-' + index);
+
+        // Kiểm tra chọn quy định
+        if ($regulationSelect.length && !$regulationSelect.val()) {
+            isValid = false;
+            if ($regulationSelect.next('.regulation-error').length === 0) {
+                $regulationSelect.after('<div class="text-danger regulation-error">Vui lòng chọn quy định</div>');
+            }
+            $regulationSelect.addClass('border-red-500');
+            // Nếu chưa chọn quy định thì KHÔNG kiểm tra ngày thực hiện
+            return;
+        }
+        // Kiểm tra ngày thực hiện (chỉ khi đã chọn quy định)
+        if ($executionDate.length && !$executionDate.val()) {
+            isValid = false;
+            if ($executionDate.next('.regulation-error').length === 0) {
+                $executionDate.after('<div class="text-danger regulation-error">Vui lòng chọn ngày thực hiện</div>');
+            }
+            $executionDate.addClass('border-red-500');
+        }
+    });
+    return isValid;
+}
+
+$(document).on('change input', '.regulation-select, .regulation-date', function () {
+    if ($(this).val()) {
+        $(this).removeClass('border-red-500');
+        $(this).next('.regulation-error').remove();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    var hiInput = document.getElementById('HealthInsuranceNumber');
+    if (hiInput) {
+        hiInput.addEventListener('input', function () {
+            this.value = this.value.toUpperCase();
+        });
+    }
+});

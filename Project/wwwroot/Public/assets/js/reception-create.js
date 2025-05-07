@@ -231,6 +231,10 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
+        removeRegulation(index) {
+            this.regulations.splice(index, 1);
+        },
+
         /**
          * Get available regulations for a specific select
          */
@@ -726,36 +730,12 @@ document.addEventListener('alpine:init', () => {
         },
 
         /**
-         * Check if person is over 14 years old
-         */
-        isOver14(dateOfBirth) {
-            if (!dateOfBirth) return false;
-
-            const parts = dateOfBirth.split('/');
-            const birthDate = new Date(parts[2], parts[1] - 1, parts[0]);
-            const today = new Date();
-            const age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                return age - 1 >= 14;
-            }
-
-            return age >= 14;
-        },
-
-        /**
          * Set up form validation
          */
         setupValidation() {
             const self = this; // Store reference to component
 
             // Add custom validation methods
-            $.validator.addMethod("requiredIfOver14", function (value, element) {
-                const dateOfBirth = $("#DateOfBirth").val();
-                if (!dateOfBirth) return true;
-                return self.isOver14(dateOfBirth) ? value.trim().length > 0 : true;
-            }, "Người trên 14 tuổi bắt buộc phải nhập CCCD");
 
             $.validator.addMethod("notExpired", function (value, element) {
                 // Only validate if health insurance checkbox is checked and there is a value
@@ -779,7 +759,19 @@ document.addEventListener('alpine:init', () => {
                     "DateOfBirth": { required: true, dateFormat: true },
                     "Gender": { required: true },
                     "IdentityNumber": {
-                        requiredIfOver14: true,
+                        required: function () {
+                            var dob = $("input[name='DateOfBirth']").val();
+                            if (!dob) return false;
+                            var dateParts = dob.split("/");
+                            var dobDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                            var today = new Date();
+                            var age = today.getFullYear() - dobDate.getFullYear();
+                            var monthDiff = today.getMonth() - dobDate.getMonth();
+                            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
+                                age--;
+                            }
+                            return age >= 14;
+                        },
                         minlength: 9,
                         maxlength: 12,
                         remote: {
@@ -808,6 +800,8 @@ document.addEventListener('alpine:init', () => {
                     },
                     "PhoneNumber": {
                         required: true,
+                        minlength: 11,
+                        maxlength: 11,
                         phone: true,
                         remote: {
                             url: "/api/validation/patient/check",
@@ -833,21 +827,13 @@ document.addEventListener('alpine:init', () => {
                             }
                         }
                     },
-                    "Address": { required: true, minlength: 5, maxlength: 500 },
+                    "Address": { required: true },
                     "Email": { email: true },
                     "HealthInsuranceNumber": {
-                        required: function () {
-                            return $('#HasHealthInsurance').is(':checked');
-                        },
-                        minlength: function () {
-                            return $('#HasHealthInsurance').is(':checked') ? 15 : 0;
-                        },
-                        maxlength: function () {
-                            return $('#HasHealthInsurance').is(':checked') ? 15 : undefined;
-                        },
-                        customPattern: function () {
-                            return $('#HasHealthInsurance').is(':checked') ? /^[0-9A-Z]*$/ : undefined;
-                        },
+                        required: () => $('#HasHealthInsurance').is(':checked'),
+                        minlength: 15,
+                        maxlength: 15,
+                        customPattern: /^[0-9A-Z]*$/,
                         remote: {
                             url: "/api/validation/patient/check",
                             type: "GET",
@@ -876,20 +862,12 @@ document.addEventListener('alpine:init', () => {
                         }
                     },
                     "HealthInsuranceExpiryDate": {
-                        required: function () {
-                            return $('#HasHealthInsurance').is(':checked');
-                        },
-                        dateFormat: function () {
-                            return $('#HasHealthInsurance').is(':checked');
-                        },
-                        notExpired: function () {
-                            return $('#HasHealthInsurance').is(':checked');
-                        }
+                        required: () => $('#HasHealthInsurance').is(':checked'),
+                        dateFormat: true,
+                        notExpired: true
                     },
                     "HealthInsurancePlaceOfRegistration": {
-                        required: function () {
-                            return $('#HasHealthInsurance').is(':checked');
-                        }
+                        required: () => $('#HasHealthInsurance').is(':checked')
                     },
                     "Diagnosis": { required: true },
                     "StartDate": { required: true, dateFormat: true, notPastDate: true },
@@ -921,32 +899,32 @@ document.addEventListener('alpine:init', () => {
                     },
                     "Gender": { required: "Giới tính không được bỏ trống." },
                     "IdentityNumber": {
-                        requiredIfOver14: "Người trên 14 tuổi bắt buộc phải nhập CCCD",
+                        required: "Căn cước công dân không được bỏ trống",
                         minlength: "Số CMND/CCCD phải có ít nhất 9 ký tự.",
                         maxlength: "Số CMND/CCCD không được vượt quá 12 ký tự.",
                         remote: "Số CMND/CCCD đã được đăng ký trước đó trên hệ thống"
                     },
                     "PhoneNumber": {
                         required: "Số điện thoại không được bỏ trống.",
+                        minlength: "Số điện thoại phải có ít nhất 11 ký tự.",
+                        maxlength: "Số điện thoại không được vượt quá 11 ký tự.",
                         phone: "Số điện thoại không hợp lệ.",
                         remote: "Số điện thoại đã được đăng ký trước đó trên hệ thống"
                     },
                     "Address": {
-                        required: "Địa chỉ không được bỏ trống.",
-                        minlength: "Địa chỉ phải có ít nhất 5 ký tự.",
-                        maxlength: "Địa chỉ không được vượt quá 500 ký tự."
+                        required: "Địa chỉ không được bỏ trống."
                     },
                     "Email": { email: "Email không hợp lệ." },
                     "HealthInsuranceNumber": {
-                        required: "Số thẻ BHYT không được bỏ trống.",
-                        minlength: "Số thẻ BHYT có ít nhất 15 số",
-                        maxlength: "Số thẻ BHYT không được vượt quá 15 số",
-                        customPattern: "Số thẻ BHYT chỉ được nhập số và chữ.",
-                        remote: "Số thẻ BHYT đã được đăng ký trước đó trên hệ thống"
+                        required: "Số BHYT không được bỏ trống",
+                        minlength: "Số BHYT phải có 15 ký tự",
+                        maxlength: "Số BHYT phải có 15 ký tự",
+                        customPattern: "Số BHYT chỉ được nhập số và chữ in hoa",
+                        remote: "Số BHYT đã được đăng ký trên hệ thống"
                     },
                     "HealthInsuranceExpiryDate": {
-                        required: "Ngày hết hạn không được bỏ trống.",
-                        dateFormat: "Ngày hết hạn không hợp lệ.",
+                        required: "Ngày hết hạn không được bỏ trống",
+                        dateFormat: "Ngày hết hạn không hợp lệ",
                         notExpired: "Thẻ BHYT đã hết hạn"
                     },
                     "HealthInsurancePlaceOfRegistration": {
@@ -997,15 +975,21 @@ document.addEventListener('alpine:init', () => {
                 errorPlacement: function (error, element) {
                     if (element.is('select')) {
                         const wrapper = element.closest('.select-wrapper');
-                        error.insertAfter(wrapper.length ? wrapper : element);
+                        if (wrapper.length) {
+                            error.insertAfter(wrapper);
+                        } else {
+                            error.insertAfter(element);
+                        }
                     } else {
                         error.insertAfter(element);
                     }
                 },
-                submitHandler: function (form) {
-                    self.submitForm();
-                    return false;
-                }
+                onfocusout: function (element) {
+                    if ($(element).val() === '' || $(element).val().length > 0) {
+                        this.element(element);
+                    }
+                },
+                onkeyup: false
             });
 
             // Add validation for select elements
@@ -1031,6 +1015,10 @@ document.addEventListener('alpine:init', () => {
                     $('.health-insurance-error').remove();
                 }
             });
+
+            $('#DateOfBirth').on('change', function () {
+                $("#IdentityNumber").valid();
+            });
         },
 
         /**
@@ -1039,6 +1027,13 @@ document.addEventListener('alpine:init', () => {
         submitForm() {
             if (!$("#receptionForm").valid()) {
                 notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
+                return;
+            }
+
+            if (!validateRegulations()) {
+                notyf.error("Vui lòng kiểm tra thông tin nhập.");
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) overlay.style.display = 'none';
                 return;
             }
 
@@ -1229,7 +1224,56 @@ function checkTreatmentMethod() {
     }
 }
 
+// Validate quy định khi nhấn Lưu
+function validateRegulations() {
+    let isValid = true;
+    // Xóa lỗi cũ và viền đỏ cũ
+    $('.regulation-error').remove();
+    $('.regulation-select, .regulation-date').removeClass('border-red-500');
+
+    // Duyệt qua từng dòng quy định
+    $('[name^="Regulations["]').each(function () {
+        const $row = $(this).closest('.grid');
+        const index = $(this).attr('name').match(/Regulations\[(\d+)\]/)[1];
+        const $regulationSelect = $('#regulationId-' + index);
+        const $executionDate = $('#executionDate-' + index);
+
+        // Kiểm tra chọn quy định
+        if ($regulationSelect.length && !$regulationSelect.val()) {
+            isValid = false;
+            if ($regulationSelect.next('.regulation-error').length === 0) {
+                $regulationSelect.after('<div class="text-danger regulation-error">Vui lòng chọn quy định</div>');
+            }
+            $regulationSelect.addClass('border-red-500');
+            // Nếu chưa chọn quy định thì KHÔNG kiểm tra ngày thực hiện
+            return;
+        }
+        // Kiểm tra ngày thực hiện (chỉ khi đã chọn quy định)
+        if ($executionDate.length && !$executionDate.val()) {
+            isValid = false;
+            if ($executionDate.next('.regulation-error').length === 0) {
+                $executionDate.after('<div class="text-danger regulation-error">Vui lòng chọn ngày thực hiện</div>');
+            }
+            $executionDate.addClass('border-red-500');
+        }
+    });
+    return isValid;
+}
+
+$(document).on('change input', '.regulation-select, .regulation-date', function () {
+    if ($(this).val()) {
+        $(this).removeClass('border-red-500');
+        $(this).next('.regulation-error').remove();
+    }
+});
+
 // Call this when the page loads to set initial state
 document.addEventListener('DOMContentLoaded', function () {
     checkTreatmentMethod();
+    var hiInput = document.getElementById('HealthInsuranceNumber');
+    if (hiInput) {
+        hiInput.addEventListener('input', function () {
+            this.value = this.value.toUpperCase();
+        });
+    }
 });
