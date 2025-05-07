@@ -75,7 +75,7 @@ function displayNote(note, type, identifier) {
         useBootstrap: false,
         buttons: {
             close: {
-                text: 'ĐÓNG',
+                text: 'Đóng',
                 btnClass: 'btn-default'
             }
         }
@@ -1783,11 +1783,9 @@ function editAssignment(code) {
                 }
             });
         }).catch(error => {
-            console.error('Error ensuring current doctor:', error);
             notyf.error('Không thể xác thực thông tin bác sĩ');
         });
     }).catch(error => {
-        console.error('Error ensuring current doctor:', error);
         notyf.error('Không thể xác thực thông tin bác sĩ');
     });
 }
