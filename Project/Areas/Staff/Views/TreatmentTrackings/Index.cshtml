@@ -26,7 +26,8 @@
     <div x-data="list">
         <div class="panel border-[#e0e6ed] px-0 dark:border-[#1b2e4b] mt-3">
             <div class="px-5">
-                <div class="text-2xl font-bold mb-6">Danh sách theo dõi điều trị</div>
+                <div class="text-2xl font-bold mb-6">Danh sách theo dõi điều trị phòng:
+                    @Model.FirstOrDefault()?.RoomName</div>
                 <hr class="mb-6">
                 <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
                     <div class="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
@@ -48,6 +49,22 @@
                                 </svg>
                                 Thêm theo dõi
                             </a>
+                        </div>
+                        <div class="flex gap-2 ml-4">
+                            <div class="group relative">
+                                <input type="text" placeholder="Tìm kiếm..." id="customSearchInput"
+                                    class="peer form-input ltr:pr-8 rtl:pl-8">
+                                <div
+                                    class="absolute top-1/2 -translate-y-1/2 peer-focus:text-primary ltr:right-[11px] rtl:left-[11px]">
+                                    <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" class="h-4 w-4">
+                                        <circle cx="11.5" cy="11.5" r="9.5" stroke="currentColor" stroke-width="1.5"
+                                            opacity="0.5"></circle>
+                                        <path d="M18.5 18.5L22 22" stroke="currentColor" stroke-width="1.5"
+                                            stroke-linecap="round"></path>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="flex w-1/2 flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
@@ -88,6 +105,78 @@
                                 Tải xuống
                             </button>
                         </div>
+                    </div>
+                </div>
+                <!-- FILTER BAR START -->
+                <div class="flex flex-col lg:flex-row gap-6">
+                    <div class="w-auto mx-auto p-4 rounded-lg">
+                        <div class="flex flex-col sm:flex-row gap-5 mb-4 justify-center items-center">
+                            <div class="w-48">
+                                <input id="filterDate" type="text"
+                                    class="filter-input filter-bar-item form-input w-full mt-1 p-2 border rounded flatpickr"
+                                    placeholder="Chọn ngày theo dõi..." autocomplete="off" />
+                            </div>
+                            <div class="w-48">
+                                <div class="select-wrapper">
+                                    <select id="filterPatient"
+                                        class="filter-input filter-bar-item form-input w-full mt-1 p-2 border rounded choices"
+                                        placeholder="Chọn bệnh nhân..."></select>
+                                </div>
+                            </div>
+                            <div class="w-48">
+                                <div class="select-wrapper">
+                                    <select id="filterStatus"
+                                        class="filter-input filter-bar-item w-full mt-1 p-2 border rounded choices"
+                                        placeholder="Chọn trạng thái..."></select>
+                                </div>
+                            </div>
+                            <div class="w-32">
+                                <button id="btnFilter" type="button"
+                                    class="btn btn-primary filter-bar-item w-full mr-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="inline-block mr-2" width="20"
+                                        height="20" fill="none" viewBox="0 0 24 24">
+                                        <path d="M4 5h16M6 10h12M9 15h6M10 20h4" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                    Lọc
+                                </button>
+                            </div>
+                            <div class="w-32">
+                                <button id="btnResetFilter" type="button"
+                                    class="btn btn-secondary filter-bar-item w-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="inline-block mr-2" width="18"
+                                        height="18" fill="none" viewBox="0 0 24 24">
+                                        <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                    Hủy lọc
+                                </button>
+                            </div>
+                            <div class="w-40">
+                                <button id="btnAdvancedFilter" type="button"
+                                    class="btn btn-info filter-bar-item w-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="inline-block mr-2" width="20"
+                                        height="20" fill="none" viewBox="0 0 24 24">
+                                        <path d="M3 5h18M6 9h12M9 13h6M10.5 17h3" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" />
+                                        <path d="M8 21h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            opacity="0.5" />
+                                    </svg>
+                                    Lọc nâng cao
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- FILTER BAR END -->
+                <div id="advancedFilter" class="flex justify-center gap-4" style="display:none;">
+                    <div>
+                        <input id="filterDateFrom" type="text" class="form-input flatpickr w-56"
+                            placeholder="Từ ngày..." autocomplete="off" />
+                    </div>
+                    <div>
+                        <input id="filterDateTo" type="text" class="form-input flatpickr w-56" placeholder="Đến ngày..."
+                            autocomplete="off" />
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -160,6 +249,7 @@
                 }
                 this.filteredList = [...this.entityList];
                 window.entityList = this.entityList;
+                window.list = this;
                 this.initializeTable();
 
                 document.querySelector('#myTable thead').addEventListener('change', (e) => {
@@ -209,7 +299,6 @@
                     `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
                     entity.code,
                     entity.patientName,
-                    entity.roomName,
                     new Date(entity.trackingDate).toLocaleDateString('vi-VN'),
                     this.getTrackingStatusBadge(entity.status),
                     `<div class="flex gap-4">
@@ -234,7 +323,6 @@
                             '<input type="checkbox" class="form-checkbox" />',
                             'Mã theo dõi điều trị',
                             'Tên bệnh nhân',
-                            'Tên phòng',
                             'Ngày theo dõi',
                             'Trạng thái',
                             'Thao tác'
@@ -244,7 +332,7 @@
                     perPage: 10,
                     perPageSelect: [10, 20, 30, 50, 100],
                     firstLast: true,
-                    searchable: true,
+                    searchable: false,
                     firstText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
                     lastText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M11 19L17 12L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M6.99976 19L12.9998 12L6.99976 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
                     prevText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M15 5L9 12L15 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -266,14 +354,14 @@
                             }
                         },
                         {
-                            select: 5,
+                            select: 4,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;
                             }
                         },
                         {
-                            select: 6,
+                            select: 5,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;
@@ -404,6 +492,43 @@
                         style = 'background:#a3a3a3;color:white;'; // xám
                 }
                 return `<span style="display:inline-block;min-width:80px;text-align:center;${style}border-radius:6px;padding:4px 12px;font-size:13px;font-weight:bold;">${text}</span>`;
+            },
+
+            filterList(patient, date, status, dateFrom, dateTo, showNotyf = true) {
+                let filtered = this.entityList;
+                if (patient) {
+                    filtered = filtered.filter(e => e.patientName === patient);
+                }
+                if (date) {
+                    const [d, m, y] = date.split('/');
+                    const filterDate = new Date(`${y}-${m}-${d}`).toISOString().slice(0, 10);
+                    filtered = filtered.filter(e => {
+                        const entityDate = new Date(e.trackingDate).toISOString().slice(0, 10);
+                        return entityDate === filterDate;
+                    });
+                }
+                if (status) {
+                    filtered = filtered.filter(e => String(e.status) === String(status));
+                }
+                if (dateFrom || dateTo) {
+                    filtered = filtered.filter(e => {
+                        const entityDate = new Date(e.trackingDate);
+                        const entityDateStr = entityDate.toISOString().slice(0, 10);
+                        let fromStr = dateFrom ? dateFrom.split('/').reverse().join('-') : null;
+                        let toStr = dateTo ? dateTo.split('/').reverse().join('-') : null;
+                        if (fromStr && entityDateStr < fromStr) return false;
+                        if (toStr && entityDateStr > toStr) return false;
+                        return true;
+                    });
+                }
+                this.filteredList = filtered;
+                if (this.datatable) {
+                    this.datatable.destroy();
+                }
+                this.initializeTable();
+                if (showNotyf && filtered.length > 0) {
+                    notyf.success('Lọc thành công!');
+                }
             }
         }));
     });
@@ -510,6 +635,46 @@
                 box-shadow: 0 0 0 2px #22c55e33;
                 background: #f6fff8;
             }
+
+            .filter-bar-item {
+                height: 40px !important;
+                min-height: 40px !important;
+                padding-top: 0.375rem !important;
+                padding-bottom: 0.375rem !important;
+                box-sizing: border-box;
+            }
+
+            .filter-bar-container {
+                flex-wrap: nowrap !important;
+                justify-content: center;
+                gap: 24px;
+            }
+
+            .filter-bar-container>* {
+                flex: 0 0 auto !important;
+            }
+
+            #filterPatient+.choices,
+            #filterStatus+.choices {
+                width: 260px !important;
+                min-width: 260px !important;
+                max-width: 260px !important;
+                flex: none !important;
+            }
+
+            #filterPatient+.choices .choices__inner,
+            #filterStatus+.choices .choices__inner {
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box;
+            }
+
+            input:disabled {
+                cursor: not-allowed;
+                background: #f3f4f6 !important;
+                color: #a3a3a3 !important;
+            }
         </style>
 
         <script>
@@ -568,8 +733,8 @@
                             if ($('#modalPatientTableBody tr').length === 0) {
                                 $('#modalPatientTableBody').html(
                                     `<tr><td colspan="5" style="text-align:center;color:#888;font-style:italic;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Không còn bệnh nhân nào cần chấm theo dõi trong ngày hôm nay
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </td></tr>`
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Không còn bệnh nhân nào cần chấm theo dõi trong ngày hôm nay
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </td></tr>`
                                 );
                             }
                         } else {
@@ -615,23 +780,23 @@
                 // Set trạng thái, tên bệnh nhân, ghi chú
                 $('#editModalPatientTableBody').empty();
                 $('#editModalPatientTableBody').append(`
-                                                                                                                                                                            <tr>
-                                                                                                                                                                                <td style="font-weight:bold;">${entity ? entity.patientName : ''}</td>
-                                                                                                                                                                                <td style="text-align:center;">
-                                                                                                                                                                                    <div class="btn-group d-flex justify-center" style="display:flex;gap:12px;justify-content:center;">
-                                                                                                                                                                                        <button class="btn btn-success btn-status${entity && entity.status == 1 ? ' active-status' : ''}" data-status="1">Có khám</button>
-                                                                                                                                                                                        <button class="btn btn-warning btn-status${entity && entity.status == 2 ? ' active-status' : ''}" data-status="2">Xin phép</button>
-                                                                                                                                                                                        <button class="btn btn-danger btn-status${entity && entity.status == 3 ? ' active-status' : ''}" data-status="3">Không khám</button>
-                                                                                                                                                                                    </div>
-                                                                                                                                                                                </td>
-                                                                                                                                                                                <td style="text-align:center;">
-                                                                                                                                                                                    <input type="text" class="form-control note-input" placeholder="Nhập ghi chú..." value="${entity && entity.note ? entity.note.replace(/\"/g, '&quot;') : ''}" style="width: 220px; margin: 0 auto;" />
-                                                                                                                                                                                </td>
-                                                                                                                                                                                <td style="text-align:center;">
-                                                                                                                                                                                    <button class="btn btn-primary btn-update">Cập nhật</button>
-                                                                                                                                                                                </td>
-                                                                                                                                                                            </tr>
-                                                                                                                                                                        `);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td style="font-weight:bold;">${entity ? entity.patientName : ''}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td style="text-align:center;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="btn-group d-flex justify-center" style="display:flex;gap:12px;justify-content:center;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <button class="btn btn-success btn-status${entity && entity.status == 1 ? ' active-status' : ''}" data-status="1">Có khám</button>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <button class="btn btn-warning btn-status${entity && entity.status == 2 ? ' active-status' : ''}" data-status="2">Xin phép</button>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <button class="btn btn-danger btn-status${entity && entity.status == 3 ? ' active-status' : ''}" data-status="3">Không khám</button>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td style="text-align:center;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <input type="text" class="form-control note-input" placeholder="Nhập ghi chú..." value="${entity && entity.note ? entity.note.replace(/\"/g, '&quot;') : ''}" style="width: 220px; margin: 0 auto;" />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td style="text-align:center;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <button class="btn btn-primary btn-update">Cập nhật</button>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `);
 
                 $('#editTrackingModal').removeClass('hidden closing');
             });
@@ -686,5 +851,222 @@
                         }
                     })
                     .catch(() => notyf.error('Có lỗi khi gửi dữ liệu!'));
+            });
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Lấy danh sách bệnh nhân duy nhất
+                const entityList = window.entityList || [];
+                const patientNames = [...new Set(entityList.map(e => e.patientName).filter(Boolean))];
+                const patientSelect = document.getElementById('filterPatient');
+                patientSelect.innerHTML = '<option value="">Chọn bệnh nhân...</option>' +
+                    patientNames.map(name => `<option value="${name}">${name}</option>`).join('');
+
+                // Đổ option cho trạng thái
+                const statusSelect = document.getElementById('filterStatus');
+                const statusOptions = [
+                    { value: '', text: 'Chọn trạng thái...' },
+                    { value: 1, text: 'Có khám' },
+                    { value: 2, text: 'Xin phép' },
+                    { value: 3, text: 'Không khám' }
+                ];
+                statusSelect.innerHTML = statusOptions.map(opt => `<option value="${opt.value}">${opt.text}</option>`).join('');
+
+                if (window.flatpickr) {
+                    flatpickr("#filterDate", {
+                        dateFormat: "d/m/Y",
+                        allowInput: true,
+                    });
+                    flatpickr("#filterDateFrom", {
+                        dateFormat: "d/m/Y",
+                        allowInput: true,
+                    });
+                    flatpickr("#filterDateTo", {
+                        dateFormat: "d/m/Y",
+                        allowInput: true,
+                    });
+                }
+
+                // Chỉ khởi tạo Choices.js sau khi đã đổ option xong và chưa có instance
+                if (window.Choices) {
+                    if (!patientSelect.classList.contains('choices-initialized')) {
+                        window.patientChoices = new Choices(patientSelect, {
+                            searchEnabled: true,
+                            searchPlaceholderValue: 'Tìm kiếm...',
+                            removeItemButton: true,
+                            noResultsText: 'Không tìm thấy kết quả',
+                            noChoicesText: 'Không có lựa chọn nào',
+                            itemSelectText: ''
+                        });
+                        patientSelect.classList.add('choices-initialized');
+                    }
+                    if (!statusSelect.classList.contains('choices-initialized')) {
+                        window.statusChoices = new Choices(statusSelect, {
+                            searchEnabled: true,
+                            searchPlaceholderValue: 'Tìm kiếm...',
+                            removeItemButton: true,
+                            noResultsText: 'Không tìm thấy kết quả',
+                            noChoicesText: 'Không có lựa chọn nào',
+                            itemSelectText: ''
+                        });
+                        statusSelect.classList.add('choices-initialized');
+                    }
+                    setTimeout(function () {
+                        document.querySelectorAll('#filterPatient + .choices, #filterStatus + .choices').forEach(el => {
+                            el.style.width = '260px';
+                            el.style.minWidth = '260px';
+                            el.style.maxWidth = '260px';
+                            el.style.flex = 'none';
+                        });
+                        document.querySelectorAll('#filterPatient + .choices .choices__inner, #filterStatus + .choices .choices__inner').forEach(el => {
+                            el.style.width = '100%';
+                            el.style.minWidth = '100%';
+                            el.style.maxWidth = '100%';
+                        });
+                    }, 200);
+                }
+            });
+        </script>
+
+        <script>
+            // Lọc danh sách khi nhấn nút Lọc
+            $(document).on('click', '#btnFilter', function () {
+                const patient = $('#filterPatient').val();
+                const date = $('#filterDate').val();
+                const status = $('#filterStatus').val();
+                const dateFrom = $('#filterDateFrom').val();
+                const dateTo = $('#filterDateTo').val();
+
+                // Nếu chỉ nhập 1 trong 2 trường khoảng ngày thì báo lỗi
+                if ((dateFrom && !dateTo) || (!dateFrom && dateTo)) {
+                    notyf.error('Vui lòng chọn đầy đủ khoảng thời gian khi lọc nâng cao!');
+                    return;
+                }
+
+                // Nếu nhập đủ cả 2 trường thì kiểm tra logic ngày
+                if (dateFrom && dateTo) {
+                    // Chuyển về dạng yyyy-mm-dd để so sánh
+                    const fromParts = dateFrom.split('/');
+                    const toParts = dateTo.split('/');
+                    const fromDate = new Date(`${fromParts[2]}-${fromParts[1]}-${fromParts[0]}`);
+                    const toDate = new Date(`${toParts[2]}-${toParts[1]}-${toParts[0]}`);
+                    if (fromDate > toDate) {
+                        notyf.error('Khoảng thời gian để lọc không hợp lệ!');
+                        return;
+                    }
+                }
+
+                // Nếu không có trường nào được chọn
+                if (!patient && !date && !status && !dateFrom && !dateTo) {
+                    notyf.error('Cần chọn ít nhất một trường để lọc!');
+                    return;
+                }
+                if (window.list && typeof window.list.filterList === 'function') {
+                    window.list.filterList(patient, date, status, dateFrom, dateTo);
+                }
+            });
+        </script>
+
+        <script>
+            $(document).on('click', '#btnResetFilter', function () {
+                // Reset input ngày đơn
+                $('#filterDate').val('');
+                // Reset input khoảng ngày
+                $('#filterDateFrom').val('');
+                $('#filterDateTo').val('');
+
+                // Reset Choices.js cho select bệnh nhân và trạng thái
+                if (window.patientChoices) {
+                    window.patientChoices.removeActiveItems();
+                    window.patientChoices.setChoiceByValue('');
+                } else {
+                    $('#filterPatient').val('').trigger('change');
+                }
+                if (window.statusChoices) {
+                    window.statusChoices.removeActiveItems();
+                    window.statusChoices.setChoiceByValue('');
+                } else {
+                    $('#filterStatus').val('').trigger('change');
+                }
+
+                if (window.list && typeof window.list.filterList === 'function') {
+                    window.list.filterList('', '', '', '', '', false);
+                }
+            });
+        </script>
+
+        <script>
+            // Toggle advanced filter
+            $(document).on('click', '#btnAdvancedFilter', function () {
+                $('#advancedFilter').slideToggle(150);
+
+                setTimeout(function () {
+                    if ($('#advancedFilter').is(':visible')) {
+                        // Khi bật lọc nâng cao: disable và xóa giá trị ngày đơn
+                        $('#filterDate').val('').prop('disabled', true);
+
+                        // Khởi tạo lại flatpickr cho 2 input nếu chưa có
+                        if (!$('#filterDateFrom').hasClass('flatpickr-input')) {
+                            flatpickr("#filterDateFrom", {
+                                dateFormat: "d/m/Y",
+                                allowInput: true,
+                            });
+                        }
+                        if (!$('#filterDateTo').hasClass('flatpickr-input')) {
+                            flatpickr("#filterDateTo", {
+                                dateFormat: "d/m/Y",
+                                allowInput: true,
+                            });
+                        }
+                    } else {
+                        // Khi tắt lọc nâng cao: enable lại ngày đơn
+                        $('#filterDate').prop('disabled', false);
+                    }
+                }, 160); // slideToggle 150ms, nên để 160ms
+            });
+        </script>
+
+        <script>
+            $('#filterDate').on('change', function () {
+                if ($(this).val()) {
+                    $('#filterDateFrom').val('');
+                    $('#filterDateTo').val('');
+                }
+            });
+        </script>
+
+        <script>
+            $(document).on('click', '#customSearchBtn', function () {
+                const keyword = $('#customSearchInput').val().toLowerCase().trim();
+                if (window.list) {
+                    // Lọc trên filteredList hiện tại hoặc entityList gốc
+                    let filtered = window.list.entityList.filter(e =>
+                        (e.code && e.code.toLowerCase().includes(keyword)) ||
+                        (e.patientName && e.patientName.toLowerCase().includes(keyword)) ||
+                        (e.trackingDate && new Date(e.trackingDate).toLocaleDateString('vi-VN').includes(keyword)) ||
+                        (e.status && getEnumDisplayName('TrackingStatus', e.status).toLowerCase().includes(keyword))
+                    );
+                    window.list.filteredList = filtered;
+                    if (window.list.datatable) window.list.datatable.destroy();
+                    window.list.initializeTable();
+                }
+            });
+        </script>
+
+        <script>
+            $('#customSearchInput').on('input', function () {
+                const keyword = $(this).val().toLowerCase().trim();
+                if (window.list) {
+                    let filtered = window.list.entityList.filter(e =>
+                        (e.code && e.code.toLowerCase().includes(keyword)) ||
+                        (e.patientName && e.patientName.toLowerCase().includes(keyword)) ||
+                        (e.trackingDate && new Date(e.trackingDate).toLocaleDateString('vi-VN').includes(keyword)) ||
+                        (e.status && getEnumDisplayName('TrackingStatus', e.status).toLowerCase().includes(keyword))
+                    );
+                    window.list.filteredList = filtered;
+                    if (window.list.datatable) window.list.datatable.destroy();
+                    window.list.initializeTable();
+                }
             });
         </script>
