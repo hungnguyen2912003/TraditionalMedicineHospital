@@ -43,7 +43,9 @@
                     </div>
                     <div>
                         <label for="role">Vai trò</label>
-                        <input id="role" type="text" value="@Model.Role.ToString()" readonly class="form-input">
+                        <input id="role" type="text"
+                            value="@(Model.Role.ToString() == "Admin" ? "Quản trị viên" : "Nhân viên")" readonly
+                            class="form-input">
                     </div>
                     <div>
                         <label for="employeeName">Nhân sự liên kết</label>
