@@ -20,16 +20,22 @@ namespace Project.Repositories.Implementations
         public async Task<User?> GetByUsernameAsync(string username)
         {
             return await _context.users
-                .Include(e => e.Employee!)
-                    .ThenInclude(r => r.Room!)
-                        .ThenInclude(d => d.Department)
+                .Include(u => u.Employee!)
+                    .ThenInclude(e => e.EmployeeCategory)
+                .Include(u => u.Employee!)
+                    .ThenInclude(e => e.Room!)
+                        .ThenInclude(r => r.Department)
                 .FirstOrDefaultAsync(u => u.Username == username);
         }
 
         public new async Task<User?> GetByCodeAsync(string code)
         {
             return await _context.users
-                .Include(u => u.Employee)
+                .Include(u => u.Employee!)
+                    .ThenInclude(e => e.EmployeeCategory)
+                .Include(u => u.Employee!)
+                    .ThenInclude(e => e.Room!)
+                        .ThenInclude(r => r.Department)
                 .FirstOrDefaultAsync(u => u.Employee != null && u.Employee.Code == code);
         }
 

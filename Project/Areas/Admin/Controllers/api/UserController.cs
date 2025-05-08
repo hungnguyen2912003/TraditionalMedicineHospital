@@ -71,6 +71,9 @@ namespace Project.Areas.Admin.Controllers.Api
                     username = username,
                     name = employee.Name,
                     email = employee.EmailAddress,
+                    categoryName = employee.EmployeeCategory != null ? employee.EmployeeCategory.Name : null,
+                    departmentName = (employee.Room != null && employee.Room.Department != null) ? employee.Room.Department.Name : null,
+                    roomName = employee.Room != null ? employee.Room.Name : null,
                     image = imagePath,
                     role = role
                 });
