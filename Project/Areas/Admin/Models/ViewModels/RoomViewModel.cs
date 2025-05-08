@@ -8,6 +8,8 @@
         public string? Description { get; set; }
         public string TreatmentName { get; set; } = string.Empty;
         public string DepartmentName { get; set; } = string.Empty;
+        public Guid TreatmentMethodId { get; set; }
+        public Guid DepartmentId { get; set; }
         public bool IsActive { get; set; }
     }
 }

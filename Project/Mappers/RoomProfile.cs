@@ -18,7 +18,11 @@ namespace Project.Mappers
                 .ForMember(dest => dest.TreatmentName,
                     opt => opt.MapFrom(src => src.TreatmentMethod != null ? src.TreatmentMethod.Name : "Không xác định"))
                 .ForMember(dest => dest.DepartmentName,
-                    opt => opt.MapFrom(src => src.Department != null ? src.Department.Name : "Không xác định"));
+                    opt => opt.MapFrom(src => src.Department != null ? src.Department.Name : "Không xác định"))
+                .ForMember(dest => dest.TreatmentMethodId,
+                    opt => opt.MapFrom(src => src.TreatmentMethod != null ? src.TreatmentMethod.Id : Guid.Empty))
+                .ForMember(dest => dest.DepartmentId,
+                    opt => opt.MapFrom(src => src.Department != null ? src.Department.Id : Guid.Empty));
         }
     }
 }
