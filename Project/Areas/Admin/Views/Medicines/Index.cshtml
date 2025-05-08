@@ -141,16 +141,26 @@
                 <div class="flex flex-col gap-2 w-full mt-4">
                     <div class="flex flex-col sm:flex-row gap-5 mb-2 justify-center items-center">
                         <div class="w-56">
-                            <select id="filterCategory" class="form-input choices w-full mt-1 p-2 border rounded"
-                                placeholder="Chọn loại thuốc..."></select>
+                            <select id="filterCategory" class="form-input choices w-full mt-1 p-2 border rounded">
+                                <option value="">Chọn loại thuốc...</option>
+                                @foreach (var cat in ViewBag.MedicineCategories)
+                                {
+                                    <option value="@cat.Name">@cat.Name</option>
+                                }
+                            </select>
                         </div>
                         <div class="w-56">
-                            <select id="filterManufacturer" class="form-input choices w-full mt-1 p-2 border rounded"
-                                placeholder="Chọn nhà sản xuất..."></select>
+                            <select id="filterManufacturer" class="form-input choices w-full mt-1 p-2 border rounded">
+                                <option value="">Chọn nhà sản xuất...</option>
+                                @foreach (var m in ViewBag.ManufacturerOptions)
+                                {
+                                    <option value="@m.Value">@m.Text</option>
+                                }
+                            </select>
                         </div>
                         <div class="w-56">
                             <select id="filterActive" class="form-input choices w-full mt-1 p-2 border rounded">
-                                <option value="">Chọn tình trạng thuốc"></time>...</option>
+                                <option value="">Chọn tình trạng thuốc...</option>
                                 <option value="1">Còn hạn sử dụng</option>
                                 <option value="0">Đã hết hạn</option>
                             </select>
@@ -423,15 +433,6 @@
 
     // Khởi tạo Choices.js cho 4 select sau khi đổ option
     $(document).ready(function () {
-        // Đổ option cho loại thuốc
-        var categories = [...new Set(window.list.entityList.map(e => e.categoryName).filter(Boolean))];
-        $('#filterCategory').html('<option value="">Chọn loại thuốc...</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join(''));
-        // Đổ option cho nhà sản xuất
-        var manufacturers = [...new Set(window.list.entityList.map(e => e.manufacturer).filter(Boolean))];
-        $('#filterManufacturer').html('<option value="">Chọn nhà sản xuất...</option>' + manufacturers.map(m => `<option value="${m}">${getEnumDisplayName('ManufacturerType', m)}</option>`).join(''));
-        // Đổ option cho trạng thái
-        $('#filterActive').html('<option value="">Chọn tình trạng thuốc...</option><option value="1">Còn hạn sử dụng</option><option value="0">Đã hết hạn</option>');
-        // Khởi tạo Choices và lưu instance vào biến global
         if (!window.categoryChoices) {
             window.categoryChoices = new Choices('#filterCategory', { searchEnabled: true, itemSelectText: '', shouldSort: false });
         }
@@ -473,6 +474,7 @@
         if (window.list.datatable) window.list.datatable.destroy();
         window.list.initializeTable();
         if (filtered.length > 0) notyf.success('Lọc thành công!');
+        else if (filtered.length === 0) notyf.error('Không tìm thấy kết quả phù hợp!');
     }
 
     // Nút Lọc
