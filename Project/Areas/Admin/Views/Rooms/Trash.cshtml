@@ -93,6 +93,9 @@
                 </div>
 
                 <!-- FILTER BAR START -->
+                <div class="filter-divider">
+                    <span>Bộ lọc</span>
+                </div>
                 <div class="flex flex-col lg:flex-row gap-6">
                     <div class="w-auto mx-auto p-4 rounded-lg">
                         <div class="flex flex-col sm:flex-row gap-5 mb-4 justify-center items-center">
@@ -423,6 +426,11 @@
 
         $('#filterDepartment, #filterTreatmentMethod').on('change', function () {
             updateResetFilterButtonState();
+            if (!$(this).val()) {
+                window.list.filteredList = window.list.entityList;
+                if (window.list.datatable) window.list.datatable.destroy();
+                window.list.initializeTable();
+            }
         });
     });
 
@@ -451,6 +459,10 @@
 
         if (!department && !treatmentMethod) {
             notyf.error('Cần chọn ít nhất một trường để lọc!');
+            window.list.filteredList = window.list.entityList;
+            if (window.list.datatable) window.list.datatable.destroy();
+            window.list.initializeTable();
+            updateResetFilterButtonState();
             return;
         }
         filterList();

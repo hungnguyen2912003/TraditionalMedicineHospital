@@ -259,6 +259,15 @@ namespace Project.Helpers
                 })
                 .ToList();
 
+            viewData["HealthInsurancePlaceOptions"] = Enum.GetValues(typeof(HealthInsuranceRegistrationPlace))
+                .Cast<HealthInsuranceRegistrationPlace>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
+
             viewData["EnumDisplayNames"] = EnumHelper.GetEnumDisplayNames();
         }
 

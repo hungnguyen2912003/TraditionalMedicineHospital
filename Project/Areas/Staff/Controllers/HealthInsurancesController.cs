@@ -40,6 +40,7 @@ namespace Project.Areas.Staff.Controllers
             var list = await _healthInsuranceRepository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive == true).ToList();
             var viewModelList = _mapper.Map<List<HealthInsuranceViewModel>>(activeList);
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
 
@@ -125,7 +126,7 @@ namespace Project.Areas.Staff.Controllers
 
                 // Ensure PatientId is preserved
                 entity.PatientId = originalPatientId;
-                
+
                 entity.UpdatedBy = "Admin";
                 entity.UpdatedDate = DateTime.UtcNow;
 
@@ -171,6 +172,7 @@ namespace Project.Areas.Staff.Controllers
             var list = await _healthInsuranceRepository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive == false).ToList();
             var viewModelList = _mapper.Map<List<HealthInsuranceViewModel>>(activeList);
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
 

@@ -120,6 +120,9 @@
                 </div>
 
                 <!-- FILTER BAR START -->
+                <div class="filter-divider">
+                    <span>Bộ lọc</span>
+                </div>
                 <div class="flex flex-col gap-2 w-full mt-4">
                     <div class="flex flex-col sm:flex-row gap-5 mb-2 justify-center items-center">
                         <div class="w-56">
@@ -407,6 +410,11 @@
 
         $('#filterGender').on('change', function () {
             updateResetFilterButtonState();
+            if (!$(this).val()) {
+                window.list.filteredList = window.list.entityList;
+                if (window.list.datatable) window.list.datatable.destroy();
+                window.list.initializeTable();
+            }
         });
     });
 
@@ -430,6 +438,10 @@
 
         if (!gender) {
             notyf.error('Cần chọn ít nhất một trường để lọc!');
+            window.list.filteredList = window.list.entityList;
+            if (window.list.datatable) window.list.datatable.destroy();
+            window.list.initializeTable();
+            updateResetFilterButtonState();
             return;
         }
         filterList();

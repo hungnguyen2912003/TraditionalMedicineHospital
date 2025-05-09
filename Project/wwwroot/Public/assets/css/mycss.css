@@ -14,7 +14,7 @@ input:invalid {
     background-color: #fff5f5;
 }
 
-input:invalid + .text-danger {
+input:invalid+.text-danger {
     display: block;
     color: #dc3545;
     font-size: 0.875rem;
@@ -90,7 +90,7 @@ input:invalid + .text-danger {
 }
 
 .jconfirm.jconfirm-modern .btn-red:hover {
-    background-color: #c82333 !important; 
+    background-color: #c82333 !important;
 }
 
 #myTable thead th {
@@ -260,4 +260,36 @@ td {
 
 .change-image-btn:hover {
     background-color: #ff6666;
+}
+
+.filter-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.filter-divider::before,
+.filter-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1.5px solid #e0e0e0;
+}
+
+.filter-divider:not(:empty)::before {
+    margin-right: 0.75em;
+}
+
+.filter-divider:not(:empty)::after {
+    margin-left: 0.75em;
+}
+
+.filter-divider span {
+    font-weight: bold;
+    color: #999999;
+    letter-spacing: 1px;
+}
+
+.filter-divider-bottom {
+    margin: 12px 0 12px 0;
+    min-height: 0;
 }

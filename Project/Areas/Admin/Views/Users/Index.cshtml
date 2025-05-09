@@ -40,6 +40,9 @@
                             </div>
                         </div>
                     </div>
+                    <div class="filter-divider">
+                        <span>Bộ lọc</span>
+                    </div>
                     <div class="flex items-center gap-3">
                         <div class="w-56">
                             <select id="filterRole" class="form-input choices w-full p-2 border rounded">
@@ -183,6 +186,11 @@
 
         $('#filterRole').on('change', function () {
             updateResetFilterButtonState();
+            if (!$(this).val()) {
+                window.list.filteredList = window.list.entityList;
+                if (window.list.datatable) window.list.datatable.destroy();
+                window.list.initializeTable();
+            }
         });
     });
 
@@ -206,6 +214,10 @@
 
         if (!role) {
             notyf.error('Cần chọn ít nhất một trường để lọc!');
+            window.list.filteredList = window.list.entityList;
+            if (window.list.datatable) window.list.datatable.destroy();
+            window.list.initializeTable();
+            updateResetFilterButtonState();
             return;
         }
         filterList();
