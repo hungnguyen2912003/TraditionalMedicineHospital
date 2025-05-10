@@ -24,9 +24,9 @@ namespace Project.Areas.Staff.Models.Entities
         /// Relationships
         ///
         [ForeignKey("TreatmentRecordId")]
-        public required virtual TreatmentRecord TreatmentRecord { get; set; }
+        public virtual TreatmentRecord? TreatmentRecord { get; set; }
         [ForeignKey("EmployeeId")]
-        public required virtual Employee Employee { get; set; }
+        public virtual Employee? Employee { get; set; }
         public virtual ICollection<PrescriptionDetail> PrescriptionDetails { get; set; } = new HashSet<PrescriptionDetail>();
     }
 }

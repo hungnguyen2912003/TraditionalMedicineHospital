@@ -1,0 +1,24 @@
+using AutoMapper;
+using Project.Areas.Staff.Models.DTOs;
+using Project.Areas.Staff.Models.Entities;
+using Project.Areas.Staff.Models.ViewModels;
+
+namespace Mappers
+{
+    public class PrescriptionProfile : Profile
+    {
+        public PrescriptionProfile()
+        {
+            CreateMap<Prescription, PrescriptionDto>();
+            CreateMap<PrescriptionDto, Prescription>();
+            CreateMap<Prescription, PrescriptionViewModel>()
+                .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(src => src.TotalCost))
+                .ForMember(dest => dest.TreatmentRecordCode, opt => opt.MapFrom(src => src.TreatmentRecord != null ? src.TreatmentRecord.Code : "Không xác định"))
+                .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.TreatmentRecord != null ? src.TreatmentRecord.Patient.Name : "Không xác định"))
+                .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.Name : "Không xác định"));
+            CreateMap<PrescriptionViewModel, Prescription>()
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
+        }
+
+    }
+}

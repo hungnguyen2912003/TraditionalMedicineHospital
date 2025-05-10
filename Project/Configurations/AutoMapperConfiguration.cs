@@ -1,4 +1,5 @@
-﻿using Project.Mappers;
+﻿using Mappers;
+using Project.Mappers;
 
 namespace Project.Configurations
 {
@@ -18,6 +19,7 @@ namespace Project.Configurations
             builder.Services.AddAutoMapper(typeof(TreatmentRecordProfile));
             builder.Services.AddAutoMapper(typeof(HealthInsuranceProfile));
             builder.Services.AddAutoMapper(typeof(ReceptionProfile));
+            builder.Services.AddAutoMapper(typeof(PrescriptionProfile));
 
             return builder;
         }

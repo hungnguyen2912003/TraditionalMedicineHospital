@@ -1,6 +1,8 @@
 ﻿using Project.Repositories;
 using Project.Repositories.Implementations;
 using Project.Repositories.Interfaces;
+using Repositories.Implementations;
+using Repositories.Interfaces;
 
 namespace Project.Configurations
 {
@@ -27,11 +29,14 @@ namespace Project.Configurations
             builder.Services.AddScoped<ITreatmentRecordRepository, TreatmentRecordRepository>();
             builder.Services.AddScoped<IHealthInsuranceRepository, HealthInsuranceRepository>();
             builder.Services.AddScoped<IAssignmentRepository, AssignmentRepository>();
-            
+
             builder.Services.AddScoped<ITreatmentRecordDetailRepository, TreatmentRecordDetailRepository>();
             builder.Services.AddScoped<ITreatmentRecordRegulationRepository, TreatmentRecordRegulationRepository>();
 
             builder.Services.AddScoped<ITreatmentTrackingRepository, TreatmentTrackingRepository>();
+
+            builder.Services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
+            builder.Services.AddScoped<IPrescriptionDetailRepository, PrescriptionDetailRepository>();
 
             return builder;
         }

@@ -11,7 +11,6 @@ namespace Project.Areas.Staff.Models.Entities
         [Key]
         public Guid Id { get; set; }
         public int Quantity { get; set; }
-        public string Note { get; set; } = string.Empty;
         //Foreign key
         public Guid PrescriptionId { get; set; }
         public Guid MedicineId { get; set; }
@@ -19,8 +18,8 @@ namespace Project.Areas.Staff.Models.Entities
         /// Relationships
         ///
         [ForeignKey("PrescriptionId")]
-        public required virtual Prescription Prescription { get; set; }
+        public virtual Prescription? Prescription { get; set; }
         [ForeignKey("MedicineId")]
-        public required virtual Medicine Medicine { get; set; }
+        public virtual Medicine? Medicine { get; set; }
     }
 }

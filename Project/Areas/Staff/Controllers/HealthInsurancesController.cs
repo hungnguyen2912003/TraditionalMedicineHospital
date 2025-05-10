@@ -137,33 +137,12 @@ namespace Project.Areas.Staff.Controllers
                     return Json(new { success = false, message = "Bệnh nhân không tồn tại trong hệ thống." });
                 }
 
-                try
-                {
-                    await _healthInsuranceRepository.UpdateAsync(entity);
-                    return Json(new { success = true, message = "Cập nhật thông tin thẻ BHYT thành công!" });
-                }
-                catch (Exception updateEx)
-                {
-                    return Json(new
-                    {
-                        success = false,
-                        message = "Lỗi khi cập nhật thẻ BHYT",
-                        details = updateEx.Message,
-                        innerException = updateEx.InnerException?.Message,
-                        stackTrace = updateEx.StackTrace
-                    });
-                }
+                await _healthInsuranceRepository.UpdateAsync(entity);
+                return Json(new { success = true, message = "Cập nhật thông tin thẻ BHYT thành công!" });
             }
             catch (Exception ex)
             {
-                return Json(new
-                {
-                    success = false,
-                    message = "Có lỗi xảy ra khi cập nhật thẻ BHYT",
-                    details = ex.Message,
-                    innerException = ex.InnerException?.Message,
-                    stackTrace = ex.StackTrace
-                });
+                return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật thẻ BHYT: " + ex.Message });
             }
         }
 

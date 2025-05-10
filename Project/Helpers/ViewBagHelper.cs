@@ -10,6 +10,7 @@ namespace Project.Helpers
     {
         private readonly IEmployeeCategoryRepository _employeecategoryRepository;
         private readonly IMedicineCategoryRepository _medicinecategoryRepository;
+        private readonly IMedicineRepository _medicineRepository;
         private readonly IDepartmentRepository _depRepository;
         private readonly ITreatmentMethodRepository _treatmentRepository;
         private readonly IPatientRepository _patientRepository;
@@ -23,6 +24,7 @@ namespace Project.Helpers
         (
             IEmployeeCategoryRepository employeecategoryRepository,
             IMedicineCategoryRepository medicinecategoryRepository,
+            IMedicineRepository medicineRepository,
             IDepartmentRepository depRepository,
             ITreatmentMethodRepository treatmentRepository,
             IPatientRepository patientRepository,
@@ -36,6 +38,7 @@ namespace Project.Helpers
         {
             _employeecategoryRepository = employeecategoryRepository;
             _medicinecategoryRepository = medicinecategoryRepository;
+            _medicineRepository = medicineRepository;
             _depRepository = depRepository;
             _treatmentRepository = treatmentRepository;
             _patientRepository = patientRepository;
@@ -266,6 +269,12 @@ namespace Project.Helpers
                     Value = (int)e,
                     Text = e.GetDisplayName()
                 })
+                .ToList();
+
+            var medicines = await _medicineRepository.GetAllAsync();
+            viewData["Medicines"] = medicines
+                .Where(m => m.IsActive)
+                .Select(m => new { m.Id, m.Name, m.Price })
                 .ToList();
 
             viewData["EnumDisplayNames"] = EnumHelper.GetEnumDisplayNames();
