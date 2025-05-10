@@ -15,7 +15,7 @@ namespace Project.Mappers
                 .ForMember(dest => dest.Department, opt => opt.Ignore())
                 .ForMember(dest => dest.IsActive, opt => opt.Ignore());
             CreateMap<Room, RoomViewModel>()
-                .ForMember(dest => dest.TreatmentName,
+                .ForMember(dest => dest.TreatmentMethodName,
                     opt => opt.MapFrom(src => src.TreatmentMethod != null ? src.TreatmentMethod.Name : "Không xác định"))
                 .ForMember(dest => dest.DepartmentName,
                     opt => opt.MapFrom(src => src.Department != null ? src.Department.Name : "Không xác định"))

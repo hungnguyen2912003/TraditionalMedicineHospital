@@ -271,11 +271,21 @@ namespace Project.Helpers
                 })
                 .ToList();
 
+            viewData["RoomTypeOptions"] = Enum.GetValues(typeof(RoomType))
+                .Cast<RoomType>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
+                
             var medicines = await _medicineRepository.GetAllAsync();
             viewData["Medicines"] = medicines
                 .Where(m => m.IsActive)
                 .Select(m => new { m.Id, m.Name, m.Price })
                 .ToList();
+                
 
             viewData["EnumDisplayNames"] = EnumHelper.GetEnumDisplayNames();
         }

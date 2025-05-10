@@ -173,16 +173,6 @@
                     </div>
                     <div class="flex flex-col sm:flex-row gap-5 mb-2 justify-center items-center">
                         <div class="w-56">
-                            <select id="filterTreatmentMethod"
-                                class="form-input choices w-full mt-1 p-2 border rounded">
-                                <option value="">Chọn phương pháp điều trị...</option>
-                                @foreach (var t in ViewBag.TreatmentMethods)
-                                {
-                                    <option value="@t.Name">@t.Name</option>
-                                }
-                            </select>
-                        </div>
-                        <div class="w-56">
                             <select id="filterRoom" class="form-input choices w-full mt-1 p-2 border rounded">
                                 <option value="">Chọn phòng...</option>
                                 @foreach (var room in ViewBag.Rooms)
@@ -304,7 +294,6 @@
                     entity.emailAddress,
                     entity.phoneNumber,
                     entity.departmentName,
-                    entity.treatmentMethodName,
                     entity.roomName,
                     getEnumDisplayName('DegreeType', entity.degree),
                     getEnumDisplayName('ProfessionalQualificationType', entity.professionalQualification),
@@ -353,7 +342,6 @@
                             'Email',
                             'Số điện thoại',
                             'Khoa',
-                            'Phương pháp điều trị',
                             'Phòng làm việc',
                             'Bằng cấp',
                             'Chuyên môn',
@@ -389,14 +377,14 @@
                             }
                         },
                         {
-                            select: 16,
+                            select: 15,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;
                             }
                         },
                         {
-                            select: 17,
+                            select: 16,
                             sortable: false,
                             render: (data, cell, row) => {
                                 return data;
@@ -488,7 +476,6 @@
                 (e.name && removeVietnameseTones(e.name).includes(keyword)) ||
                 (e.code && removeVietnameseTones(e.code).includes(keyword)) ||
                 (e.departmentName && removeVietnameseTones(e.departmentName).includes(keyword)) ||
-                (e.treatmentMethodName && removeVietnameseTones(e.treatmentMethodName).includes(keyword)) ||
                 (e.roomName && removeVietnameseTones(e.roomName).includes(keyword)) ||
                 (getEnumDisplayName && removeVietnameseTones(getEnumDisplayName('GenderType', e.gender)).includes(keyword)) ||
                 (e.categoryName && removeVietnameseTones(e.categoryName).includes(keyword)) ||
@@ -511,9 +498,6 @@
         }
         if (!window.departmentChoices) {
             window.departmentChoices = new Choices('#filterDepartment', { searchEnabled: true, itemSelectText: '', shouldSort: false });
-        }
-        if (!window.treatmentMethodChoices) {
-            window.treatmentMethodChoices = new Choices('#filterTreatmentMethod', { searchEnabled: true, itemSelectText: '', shouldSort: false });
         }
         if (!window.roomChoices) {
             window.roomChoices = new Choices('#filterRoom', { searchEnabled: true, itemSelectText: '', shouldSort: false });
@@ -538,7 +522,6 @@
         const category = $('#filterCategory').val();
         const gender = $('#filterGender').val();
         const department = $('#filterDepartment').val();
-        const treatmentMethod = $('#filterTreatmentMethod').val();
         const room = $('#filterRoom').val();
         const status = $('#filterStatus').val();
 
@@ -551,9 +534,6 @@
         }
         if (department) {
             filtered = filtered.filter(e => e.departmentName === department);
-        }
-        if (treatmentMethod) {
-            filtered = filtered.filter(e => e.treatmentMethodName === treatmentMethod);
         }
         if (room) {
             filtered = filtered.filter(e => e.roomName === room);
@@ -574,11 +554,10 @@
         const category = $('#filterCategory').val();
         const gender = $('#filterGender').val();
         const department = $('#filterDepartment').val();
-        const treatmentMethod = $('#filterTreatmentMethod').val();
         const room = $('#filterRoom').val();
         const status = $('#filterStatus').val();
 
-        if (!category && !gender && !department && !treatmentMethod && !room && !status) {
+        if (!category && !gender && !department && !room && !status) {
             notyf.error('Cần chọn ít nhất một trường để lọc!');
             window.list.filteredList = window.list.entityList;
             if (window.list.datatable) window.list.datatable.destroy();
@@ -604,10 +583,6 @@
             window.departmentChoices.removeActiveItems();
             window.departmentChoices.setChoiceByValue('');
         }
-        if (window.treatmentMethodChoices) {
-            window.treatmentMethodChoices.removeActiveItems();
-            window.treatmentMethodChoices.setChoiceByValue('');
-        }
         if (window.statusChoices) {
             window.statusChoices.removeActiveItems();
             window.statusChoices.setChoiceByValue('');
@@ -627,11 +602,10 @@
         const category = $('#filterCategory').val();
         const gender = $('#filterGender').val();
         const department = $('#filterDepartment').val();
-        const treatmentMethod = $('#filterTreatmentMethod').val();
         const room = $('#filterRoom').val();
         const status = $('#filterStatus').val();
 
-        if (!category && !gender && !department && !treatmentMethod && !room && !status) {
+        if (!category && !gender && !department && !room && !status) {
             $('#btnResetFilter').prop('disabled', true).css('cursor', 'not-allowed');
         } else {
             $('#btnResetFilter').prop('disabled', false).css('cursor', 'pointer');

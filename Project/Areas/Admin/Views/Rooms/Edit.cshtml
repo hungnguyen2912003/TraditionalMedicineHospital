@@ -40,8 +40,30 @@
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
+                                    <label for="RoomType" class="block text-sm font-medium text-gray-700">Loại phòng<span
+                                            class="text-danger">&nbsp*</span></label>
+                                    <div class="select-wrapper">
+                                        <select id="RoomType" name="RoomType"
+                                            class="form-input w-full mt-1 p-2 border rounded">
+                                            <option value="">Chọn loại phòng</option>
+                                            @foreach (var d in ViewBag.RoomTypeOptions)
+                                            {
+                                                if (d.Value == (int)Model.RoomType)
+                                                {
+                                                    <option value="@d.Value" selected>@d.Text</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@d.Value">@d.Text</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.RoomType, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Tên phòng<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập tên phòng"
                                         value="@Model.Name" />
@@ -52,7 +74,7 @@
                                 <div class="w-full sm:w-1/2">
                                     <label for="DepartmentId" class="block text-sm font-medium text-gray-700">Khoa phụ
                                         trách<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            class="text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="DepartmentId" name="DepartmentId"
                                             class="form-input w-full mt-1 p-2 border rounded">
@@ -76,7 +98,7 @@
                                 <div class="w-full sm:w-1/2">
                                     <label for="TreatmentMethodId"
                                         class="block text-sm font-medium text-gray-700">Phương pháp điều trị<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            class="text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="TreatmentMethodId" name="TreatmentMethodId"
                                             class="form-input w-full mt-1 p-2 border rounded">
@@ -163,8 +185,10 @@
 
             setupChoices() {
                 const selectElements = document.querySelectorAll('select.form-input');
+                const choicesInstances = new Map();
+                
                 selectElements.forEach(select => {
-                    new Choices(select, {
+                    const choices = new Choices(select, {
                         searchEnabled: true,
                         searchPlaceholderValue: 'Tìm kiếm...',
                         removeItemButton: true,
@@ -172,7 +196,30 @@
                         noChoicesText: 'Không có lựa chọn nào',
                         itemSelectText: ''
                     });
+                    choicesInstances.set(select.id, choices);
                 });
+
+                // Add event listener for RoomType changes
+                $('#RoomType').on('change', function() {
+                    const treatmentMethodSelect = $('#TreatmentMethodId')[0];
+                    const treatmentMethodWrapper = $(treatmentMethodSelect).closest('.select-wrapper');
+                    const treatmentMethodLabel = $(treatmentMethodSelect).closest('div').find('label');
+                    const choicesInstance = choicesInstances.get('TreatmentMethodId');
+                    
+                    if ($(this).val() === "0") { // Administrative room
+                        choicesInstance.disable();
+                        treatmentMethodWrapper.addClass('opacity-50');
+                        treatmentMethodLabel.addClass('opacity-50');
+                        choicesInstance.setChoiceByValue('');
+                    } else { // Treatment room
+                        choicesInstance.enable();
+                        treatmentMethodWrapper.removeClass('opacity-50');
+                        treatmentMethodLabel.removeClass('opacity-50');
+                    }
+                });
+
+                // Trigger initial state based on current RoomType value
+                $('#RoomType').trigger('change');
             },
 
             setupValidation() {
@@ -210,9 +257,14 @@
                             }
                         },
                         TreatmentMethodId: {
-                            required: true
+                            required: function() {
+                                return $("#RoomType").val() === "1"; // Required only for Treatment room type
+                            }
                         },
                         DepartmentId: {
+                            required: true
+                        },
+                        RoomType: {
                             required: true
                         }
                     },
@@ -229,6 +281,9 @@
                         },
                         DepartmentId: {
                             required: "Khoa phụ trách không được bỏ trống."
+                        },
+                        RoomType: {
+                            required: "Loại phòng không được bỏ trống."
                         }
                     },
                     errorElement: "div",
@@ -281,6 +336,7 @@
                 formData.append('Description', document.getElementById('Description').value);
                 formData.append('TreatmentMethodId', $('#TreatmentMethodId').val());
                 formData.append('DepartmentId', $('#DepartmentId').val());
+                formData.append('RoomType', $('#RoomType').val());
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
                 formData.append('__RequestVerificationToken', token);
             },

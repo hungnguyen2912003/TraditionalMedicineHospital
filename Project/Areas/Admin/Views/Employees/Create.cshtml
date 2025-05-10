@@ -85,36 +85,17 @@
                                     "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="TreatmentMethodId" class="block text-sm font-medium text-gray-700">Phương pháp điều trị<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
-                                    <div class="select-wrapper">
-                                        <select id="TreatmentMethodId" name="TreatmentMethodId"
-                                            class="form-input w-full mt-1 p-2 border rounded" x-on:change="onTreatmentMethodChange($event)" disabled>
-                                            <option value="">Chọn phương pháp điều trị</option>
-                                        </select>
-                                    </div>
-                                    @Html.ValidationMessageFor(model => model.TreatmentMethodId, "", new { @class = "text-danger" })
-                                </div>
-                                <div class="w-full sm:w-1/2">
                                     <label for="RoomId" class="block text-sm font-medium text-gray-700">Phòng làm
                                         việc<span
                                 class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="RoomId" name="RoomId"
-                                            class="form-input w-full mt-1 p-2 border rounded" disabled>
+                                            class="form-input w-full mt-1 p-2 border rounded">
                                             <option value="">Chọn phòng làm việc</option>
                                         </select>
                                     </div>
                                     @Html.ValidationMessageFor(model => model.RoomId, "", new { @class = "text-danger" })
                                 </div>
-                            </div>
-                            <div class="w-full col-span-3 mb-5">
-                                <div x-show="warningMessage" class="flex items-center transition-all" style="color: coral; font-weight: bold;">
-                                    <svg class="w-4 h-4 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    <span x-text="warningMessage"></span>
-                                </div>    
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
@@ -149,7 +130,7 @@
                                 class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="IdentityNumber" type="text" name="IdentityNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập căn cước công dân" />
+                                        placeholder="Nhập căn cước công dân" maxlength="12"/>
                                     @Html.ValidationMessageFor(model => model.IdentityNumber, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -171,7 +152,7 @@
                                 class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="PhoneNumber" type="text" name="PhoneNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập số điện thoại" />
+                                        placeholder="Nhập số điện thoại" maxlength="11"/>
                                     @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -323,22 +304,17 @@
         Alpine.data('addData', () => ({
             dropzone: null,
             selectedDepartmentId: '',
-            selectedTreatmentMethodId: '',
-            treatmentMethods: [],
             rooms: [],
-            treatmentMethodChoices: null,
             roomChoices: null,
             departmentChoices: null,
-            warningMessage: 'Vui lòng chọn Khoa trước khi chọn Phương pháp điều trị',
 
             init() {
                 this.setupDropzone();
                 this.setupValidation();
                 this.setupDateTimePicker();
                 this.setupChoices();
-                this.treatmentMethodChoices.disable();
-                this.roomChoices.disable();
                 this.departmentChoices.enable();
+                this.roomChoices.disable();
             },
 
             setupDateTimePicker() {
@@ -361,14 +337,6 @@
                     });
                 });                  
                 this.departmentChoices = new Choices('#DepartmentId', {
-                    searchEnabled: true,
-                    searchPlaceholderValue: 'Tìm kiếm...',
-                    removeItemButton: true,
-                    noResultsText: 'Không tìm thấy kết quả',
-                    noChoicesText: 'Không có lựa chọn nào',
-                    itemSelectText: ''
-                });
-                this.treatmentMethodChoices = new Choices('#TreatmentMethodId', {
                     searchEnabled: true,
                     searchPlaceholderValue: 'Tìm kiếm...',
                     removeItemButton: true,
@@ -498,8 +466,8 @@
                         },
                         PhoneNumber: {
                             required: true,
-                            minlength: 10,
-                            maxlength: 15,
+                            minlength: 9,
+                            maxlength: 11,
                             customPattern: /^[0-9]*$/,
                             remote: {
                                 url: "/api/validation/employee/check",
@@ -540,9 +508,6 @@
                         },
                         RoomId: {
                             required: true
-                        },
-                        TreatmentMethodId: {
-                            required: true
                         }
                     },
                     messages: {
@@ -562,8 +527,8 @@
                         },
                         IdentityNumber: {
                             required: "Căn cước công dân không được bỏ trống",
-                            minlength: "Căn cước công dân có ít nhất 9 số",
-                            maxlength: "Căn cước công dân không vượt quá 12 số",
+                            minlength: "Căn cước công dân có ít nhất 11 số",
+                            maxlength: "Căn cước công dân không vượt quá 11 số",
                             customPattern: "Căn cước công dân không hợp lệ.",
                             remote: "Căn cước công dân này đã được đăng ký bởi nhân sự khác."
                         },
@@ -578,8 +543,8 @@
                         },
                         PhoneNumber: {
                             required: "Số điện thoại không được bỏ trống.",
-                            minlength: "Số điện thoại phải có ít nhất 10 ký tự.",
-                            maxlength: "Số điện thoại không được vượt quá 15 ký tự.",
+                            minlength: "Số điện thoại phải có ít nhất 9 ký tự.",
+                            maxlength: "Số điện thoại không được vượt quá 11 ký tự.",
                             customPattern: "Số điện thoại không hợp lệ.",
                             remote: "Số điện thoại này đã được đăng ký bởi nhân sự khác."
                         },
@@ -598,9 +563,6 @@
                         },
                         RoomId: {
                             required: "Phòng làm việc không được bỏ trống."
-                        },
-                        TreatmentMethodId: {
-                            required: "Phương pháp điều trị không được bỏ trống."
                         }
                     },
                     errorElement: "div",
@@ -659,7 +621,6 @@
                 formData.append('StartDate', document.getElementById('StartDate').value);
                 formData.append('EmployeeCategoryId', document.getElementById('EmployeeCategoryId').value);
                 formData.append('RoomId', document.getElementById('RoomId').value);
-                formData.append('TreatmentMethodId', document.getElementById('TreatmentMethodId').value);
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
                 formData.append('__RequestVerificationToken', token);
             },
@@ -713,46 +674,13 @@
 
             onDepartmentChange(e) {
                 this.selectedDepartmentId = e.target.value;
-                this.selectedTreatmentMethodId = '';
-                this.treatmentMethods = [];
                 this.rooms = [];
-                this.treatmentMethodChoices.clearStore();
                 this.roomChoices.clearStore();
 
                 if (!this.selectedDepartmentId) {
-                    this.warningMessage = 'Vui lòng chọn Khoa trước khi chọn Phương pháp điều trị';
-                    this.treatmentMethodChoices.disable();
                     this.roomChoices.disable();
                 } else {
-                    this.warningMessage = 'Vui lòng chọn Phương pháp điều trị trước khi chọn Phòng';
-                    this.treatmentMethodChoices.enable();
-                    this.roomChoices.disable();
-                    fetch(`/api/Utils/GetTreatmentMethodsByDepartment/${this.selectedDepartmentId}`)
-                        .then(res => res.json())
-                        .then(data => {
-                            this.treatmentMethods = data;
-                            this.treatmentMethodChoices.setChoices(
-                                data.map(method => ({
-                                    value: method.id || method.Id,
-                                    label: method.name || method.Name
-                                })), 'value', 'label', false
-                            );
-                        });
-                }
-            },
-
-            onTreatmentMethodChange(e) {
-                this.selectedTreatmentMethodId = e.target.value;
-                this.rooms = [];
-                this.roomChoices.clearStore();
-
-                if (!this.selectedTreatmentMethodId) {
-                    this.warningMessage = 'Vui lòng chọn Phương pháp điều trị trước khi chọn Phòng';
-                    this.roomChoices.disable();
-                } else {
-                    this.warningMessage = '';
-                    this.roomChoices.enable();
-                    fetch(`/api/Utils/GetRoomsByTreatmentMethod/${this.selectedTreatmentMethodId}`)
+                    fetch(`/api/Utils/GetRoomsByDepartment/${this.selectedDepartmentId}`)
                         .then(res => res.json())
                         .then(data => {
                             this.rooms = data;
@@ -762,6 +690,7 @@
                                     label: room.name || room.Name
                                 })), 'value', 'label', false
                             );
+                            this.roomChoices.enable();
                         });
                 }
             }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project.Datas;
 
@@ -11,9 +12,11 @@ using Project.Datas;
 namespace Project.Migrations
 {
     [DbContext(typeof(TraditionalMedicineHospitalDbContext))]
-    partial class TraditionalMedicineHospitalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250510160039_Remove roomtype in Room tbl")]
+    partial class RemoveroomtypeinRoomtbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -422,9 +425,6 @@ namespace Project.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("RoomType")
-                        .HasColumnType("int");
 
                     b.Property<Guid?>("TreatmentMethodId")
                         .HasColumnType("uniqueidentifier");
