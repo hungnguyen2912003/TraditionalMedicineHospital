@@ -110,6 +110,7 @@ a:focus {
 
 .header_section .header_bottom {
   background: linear-gradient(to right, #FF0000, #800080, #00008B);
+  min-height: 70px;
 }
 
 .header_section .header_bottom .container-fluid {
@@ -117,22 +118,14 @@ a:focus {
   padding-left: 25px;
 }
 
-.navbar-brand {
-  background-color: #ffffff;
-  padding: 15px 35px;
-}
-
-.navbar-brand img {
-  width: 55px;
-}
-
 .custom_nav-container {
   padding: 0;
 }
 
 .custom_nav-container .navbar-nav .nav-item .nav-link {
-  padding: 3px 15px;
-  margin: 10px 15px;
+  padding: 12px 28px;
+  margin: 10px 18px;
+  font-weight: 500;
   color: #ffffff;
   text-align: center;
   text-transform: uppercase;
@@ -947,7 +940,8 @@ a:focus {
 }
 
 .info_section .info_top .info_logo a img {
-  width: 55px;
+  width: 70px;
+  height: auto;
 }
 
 .info_section .info_form {

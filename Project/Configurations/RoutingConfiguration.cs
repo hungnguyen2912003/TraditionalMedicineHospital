@@ -45,6 +45,12 @@
                 defaults: new { area = "Staff", controller = "Home", action = "Index" }
             );
 
+            app.MapControllerRoute(
+                name: "forgot-password",
+                pattern: "forgot-password",
+                defaults: new { area = "Admin", controller = "Account", action = "ForgotPassword" }
+            );
+
             // Route cụ thể cho home
             app.MapControllerRoute(
                 name: "home",
