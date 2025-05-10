@@ -45,6 +45,13 @@
                 defaults: new { area = "Staff", controller = "Home", action = "Index" }
             );
 
+            // Route cụ thể cho home
+            app.MapControllerRoute(
+                name: "home",
+                pattern: "home",
+                defaults: new { area = "", controller = "Home", action = "Index" }
+            );
+            
             // Route chung cho các area
             app.MapControllerRoute(
                 name: "areas",
