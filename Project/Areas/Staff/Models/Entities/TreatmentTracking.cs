@@ -17,6 +17,7 @@ namespace Project.Areas.Staff.Models.Entities
         public string? Note { get; set; }
         public TrackingStatus Status { get; set; }
         public Guid? TreatmentRecordDetailId { get; set; }
+        public Guid? EmployeeId { get; set; }
 
         /////////////////////////////////////////////////////
         /// Relationships

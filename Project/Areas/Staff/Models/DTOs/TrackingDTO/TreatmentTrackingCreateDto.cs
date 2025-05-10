@@ -10,5 +10,6 @@ namespace Project.Areas.Staff.Models.DTOs.TrackingDTO
         public string? Note { get; set; }
         public TrackingStatus Status { get; set; }
         public DateTime TrackingDate { get; set; }
+        public Guid EmployeeId { get; set; }
     }
 }

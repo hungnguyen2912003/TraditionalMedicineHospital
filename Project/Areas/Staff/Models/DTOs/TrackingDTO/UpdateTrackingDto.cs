@@ -6,6 +6,7 @@ namespace Hospital.Areas.Staff.Models.DTOs.TrackingDTO
     {
         public TrackingStatus Status { get; set; }
         public string? Note { get; set; }
+        public Guid EmployeeId { get; set; }
     }
 }
 

@@ -124,7 +124,8 @@ namespace Project.Areas.Staff.Controllers.api
                 Status = dto.Status,
                 IsActive = true,
                 Note = dto.Note,
-                TreatmentRecordDetailId = detail.Id
+                TreatmentRecordDetailId = detail.Id,
+                EmployeeId = employee.Id
             };
 
             await _trackingRepo.CreateAsync(tracking);

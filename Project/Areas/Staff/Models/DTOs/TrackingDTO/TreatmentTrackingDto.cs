@@ -14,6 +14,6 @@ namespace Project.Areas.Staff.Models.DTOs.TrackingDTO
         public bool IsActive { get; set; }
         public string? PatientName { get; set; }
         public string? RoomName { get; set; }
-        public string? DoctorCode { get; set; }
+        public string? EmployeeCode { get; set; }
     }
 }

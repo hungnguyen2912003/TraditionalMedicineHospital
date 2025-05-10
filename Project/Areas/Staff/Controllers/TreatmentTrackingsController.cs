@@ -2,15 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Repositories.Interfaces;
 using AutoMapper;
-using Project.Areas.Staff.Models.Entities;
 using Project.Areas.Staff.Models.DTOs.TrackingDTO;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
 using Project.Areas.Staff.Models.ViewModels;
 using Project.Helpers;
-using Hospital.Areas.Staff.Models.DTOs.TrackingDTO;
-using Project.Services.Features;
 
 namespace Project.Areas.Staff.Controllers
 {
@@ -88,7 +82,7 @@ namespace Project.Areas.Staff.Controllers
                 IsActive = t.IsActive,
                 PatientName = t.TreatmentRecordDetail?.TreatmentRecord?.Patient?.Name,
                 RoomName = t.TreatmentRecordDetail?.Room?.Name,
-                DoctorCode = t.CreatedBy
+                EmployeeCode = t.CreatedBy
             }).ToList();
 
             // Then map to ViewModel
