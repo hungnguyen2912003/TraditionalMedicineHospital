@@ -94,7 +94,8 @@ namespace Project.Areas.Admin.Controllers
                     string redirectURL = user.Role.ToString() switch
                     {
                         "Admin" => Url.Action("Index", "Home", new { area = "Admin" }) ?? "/Admin/Home/Index",
-                        "Nhanvien" => Url.Action("Index", "Home", new { area = "Staff" }) ?? "/Staff/Home/Index",
+                        "Bacsi" => Url.Action("Index", "Home", new { area = "Staff" }) ?? "/Staff/Home/Index",
+                        "Yta" => Url.Action("Index", "Home", new { area = "Staff" }) ?? "/Staff/Home/Index",
                         _ => Url.Action("") ?? "",
                     };
 

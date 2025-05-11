@@ -11,7 +11,7 @@ using Repositories.Interfaces;
 namespace Staff.Controllers
 {
     [Area("Staff")]
-    [Authorize(Roles = "Nhanvien")]
+    [Authorize(Roles = "Bacsi, Yta")]
     public class PrescriptionsController : Controller
     {
         private readonly IPrescriptionRepository _prescriptionRepository;

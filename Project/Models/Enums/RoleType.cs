@@ -6,9 +6,12 @@ namespace Project.Models.Enums
     {
         [Display(Name = "Admin")]
         Admin = 1,
-        [Display(Name = "Nhân viên")]
-        Nhanvien = 2,
+        [Display(Name = "Bác sĩ")]
+        Bacsi = 2,
+        [Display(Name = "Nhân viên Y tá")]
+        Yta = 3,
+
         [Display(Name = "Bệnh nhân")]
-        Benhnhan = 3,
+        Benhnhan = 4,
     }
 }

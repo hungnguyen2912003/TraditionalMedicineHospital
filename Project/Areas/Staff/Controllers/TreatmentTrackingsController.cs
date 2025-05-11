@@ -9,7 +9,7 @@ using Project.Helpers;
 namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
-    [Authorize(Roles = "Admin, Nhanvien")]
+    [Authorize(Roles = "Yta")]
     public class TreatmentTrackingsController : Controller
     {
         private readonly ITreatmentTrackingRepository _treatmentTrackingRepository;
@@ -50,6 +50,7 @@ namespace Project.Areas.Staff.Controllers
                     {
                         currentEmployeeCode = user.Employee.Code;
                         ViewBag.CurrentEmployeeCode = currentEmployeeCode;
+                        ViewBag.CurrentRole = user.Role.ToString();
                     }
                 }
             }

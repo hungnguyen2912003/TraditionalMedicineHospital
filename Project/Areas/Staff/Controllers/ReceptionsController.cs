@@ -13,7 +13,7 @@ using Project.Areas.Admin.Models.Entities;
 namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
-    [Authorize(Roles = "Nhanvien")]
+    [Authorize(Roles = "Bacsi")]
     public class ReceptionsController : Controller
     {
         private readonly IPatientRepository _patientRepository;

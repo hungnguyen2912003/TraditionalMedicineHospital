@@ -98,13 +98,12 @@ namespace Project.Areas.Admin.Controllers
 
                 await _repository.CreateAsync(entity);
 
-
                 var user = new User
                 {
                     Id = Guid.NewGuid(),
                     Username = entity.Code,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("11111111"),
-                    Role = RoleType.Nhanvien,
+                    Role = entity.EmployeeCategory?.Name?.ToLower().Contains("y tá") == true ? RoleType.Yta : RoleType.Bacsi,
                     CreatedDate = DateTime.UtcNow,
                     CreatedBy = "Admin",
                     IsActive = true,

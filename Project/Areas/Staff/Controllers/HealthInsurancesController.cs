@@ -10,7 +10,7 @@ using Project.Repositories.Interfaces;
 namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
-    [Authorize(Roles = "Admin, Nhanvien")]
+    [Authorize(Roles = "Admin, Bacsi, Yta")]
     public class HealthInsurancesController : Controller
     {
         private readonly IHealthInsuranceRepository _healthInsuranceRepository;
