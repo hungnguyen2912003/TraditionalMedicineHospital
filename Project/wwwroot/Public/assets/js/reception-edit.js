@@ -705,20 +705,14 @@ document.addEventListener('alpine:init', () => {
                 formData.append('Patient.HealthInsuranceIsRightRoute', document.querySelector('[name="Patient.HealthInsuranceIsRightRoute"]')?.checked || false);
             }
 
-            // New treatment record detail (if form is shown)
-            const showAddTreatmentForm = document.querySelector("[x-show='showAddTreatmentForm']");
-            if (showAddTreatmentForm && window.getComputedStyle(showAddTreatmentForm).display !== 'none') {
-                // Get treatment method select element
-                const treatmentMethodSelect = document.getElementById('treatmentRecordDetailTreatmentMethod');
-                const treatmentMethodId = treatmentMethodSelect ? treatmentMethodSelect.value : '';
-                const roomId = document.querySelector('[name="NewTreatmentRecordDetail.RoomId"]')?.value;
-                const note = document.querySelector('[name="NewTreatmentRecordDetail.Note"]')?.value;
-
-                formData.append('NewTreatmentRecordDetail.Code', document.querySelector('[name="NewTreatmentRecordDetail.Code"]')?.value || this.generateCode());
-                formData.append('NewTreatmentRecordDetail.TreatmentMethodId', treatmentMethodId);
-                formData.append('NewTreatmentRecordDetail.RoomId', roomId || '');
-                formData.append('NewTreatmentRecordDetail.Note', note || '');
-            }
+            const treatmentTableComponent = document.querySelector('[x-data="treatmentDetailTable"]');
+            const details = treatmentTableComponent && Alpine.$data(treatmentTableComponent).details || [];
+            details.forEach((detail, idx) => {
+                formData.append(`TreatmentRecordDetails[${idx}].Code`, detail.Code || '');
+                formData.append(`TreatmentRecordDetails[${idx}].TreatmentMethodId`, detail.TreatmentMethodId || '');
+                formData.append(`TreatmentRecordDetails[${idx}].RoomId`, detail.RoomId || '');
+                formData.append(`TreatmentRecordDetails[${idx}].Note`, detail.Note || '');
+            });
 
             // New assignment (if form is shown)
             const showAddAssignmentForm = document.querySelector("[x-show='showAddAssignmentForm']");
@@ -1115,27 +1109,37 @@ document.addEventListener('alpine:init', () => {
         },
 
         update() {
-            const currentId = (window.currentEmployeeId || '').toLowerCase();
-            const hasTreatment = (window.treatmentRecordDetailsData || []).some(d => (d.employeeId || '').toLowerCase() === currentId);
-            const hasAssignment = (window.assignmentsData || []).some(a => (a.employeeId || '').toLowerCase() === currentId);
+            // Trước khi submit, kiểm tra tất cả các dòng trong bảng
+            const rows = document.querySelectorAll('[x-data="treatmentDetailTable"] tbody tr');
+            let invalid = false;
+            rows.forEach(row => {
+                const methodSelect = row.querySelector('select[name*=".TreatmentMethodId"]');
+                const roomSelect = row.querySelector('select[name*=".RoomId"]');
+                if (methodSelect && !methodSelect.value) invalid = true;
+                if (roomSelect && !roomSelect.value) invalid = true;
+            });
+            if (invalid) {
+                notyf.error('Kiểm tra thông tin điều trị');
+                return;
+            }
 
-            // Kiểm tra trạng thái form "Thêm mới"
-            const isAddingTreatment = this.showAddTreatmentForm;
-            const isAddingAssignment = this.showAddAssignmentForm;
+            // Lấy thông tin bác sĩ hiện tại
+            const currentEmployeeId = (window.currentEmployeeId || '').toLowerCase();
+            const currentEmployeeCode = (window.currentEmployeeCode || '').toLowerCase();
+            // Lấy danh sách phân công hiện tại
+            const hasAssignment = (window.assignmentsData || []).some(a => (a.employeeId || '').toLowerCase() === currentEmployeeId);
+            // Lấy danh sách chi tiết điều trị hiện tại (từ bảng trên giao diện)
+            const treatmentTableComponent = document.querySelector('[x-data="treatmentDetailTable"]');
+            const details = treatmentTableComponent && Alpine.$data(treatmentTableComponent).details || [];
+            const hasTreatment = details.some(d => (d.CreatedBy || '').toLowerCase() === currentEmployeeCode);
 
-            // Bác sĩ mới: chưa có bản ghi nào
-            const isNewDoctor = !hasTreatment && !hasAssignment;
-
-            if (isNewDoctor) {
-                // Nếu chỉ điền 1 trong 2
-                if (isAddingTreatment && !isAddingAssignment) {
-                    notyf.error("Bạn cần bổ sung thông tin phân công");
-                    return;
-                }
-                if (!isAddingTreatment && isAddingAssignment) {
-                    notyf.error("Bạn cần bổ sung thông tin điều trị");
-                    return;
-                }
+            if (!hasAssignment && hasTreatment) {
+                notyf.error("Bạn cần bổ sung thông tin phân công");
+                return;
+            }
+            if (hasAssignment && !hasTreatment) {
+                notyf.error("Bạn cần bổ sung thông tin điều trị");
+                return;
             }
 
             const form = document.getElementById('receptionForm');
@@ -1465,6 +1469,116 @@ document.addEventListener('alpine:init', () => {
             this.showAddAssignmentForm = true;
         }
     }));
+
+    Alpine.data('treatmentDetailTable', () => ({
+        details: [],
+        currentEmployeeCode: window.currentEmployeeCode,
+        treatmentMethods: window.treatmentMethodsData || [],
+        allRooms: window.roomsData || [],
+        init() {
+            if (window.treatmentRecordDetailsData && Array.isArray(window.treatmentRecordDetailsData)) {
+                this.details = window.treatmentRecordDetailsData.map(d => {
+                    let roomId = (d.roomId || d.RoomId || '').toString();
+                    let methodId = (d.treatmentMethodId || d.TreatmentMethodId || '').toString();
+                    if (!methodId && roomId && window.roomsData) {
+                        let room = window.roomsData.find(r => r.id.toString() === roomId);
+                        methodId = room ? (room.treatmentMethodId || room.TreatmentMethodId || '').toString() : '';
+                    }
+                    return {
+                        Code: d.code || d.Code || '',
+                        TreatmentMethodId: methodId,
+                        RoomId: roomId,
+                        Note: d.note || d.Note || '',
+                        CreatedBy: d.createdBy || d.CreatedBy || ''
+                    };
+                });
+                // Thêm dòng này để đảm bảo AlpineJS đồng bộ lại select
+                this.$nextTick(() => {});
+            }
+        },
+        addDetail() {
+            this.details.push({
+                Code: this.generateCode(),
+                TreatmentMethodId: '',
+                RoomId: '',
+                Note: '',
+                CreatedBy: window.currentEmployeeCode
+            });
+            this.$nextTick(() => {
+                this.updateRoomCursor(this.details.length - 1);
+            });
+        },
+        removeDetail(idx) {
+            if (this.details[idx].CreatedBy === this.currentEmployeeCode) {
+                this.details.splice(idx, 1);
+                this.$nextTick(() => {
+                    this.details.forEach((_, i) => this.updateRoomCursor(i));
+                });
+            }
+        },
+        onMethodChange(idx) {
+            this.details[idx].RoomId = '';
+            this.$nextTick(() => {
+                this.updateRoomCursor(idx);
+            });
+        },
+        getRoomsForMethod(methodId, idx = null) {
+            if (!methodId) {
+                return [];
+            }
+            let rooms = this.allRooms.filter(r => r.treatmentMethodId == methodId);
+            // Đảm bảo phòng đang chọn luôn có trong danh sách
+            if (idx !== null) {
+                const currentRoomId = this.details[idx]?.RoomId;
+                if (currentRoomId && !rooms.some(r => r.id == currentRoomId)) {
+                    const currentRoom = this.allRooms.find(r => r.id == currentRoomId);
+                    if (currentRoom) rooms = [currentRoom, ...rooms];
+                }
+            }
+            return rooms;
+        },
+        isRoomDisabled(detail) {
+            return !detail.TreatmentMethodId;
+        },
+        generateCode() {
+            const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let code = '';
+            for (let i = 0; i < 8; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+            return code;
+        },
+        getAvailableMethods(currentIdx) {
+            // Nếu là dòng mới do bác sĩ hiện tại tạo
+            const isNew = !this.details[currentIdx].CreatedBy || this.details[currentIdx].CreatedBy === window.currentEmployeeCode;
+            const allMethods = isNew ? (window.treatmentMethodsData || []) : (window.allTreatmentMethodsData || []);
+        
+            // Lấy các phương pháp đã được chọn ở các dòng khác
+            const selectedIds = this.details
+                .map((d, idx) => idx !== currentIdx ? d.TreatmentMethodId : null)
+                .filter(id => id);
+        
+            // Lọc ra các phương pháp chưa được chọn
+            let available = allMethods.filter(m => !selectedIds.includes(m.id.toString()));
+        
+            // Luôn thêm method đang chọn nếu chưa có trong danh sách
+            const currentId = this.details[currentIdx]?.TreatmentMethodId;
+            if (currentId && !available.some(m => m.id.toString() === currentId)) {
+                const currentMethod = allMethods.find(m => m.id.toString() === currentId);
+                if (currentMethod) available = [currentMethod, ...available];
+            }
+        
+            return available;
+        },
+        updateRoomCursor(idx) {
+            const roomSelect = document.querySelector(`[name='TreatmentRecordDetails[${idx}].RoomId']`);
+            if (roomSelect) {
+                if (this.isRoomDisabled(this.details[idx])) {
+                    roomSelect.classList.add('cursor-not-allowed');
+                } else {
+                    roomSelect.classList.remove('cursor-not-allowed');
+                }
+            }
+        }
+    }));
 });
 
 // Make Alpine data instance globally accessible
@@ -1489,8 +1603,6 @@ function editTreatmentDetail(code) {
     ensureCurrentDoctor().then(() => {
         // Lấy thông tin chi tiết điều trị từ API
         $.get(`/api/Utils/GetTreatmentDetail/${code}`, function (detail) {
-            console.log('currentDoctor:', currentDoctor);
-            console.log('detail:', detail);
 
             if (!detail) {
                 notyf.error('Không tìm thấy thông tin điều trị');
@@ -1622,171 +1734,69 @@ function editTreatmentDetail(code) {
 }
 
 function editAssignment(code) {
-    // Đảm bảo có thông tin bác sĩ trước
+    // Tìm assignment theo code
+    const assignment = (window.assignmentsData || []).find(a => a.code === code || a.Code === code);
+    const currentEmployeeId = (window.currentEmployeeId || '').toLowerCase();
+    if (!assignment || (assignment.employeeId || assignment.EmployeeId || '').toLowerCase() !== currentEmployeeId) {
+        notyf.error('Bạn không có quyền chỉnh sửa phân công này!');
+        return;
+    }
     ensureCurrentDoctor().then(() => {
         $.get(`/api/Utils/GetAssignment/${code}`, function (assignment) {
-
             if (!assignment) {
                 notyf.error('Không tìm thấy thông tin phân công');
                 return;
             }
+            // Fill modal fields
+            $('#editAssignmentCode').val(assignment.code);
+            $('#editAssignmentDoctor').val(assignment.doctorName);
+            $('#editAssignmentStartDate').val(assignment.startDate);
+            $('#editAssignmentEndDate').val(assignment.endDate);
+            $('#editAssignmentNote').val(assignment.note && assignment.note.trim() ? assignment.note : 'Không có ghi chú');
 
-            // Check if current doctor has permission
-            if (!currentDoctor || assignment.doctorName !== currentDoctor.name) {
-                notyf.error('Bạn không có quyền chỉnh sửa bản ghi của bác sĩ khác');
-                return;
-            }
+            $('#assignmentEditError').hide().text('');
+            $('#assignmentEditModal').removeClass('hidden').show();
 
-            $.confirm({
-                title: 'Chỉnh sửa phân công',
-                content: `
-                    <form id="assignmentEditForm">
-                        <div class="flex gap-4 mb-4">
-                            <div class="form-group flex-1">
-                                <label class="font-semibold mb-2">Mã phân công</label>
-                                <input type="text" class="form-input w-full" value="${assignment.code}" readonly>
-                            </div>
-                            <div class="form-group flex-1">
-                                <label class="font-semibold mb-2">Bác sĩ phân công</label>
-                                <input type="text" class="form-input w-full" value="${assignment.doctorName}" readonly>
-                            </div>
-                        </div>
-                        <div class="flex gap-4 mb-4">
-                            <div class="form-group flex-1">
-                                <label class="font-semibold mb-2">Ngày bắt đầu</label>
-                                <input type="text" class="form-input w-full" id="assignmentStartDate" name="assignmentStartDate" value="${assignment.startDate}">
-                            </div>
-                            <div class="form-group flex-1">
-                                <label class="font-semibold mb-2">Ngày kết thúc</label>
-                                <input type="text" class="form-input w-full" id="assignmentEndDate" name="assignmentEndDate" value="${assignment.endDate}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="font-semibold mb-2">Ghi chú</label>
-                            <textarea class="form-textarea w-full" rows="3">${assignment.note || 'Không có ghi chú'}</textarea>
-                        </div>
-                        <div id="assignmentEditError" style="display:none; color:#dc3545; font-weight:bold;"></div>
-                    </form>`,
-                type: 'blue',
-                typeAnimated: true,
-                theme: 'modern',
-                columnClass: 'medium',
-                boxWidth: '1000px',
-                useBootstrap: false,
-                buttons: {
-                    save: {
-                        text: 'Lưu',
-                        btnClass: 'btn-primary',
-                        action: function () {
-                            // Ẩn cảnh báo cũ
-                            $("#assignmentEditError").hide().text('');
+            // Khởi tạo lại flatpickr nếu cần
+            flatpickr('#editAssignmentStartDate', { dateFormat: 'd/m/Y', allowInput: true });
+            flatpickr('#editAssignmentEndDate', { dateFormat: 'd/m/Y', allowInput: true });
 
-                            if (!$("#assignmentEditForm").valid()) {
-                                $("#assignmentEditError").text("Vui lòng kiểm tra lại thông tin ngày tháng.").show();
-                                return false;
-                            }
-                            const startDate = this.$content.find('#assignmentStartDate').val();
-                            const endDate = this.$content.find('#assignmentEndDate').val();
-                            const note = this.$content.find('textarea').val();
+            // Lưu
+            $('#assignmentEditSaveBtn').off('click').on('click', function () {
+                const startDate = $('#editAssignmentStartDate').val();
+                const endDate = $('#editAssignmentEndDate').val();
+                const note = $('#editAssignmentNote').val();
 
-                            if (!startDate || !endDate) {
-                                notyf.error('Vui lòng nhập đầy đủ ngày bắt đầu và kết thúc');
-                                return false;
-                            }
-
-                            // Gửi request cập nhật
-                            $.ajax({
-                                url: '/api/Utils/UpdateAssignment',
-                                type: 'POST',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    code: code,
-                                    startDate: startDate,
-                                    endDate: endDate,
-                                    note: note || ''
-                                }),
-                                success: function (response) {
-                                    // Cập nhật thông tin trên bảng
-                                    const row = $(`tr:has(td:contains('${code}'))`);
-                                    row.find('td:eq(3)').text(response.startDate);
-                                    row.find('td:eq(4)').text(response.endDate);
-
-                                    // Cập nhật nút xem ghi chú
-                                    const noteButton = row.find('td:eq(5)').find('button');
-                                    setupNoteButton(noteButton, response.code, response.note);
-
-                                    // Hiển thị thông báo thành công
-                                    notyf.success('Đã cập nhật thông tin phân công');
-                                },
-                                error: function (xhr) {
-                                    notyf.error(xhr.responseText || 'Có lỗi xảy ra khi cập nhật thông tin');
-                                }
-                            });
-                        }
-                    },
-                    close: {
-                        text: 'Đóng',
-                        btnClass: 'btn-default'
-                    }
-                },
-                onContentReady: function () {
-                    $("#assignmentEditForm").validate({
-                        rules: {
-                            assignmentStartDate: {
-                                required: true,
-                                dateFormat: true
-                            },
-                            assignmentEndDate: {
-                                required: true,
-                                dateFormat: true,
-                                endDateAfterStartDate: true
-                            }
-                        },
-                        messages: {
-                            assignmentStartDate: {
-                                required: "Vui lòng nhập ngày bắt đầu",
-                                dateFormat: "Ngày phải có định dạng dd/MM/yyyy"
-                            },
-                            assignmentEndDate: {
-                                required: "Vui lòng nhập ngày kết thúc",
-                                dateFormat: "Ngày phải có định dạng dd/MM/yyyy",
-                                endDateAfterStartDate: "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu"
-                            }
-                        },
-                        errorElement: "div",
-                        errorClass: "text-danger",
-                        highlight: function (element) {
-                            $(element).addClass("border-red-500");
-                        },
-                        unhighlight: function (element) {
-                            $(element).removeClass("border-red-500");
-                        },
-                        errorPlacement: function (error, element) {
-                            error.insertAfter(element);
-                        }
-                    });
-
-                    // Custom method giống như bạn dùng cho treatment record
-                    $.validator.addMethod("dateFormat", function (value, element) {
-                        return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
-                    }, "Ngày phải có định dạng dd/MM/yyyy.");
-
-                    $.validator.addMethod("endDateAfterStartDate", function (value, element) {
-                        var startDate = $("#assignmentStartDate").val();
-                        if (!startDate || !value) return true;
-                        var startParts = startDate.split("/");
-                        var endParts = value.split("/");
-                        var start = new Date(startParts[2], startParts[1] - 1, startParts[0]);
-                        var end = new Date(endParts[2], endParts[1] - 1, endParts[0]);
-                        return end >= start;
-                    }, "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu");
+                if (!startDate || !endDate) {
+                    notyf.error('Kiểm tra thông tin nhập');
+                    return;
                 }
+                // Gửi request cập nhật
+                $.ajax({
+                    url: '/api/Utils/UpdateAssignment',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        code: code,
+                        startDate: startDate,
+                        endDate: endDate,
+                        note: note || ''
+                    }),
+                    success: function (response) {
+                        notyf.success('Đã cập nhật thông tin phân công');
+                    },
+                    error: function (xhr) {
+                        $('#assignmentEditError').text(xhr.responseText || 'Có lỗi xảy ra khi cập nhật thông tin').show();
+                    }
+                });
             });
-        }).catch(error => {
-            notyf.error('Không thể xác thực thông tin bác sĩ');
+
+            // Đóng modal
+            $('#assignmentEditCloseBtn').off('click').on('click', function () {
+                $('#assignmentEditModal').addClass('hidden').hide();
+                location.reload();
+            });
         });
-    }).catch(error => {
-        notyf.error('Không thể xác thực thông tin bác sĩ');
     });
 }
 

@@ -422,171 +422,76 @@
 
         <!-- Phần 3: Thông tin điều trị -->
         <div x-show="tab === 'treatment-details'" x-cloak>
-            <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
-                <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
-                    <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
-                        <div class="px-6">
-                            <h6 class="mb-5 text-lg font-bold">Thông tin điều trị</h6>
-
-                            <!-- Bảng danh sách điều trị -->
-                            @if (Model.TreatmentRecordDetails != null && Model.TreatmentRecordDetails.Any()){
-                                <div class="table-responsive mb-5">
-                                    <table class="table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>STT</th>
-                                                <th>Mã chi tiết</th>
-                                                <th>Phòng điều trị</th>
-                                                <th>Phương pháp điều trị</th>
-                                                <th>Người thực hiện</th>
-                                                <th>Ghi chú</th>
-                                                <th>Thao tác</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @{
-                                                int treatmentIndex = 1;
-                                            }
-                                            @foreach (var detail in Model.TreatmentRecordDetails)
-                                            {
-                                                <tr>
-                                                    <td>@treatmentIndex</td>
-                                                    <td>@detail.Code</td>
-                                                    <td>@detail.RoomName</td>
-                                                    <td>@detail.TreatmentMethodName</td>
-                                                    <td>@detail.EmployeeName</td>
-                                                    <td>
-                                                        <button type="button" class="view-note-btn"
-                                                            @@click="displayNote('@(detail.Note?.Replace("'", "\\'"))', 'treatment', '@detail.Code')">
-                                                            Xem ghi chú
-                                                        </button>
-                                                    </td>
-                                                    <td class="flex items-center justify-center">
-                                                        <button type="button" class="btn btn-info btn-sm" onclick="editTreatmentDetail('@detail.Code')">
-                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                                                xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5">
-                                                                <path opacity="0.5"
-                                                                    d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5"
-                                                                    stroke="currentColor" stroke-width="1.5"
-                                                                    stroke-linecap="round"></path>
-                                                                <path
-                                                                    d="M17.3009 2.80624L16.652 3.45506L10.6872 9.41993C10.2832 9.82394 10.0812 10.0259 9.90743 10.2487C9.70249 10.5114 9.52679 10.7957 9.38344 11.0965C9.26191 11.3515 9.17157 11.6225 8.99089 12.1646L8.41242 13.9L8.03811 15.0229C7.9492 15.2897 8.01862 15.5837 8.21744 15.7826C8.41626 15.9814 8.71035 16.0508 8.97709 15.9619L10.1 15.5876L11.8354 15.0091C12.3775 14.8284 12.6485 14.7381 12.9035 14.6166C13.2043 14.4732 13.4886 14.2975 13.7513 14.0926C13.9741 13.9188 14.1761 13.7168 14.5801 13.3128L20.5449 7.34795L21.1938 6.69914C22.2687 5.62415 22.2687 3.88124 21.1938 2.80624C20.1188 1.73125 18.3759 1.73125 17.3009 2.80624Z"
-                                                                    stroke="currentColor" stroke-width="1.5"></path>
-                                                                <path opacity="0.5"
-                                                                    d="M16.652 3.45506L17.3009 2.80624C18.3759 1.73125 20.1188 1.73125 21.1938 2.80624C22.2687 3.88124 22.2687 5.62415 21.1938 6.69914L20.5449 7.34795L14.5801 13.3128C14.1761 13.7168 13.9741 13.9188 13.7513 14.0926C13.4886 14.2975 13.2043 14.4732 12.9035 14.6166C12.6485 14.7381 12.3775 14.8284 11.8354 15.0091L10.1 15.5876L8.97709 15.9619C8.71035 16.0508 8.41626 15.9814 8.21744 15.7826C8.01862 15.5837 7.9492 15.2897 8.03811 15.0229L8.41242 13.9L8.99089 12.1646C9.17157 11.6225 9.26191 11.3515 9.38344 11.0965C9.52679 10.7957 9.70249 10.5114 9.90743 10.2487C10.0812 10.0259 10.2832 9.82394 10.6872 9.41993L16.652 3.45506Z"
-                                                                    stroke="currentColor" stroke-width="1.5"></path>
-                                                            </svg>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                treatmentIndex++;
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>                            
-                            }
-                            else{
-                                <div class="text-center text-gray-500">
-                                    Chưa có thông tin điều trị
-                                </div>
-                            }
-
-                            <!-- Nút thêm mới -->
-                            <div class="flex justify-end mb-5">
-                                <button type="button" class="btn btn-primary"
-                                    @@click="handleAddTreatment()">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"></circle>
-                                        <path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                    </svg>
-                                    Thêm mới
-                                </button>
-                            </div>
-
-                            <!-- Form thêm mới điều trị -->
-                            <div x-show="showAddTreatmentForm" class="panel mb-5">
-                                <div class="flex flex-col lg:flex-row gap-6">
-                                    <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
-                                        <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                                            <div class="w-full sm:w-1/2">
-                                                <label for="treatmentRecordDetailCode" class="block text-sm font-medium text-gray-700">Mã chi tiết điều trị</label>
-                                                <input id="treatmentRecordDetailCode" name="NewTreatmentRecordDetail.Code" class="form-input w-full mt-1 p-2 border rounded" readonly
-                                                    value="@Model.NewTreatmentRecordDetail.Code" />
-                                            </div>
-                                            <div class="w-full sm:w-1/2">
-                                                <label for="treatmentRecordDetailTreatmentMethod">Phương pháp điều trị<span class="text-danger">&nbsp*</span></label>
-                                                <div class="select-wrapper">
-                                                    <select id="treatmentRecordDetailTreatmentMethod" 
-                                                            name="TreatmentRecordDetail.TreatmentMethodId"
-                                                            class="form-input w-full mt-1 p-2 border rounded choices"
-                                                            disabled
-                                                            x-init="
-                                                                if (window.employeeTreatmentMethod) {
-                                                                    $el.value = window.employeeTreatmentMethod.id;
-                                                                    filterRooms(window.employeeTreatmentMethod.id);
-                                                                }
-                                                            ">
-                                                        <option value="">Chọn phương pháp điều trị</option>
-                                                        @foreach (var method in ViewBag.TreatmentMethods_Reception)
-                                                        {
-                                                            <option value="@method.Id" selected="@(ViewBag.EmployeeTreatmentMethod?.Id == method.Id)">@method.Name</option>
-                                                        }
-                                                    </select>
-                                                    <input type="hidden" name="TreatmentRecordDetail.TreatmentMethodId" value="@ViewBag.EmployeeTreatmentMethod?.Id" />
-                                                </div>
-                                                @Html.ValidationMessageFor(model => model.NewTreatmentRecordDetail.TreatmentMethodId, "", new { @class = "text-danger" })
-                                            </div>
-                                            <div class="w-full sm:w-1/2">
-                                                <label for="treatmentRecordDetailRoom">Phòng điều trị<span class="text-danger">&nbsp*</span></label>
-                                                <div class="select-wrapper">
-                                                    <select id="treatmentRecordDetailRoom" 
-                                                            name="NewTreatmentRecordDetail.RoomId" 
-                                                            class="form-input w-full mt-1 p-2 border rounded choices"
-                                                            x-init="
-                                                                if (window.employeeRoom) {
-                                                                    $el.value = window.employeeRoom.id;
-                                                                }
-                                                            ">
-                                                        <option value="">Chọn phòng</option>
-                                                        @if (ViewBag.EmployeeRoom != null)
-                                                        {
-                                                            <option value="@ViewBag.EmployeeRoom.Id" selected="selected">@ViewBag.EmployeeRoom.Name</option>
-                                                        }
-                                                    </select>
-                                                </div>
-                                                @Html.ValidationMessageFor(model => model.NewTreatmentRecordDetail.RoomId, "", new { @class = "text-danger" })
-                                            </div>
-                                        </div>
-
-                                        <div id="treatmentMethodWarning" class="text-sm mb-4" style="display: none; color: coral; font-weight: bold;">
-                                            <div class="flex items-center">
-                                                <svg class="w-4 h-4 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                                </svg>
-                                                Vui lòng chọn phương pháp điều trị trước khi chọn phòng!
-                                            </div>
-                                        </div>
-
-                                        <!-- Thêm trường ghi chú -->
-                                        <div class="w-full">
-                                            <label for="treatmentRecordDetailNote" class="block text-sm font-medium text-gray-700">Ghi chú</label>
-                                            <textarea id="treatmentRecordDetailNote" 
-                                                    name="NewTreatmentRecordDetail.Note" 
-                                                    class="form-textarea w-full mt-1 p-2 border rounded min-h-[100px]" 
-                                                    placeholder="Nhập ghi chú..."></textarea>
-                                        </div>
-
-                                        <!-- Nút lưu và hủy -->
-                                        <div class="flex justify-end gap-4 mt-4">
-                                            <button type="button" class="btn btn-danger" @@click="showAddTreatmentForm = false">
-                                                Hủy
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div x-data="treatmentDetailTable" class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4">
+                <h6 class="mb-5 text-lg font-bold">Thông tin điều trị</h6>
+                <div class="table-responsive">
+                    <table class="table-striped w-full">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; font-weight: bold;">Mã chi tiết điều trị</th>
+                                <th style="text-align: center; font-weight: bold;">Phương pháp điều trị</th>
+                                <th style="text-align: center; font-weight: bold;">Phòng</th>
+                                <th style="text-align: center; font-weight: bold;">Ghi chú</th>
+                                <th style="text-align: center; font-weight: bold;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="(detail, idx) in details" :key="detail.Code">
+                                <tr>
+                                    <td>
+                                        <input :id="'treatmentRecordDetailCode-' + idx" type="text" class="form-input" x-model="detail.Code" readonly
+                                            :name="'TreatmentRecordDetails['+idx+'].Code'">
+                                    </td>
+                                    <td>
+                                        <select :id="'treatmentRecordDetailTreatmentMethod-' + idx" class="form-select" x-model="detail.TreatmentMethodId"
+                                            :name="'TreatmentRecordDetails['+idx+'].TreatmentMethodId'"
+                                            @@change="onMethodChange(idx)"
+                                            :disabled="detail.CreatedBy !== currentEmployeeCode">
+                                            <option value="">Chọn phương pháp</option>
+                                            <template x-for="method in getAvailableMethods(idx)" :key="method.id">
+                                                <option
+                                                    :value="method.id.toString()"
+                                                    x-text="method.name"
+                                                    :selected="detail.TreatmentMethodId === method.id.toString()"
+                                                ></option>
+                                            </template>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select :id="'treatmentRecordDetailRoom-' + idx" class="form-select" x-model="detail.RoomId"
+                                            :name="'TreatmentRecordDetails['+idx+'].RoomId'"
+                                            :disabled="isRoomDisabled(detail) || detail.CreatedBy !== currentEmployeeCode">
+                                            <option value="">Chọn phòng</option>
+                                            <template x-for="room in getRoomsForMethod(detail.TreatmentMethodId, idx)" :key="room.id">
+                                                <option
+                                                    :value="room.id.toString()"
+                                                    x-text="room.name"
+                                                    :selected="detail.RoomId === room.id.toString()"
+                                                ></option>
+                                            </template>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input :id="'treatmentRecordDetailNote-' + idx" type="text" class="form-input" x-model="detail.Note"
+                                            :name="'TreatmentRecordDetails['+idx+'].Note'" placeholder="Nhập ghi chú..."
+                                            :disabled="detail.CreatedBy !== currentEmployeeCode">
+                                    </td>
+                                    <td>
+                                        <button type="button" @@click="removeDetail(idx)"
+                                            :disabled="detail.CreatedBy !== currentEmployeeCode">
+                                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                        </button>                                    
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr x-show="details.length === 0">
+                                <td colspan="5" class="text-center">Chưa có thông tin điều trị nào</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6 flex flex-col sm:flex-row justify-between px-4">
+                    <button type="button" class="btn btn-primary mb-4 sm:mb-0" @@click="addDetail()">Thêm mới</button>
                 </div>
             </div>
         </div>
@@ -605,13 +510,12 @@
                                     <table class="table-striped">
                                         <thead>
                                             <tr>
-                                                <th>STT</th>
-                                                <th>Mã phân công</th>
-                                                <th>Nhân viên được phân công</th>
-                                                <th>Ngày bắt đầu</th>
-                                                <th>Ngày kết thúc</th>
-                                                <th>Ghi chú</th>
-                                                <th>Thao tác</th>
+                                                <th style="text-align: center; font-weight: bold;">STT</th>
+                                                <th style="text-align: center; font-weight: bold;">Mã phân công</th>
+                                                <th style="text-align: center; font-weight: bold;">Nhân viên được phân công</th>
+                                                <th style="text-align: center; font-weight: bold;">Ngày bắt đầu</th>
+                                                <th style="text-align: center; font-weight: bold;">Ngày kết thúc</th>
+                                                <th style="text-align: center; font-weight: bold;">Thao tác</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -626,12 +530,6 @@
                                                     <td>@assignment.EmployeeName</td>
                                                     <td>@assignment.StartDate.ToString("dd/MM/yyyy", CultureInfo.GetCultureInfo("vi-VN"))</td>
                                                     <td>@assignment.EndDate.ToString("dd/MM/yyyy", CultureInfo.GetCultureInfo("vi-VN"))</td>
-                                                    <td>
-                                                        <button type="button" class="view-note-btn"
-                                                            @@click="displayNote('@(assignment.Note?.Replace("'", "\\'"))', 'assignment', '@assignment.Code')">
-                                                            Xem ghi chú
-                                                        </button>
-                                                    </td>
                                                     <td class="flex items-center justify-center">
                                                         <button type="button" class="btn btn-info btn-sm"
                                                             onclick="editAssignment('@assignment.Code')">
@@ -848,94 +746,43 @@
         </div>  
     </div>
 </form>
-<style>
-    .table-striped {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-    }
 
-    .table-striped thead tr {
-        background-color: #f8f9fa;
-    }
-
-    .table-striped tbody tr {
-        border-bottom: 1px solid #dee2e6;
-    }
-
-    .table-striped tbody tr:nth-child(even) {
-        background-color: #f8f9fa;
-    }
-
-    .table-striped th,
-    .table-striped td {
-        padding: 12px;
-        text-align: center !important;
-        vertical-align: middle;
-        white-space: nowrap;
-        border: 1px solid #e5e7eb;
-    }
-
-    .table-striped th {
-        font-weight: 700;
-        font-size: 1rem;
-        background-color: #f8f9fa;
-        border-bottom: 2px solid #dee2e6;
-        position: relative;
-        color: #1a1c23;
-    }
-
-    .dark .table-striped {
-        border-color: #2d3748;
-    }
-
-    .dark .table-striped thead tr {
-        background-color: #1a1c23;
-    }
-
-    .dark .table-striped tbody tr:nth-child(even) {
-        background-color: #1a1c23;
-    }
-
-    .dark .table-striped tbody tr {
-        border-bottom: 1px solid #2d3748;
-    }
-
-    .dark .table-striped th {
-        background-color: #1a1c23;
-        color: #fff;
-        border-color: #2d3748;
-    }
-
-    .dark .table-striped td {
-        border-color: #2d3748;
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-        border-radius: 8px;
-        padding: 1px;
-    }
-
-    .view-note-btn {
-        padding: 6px 12px;
-        background-color: #4361ee;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        white-space: nowrap;
-    }
-
-    .view-note-btn:hover {
-        background-color: #2c3dbb;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-</style>
+<div id="assignmentEditModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate">
+        <h2 class="text-2xl font-bold text-primary text-center mb-4">Chỉnh sửa phân công</h2>
+        <form id="assignmentEditForm">
+            <div class="flex gap-4 mb-4">
+                <div class="flex-1">
+                    <label class="block mb-1">Mã phân công</label>
+                    <input type="text" id="editAssignmentCode" class="form-input w-full" readonly>
+                </div>
+                <div class="flex-1">
+                    <label class="block mb-1">Bác sĩ phân công</label>
+                    <input type="text" id="editAssignmentDoctor" class="form-input w-full" readonly>
+                </div>
+            </div>
+            <div class="flex gap-4 mb-4">
+                <div class="flex-1">
+                    <label class="block mb-1">Ngày bắt đầu</label>
+                    <input type="text" id="editAssignmentStartDate" class="form-input w-full flatpickr" placeholder="Chọn ngày bắt đầu">
+                </div>
+                <div class="flex-1">
+                    <label class="block mb-1">Ngày kết thúc</label>
+                    <input type="text" id="editAssignmentEndDate" class="form-input w-full flatpickr" placeholder="Chọn ngày kết thúc">
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-1">Ghi chú</label>
+                <textarea id="editAssignmentNote" class="form-textarea w-full" rows="3" placeholder="Nhập ghi chú..." style="resize: none;"></textarea>
+            </div>
+            <div id="assignmentEditError" class="text-danger mb-2" style="display:none"></div>
+            <div class="flex justify-center gap-4 mt-6">
+                <button type="button" id="assignmentEditSaveBtn" class="btn btn-primary">Lưu</button>
+                <button type="button" id="assignmentEditCloseBtn" class="btn btn-secondary">Đóng</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script src="~/Public/assets/js/reception-edit.js?v=@DateTime.Now.Ticks"></script>
 <script>
@@ -947,4 +794,70 @@
     window.treatmentRecordDetailsData = @Html.Raw(Json.Serialize(Model.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.DTOs.ReceptionDTO.ReceptionTreatmentRecordDetailDto>()));
     window.assignmentsData = @Html.Raw(Json.Serialize(Model.Assignments ?? new List<Project.Areas.Staff.Models.DTOs.ReceptionDTO.ReceptionAssignmentDto>()));
     window.currentEmployeeId = '@Model.CurrentEmployeeId';
+    window.treatmentMethodsData = @Html.Raw(Json.Serialize(ViewBag.TreatmentMethods_Reception));
+    window.allTreatmentMethodsData = @Html.Raw(Json.Serialize(ViewBag.TreatmentMethods));
+    window.currentEmployeeCode = '@ViewBag.CurrentEmployeeCode';
 </script>
+
+<style>
+    .modal-content-animate {
+        animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #assignmentEditModal.closing .modal-content-animate {
+        animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @@keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    @@keyframes modalFadeOut {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    }
+    #assignmentEditModal {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+    .bg-modal-blur {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+</style>
+
+<script>
+// Hiệu ứng đóng modal mượt mà cho assignmentEditModal
+$(function() {
+    $('#assignmentEditCloseBtn').off('click').on('click', function () {
+        const modal = $('#assignmentEditModal');
+        modal.addClass('closing');
+        setTimeout(function () {
+            modal.addClass('hidden').removeClass('closing');
+        }, 200);
+    });
+    // Đóng modal khi click backdrop (không click vào content)
+    $('#assignmentEditModal').on('click', function(e) {
+        if (e.target === this) {
+            const modal = $(this);
+            modal.addClass('closing');
+            setTimeout(function () {
+                modal.addClass('hidden').removeClass('closing');
+            }, 200);
+        }
+    });
+});
+</script>
+

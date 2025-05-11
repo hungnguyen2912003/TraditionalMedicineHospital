@@ -73,8 +73,9 @@ namespace Project.Mappers
 
             // Treatment record detail
             CreateMap<TreatmentRecordDetail, ReceptionTreatmentRecordDetailDto>()
-                .ForMember(dest => dest.TreatmentMethodName, opt => opt.MapFrom(src => src.Room.TreatmentMethod.Name))
-                .ForMember(dest => dest.RoomName, opt => opt.MapFrom(src => src.Room.Name));
+                .ForMember(dest => dest.TreatmentMethodName, opt => opt.MapFrom(src => src.Room.TreatmentMethod!.Name))
+                .ForMember(dest => dest.RoomName, opt => opt.MapFrom(src => src.Room.Name))
+                .ForMember(dest => dest.TreatmentMethodId, opt => opt.MapFrom(src => src.Room.TreatmentMethodId));
 
             CreateMap<ReceptionTreatmentRecordDetailDto, TreatmentRecordDetail>()
                 .ForMember(dest => dest.TreatmentRecordId, opt => opt.Ignore())

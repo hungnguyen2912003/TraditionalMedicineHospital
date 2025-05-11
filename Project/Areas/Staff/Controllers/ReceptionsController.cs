@@ -30,7 +30,8 @@ namespace Project.Areas.Staff.Controllers
         private readonly IImageService _imageService;
         private readonly IRoomRepository _roomRepository;
         private readonly IEmployeeRepository _employeeRepository;
-        private readonly EmailService _emailService;    
+        private readonly EmailService _emailService;
+        private readonly ITreatmentMethodRepository _treatmentMethodRepository;
         public ReceptionsController(
             IPatientRepository patientRepository,
             IHealthInsuranceRepository healthInsuranceRepository,
@@ -46,7 +47,8 @@ namespace Project.Areas.Staff.Controllers
             IImageService imageService,
             IRoomRepository roomRepository,
             IEmployeeRepository employeeRepository,
-            EmailService emailService  
+            EmailService emailService,
+            ITreatmentMethodRepository treatmentMethodRepository
         )
         {
             _patientRepository = patientRepository;
@@ -64,6 +66,7 @@ namespace Project.Areas.Staff.Controllers
             _roomRepository = roomRepository;
             _employeeRepository = employeeRepository;
             _emailService = emailService;
+            _treatmentMethodRepository = treatmentMethodRepository;
         }
 
         [HttpGet]
@@ -115,11 +118,6 @@ namespace Project.Areas.Staff.Controllers
         {
             try
             {
-                // Log toàn bộ dữ liệu gửi lên
-                Console.WriteLine("=== ReceptionDto DATA SUBMIT ===");
-                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(dto));
-                Console.WriteLine("=== END ReceptionDto DATA ===");
-
                 // Get user info from token
                 var token = Request.Cookies["AuthToken"];
                 if (string.IsNullOrEmpty(token))
@@ -354,6 +352,10 @@ namespace Project.Areas.Staff.Controllers
             // Get regulations
             var regulations = await _treatmentRecordRegulationRepository.GetByTreatmentRecordIdAsync(treatmentRecord.Id);
 
+            // // Get all treatment methods for all departments
+            // var treatmentMethods = await _treatmentMethodRepository.GetAllAsync();
+            // ViewBag.TreatmentMethods = treatmentMethods;
+
             // Map to DTOs
             var model = new ReceptionEditDto
             {
@@ -388,6 +390,7 @@ namespace Project.Areas.Staff.Controllers
             ViewBag.PatientId = patient.Id;
             ViewBag.HealthInsuranceId = healthInsurance?.Id;
             ViewBag.ExistingImage = patient.Images;
+            ViewBag.CurrentEmployeeCode = user.Employee.Code;
 
             return View(model);
         }
@@ -398,73 +401,6 @@ namespace Project.Areas.Staff.Controllers
         {
             try
             {
-                // Log all incoming data
-                Console.WriteLine("\n=== RECEPTION EDIT DATA START ===");
-
-                // Patient Data
-                Console.WriteLine("\n--- PATIENT INFO ---");
-                Console.WriteLine($"Patient Code: {dto.Patient?.Code}");
-                Console.WriteLine($"Patient Name: {dto.Patient?.Name}");
-                Console.WriteLine($"Patient Gender: {dto.Patient?.Gender}");
-                Console.WriteLine($"Patient DateOfBirth: {dto.Patient?.DateOfBirth}");
-                Console.WriteLine($"Patient IdentityNumber: {dto.Patient?.IdentityNumber}");
-                Console.WriteLine($"Patient PhoneNumber: {dto.Patient?.PhoneNumber}");
-                Console.WriteLine($"Patient Address: {dto.Patient?.Address}");
-                Console.WriteLine($"Patient EmailAddress: {dto.Patient?.EmailAddress}");
-
-                // Health Insurance Data
-                Console.WriteLine("\n--- HEALTH INSURANCE INFO ---");
-                Console.WriteLine($"Has Health Insurance: {dto.Patient?.HasHealthInsurance}");
-                if (dto.Patient?.HasHealthInsurance == true)
-                {
-                    Console.WriteLine($"Insurance Code: {dto.Patient?.HealthInsuranceCode}");
-                    Console.WriteLine($"Insurance Number: {dto.Patient?.HealthInsuranceNumber}");
-                    Console.WriteLine($"Insurance Expiry Date: {dto.Patient?.HealthInsuranceExpiryDate}");
-                    Console.WriteLine($"Insurance Place: {dto.Patient?.HealthInsurancePlaceOfRegistration}");
-                    Console.WriteLine($"Insurance Is Right Route: {dto.Patient?.HealthInsuranceIsRightRoute}");
-                }
-
-                // Treatment Record Data
-                Console.WriteLine("\n--- TREATMENT RECORD INFO ---");
-                Console.WriteLine($"Treatment Record ID: {dto.TreatmentRecord?.Id}");
-                Console.WriteLine($"Treatment Record Code: {dto.TreatmentRecord?.Code}");
-                Console.WriteLine($"Treatment Start Date: {dto.TreatmentRecord?.StartDate}");
-                Console.WriteLine($"Treatment End Date: {dto.TreatmentRecord?.EndDate}");
-                Console.WriteLine($"Treatment Diagnosis: {dto.TreatmentRecord?.Diagnosis}");
-                Console.WriteLine($"Treatment Note: {dto.TreatmentRecord?.Note}");
-
-                // New Treatment Record Detail
-                if (dto.NewTreatmentRecordDetail != null)
-                {
-                    Console.WriteLine("\n--- NEW TREATMENT DETAIL ---");
-                    Console.WriteLine($"Detail Code: {dto.NewTreatmentRecordDetail.Code}");
-                    Console.WriteLine($"Treatment Method ID: {dto.NewTreatmentRecordDetail.TreatmentMethodId}");
-                    Console.WriteLine($"Room ID: {dto.NewTreatmentRecordDetail.RoomId}");
-                    Console.WriteLine($"Note: {dto.NewTreatmentRecordDetail.Note}");
-                }
-
-                // New Assignment
-                if (dto.NewAssignment != null)
-                {
-                    Console.WriteLine("\n--- NEW ASSIGNMENT ---");
-                    Console.WriteLine($"Assignment Code: {dto.NewAssignment.Code}");
-                    Console.WriteLine($"Start Date: {dto.NewAssignment.StartDate}");
-                    Console.WriteLine($"End Date: {dto.NewAssignment.EndDate}");
-                    Console.WriteLine($"Note: {dto.NewAssignment.Note}");
-                }
-
-                // Regulations
-                if (dto.Regulations != null && dto.Regulations.Any())
-                {
-                    Console.WriteLine("\n--- REGULATIONS ---");
-                    foreach (var reg in dto.Regulations)
-                    {
-                        Console.WriteLine($"Regulation ID: {reg.RegulationId}, Date: {reg.ExecutionDate}");
-                    }
-                }
-
-                Console.WriteLine("\n=== RECEPTION EDIT DATA END ===\n");
-
                 // Get user info from token
                 var token = Request.Cookies["AuthToken"];
                 if (string.IsNullOrEmpty(token))
@@ -560,39 +496,6 @@ namespace Project.Areas.Staff.Controllers
                     await _healthInsuranceRepository.UpdateAsync(healthInsurance);
                 }
 
-                // Create new treatment record detail if provided
-                if (dto.NewTreatmentRecordDetail != null &&
-                    (dto.NewTreatmentRecordDetail.TreatmentMethodId != Guid.Empty ||
-                     dto.NewTreatmentRecordDetail.RoomId != Guid.Empty ||
-                     !string.IsNullOrEmpty(dto.NewTreatmentRecordDetail.Note)))
-                {
-                    if (dto.NewTreatmentRecordDetail.TreatmentMethodId == Guid.Empty)
-                    {
-                        return Json(new { success = false, message = "Vui lòng chọn phương pháp điều trị" });
-                    }
-
-                    if (dto.NewTreatmentRecordDetail.RoomId == Guid.Empty)
-                    {
-                        return Json(new { success = false, message = "Vui lòng chọn phòng điều trị" });
-                    }
-
-                    var treatmentRecordDetail = _mapper.Map<TreatmentRecordDetail>(dto.NewTreatmentRecordDetail);
-                    treatmentRecordDetail.TreatmentRecordId = dto.TreatmentRecord.Id;
-                    treatmentRecordDetail.RoomId = dto.NewTreatmentRecordDetail.RoomId;
-                    treatmentRecordDetail.CreatedBy = employee.Code;
-                    treatmentRecordDetail.CreatedDate = DateTime.Now;
-                    treatmentRecordDetail.IsActive = true;
-
-                    // Validate RoomId exists
-                    var room = await _roomRepository.GetByIdAsync(treatmentRecordDetail.RoomId);
-                    if (room == null)
-                    {
-                        return Json(new { success = false, message = $"Phòng điều trị với ID {treatmentRecordDetail.RoomId} không tồn tại" });
-                    }
-
-                    await _treatmentRecordDetailRepository.CreateAsync(treatmentRecordDetail);
-                }
-
                 // Create new assignment if provided
                 if (dto.NewAssignment != null &&
                     (dto.NewAssignment.StartDate != default ||
@@ -668,6 +571,50 @@ namespace Project.Areas.Staff.Controllers
                                 existing.UpdatedDate = DateTime.Now;
                                 await _treatmentRecordRegulationRepository.UpdateAsync(existing);
                             }
+                        }
+                    }
+                }
+
+                // 1. Lấy danh sách chi tiết cũ từ DB
+                var oldDetails = await _treatmentRecordDetailRepository.GetByTreatmentRecordIdAsync(treatmentRecord.Id);
+                var oldCodes = oldDetails.Select(d => d.Code).ToList();
+                var newCodes = dto.TreatmentRecordDetails.Select(d => d.Code).ToList();
+
+                // 2. XÓA các dòng đã bị loại khỏi form
+                foreach (var old in oldDetails)
+                {
+                    if (!newCodes.Contains(old.Code))
+                    {
+                        await _treatmentRecordDetailRepository.DeleteAsync(old.Id);
+                    }
+                }
+
+                // 3. THÊM mới các dòng chưa có trong DB
+                foreach (var detailDto in dto.TreatmentRecordDetails)
+                {
+                    var old = oldDetails.FirstOrDefault(d => d.Code == detailDto.Code);
+                    if (old == null)
+                    {
+                        // Thêm mới
+                        var newDetail = _mapper.Map<TreatmentRecordDetail>(detailDto);
+                        newDetail.TreatmentRecordId = treatmentRecord.Id;
+                        newDetail.CreatedBy = employee.Code;
+                        newDetail.CreatedDate = DateTime.Now;
+                        newDetail.IsActive = true;
+                        await _treatmentRecordDetailRepository.CreateAsync(newDetail);
+                    }
+                    else
+                    {
+                        // Sửa nếu có thay đổi
+                        bool changed = old.RoomId != detailDto.RoomId
+                                    || old.Note != detailDto.Note;
+                        if (changed)
+                        {
+                            old.RoomId = detailDto.RoomId;
+                            old.Note = detailDto.Note;
+                            old.UpdatedBy = employee.Code;
+                            old.UpdatedDate = DateTime.Now;
+                            await _treatmentRecordDetailRepository.UpdateAsync(old);
                         }
                     }
                 }

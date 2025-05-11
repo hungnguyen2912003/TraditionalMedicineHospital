@@ -569,10 +569,7 @@
         }
     });
     $(document).ready(function () {
-
-        if (!window.activeChoices) {
-            window.activeChoices = new Choices('#filterStatus', { searchEnabled: true, itemSelectText: '', shouldSort: false });
-        }
+        
         updateResetFilterButtonState();
 
         $('#filterStatus, #filterDateFrom, #filterDateTo').on('change', function () {

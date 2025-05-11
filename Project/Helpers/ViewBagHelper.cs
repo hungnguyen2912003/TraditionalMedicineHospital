@@ -131,10 +131,7 @@ namespace Project.Helpers
 
             var treatmentMethods = await _treatmentRepository.GetAllAsync();
             if (depId.HasValue)
-            {
-                Console.WriteLine("Department ID: " + depId);
-                Console.WriteLine("Total treatment methods: " + treatmentMethods.Count());
-                
+            {   
                 // Get all treatment methods that belong to this department
                 // This includes methods from all rooms in the department, including administrative rooms
                 var filtered = treatmentMethods
@@ -142,7 +139,6 @@ namespace Project.Helpers
                    .Select(tm => new { tm.Id, tm.Name })
                    .ToList();
                 
-                Console.WriteLine("Filtered treatment methods for department: " + filtered.Count());
                 viewData["TreatmentMethods_Reception"] = filtered;
             }
 

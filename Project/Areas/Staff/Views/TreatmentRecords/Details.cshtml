@@ -149,7 +149,7 @@
                                     <label for="treatmentRecordNote">Ghi chú</label>
                                     <textarea id="treatmentRecordNote"
                                         class="form-textarea w-full mt-1 p-2 border rounded min-h-[100px]"
-                                        readonly>@Model.Note</textarea>
+                                        readonly>@(Model.Note ?? "Không có ghi chú")</textarea>
                                 </div>
                             </div>
                         </div>
@@ -296,7 +296,6 @@
                                                 <th>Mã chi tiết</th>
                                                 <th>Phòng điều trị</th>
                                                 <th>Phương pháp điều trị</th>
-                                                <th>Ghi chú</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -309,13 +308,7 @@
                                                     <td>@treatmentIndex</td>
                                                     <td>@detail.Code</td>
                                                     <td>@detail.Room.Name</td>
-                                                    <td>@detail.Room.TreatmentMethod.Name</td>
-                                                    <td>
-                                                        <button type="button" class="view-note-btn"
-                                                            onclick="showNoteModal('@(detail.Note?.Replace("'", "\\'"))', 'treatment', '@detail.Code')">
-                                                            Xem ghi chú
-                                                        </button>
-                                                    </td>
+                                                    <td>@detail.Room.TreatmentMethod!.Name</td>
                                                 </tr>
                                                 treatmentIndex++;
                                             }
@@ -353,7 +346,6 @@
                                                 <th>Nhân viên được phân công</th>
                                                 <th>Ngày bắt đầu</th>
                                                 <th>Ngày kết thúc</th>
-                                                <th>Ghi chú</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -368,12 +360,6 @@
                                                     <td>@assignment.Employee.Name</td>
                                                     <td>@assignment.StartDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
                                                     <td>@assignment.EndDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
-                                                    <td>
-                                                        <button type="button" class="view-note-btn"
-                                                            onclick="showNoteModal('@(assignment.Note?.Replace("'", "\\'"))', 'assignment', '@assignment.Employee.Name')">
-                                                            Xem ghi chú
-                                                        </button>
-                                                    </td>
                                                 </tr>
                                                 assignmentIndex++;
                                             }
