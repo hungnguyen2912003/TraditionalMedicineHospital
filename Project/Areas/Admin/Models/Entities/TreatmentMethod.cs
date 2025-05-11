@@ -19,6 +19,7 @@ namespace Project.Areas.Admin.Models.Entities
         public string? Description { get; set; }
         [Required]
         public decimal Cost { get; set; }
+        public Guid DepartmentId { get; set; }
 
         /////////////////////////////////////////////////////
         /// Relationships

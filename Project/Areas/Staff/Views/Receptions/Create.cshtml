@@ -383,85 +383,67 @@
         </div>
 
         <!-- Phần 3: Thông tin điều trị -->
-        <div x-show="tab === 'treatment-details'" x-cloak>
-            <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
-                <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
-                    <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
-                        <div class="px-6">
-                            <h6 class="mb-5 text-lg font-bold">Thông tin điều trị</h6>
-                            <div class="flex flex-col lg:flex-row gap-6">
-                                <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
-                                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                                        <div class="w-full sm:w-1/2">
-                                            <label for="treatmentRecordDetailCode" class="block text-sm font-medium text-gray-700">Mã chi tiết điều trị</label>
-                                            <input id="treatmentRecordDetailCode" name="Code" class="form-input w-full mt-1 p-2 border rounded" readonly
-                                                value="@Model.TreatmentRecordDetail.Code" />
-                                        </div>
-                                        <div class="w-full sm:w-1/2">
-                                            <label for="treatmentRecordDetailTreatmentMethod">Phương pháp điều trị<span class="text-danger">&nbsp*</span></label>
-                                            <div class="select-wrapper">
-                                                <select id="treatmentRecordDetailTreatmentMethod" 
-                                                        name="TreatmentRecordDetail.TreatmentMethodId"
-                                                        class="form-input w-full mt-1 p-2 border rounded choices"
-                                                        disabled
-                                                        x-init="
-                                                            if (window.employeeTreatmentMethod) {
-                                                                $el.value = window.employeeTreatmentMethod.id;
-                                                                filterRooms(window.employeeTreatmentMethod.id);
-                                                            }
-                                                        ">
-                                                    <option value="">Chọn phương pháp điều trị</option>
-                                                    @foreach (var method in ViewBag.TreatmentMethods_Reception)
-                                                    {
-                                                        <option value="@method.Id" selected="@(ViewBag.EmployeeTreatmentMethod?.Id == method.Id)">@method.Name</option>
-                                                    }
-                                                </select>
-                                                <input type="hidden" name="TreatmentRecordDetail.TreatmentMethodId" value="@ViewBag.EmployeeTreatmentMethod?.Id" />
-                                            </div>
-                                            @Html.ValidationMessageFor(model => model.TreatmentRecordDetail.TreatmentMethodId, "", new { @class = "text-danger" })
-                                        </div>
-                                        <div class="w-full sm:w-1/2">
-                                            <label for="treatmentRecordDetailRoom">Phòng điều trị<span class="text-danger">&nbsp*</span></label>
-                                            <div class="select-wrapper">
-                                                <select id="treatmentRecordDetailRoom" 
-                                                        name="TreatmentRecordDetail.RoomId" 
-                                                        class="form-input w-full mt-1 p-2 border rounded choices"
-                                                        x-init="
-                                                            if (window.employeeRoom) {
-                                                                $el.value = window.employeeRoom.id;
-                                                            }
-                                                        ">
-                                                    <option value="">Chọn phòng</option>
-                                                    @if (ViewBag.EmployeeRoom != null)
-                                                    {
-                                                        <option value="@ViewBag.EmployeeRoom.Id" selected="selected">@ViewBag.EmployeeRoom.Name</option>
-                                                    }
-                                                </select>
-                                            </div>
-                                            @Html.ValidationMessageFor(model => model.TreatmentRecordDetail.RoomId, "", new { @class = "text-danger" })
-                                        </div>
-                                    </div>
-                                    <div id="treatmentMethodWarning" class="text-sm mb-4" style="display: none; color: coral; font-weight: bold;">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                            </svg>
-                                            Vui lòng chọn phương pháp điều trị trước khi chọn phòng!
-                                        </div>
-                                    </div>
-                                    <div class="w-full sm:col-span-2">
-                                        <label for="treatmentRecordDetailNote">Ghi chú</label>
-                                        <textarea id="treatmentRecordDetailNote" name="Note"
-                                            class="form-textarea w-full mt-1 p-2 border rounded min-h-[100px]"
-                                            placeholder="Nhập ghi chú..."></textarea> 
-                                            @Html.ValidationMessageFor(model => model.TreatmentRecordDetail.Note, "", new { @class = "text-danger" })
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div x-data="treatmentDetailTable" class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4">
+            <h6 class="mb-5 text-lg font-bold">Thông tin điều trị</h6>
+            <div class="table-responsive">
+                <table class="table-striped w-full">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center; font-weight: bold;">Mã chi tiết điều trị</th>
+                            <th style="text-align: center; font-weight: bold;">Phương pháp điều trị</th>
+                            <th style="text-align: center; font-weight: bold;">Phòng</th>
+                            <th style="text-align: center; font-weight: bold;">Ghi chú</th>
+                            <th style="text-align: center; font-weight: bold;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="(detail, idx) in details" :key="detail.Code">
+                            <tr>
+                                <td>
+                                    <input type="text" class="form-input" x-model="detail.Code" readonly
+                                        :name="'TreatmentRecordDetails['+idx+'].Code'">
+                                </td>
+                                <td>
+                                    <select class="form-select" x-model="detail.TreatmentMethodId"
+                                        :name="'TreatmentRecordDetails['+idx+'].TreatmentMethodId'"
+                                        @@change="onMethodChange(idx)">
+                                        <option value="">Chọn phương pháp</option>
+                                        <template x-for="method in treatmentMethods" :key="method.id">
+                                            <option :value="method.id" x-text="method.name"></option>
+                                        </template>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="form-select" x-model="detail.RoomId"
+                                        :name="'TreatmentRecordDetails['+idx+'].RoomId'"
+                                        :disabled="isRoomDisabled(detail)">
+                                        <option value="">Chọn phòng</option>
+                                        <template x-for="room in getRoomsForMethod(detail.TreatmentMethodId)" :key="room.id">
+                                            <option :value="room.id" x-text="room.name"></option>
+                                        </template>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-input" x-model="detail.Note"
+                                        :name="'TreatmentRecordDetails['+idx+'].Note'" placeholder="Nhập ghi chú...">
+                                </td>
+                                <td>
+                                    <button type="button" @@click="removeDetail(idx)">
+                                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>                                    
+                                </td>
+                            </tr>
+                        </template>
+                        <tr x-show="details.length === 0">
+                            <td colspan="5" class="text-center">Chưa có thông tin điều trị nào</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+            <!-- Nút Thêm mới chuyển xuống đây -->
+            <div class="mt-6 flex flex-col sm:flex-row justify-between px-4">
+                <button type="button" class="btn btn-primary mb-4 sm:mb-0" @@click="addDetail()">Thêm mới</button>
+            </div>            
         </div>
 
         <!-- Phần 4: Phân công bác sĩ -->
@@ -630,6 +612,7 @@
 
 <script src="~/Public/assets/js/reception-create.js?v=@DateTime.Now.Ticks"></script>
 <script>
+    window.treatmentMethodsData = @Html.Raw(Json.Serialize(ViewBag.TreatmentMethods_Reception));
     window.roomsData = @Html.Raw(Json.Serialize(ViewBag.Rooms));
     window.regulationsData = @Html.Raw(Json.Serialize(ViewBag.Regulations));
     window.employeeTreatmentMethod = @Html.Raw(Json.Serialize(ViewBag.EmployeeTreatmentMethod));

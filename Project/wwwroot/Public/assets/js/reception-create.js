@@ -45,6 +45,9 @@ document.addEventListener('alpine:init', () => {
                         treatmentMethodSelect.addEventListener('change', (e) => this.filterRooms(e.target.value));
                     }
                 });
+
+                console.log('treatmentMethodsData:', window.treatmentMethodsData);
+                console.log('roomsData:', window.roomsData);
             } catch (error) {
                 console.error('Error initializing reception:', error);
                 notyf.error('Có lỗi xảy ra khi khởi tạo form');
@@ -1152,6 +1155,39 @@ document.addEventListener('alpine:init', () => {
 
         goBack() {
             window.history.back();
+        }
+    }));
+
+    Alpine.data('treatmentDetailTable', () => ({
+        details: [],
+        treatmentMethods: window.treatmentMethodsData || [],
+        allRooms: window.roomsData || [],
+        addDetail() {
+            this.details.push({
+                Code: this.generateCode(),
+                TreatmentMethodId: '',
+                RoomId: '',
+                Note: ''
+            });
+        },
+        removeDetail(idx) {
+            this.details.splice(idx, 1);
+        },
+        onMethodChange(idx) {
+            this.details[idx].RoomId = '';
+        },
+        getRoomsForMethod(methodId) {
+            if (!methodId) return [];
+            return this.allRooms.filter(r => r.treatmentMethodId == methodId);
+        },
+        isRoomDisabled(detail) {
+            return !detail.TreatmentMethodId;
+        },
+        generateCode() {
+            const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let code = '';
+            for (let i = 0; i < 8; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+            return code;
         }
     }));
 });

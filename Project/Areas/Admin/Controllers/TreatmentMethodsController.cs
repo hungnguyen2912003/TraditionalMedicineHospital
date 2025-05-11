@@ -73,6 +73,8 @@ namespace Project.Areas.Admin.Controllers
             try
             {
                 var entity = _mapper.Map<TreatmentMethod>(inputDto);
+
+                entity.DepartmentId = inputDto.DepartmentId;
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
                 entity.IsActive = true;
@@ -110,6 +112,7 @@ namespace Project.Areas.Admin.Controllers
                 if (entity == null) return NotFound();
 
                 _mapper.Map(inputDto, entity);
+                entity.DepartmentId = inputDto.DepartmentId;
                 entity.UpdatedBy = "Admin";
                 entity.UpdatedDate = DateTime.UtcNow;
 

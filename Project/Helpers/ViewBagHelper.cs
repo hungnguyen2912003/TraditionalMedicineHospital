@@ -132,10 +132,18 @@ namespace Project.Helpers
             var treatmentMethods = await _treatmentRepository.GetAllAsync();
             if (depId.HasValue)
             {
-                viewData["TreatmentMethods_Reception"] = treatmentMethods
+                Console.WriteLine("Department ID: " + depId);
+                Console.WriteLine("Total treatment methods: " + treatmentMethods.Count());
+                
+                // Get all treatment methods that belong to this department
+                // This includes methods from all rooms in the department, including administrative rooms
+                var filtered = treatmentMethods
                    .Where(tm => tm.IsActive && tm.Rooms.Any(r => r.DepartmentId == depId))
                    .Select(tm => new { tm.Id, tm.Name })
                    .ToList();
+                
+                Console.WriteLine("Filtered treatment methods for department: " + filtered.Count());
+                viewData["TreatmentMethods_Reception"] = filtered;
             }
 
             viewData["TreatmentMethods"] = treatmentMethods

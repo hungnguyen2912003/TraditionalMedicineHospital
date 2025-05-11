@@ -42,16 +42,40 @@
                                 <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Tên phương pháp
                                         điều trị<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập tên phương pháp điều trị" value="@Model.Name" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                <div class="w-full sm:w-1/2">
+                                    <label for="DepartmentId" class="block text-sm font-medium text-gray-700">Khoa<span
+                                            class="text-danger">&nbsp*</span></label>
+                                    <div class="select-wrapper">
+                                        <select id="DepartmentId" name="DepartmentId"
+                                            class="form-input w-full mt-1 p-2 border rounded">
+                                            <option value="">Chọn khoa</option>
+                                            @foreach (var department in ViewBag.Departments)
+                                            {
+                                                if (department.Id == Model.DepartmentId)
+                                                {
+                                                    <option value="@department.Id" selected>@department.Name</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@department.Id">@department.Name</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
+                                </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Chi phí phương
                                         pháp điều trị<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            class="text-danger">&nbsp*</span></label>
                                     <div class="flex items-center">
                                         <input id="Cost" type="text" name="Cost"
                                             class="form-input w-full mt-1 p-2 border rounded cost-input"
@@ -200,6 +224,9 @@
                             required: true,
                             numberWithComma: true,
                             minWithComma: 1
+                        },
+                        DepartmentId: {
+                            required: true
                         }
                     },
                     messages: {
@@ -214,6 +241,9 @@
                             required: "Chi phí không được bỏ trống.",
                             numberWithComma: "Chi phí phải là số.",
                             minWithComma: "Chí phí phải lớn hơn 0."
+                        },
+                        DepartmentId: {
+                            required: "Khoa không được bỏ trống."
                         }
                     },
                     errorElement: "div",
@@ -262,6 +292,7 @@
                 formData.append('Code', document.getElementById('Code').value);
                 formData.append('Name', document.getElementById('Name').value);
                 formData.append('Cost', $('#Cost').val());
+                formData.append('DepartmentId', $('#DepartmentId').val());
                 formData.append('Description', document.getElementById('Description').value);
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
                 formData.append('__RequestVerificationToken', token);

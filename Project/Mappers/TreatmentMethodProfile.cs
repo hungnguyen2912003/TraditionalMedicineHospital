@@ -11,6 +11,7 @@ namespace Project.Mappers
         {
             CreateMap<TreatmentMethod, TreatmentMethodDto>();
             CreateMap<TreatmentMethodDto, TreatmentMethod>()
+                .ForMember(dest => dest.DepartmentId, opt => opt.MapFrom(src => src.DepartmentId))
                 .ForMember(dest => dest.IsActive, opt => opt.Ignore());
             CreateMap<TreatmentMethod, TreatmentMethodViewModel>();
         }
