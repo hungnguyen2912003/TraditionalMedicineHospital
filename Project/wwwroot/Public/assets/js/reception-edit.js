@@ -1133,11 +1133,11 @@ document.addEventListener('alpine:init', () => {
             const details = treatmentTableComponent && Alpine.$data(treatmentTableComponent).details || [];
             const hasTreatment = details.some(d => (d.CreatedBy || '').toLowerCase() === currentEmployeeCode);
 
-            if (!hasAssignment && hasTreatment) {
+            if (!hasAssignment && hasTreatment && !this.showAddAssignmentForm) {
                 notyf.error("Bạn cần bổ sung thông tin phân công");
                 return;
             }
-            if (hasAssignment && !hasTreatment) {
+            if (hasAssignment && !hasTreatment && !this.showAddTreatmentForm) {
                 notyf.error("Bạn cần bổ sung thông tin điều trị");
                 return;
             }
