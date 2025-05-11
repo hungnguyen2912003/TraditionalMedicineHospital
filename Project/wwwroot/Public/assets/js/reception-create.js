@@ -45,11 +45,7 @@ document.addEventListener('alpine:init', () => {
                         treatmentMethodSelect.addEventListener('change', (e) => this.filterRooms(e.target.value));
                     }
                 });
-
-                console.log('treatmentMethodsData:', window.treatmentMethodsData);
-                console.log('roomsData:', window.roomsData);
             } catch (error) {
-                console.error('Error initializing reception:', error);
                 notyf.error('Có lỗi xảy ra khi khởi tạo form');
             }
         },
@@ -318,7 +314,11 @@ document.addEventListener('alpine:init', () => {
             }
 
             // Append treatment record data
-            formData.append('TreatmentRecord.Code', document.getElementById('treatmentRecordCode').value);
+            var el = document.getElementById('treatmentRecordCode');
+            if (el) {
+                var value = el.value;
+                formData.append('TreatmentRecord.Code', value);
+            }
             formData.append('TreatmentRecord.Diagnosis', document.getElementById('Diagnosis').value);
             formData.append('TreatmentRecord.StartDate', document.getElementById('StartDate').value);
             formData.append('TreatmentRecord.EndDate', document.getElementById('EndDate').value);
@@ -344,11 +344,20 @@ document.addEventListener('alpine:init', () => {
                 formData.append('Patient.HealthInsuranceIsRightRoute', document.getElementById('HealthInsuranceIsRightRoute').checked);
             }
 
-            // Append treatment record detail data
-            formData.append('TreatmentRecordDetail.Code', document.getElementById('treatmentRecordDetailCode').value);
-            formData.append('TreatmentRecordDetail.TreatmentMethodId', document.getElementById('treatmentRecordDetailTreatmentMethod').value);
-            formData.append('TreatmentRecordDetail.RoomId', document.getElementById('treatmentRecordDetailRoom').value);
-            formData.append('TreatmentRecordDetail.Note', document.getElementById('treatmentRecordDetailNote').value);
+            // Append treatment record details
+            const methodSelects = document.querySelectorAll('select[name$=".TreatmentMethodId"]');
+            methodSelects.forEach((methodSelect, index) => {
+                const codeInput = document.getElementById(`treatmentRecordDetailCode-${index}`);
+                const roomSelect = document.getElementById(`treatmentRecordDetailRoom-${index}`);
+                const noteInput = document.getElementById(`treatmentRecordDetailNote-${index}`);
+
+                if (codeInput && roomSelect && methodSelect) {
+                    formData.append(`TreatmentRecordDetails[${index}].Code`, codeInput.value);
+                    formData.append(`TreatmentRecordDetails[${index}].TreatmentMethodId`, methodSelect.value);
+                    formData.append(`TreatmentRecordDetails[${index}].RoomId`, roomSelect.value);
+                    formData.append(`TreatmentRecordDetails[${index}].Note`, noteInput ? noteInput.value : '');
+                }
+            });
 
             // Append assignment data
             formData.append('Assignment.Code', document.getElementById('assignmentCode').value);
@@ -1028,28 +1037,129 @@ document.addEventListener('alpine:init', () => {
          * Submit form handler
          */
         submitForm() {
+            // Log toàn bộ dữ liệu đã nhập
+            const formDataLog = {};
+            // Patient
+            formDataLog.Patient = {
+                Code: document.getElementById('Code')?.value,
+                Name: document.getElementById('Name')?.value,
+                Gender: document.getElementById('Gender')?.value,
+                DateOfBirth: document.getElementById('DateOfBirth')?.value,
+                IdentityNumber: document.getElementById('IdentityNumber')?.value,
+                Address: document.getElementById('Address')?.value,
+                PhoneNumber: document.getElementById('PhoneNumber')?.value,
+                Email: document.getElementById('Email')?.value,
+                HasHealthInsurance: document.getElementById('HasHealthInsurance')?.checked
+            };
+            // TreatmentRecord
+            formDataLog.TreatmentRecord = {
+                Code: document.getElementById('treatmentRecordCode')?.value,
+                Diagnosis: document.getElementById('Diagnosis')?.value,
+                StartDate: document.getElementById('StartDate')?.value,
+                EndDate: document.getElementById('EndDate')?.value,
+                Note: document.getElementById('treatmentRecordNote')?.value
+            };
+            // Assignment
+            formDataLog.Assignment = {
+                Code: document.getElementById('assignmentCode')?.value,
+                StartDate: document.getElementById('assignmentStartDate')?.value,
+                EndDate: document.getElementById('assignmentEndDate')?.value,
+                Note: document.getElementById('assignmentNote')?.value
+            };
+            // Chi tiết điều trị
+            formDataLog.TreatmentRecordDetails = [];
+            const methodSelects = document.querySelectorAll('select[name$=".TreatmentMethodId"]');
+            methodSelects.forEach(methodSelect => {
+                if (!methodSelect) return; // Bỏ qua nếu không tồn tại
+                const name = methodSelect.getAttribute('name');
+                const match = name.match(/TreatmentRecordDetails\[(\d+)\]\.TreatmentMethodId/);
+                if (!match) return;
+                const idx = match[1];
+                const roomSelect = document.querySelector(`select[name='TreatmentRecordDetails[${idx}].RoomId']`);
+                if (!roomSelect) {
+                    console.error(`Không tìm thấy select phòng cho TreatmentRecordDetails[${idx}].RoomId`);
+                    notyf.error(`Không tìm thấy trường phòng cho dòng điều trị số ${parseInt(idx)+1}`);
+                    isValid = false;
+                    return;
+                }
+                if (!methodSelect.value) {
+                    console.error(`Chưa chọn phương pháp điều trị cho dòng ${parseInt(idx)+1}`);
+                    notyf.error(`Vui lòng chọn phương pháp điều trị cho dòng ${parseInt(idx)+1}`);
+                    isValid = false;
+                }
+                if (!roomSelect.value) {
+                    console.error(`Chưa chọn phòng cho dòng ${parseInt(idx)+1}`);
+                    notyf.error(`Vui lòng chọn phòng cho dòng ${parseInt(idx)+1}`);
+                    isValid = false;
+                }
+                formDataLog.TreatmentRecordDetails.push({
+                    Code: methodSelect ? methodSelect.value : '',
+                    TreatmentMethodId: methodSelect ? methodSelect.value : '',
+                    RoomId: roomSelect ? roomSelect.value : '',
+                    Note: ''
+                });
+            });
+            // Log ra console
+            console.log('=== DỮ LIỆU FORM SUBMIT ===');
+            console.log(formDataLog);
+            // Log dữ liệu quy định
+            console.log('=== DỮ LIỆU QUY ĐỊNH ===');
+            const regulationsData = this.regulations.map((reg, index) => ({
+                Code: reg.Code,
+                RegulationId: reg.RegulationId,
+                ExecutionDate: document.getElementById(`executionDate-${index}`)?.value || '',
+                Note: document.getElementById(`note-${index}`)?.value || ''
+            }));
+            console.log(regulationsData);
+            console.log('===========================');
+            // Validate từng dòng chi tiết điều trị
+            let isValid = true;
+            methodSelects.forEach(methodSelect => {
+                if (!methodSelect) return; // Bỏ qua nếu không tồn tại
+                const name = methodSelect.getAttribute('name');
+                const match = name.match(/TreatmentRecordDetails\[(\d+)\]\.TreatmentMethodId/);
+                if (!match) return;
+                const idx = match[1];
+                const roomSelect = document.querySelector(`select[name='TreatmentRecordDetails[${idx}].RoomId']`);
+                if (!roomSelect) {
+                    console.error(`Không tìm thấy select phòng cho TreatmentRecordDetails[${idx}].RoomId`);
+                    notyf.error(`Không tìm thấy trường phòng cho dòng điều trị số ${parseInt(idx)+1}`);
+                    isValid = false;
+                    return;
+                }
+                if (!methodSelect.value) {
+                    console.error(`Chưa chọn phương pháp điều trị cho dòng ${parseInt(idx)+1}`);
+                    notyf.error(`Vui lòng chọn phương pháp điều trị cho dòng ${parseInt(idx)+1}`);
+                    isValid = false;
+                }
+                if (!roomSelect.value) {
+                    console.error(`Chưa chọn phòng cho dòng ${parseInt(idx)+1}`);
+                    notyf.error(`Vui lòng chọn phòng cho dòng ${parseInt(idx)+1}`);
+                    isValid = false;
+                }
+            });
+            if (!isValid) {
+                notyf.error("Vui lòng kiểm tra lại thông tin điều trị.");
+                return;
+            }
             if (!$("#receptionForm").valid()) {
                 notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
                 return;
             }
-
             if (!validateRegulations()) {
                 notyf.error("Vui lòng kiểm tra thông tin nhập.");
                 const overlay = document.getElementById('loadingOverlay');
                 if (overlay) overlay.style.display = 'none';
                 return;
             }
-
             const overlay = document.getElementById('loadingOverlay');
             overlay.style.display = 'flex';
-
             try {
                 if (this.dropzone?.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
                     this.dropzone.processQueue();
                 } else {
                     const formData = new FormData(document.getElementById('receptionForm'));
                     this.appendFormData(formData);
-
                     fetch('/Staff/Receptions/Create', {
                         method: 'POST',
                         body: formData,
@@ -1169,12 +1279,21 @@ document.addEventListener('alpine:init', () => {
                 RoomId: '',
                 Note: ''
             });
+            this.$nextTick(() => {
+                this.updateRoomCursor(this.details.length - 1);
+            });
         },
         removeDetail(idx) {
             this.details.splice(idx, 1);
+            this.$nextTick(() => {
+                this.details.forEach((_, i) => this.updateRoomCursor(i));
+            });
         },
         onMethodChange(idx) {
             this.details[idx].RoomId = '';
+            this.$nextTick(() => {
+                this.updateRoomCursor(idx);
+            });
         },
         getRoomsForMethod(methodId) {
             if (!methodId) return [];
@@ -1188,6 +1307,22 @@ document.addEventListener('alpine:init', () => {
             let code = '';
             for (let i = 0; i < 8; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
             return code;
+        },
+        getAvailableMethods(currentIdx) {
+            const selectedIds = this.details
+                .map((d, idx) => idx !== currentIdx ? d.TreatmentMethodId : null)
+                .filter(id => id);
+            return this.treatmentMethods.filter(m => !selectedIds.includes(m.id));
+        },
+        updateRoomCursor(idx) {
+            const roomSelect = document.querySelector(`[name='TreatmentRecordDetails[${idx}].RoomId']`);
+            if (roomSelect) {
+                if (this.isRoomDisabled(this.details[idx])) {
+                    roomSelect.classList.add('cursor-not-allowed');
+                } else {
+                    roomSelect.classList.remove('cursor-not-allowed');
+                }
+            }
         }
     }));
 });
@@ -1250,6 +1385,8 @@ function checkTreatmentMethod() {
     const treatmentMethodSelect = document.getElementById('treatmentRecordDetailTreatmentMethod');
     const roomSelect = document.getElementById('treatmentRecordDetailRoom');
     const warningDiv = document.getElementById('treatmentMethodWarning');
+
+    if (!treatmentMethodSelect || !roomSelect || !warningDiv) return;
 
     if (!treatmentMethodSelect.value) {
         roomSelect.disabled = true;

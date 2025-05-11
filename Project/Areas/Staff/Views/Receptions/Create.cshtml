@@ -383,67 +383,68 @@
         </div>
 
         <!-- Phần 3: Thông tin điều trị -->
-        <div x-data="treatmentDetailTable" class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4">
-            <h6 class="mb-5 text-lg font-bold">Thông tin điều trị</h6>
-            <div class="table-responsive">
-                <table class="table-striped w-full">
-                    <thead>
-                        <tr>
-                            <th style="text-align: center; font-weight: bold;">Mã chi tiết điều trị</th>
-                            <th style="text-align: center; font-weight: bold;">Phương pháp điều trị</th>
-                            <th style="text-align: center; font-weight: bold;">Phòng</th>
-                            <th style="text-align: center; font-weight: bold;">Ghi chú</th>
-                            <th style="text-align: center; font-weight: bold;"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template x-for="(detail, idx) in details" :key="detail.Code">
+        <div x-show="tab === 'treatment-details'" x-cloak>
+            <div x-data="treatmentDetailTable" class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4">
+                <h6 class="mb-5 text-lg font-bold">Thông tin điều trị</h6>
+                <div class="table-responsive">
+                    <table class="table-striped w-full">
+                        <thead>
                             <tr>
-                                <td>
-                                    <input type="text" class="form-input" x-model="detail.Code" readonly
-                                        :name="'TreatmentRecordDetails['+idx+'].Code'">
-                                </td>
-                                <td>
-                                    <select class="form-select" x-model="detail.TreatmentMethodId"
-                                        :name="'TreatmentRecordDetails['+idx+'].TreatmentMethodId'"
-                                        @@change="onMethodChange(idx)">
-                                        <option value="">Chọn phương pháp</option>
-                                        <template x-for="method in treatmentMethods" :key="method.id">
-                                            <option :value="method.id" x-text="method.name"></option>
-                                        </template>
-                                    </select>
-                                </td>
-                                <td>
-                                    <select class="form-select" x-model="detail.RoomId"
-                                        :name="'TreatmentRecordDetails['+idx+'].RoomId'"
-                                        :disabled="isRoomDisabled(detail)">
-                                        <option value="">Chọn phòng</option>
-                                        <template x-for="room in getRoomsForMethod(detail.TreatmentMethodId)" :key="room.id">
-                                            <option :value="room.id" x-text="room.name"></option>
-                                        </template>
-                                    </select>
-                                </td>
-                                <td>
-                                    <input type="text" class="form-input" x-model="detail.Note"
-                                        :name="'TreatmentRecordDetails['+idx+'].Note'" placeholder="Nhập ghi chú...">
-                                </td>
-                                <td>
-                                    <button type="button" @@click="removeDetail(idx)">
-                                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                    </button>                                    
-                                </td>
+                                <th style="text-align: center; font-weight: bold;">Mã chi tiết điều trị</th>
+                                <th style="text-align: center; font-weight: bold;">Phương pháp điều trị</th>
+                                <th style="text-align: center; font-weight: bold;">Phòng</th>
+                                <th style="text-align: center; font-weight: bold;">Ghi chú</th>
+                                <th style="text-align: center; font-weight: bold;"></th>
                             </tr>
-                        </template>
-                        <tr x-show="details.length === 0">
-                            <td colspan="5" class="text-center">Chưa có thông tin điều trị nào</td>
-                        </tr>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <template x-for="(detail, idx) in details" :key="detail.Code">
+                                <tr>
+                                    <td>
+                                        <input :id="'treatmentRecordDetailCode-' + idx" type="text" class="form-input" x-model="detail.Code" readonly
+                                            :name="'TreatmentRecordDetails['+idx+'].Code'">
+                                    </td>
+                                    <td>
+                                        <select :id="'treatmentRecordDetailTreatmentMethod-' + idx" class="form-select" x-model="detail.TreatmentMethodId"
+                                            :name="'TreatmentRecordDetails['+idx+'].TreatmentMethodId'"
+                                            @@change="onMethodChange(idx)">
+                                            <option value="">Chọn phương pháp</option>
+                                            <template x-for="method in getAvailableMethods(idx)" :key="method.id">
+                                                <option :value="method.id" x-text="method.name"></option>
+                                            </template>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select :id="'treatmentRecordDetailRoom-' + idx" class="form-select" x-model="detail.RoomId"
+                                            :name="'TreatmentRecordDetails['+idx+'].RoomId'"
+                                            :disabled="isRoomDisabled(detail)">
+                                            <option value="">Chọn phòng</option>
+                                            <template x-for="room in getRoomsForMethod(detail.TreatmentMethodId)" :key="room.id">
+                                                <option :value="room.id" x-text="room.name"></option>
+                                            </template>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input :id="'treatmentRecordDetailNote-' + idx" type="text" class="form-input" x-model="detail.Note"
+                                            :name="'TreatmentRecordDetails['+idx+'].Note'" placeholder="Nhập ghi chú...">
+                                    </td>
+                                    <td>
+                                        <button type="button" @@click="removeDetail(idx)">
+                                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                        </button>                                    
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr x-show="details.length === 0">
+                                <td colspan="5" class="text-center">Chưa có thông tin điều trị nào</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6 flex flex-col sm:flex-row justify-between px-4">
+                    <button type="button" class="btn btn-primary mb-4 sm:mb-0" @@click="addDetail()">Thêm mới</button>
+                </div>
             </div>
-            <!-- Nút Thêm mới chuyển xuống đây -->
-            <div class="mt-6 flex flex-col sm:flex-row justify-between px-4">
-                <button type="button" class="btn btn-primary mb-4 sm:mb-0" @@click="addDetail()">Thêm mới</button>
-            </div>            
         </div>
 
         <!-- Phần 4: Phân công bác sĩ -->

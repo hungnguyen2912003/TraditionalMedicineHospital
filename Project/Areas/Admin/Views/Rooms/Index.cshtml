@@ -469,7 +469,7 @@
             filtered = filtered.filter(e => String(e.treatmentMethodId) === String(treatmentMethod));
         }
         if (roomType) {
-            filtered = filtered.filter(e => String(e.roomTypeId) === String(roomType));
+            filtered = filtered.filter(e => String(e.roomType) === String(roomType));
         }
         window.list.filteredList = filtered;
         if (window.list.datatable) window.list.datatable.destroy();

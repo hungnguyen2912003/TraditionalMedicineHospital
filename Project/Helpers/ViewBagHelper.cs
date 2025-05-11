@@ -138,7 +138,7 @@ namespace Project.Helpers
                 // Get all treatment methods that belong to this department
                 // This includes methods from all rooms in the department, including administrative rooms
                 var filtered = treatmentMethods
-                   .Where(tm => tm.IsActive && tm.Rooms.Any(r => r.DepartmentId == depId))
+                   .Where(tm => tm.IsActive && tm.DepartmentId == depId)
                    .Select(tm => new { tm.Id, tm.Name })
                    .ToList();
                 

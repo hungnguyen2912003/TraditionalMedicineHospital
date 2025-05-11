@@ -83,7 +83,7 @@
                     </div>
                     <div>
                         <label for="treatmentMethod">Phương pháp điều trị</label>
-                        <input id="treatmentMethod" type="text" value="@Model.TreatmentMethod?.Name" readonly class="form-input">
+                        <input id="treatmentMethod" type="text" value="@(Model.TreatmentMethod?.Name ?? "Không có")" readonly class="form-input">
                     </div>                    
                 </div>
             </div>
