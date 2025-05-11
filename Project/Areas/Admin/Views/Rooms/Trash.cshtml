@@ -118,6 +118,15 @@
                                     }
                                 </select>
                             </div>
+                            <div class="w-56">
+                                <select id="filterRoomType" class="form-input choices w-full mt-1 p-2 border rounded">
+                                    <option value="">Chọn loại phòng...</option>
+                                    @foreach (var r in ViewBag.RoomTypeOptions)
+                                    {
+                                        <option value="@r.Value">@r.Text</option>
+                                    }
+                                </select>
+                            </div>                           
                             <div class="w-32">
                                 <button id="btnFilter" type="button"
                                     class="btn btn-primary filter-bar-item w-full mr-2">
@@ -219,7 +228,7 @@
                     entity.code,
                     entity.name,
                     entity.departmentName,
-                    entity.treatmentName,
+                    entity.treatmentMethodName,
                     entity.isActive ?
                         '<svg x-tooltip="Đang hoạt động" class="w-5 h-5 mx-auto" width="24" height="24" fill="#000000" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="green" d="M13 4.1974q0 .3097-.21677.5265L7.17806 10.329l-1.0529 1.0529q-.21677.2168-.52645.2168-.30968 0-.52645-.2168L4.01935 10.329 1.21677 7.5264Q1 7.3097 1 7t.21677-.5265l1.05291-1.0529q.21677-.2167.52645-.2167.30968 0 .52645.2167l2.27613 2.2839 5.07871-5.0864q.21677-.2168.52645-.2168.30968 0 .52645.2168l1.05291 1.0529Q13 3.8877 13 4.1974z"></path></g></svg>'
                         :
@@ -407,7 +416,7 @@
                 (e.code && removeVietnameseTones(e.code).includes(keyword)) ||
                 (e.name && removeVietnameseTones(e.name).includes(keyword)) ||
                 (e.departmentName && removeVietnameseTones(e.departmentName).includes(keyword)) ||
-                (e.treatmentName && removeVietnameseTones(e.treatmentName).includes(keyword))
+                (e.treatmentMethodName && removeVietnameseTones(e.treatmentMethodName).includes(keyword))
             );
             window.list.filteredList = filtered;
             if (window.list.datatable) window.list.datatable.destroy();
@@ -422,9 +431,12 @@
         if (!window.treatmentMethodChoices) {
             window.treatmentMethodChoices = new Choices('#filterTreatmentMethod', { searchEnabled: true, itemSelectText: '', shouldSort: false });
         }
+        if (!window.roomTypeChoices) {
+            window.roomTypeChoices = new Choices('#filterRoomType', { searchEnabled: true, itemSelectText: '', shouldSort: false });
+        }
         updateResetFilterButtonState();
 
-        $('#filterDepartment, #filterTreatmentMethod').on('change', function () {
+        $('#filterDepartment, #filterTreatmentMethod, #filterRoomType').on('change', function () {
             updateResetFilterButtonState();
             if (!$(this).val()) {
                 window.list.filteredList = window.list.entityList;
@@ -438,12 +450,16 @@
     function filterList() {
         const department = $('#filterDepartment').val();
         const treatmentMethod = $('#filterTreatmentMethod').val();
+        const roomType = $('#filterRoomType').val();
         let filtered = window.list.entityList;
         if (department) {
             filtered = filtered.filter(e => String(e.departmentId) === String(department));
         }
         if (treatmentMethod) {
             filtered = filtered.filter(e => String(e.treatmentMethodId) === String(treatmentMethod));
+        }
+        if (roomType) {
+            filtered = filtered.filter(e => String(e.roomTypeId) === String(roomType));
         }
         window.list.filteredList = filtered;
         if (window.list.datatable) window.list.datatable.destroy();
@@ -456,8 +472,8 @@
     $(document).on('click', '#btnFilter', function () {
         const department = $('#filterDepartment').val();
         const treatmentMethod = $('#filterTreatmentMethod').val();
-
-        if (!department && !treatmentMethod) {
+        const roomType = $('#filterRoomType').val();
+        if (!department && !treatmentMethod && !roomType) {
             notyf.error('Cần chọn ít nhất một trường để lọc!');
             window.list.filteredList = window.list.entityList;
             if (window.list.datatable) window.list.datatable.destroy();
@@ -483,6 +499,12 @@
         } else {
             $('#filterTreatmentMethod').val('').trigger('change');
         }
+        if (window.roomTypeChoices) {
+            window.roomTypeChoices.removeActiveItems();
+            window.roomTypeChoices.setChoiceByValue('');
+        } else {
+            $('#filterRoomType').val('').trigger('change');
+        }
         window.list.filteredList = window.list.entityList;
         if (window.list.datatable) window.list.datatable.destroy();
         window.list.initializeTable();
@@ -492,7 +514,8 @@
     function updateResetFilterButtonState() {
         const department = $('#filterDepartment').val();
         const treatmentMethod = $('#filterTreatmentMethod').val();
-        if (!department && !treatmentMethod) {
+        const roomType = $('#filterRoomType').val();
+        if (!department && !treatmentMethod && !roomType) {
             $('#btnResetFilter').prop('disabled', true).css('cursor', 'not-allowed');
         } else {
             $('#btnResetFilter').prop('disabled', false).css('cursor', 'pointer');
