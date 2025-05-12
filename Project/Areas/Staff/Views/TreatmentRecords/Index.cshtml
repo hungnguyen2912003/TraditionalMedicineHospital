@@ -883,8 +883,10 @@
             const result = await res.json();
             if (res.ok && result.success) {
                 notyf.success(result.message || 'Lưu đơn thuốc thành công!');
-                // Đóng modal, reset form
-                document.getElementById('closePrescriptionModal').click();
+                // Đóng modal sau 2 giây
+                setTimeout(() => {
+                    document.getElementById('closePrescriptionModal').click();
+                }, 2000);
             } else {
                 notyf.error(result.message || 'Lưu đơn thuốc thất bại!');
             }

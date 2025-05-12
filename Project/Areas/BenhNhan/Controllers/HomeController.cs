@@ -143,7 +143,9 @@ namespace Project.Areas.BenhNhan.Controllers
             var detail = await _treatmentRecordDetailRepository.GetByIdAdvancedAsync(detailId);
             if (detail == null) return NotFound();
 
-            var logs = await _treatmentTrackingRepository.GetByDetailIdAsync(detailId);
+            var logs = (await _treatmentTrackingRepository.GetByDetailIdAsync(detailId))
+                .OrderBy(x => x.TrackingDate)
+                .ToList();
 
             // Lấy tất cả EmployeeId duy nhất từ logs
             var employeeIds = logs
