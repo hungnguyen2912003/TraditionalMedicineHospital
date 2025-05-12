@@ -55,7 +55,7 @@ namespace Project.Areas.Admin.Controllers
             return View(viewModelList);
         }
 
-        [Authorize(Roles = "Admin, Nhanvien")]
+        [Authorize(Roles = "Admin, Bacsi, Yta")]
         public async Task<IActionResult> Details(Guid id)
         {
             var entity = await _repository.GetByIdAdvancedAsync(id);

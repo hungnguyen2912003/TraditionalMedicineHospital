@@ -45,6 +45,13 @@
                 defaults: new { area = "Staff", controller = "Home", action = "Index" }
             );
 
+            // Route cụ thể cho bệnh nhân
+            app.MapControllerRoute(
+                name: "patient",
+                pattern: "patient",
+                defaults: new { area = "BenhNhan", controller = "Home", action = "Index" }
+            );
+
             app.MapControllerRoute(
                 name: "forgot-password",
                 pattern: "forgot-password",

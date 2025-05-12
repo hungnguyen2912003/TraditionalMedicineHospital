@@ -1,0 +1,234 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" type="image/x-icon" href="~/Public/assets/images/logo/logo_official.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/nunito-fonts.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/perfect-scrollbar.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/style.css">
+    <link defer="" rel="stylesheet" type="text/css" media="screen" href="~/Public/assets/css/animate.css">
+    <link href="~/Public/assets/dropzone/min/dropzone.min.css" rel="stylesheet" />
+
+    <link href="~/public/assets/css/notyf.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/js/all.min.js"></script>
+
+    <link href="~/public/assets/css/jquery-confirm.min.css" rel="stylesheet" />
+    <link href="~/public/assets/css/goong-geocoder.min.css" rel="stylesheet" />
+    <link href="~/public/assets/css/goong-js.css" rel="stylesheet" />
+
+    <script src="~/public/assets/dropzone/min/dropzone.min.js"></script>
+    <script src="~/Public/assets/js/perfect-scrollbar.min.js"></script>
+    <script defer="" src="~/Public/assets/js/popper.min.js"></script>
+    <script defer="" src="~/Public/assets/js/tippy-bundle.umd.min.js"></script>
+    <script defer="" src="~/Public/assets/js/sweetalert.min.js"></script>
+    <script src="~/public/assets/js/jquery-3.7.1.min.js"></script>
+    <script src="~/public/assets/js/jquery.validate.min.js"></script>
+    <script src="~/public/assets/js/jquery.validate.unobtrusive.min.js"></script>
+
+
+    <script src="~/public/assets/js/jquery-confirm.min.js"></script>
+
+    <link href="~/public/assets/css/mycss.css?v=@DateTime.Now.Ticks" rel="stylesheet" />
+
+    <link href="~/public/assets/css/flatpickr.min.css" rel="stylesheet" />
+    <script src="~/public/assets/js/flatpickr.js"></script>
+
+    <link href="~/public/assets/css/choices.min.css" rel="stylesheet" />
+    <script src="~/public/assets/js/choices.min.js"></script>
+</head>
+
+
+<body x-data="main" class="relative overflow-x-hidden font-nunito text-sm font-normal antialiased"
+      :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout,$store.app.rtlClass]">
+    <!-- screen loader -->
+    <partial name="_screenLoader" />
+
+    <!-- scroll to top button -->
+    <partial name="_ScrollToTop" />
+
+    <div class="main-container min-h-screen text-black dark:text-white-dark" :class="[$store.app.navbar]">
+        <div class="main-content flex min-h-screen flex-col">
+            <!-- start header section -->
+            <partial name="_PatialHeader" />
+            <!-- end header section -->
+
+            <div class="animate__animated p-6" :class="[$store.app.animation]">
+                <!-- start main content section -->
+                @RenderBody()
+                <!-- end main content section -->
+            </div>
+
+            <!-- start footer section -->
+            <partial name="_PatialFooter" />
+            <!-- end footer section -->
+        </div>
+    </div>
+
+
+    <script src="~/Public/assets/js/alpine-collaspe.min.js"></script>
+    <script src="~/Public/assets/js/alpine-persist.min.js"></script>
+    <script defer="" src="~/Public/assets/js/alpine-ui.min.js"></script>
+    <script defer="" src="~/Public/assets/js/alpine-focus.min.js"></script>
+    <script defer="" src="~/Public/assets/js/alpine.min.js"></script>
+    <script src="~/Public/assets/js/custom.js"></script>
+    <script defer="" src="~/Public/assets/js/apexcharts.js"></script>
+    <script src="~/public/assets/js/notyf.min.js"></script>
+    <script src="~/Public/assets/js/simple-datatables.js"></script>
+    <script src="~/public/assets/js/cleave.min.js"></script>
+
+    <script src="~/public/assets/js/goong-geocoder.min.js"></script>
+    <script src="~/public/assets/js/goong-js.js"></script>
+    <script src="~/Public/js/token-monitor.js?v=@DateTime.Now.Ticks"></script>
+
+    <script>
+
+        const enumDisplayNames = @Html.Raw(Json.Serialize(ViewData["EnumDisplayNames"]));
+
+        function getEnumDisplayName(enumType, value) {
+            const enumData = enumDisplayNames[enumType];
+            return enumData && enumData[value] ? enumData[value] : 'Không xác định';
+        }
+
+        const notyf = new Notyf({
+            duration: 2000,
+            position: { x: 'right', y: 'top' },
+            dismissible: false,
+            types: [
+                {
+                    type: 'warning',
+                    background: 'orange',
+                    icon: {
+                        className: 'material-icons',
+                        tagName: 'i',
+                        text: 'warning'
+                    }
+                }
+            ],
+        });
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('header', () => ({
+                init() {
+
+                },
+            }));
+
+            // main section
+            Alpine.data('scrollToTop', () => ({
+                showTopButton: false,
+                init() {
+                    window.onscroll = () => {
+                        this.scrollFunction();
+                    };
+                },
+
+                scrollFunction() {
+                    if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+                        this.showTopButton = true;
+                    } else {
+                        this.showTopButton = false;
+                    }
+                },
+
+                goToTop() {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                },
+            }));
+
+            // sidebar section
+            Alpine.data('sidebar', () => ({
+                init() {
+                    const selector = document.querySelector('.sidebar ul a[href="' + window.location.pathname + '"]');
+                    if (selector) {
+                        selector.classList.add('active');
+                        const ul = selector.closest('ul.sub-menu');
+                        if (ul) {
+                            let ele = ul.closest('li.menu').querySelectorAll('.nav-link');
+                            if (ele) {
+                                ele = ele[0];
+                                setTimeout(() => {
+                                    ele.click();
+                                });
+                            }
+                        }
+                    }
+                },
+            }));
+        });
+
+        // Goong API integration
+        document.addEventListener('DOMContentLoaded', function () {
+            const addressInputs = document.querySelectorAll('.address-autocomplete');
+
+            addressInputs.forEach(addressInput => {
+                const suggestionsContainer = document.createElement('div');
+                suggestionsContainer.id = 'suggestions-' + addressInput.id;
+                suggestionsContainer.className = 'suggestions';
+                addressInput.parentNode.appendChild(suggestionsContainer);
+                let sessionToken = crypto.randomUUID();
+
+                function debounce(func, wait) {
+                    let timeout;
+                    return function executedFunction(...args) {
+                        const later = () => {
+                            clearTimeout(timeout);
+                            func(...args);
+                        };
+                        clearTimeout(timeout);
+                        timeout = setTimeout(later, wait);
+                    };
+                }
+
+                const debouncedSearch = debounce((query) => {
+                    if (query.length < 2) {
+                        suggestionsContainer.style.display = 'none';
+                        return;
+                    }
+
+                    // Call our backend GoongController instead of direct Goong API
+                    fetch(`/api/goong/autocomplete?input=${encodeURIComponent(query)}&sessiontoken=${sessionToken}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'OK') {
+                                suggestionsContainer.innerHTML = '';
+                                suggestionsContainer.style.display = 'block';
+
+                                data.predictions.forEach(prediction => {
+                                    const div = document.createElement('div');
+                                    div.className = 'suggestion-item';
+                                    div.textContent = prediction.description;
+                                    div.addEventListener('click', () => {
+                                        addressInput.value = prediction.description;
+                                        suggestionsContainer.style.display = 'none';
+                                    });
+                                    suggestionsContainer.appendChild(div);
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            notyf.error('Có lỗi xảy ra khi tìm kiếm địa chỉ');
+                        });
+                }, 300);
+
+                addressInput.addEventListener('input', (e) => debouncedSearch(e.target.value));
+
+                document.addEventListener('click', function (e) {
+                    if (!suggestionsContainer.contains(e.target) && e.target !== addressInput) {
+                        suggestionsContainer.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
