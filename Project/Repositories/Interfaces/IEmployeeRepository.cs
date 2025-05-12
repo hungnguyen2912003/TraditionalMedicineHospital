@@ -9,5 +9,6 @@ namespace Project.Repositories.Interfaces
         Task<Employee?> GetByUsernameAsync(string username);
         Task<IEnumerable<Employee>> GetByCodesAsync(IEnumerable<string> codes);
         Task<string?> GetRoomNameByEmployeeIdAsync(Guid employeeId);
+        Task<IEnumerable<Employee>> GetByIdsAsync(List<Guid> ids);
     }
 }

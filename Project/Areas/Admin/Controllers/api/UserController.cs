@@ -51,7 +51,7 @@ namespace Project.Areas.Admin.Controllers.Api
                     role = role
                 });
             }
-            else
+            else if (role == "Bacsi" || role == "Yta")
             {
                 var employee = user.Employee;
                 if (employee == null)
@@ -77,6 +77,34 @@ namespace Project.Areas.Admin.Controllers.Api
                     image = imagePath,
                     role = role
                 });
+            }
+            else if (role == "Benhnhan")
+            {
+                var patient = user.Patient;
+                if (patient == null)
+                {
+                    return NotFound(new { success = false, message = "Không tìm thấy thông tin bệnh nhân." });
+                }
+
+                string imagePath = string.IsNullOrEmpty(patient.Images)
+                    ? ""
+                    : $"/Images/Patients/{patient.Images}";
+
+                return Ok(new
+                {
+                    success = true,
+                    code = patient.Code,
+                    id = patient.Id,
+                    username = username,
+                    name = patient.Name,
+                    email = patient.EmailAddress,
+                    image = imagePath,
+                    role = role
+                });
+            }
+            else
+            {
+                return Unauthorized(new { success = false, message = "Không có quyền truy cập." });
             }
         }
     }

@@ -46,7 +46,7 @@
 
 
 <body x-data="main" class="relative overflow-x-hidden font-nunito text-sm font-normal antialiased"
-      :class="[ $store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout,$store.app.rtlClass]">
+      :class="[ $store.app.theme === 'dark' || $store.app.isDarkMode ?  'dark' : '', $store.app.menu, $store.app.layout, $store.app.rtlClass]">
     <!-- screen loader -->
     <partial name="_screenLoader" />
 
@@ -54,7 +54,7 @@
     <partial name="_ScrollToTop" />
 
     <div class="main-container min-h-screen text-black dark:text-white-dark" :class="[$store.app.navbar]">
-        <div class="main-content flex min-h-screen flex-col">
+        <div class="flex min-h-screen flex-col">
             <!-- start header section -->
             <partial name="_PatialHeader" />
             <!-- end header section -->

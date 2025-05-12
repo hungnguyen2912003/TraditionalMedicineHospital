@@ -16,7 +16,12 @@ namespace Project.Repositories.Implementations
         {
             return await _context.treatmentRecordDetails
                 .Include(t => t.Room)
+                    .ThenInclude(r => r.Department)
+                .Include(t => t.Room)
                     .ThenInclude(r => r.TreatmentMethod)
+                .Include(t => t.TreatmentRecord)
+                    .ThenInclude(t => t.Assignments)
+                        .ThenInclude(a => a.Employee)
                 .Where(t => t.TreatmentRecordId == treatmentRecordId && t.IsActive)
                 .ToListAsync();
         }
@@ -28,7 +33,12 @@ namespace Project.Repositories.Implementations
 
             return await _context.treatmentRecordDetails
                 .Include(x => x.Room)
-                .ThenInclude(x => x.TreatmentMethod)
+                    .ThenInclude(x => x.TreatmentMethod)
+                .Include(x => x.Room)
+                    .ThenInclude(x => x.Department)
+                .Include(x => x.TreatmentRecord)
+                    .ThenInclude(x => x.Assignments)
+                        .ThenInclude(x => x.Employee)
                 .FirstOrDefaultAsync(x => x.Code == code);
         }
 
@@ -96,31 +106,18 @@ namespace Project.Repositories.Implementations
                 .FirstOrDefaultAsync();
         }
 
-        //public async Task<List<Patient>> GetPatientsByRoomIdAndDateAsync(Guid roomId, DateTime date)
-        //{
-        //    var start = date.Date;
-        //    var end = start.AddDays(1);
-
-        //    // Lấy các detail trong phòng, active, record active
-        //    var details = await _context.treatmentRecordDetails
-        //        .Include(d => d.TreatmentRecord)
-        //        .Include(d => d.TreatmentTracking)
-        //        .Where(d => d.RoomId == roomId && d.IsActive && d.TreatmentRecord.IsActive)
-        //        .ToListAsync();
-
-        //    // Lọc ra các detail chưa có tracking trong ngày
-        //    var filtered = details
-        //        .Where(d =>
-        //            d.TreatmentTracking == null ||
-        //            d.TreatmentTracking.TrackingDate < start ||
-        //            d.TreatmentTracking.TrackingDate >= end
-        //        )
-        //        .Select(d => d.TreatmentRecord.Patient)
-        //        .Distinct()
-        //        .ToList();
-
-        //    return filtered;
-        //}
+        public async Task<TreatmentRecordDetail?> GetByIdAdvancedAsync(Guid id)
+        {
+            return await _context.treatmentRecordDetails
+                .Include(x => x.Room)
+                    .ThenInclude(x => x.TreatmentMethod)
+                .Include(x => x.Room)
+                    .ThenInclude(x => x.Department)
+                .Include(x => x.TreatmentRecord)
+                    .ThenInclude(x => x.Assignments)
+                        .ThenInclude(x => x.Employee)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
     }
 }
 

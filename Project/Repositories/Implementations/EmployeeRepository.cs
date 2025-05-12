@@ -50,5 +50,10 @@ namespace Project.Repositories.Implementations
                 .Select(e => e.Room!.Name)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<IEnumerable<Employee>> GetByIdsAsync(List<Guid> ids)
+        {
+            return await _context.employees.Where(e => ids.Contains(e.Id)).ToListAsync();
+        }
     }
 }

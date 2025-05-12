@@ -111,7 +111,7 @@ namespace Project.Areas.Admin.Controllers
                 return Json(new
                 {
                     success = false,
-                    message = "Mã nhân viên/Email hoặc mật khẩu không đúng."
+                    message = "Mã đăng nhập hoặc mật khẩu không đúng."
                 });
             }
             catch (Exception ex)
@@ -163,7 +163,7 @@ namespace Project.Areas.Admin.Controllers
                 }
 
                 var user = await _userRepository.GetByUsernameAsync(username);
-                if (user == null || user.Employee == null)
+                if (user == null)
                 {
                     return RedirectToAction("Login", "Account", new { area = "Admin" });
                 }

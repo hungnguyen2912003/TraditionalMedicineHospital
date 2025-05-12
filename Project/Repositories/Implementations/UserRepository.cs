@@ -25,6 +25,7 @@ namespace Project.Repositories.Implementations
                 .Include(u => u.Employee!)
                     .ThenInclude(e => e.Room!)
                         .ThenInclude(r => r.Department)
+                .Include(u => u.Patient)
                 .FirstOrDefaultAsync(u => u.Username == username);
         }
 
@@ -36,6 +37,7 @@ namespace Project.Repositories.Implementations
                 .Include(u => u.Employee!)
                     .ThenInclude(e => e.Room!)
                         .ThenInclude(r => r.Department)
+                .Include(u => u.Patient)
                 .FirstOrDefaultAsync(u => u.Employee != null && u.Employee.Code == code);
         }
 
@@ -43,6 +45,7 @@ namespace Project.Repositories.Implementations
         {
             return await _context.users
                 .Include(u => u.Employee)
+                .Include(u => u.Patient)
                 .FirstOrDefaultAsync(u =>
                     u.Username == identifier ||
                     (u.Employee != null && u.Employee.Code == identifier) ||
@@ -53,6 +56,7 @@ namespace Project.Repositories.Implementations
         {
             var user = await _context.users
                 .Include(u => u.Employee)
+                .Include(u => u.Patient)
                 .FirstOrDefaultAsync(u => u.Id == userId);
             return user?.Employee;
         }
@@ -61,6 +65,7 @@ namespace Project.Repositories.Implementations
         {
             return await _context.users
                 .Include(u => u.Employee)
+                .Include(u => u.Patient)
                 .ToListAsync();
         }
     }

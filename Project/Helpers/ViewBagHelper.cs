@@ -61,10 +61,17 @@ namespace Project.Helpers
                 if (!string.IsNullOrEmpty(username))
                 {
                     var user = await _userRepository.GetByUsernameAsync(username);
-                    if (user != null && user.Employee != null)
+                    if (user != null)
                     {
-                        userId = user.Employee.Id;
-                        depId = user.Employee.Room.DepartmentId;
+                        if (user.Employee != null)
+                        {
+                            userId = user.Employee.Id;
+                            depId = user.Employee.Room.DepartmentId;
+                        }
+                        else if (user.Patient != null)
+                        {
+                            userId = user.Patient.Id;
+                        }
                     }
                 }
             }

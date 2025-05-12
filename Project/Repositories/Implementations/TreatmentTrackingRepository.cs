@@ -20,5 +20,12 @@ namespace Project.Repositories.Implementations
                 .Include(t => t.TreatmentRecordDetail!.Room)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<TreatmentTracking>> GetByDetailIdAsync(Guid detailId)
+        {
+            return await _context.treatmentTrackings
+                .Where(t => t.TreatmentRecordDetailId == detailId)
+                .ToListAsync();
+        }
     }
 }

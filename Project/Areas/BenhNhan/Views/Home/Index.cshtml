@@ -1,8 +1,427 @@
-﻿
+﻿@model IEnumerable<Project.Areas.BenhNhan.Models.ViewModels.PatientViewModel>
 @{
     ViewData["Title"] = "Trang bệnh nhân";
     Layout = "~/Areas/BenhNhan/Views/Shared/_Layout.cshtml";
+
+    string status = ViewBag.Status as string ?? "";
+    string statusClass = "";
+    if (status == "Đang điều trị") statusClass = "text-primary";
+    else if (status == "Đã hoàn tất") statusClass = "text-success";
+    else if (status == "Đã hủy") statusClass = "text-danger";
+
+    int gender = Convert.ToInt32(ViewBag.PatientInfo?.Gender ?? 0);
+    string genderString = "";
+    if (gender == 1) genderString = "Nam";
+    else if (gender == 2) genderString = "Nữ";
+    else genderString = "Khác";
 }
 
-<h1>Index</h1>
+<ul class="flex space-x-2 rtl:space-x-reverse">
+    <li>
+        <a href="javascript:;" class="text-primary hover:underline">Trang chủ</a>
+    </li>
+    <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+        <span>Thông tin điều trị</span>
+    </li>
+</ul>
+
+<div x-data="list">
+    <div class="panel border-[#e0e6ed] px-0 dark:border-[#1b2e4b] mt-3">
+        <div class="px-5">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+                <div class="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
+                    <div class="group relative">
+                        <input type="text" placeholder="Tìm kiếm..." id="customSearchInput"
+                            class="peer form-input ltr:pr-8 rtl:pl-8">
+                        <div
+                            class="absolute top-1/2 -translate-y-1/2 peer-focus:text-primary ltr:right-[11px] rtl:left-[11px]">
+                            <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" class="h-4 w-4">
+                                <circle cx="11.5" cy="11.5" r="9.5" stroke="currentColor" stroke-width="1.5"
+                                    opacity="0.5"></circle>
+                                <path d="M18.5 18.5L22 22" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="showPatientInfoModal()" style="min-width: 200px;">
+                    Xem thông tin bệnh nhân
+                </button>
+            </div>
+
+            <!-- TREATMENT RECORD INFO START -->
+            <div class="filter-divider">
+                <span>Thông tin điều trị</span>
+            </div>
+            <div class="w-auto mx-auto p-4 rounded-lg">
+                <div class="flex flex-col items-center">
+                    <div class="w-full flex flex-col sm:flex-row justify-center items-center gap-x-12 mb-2">
+                        <div class="text-center sm:text-left">
+                            Mã điều trị: <span style="font-weight: bold;">@ViewBag.TreatmentRecordCode</span>
+                        </div>
+                        <div class="text-center">
+                            Thời gian điều trị:
+                            @if (ViewBag.StartDate != null && ViewBag.EndDate != null)
+                            {
+                                <span style="font-weight: bold;">
+                                    @(((DateTime)ViewBag.StartDate).ToString("dd/MM/yyyy")) <span> - </span> @(((DateTime)ViewBag.EndDate).ToString("dd/MM/yyyy"))
+                                </span>
+                            }
+                            else
+                            {
+                                <span>Không xác định</span>
+                            }
+                        </div>
+                        <div class="text-center sm:text-right">
+                            Trạng thái phiếu: 
+                            <span class="font-bold @statusClass">@status</span>
+                        </div>
+                    </div>
+                    <div class="text-center w-full">
+                        <div style="font-weight: bold; margin-bottom: 5px;">Danh sách phân công</div>
+                        @{
+                            var doctorNames = ViewBag.DoctorNames as List<string>;
+                        }
+                        @if (doctorNames != null && doctorNames.Any())
+                        {
+                            @for (int i = 0; i < doctorNames.Count; i++)
+                            {
+                                <div style="display: flex; justify-content: flex-start; align-items: center; max-width: 400px; margin: 0 auto;">
+                                    <span style="min-width: 150px; text-align: right; margin-right: 8px;">
+                                        Bác sĩ phân công @(i + 1):
+                                    </span>
+                                    <span style="font-weight: bold;">@doctorNames[i]</span>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div>Chưa phân công</div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <!-- TREATMENT RECORD INFO END -->
+
+            <div class="table-responsive">
+                <table id="myTable" class="table-striped table-hover"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="patientInfoModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate">
+        <h2 class="text-2xl font-bold text-primary text-center mb-4">Thông tin bệnh nhân</h2>
+        <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl font-bold" onclick="closePatientInfoModal()"><i class="fa-solid fa-xmark p-2"></i></button>
+        <div class="flex flex-col lg:flex-row gap-6">
+            <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
+                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                    <div class="w-full sm:w-1/2">
+                        <label>Mã bệnh nhân</label>
+                        <input class="form-input w-full" readonly value="@ViewBag.PatientInfo?.Code" />
+                    </div>
+                    <div class="w-full sm:w-1/2">
+                        <label>Họ tên bệnh nhân</label>
+                        <input class="form-input w-full" readonly value="@ViewBag.PatientInfo?.Name" />
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                    <div class="w-full sm:w-1/2">
+                        <label>Giới tính</label>
+                        <input class="form-input w-full" readonly value="@genderString" />
+                    </div>
+                    <div class="w-full sm:w-1/2">
+                        <label>Ngày sinh</label>
+                        <input class="form-input w-full" readonly value="@((ViewBag.PatientInfo?.DateOfBirth as DateTime?)?.ToString("dd/MM/yyyy"))" />
+                    </div>
+                    <div class="w-full sm:w-1/2">
+                        <label>Căn cước công dân</label>
+                        <input class="form-input w-full" readonly value="@ViewBag.PatientInfo?.IdentityNumber" />
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                    <div class="w-full">
+                        <label>Địa chỉ</label>
+                        <input class="form-input w-full" readonly value="@ViewBag.PatientInfo?.Address" />
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                    <div class="w-full sm:w-1/2">
+                        <label>Số điện thoại</label>
+                        <input class="form-input w-full" readonly value="@ViewBag.PatientInfo?.PhoneNumber" />
+                    </div>
+                    <div class="w-full sm:w-1/2">
+                        <label>Email</label>
+                        <input class="form-input w-full" readonly value="@ViewBag.PatientInfo?.EmailAddress" />
+                    </div>
+                </div>                                   
+            </div>
+            <div class="w-full lg:w-1/2 flex flex-col items-center">
+                <label>Hình ảnh bệnh nhân</label>
+                <img src="~/Images/Patients/@ViewBag.PatientInfo?.Images" alt="Ảnh bệnh nhân" class="rounded-lg shadow-sm max-h-48 mb-4" style="object-fit:cover;" />
+                <div class="panel mb-5 w-full">
+                    <label class="block text-sm font-medium text-gray-700 form-label mb-2">Thông tin thẻ BHYT</label>
+                    <div class="mt-3">
+                        <input class="form-checkbox" type="checkbox" @(ViewBag.HealthInsurance != null ? "checked" : "") disabled />
+                        <span class="text-sm font-medium text-gray-700 ml-2">Bệnh nhân có thẻ bảo hiểm y tế</span>
+                    </div>
+                    @if (ViewBag.HealthInsurance != null)
+                    {
+                        <div class="mt-3">
+                            <label>Số thẻ BHYT</label>
+                            <input class="form-input w-full" readonly value="@ViewBag.HealthInsurance?.Number" />
+                        </div>
+                        <div class="mt-3">
+                            <label>Ngày hết hạn</label>
+                            <input class="form-input w-full" readonly value="@((ViewBag.HealthInsurance?.ExpiryDate as DateTime?)?.ToString("dd/MM/yyyy"))" />
+                        </div>
+                        <div class="mt-3">
+                            <label>Nơi đăng ký khám bệnh</label>
+                            <input class="form-input w-full" readonly value="@ViewBag.HealthInsurance?.PlaceOfRegistration" />
+                        </div>
+                        <div class="mt-3">
+                            <input class="form-checkbox" type="checkbox" readonly @(ViewBag.HealthInsurance?.IsRightRoute == true ? "checked" : "") disabled/>
+                            <span class="text-sm font-medium text-gray-700 ml-2">Thẻ bảo hiểm đúng tuyến KCB</span>
+                        </div>                        
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="logModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate">
+        <h2 class="text-2xl font-bold text-primary text-center mb-4">Nhật ký điều trị</h2>
+        <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl font-bold" onclick="closeLogModal()">
+            <i class="fa-solid fa-xmark p-2"></i>
+        </button>
+        <div id="logModalContent">
+        </div>
+    </div>
+</div>
+
+<script src="~/Public/assets/js/simple-datatables.js"></script>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('list', () => ({
+            entityList: @Html.Raw(Json.Serialize(Model)),
+            filteredList: [],
+            datatable: null,
+
+            init() {
+                if (!Array.isArray(this.entityList)) {
+                    this.entityList = [];
+                }
+                this.filteredList = [...this.entityList];
+                window.list = this;
+                this.initializeTable();
+            },
+
+            initializeTable() {
+                const tableData = this.filteredList.map(entity => [
+                    entity.code,
+                    entity.departmentName,
+                    entity.roomName,
+                    entity.treatmentMethodName,
+                    `<div class="flex gap-4">
+                        <button type="button" class="btn btn-info btn-sm" onclick="showLogModal('${entity.id}')">
+                            Xem nhật ký
+                        </button>
+                    </div>`
+                ]);
+
+                this.datatable = new simpleDatatables.DataTable('#myTable', {
+                    data: {
+                        headings: [
+                            'Mã chi tiết điều trị',
+                            'Khoa',
+                            'Phòng',
+                            'Phương pháp điều trị',
+                            'Thao tác'
+                        ],
+                        data: tableData
+                    },
+                    perPage: 10,
+                    perPageSelect: [10, 20, 30, 50, 100],
+                    firstLast: true,
+                    searchable: false,
+                    firstText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                    lastText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M11 19L17 12L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M6.99976 19L12.9998 12L6.99976 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                    prevText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M15 5L9 12L15 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                    nextText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                    labels: {
+                        perPage: "<span class='ml-2'>{select}</span>",
+                        noRows: 'Không có dữ liệu'
+                    },
+                    layout: {
+                        top: '{search}',
+                        bottom: '{info}{select}{pager}'
+                    },
+                    columns: [
+                        {
+                            select: 3,
+                            sortable: false,
+                            render: (data, cell, row) => {
+                                return data;
+                            }
+                        },
+                        {
+                            select: 4,
+                            sortable: false,
+                            render: (data, cell, row) => {
+                                return data;
+                            }
+                        }
+                    ],
+                });
+            },
+        }));
+    });
+
+    function showPatientInfoModal() {
+        const modal = document.getElementById('patientInfoModal');
+        modal.classList.remove('hidden', 'closing');
+    }
+    function closePatientInfoModal() {
+        const modal = document.getElementById('patientInfoModal');
+        modal.classList.add('closing');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('closing');
+        }, 200);
+    }
+
+    function showLogModal(detailId) {
+        fetch(`/BenhNhan/Home/GetTreatmentTracking?detailId=${detailId}`)
+            .then(res => res.json())
+            .then(data => {
+                function getStatusBadge(status) {
+                    if (status == 1)
+                        return '<span class="badge badge-success" style="background:#22c55e;color:white;">Có điều trị</span>';
+                    if (status == 2)
+                        return '<span class="badge badge-warning" style="background:#facc15;color:#92400e;">Xin phép</span>';
+                    if (status == 3)
+                        return '<span class="badge badge-danger" style="background:#ef4444;color:white;">Không điều trị</span>';
+                    return '<span class="badge badge-secondary">Không xác định</span>';
+                }
+                let html = `
+                    <div class="flex justify-center items-center gap-x-12 mb-4">
+                        <div><b>Phương pháp điều trị:</b> ${data.methodName}</div>
+                        <div><b>Phòng:</b> ${data.roomName}</div>
+                    </div>
+                    <div style="max-height:400px;overflow-y:auto;">
+                        <table class="min-w-full table-auto border">
+                            <thead>
+                                <tr>
+                                    <th style="font-weight: bold; text-align: center;">STT</th>
+                                    <th style="font-weight: bold; text-align: center;">Ngày điều trị</th>
+                                    <th style="font-weight: bold; text-align: center;">Trạng thái điều trị</th>
+                                    <th style="font-weight: bold; text-align: center;">Nhân viên thực hiện</th>
+                                    <th style="font-weight: bold; text-align: center;">Ghi chú</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${
+                                    data.logs.length === 0
+                                    ? `<tr><td colspan="5" style="text-align:center; color:#888;">Chưa có nhật ký điều trị nào</td></tr>`
+                                    : data.logs.map((log, idx) => `
+                                        <tr>
+                                            <td>${idx + 1}</td>
+                                            <td>${log.date}</td>
+                                            <td>${getStatusBadge(log.status)}</td>
+                                            <td>${log.staff}</td>
+                                            <td>
+                                                <input type="text" class="form-input" style="width:180px;max-width:100%;font-size:14px;" readonly 
+                                                    value="${log.note ? log.note : 'Chưa thêm ghi chú'}" />
+                                            </td>
+                                        </tr>
+                                    `).join('')
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                document.getElementById('logModalContent').innerHTML = html;
+                const modal = document.getElementById('logModal');
+                modal.classList.remove('hidden', 'closing');
+            });
+    }
+    function closeLogModal() {
+        const modal = document.getElementById('logModal');
+        modal.classList.add('closing');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('closing');
+        }, 200);
+    }
+</script>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            notyf.success('@Html.Raw(TempData["SuccessMessage"])');
+        });
+    </script>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            notyf.error('@Html.Raw(TempData["ErrorMessage"])');
+        });
+    </script>
+}
+
+<style>
+    .modal-content-animate {
+        animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #patientInfoModal.closing .modal-content-animate {
+        animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #logModal.closing .modal-content-animate {
+        animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @@keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    @@keyframes modalFadeOut {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    }
+    #patientInfoModal {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+    #logModal {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }    
+    .bg-modal-blur {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }    
+</style>
 

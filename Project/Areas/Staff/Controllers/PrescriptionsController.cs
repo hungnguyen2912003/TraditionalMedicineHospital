@@ -1,8 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project.Areas.Staff.Models.DTOs;
-using Project.Areas.Staff.Models.Entities;
 using Project.Areas.Staff.Models.ViewModels;
 using Project.Helpers;
 using Project.Repositories.Interfaces;
