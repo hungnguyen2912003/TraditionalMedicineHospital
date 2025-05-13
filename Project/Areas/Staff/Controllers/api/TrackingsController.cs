@@ -147,33 +147,25 @@ namespace Project.Areas.Staff.Controllers.api
                     .OrderBy(t => t.TrackingDate)
                     .ToList();
 
-                // Để tránh gửi lặp lại trong 1 lần tạo
-                var sentPairs = new HashSet<string>();
-
-                for (int i = 0; i < relevantTrackings.Count - 1; i++)
+                // Chỉ kiểm tra cặp mới nhất
+                if (relevantTrackings.Count >= 2)
                 {
-                    var first = relevantTrackings[i];
-                    var second = relevantTrackings[i + 1];
-                    var daysDiff = (second.TrackingDate.Date - first.TrackingDate.Date).TotalDays;
+                    var prev = relevantTrackings[relevantTrackings.Count - 2];
+                    var last = relevantTrackings[relevantTrackings.Count - 1];
+                    var daysDiff = (last.TrackingDate.Date - prev.TrackingDate.Date).TotalDays;
                     if (daysDiff == 1)
                     {
-                        // Tạo key duy nhất cho cặp này
-                        var pairKey = $"{first.Id}_{second.Id}";
-                        if (!sentPairs.Contains(pairKey))
+                        var patient = tracking.TreatmentRecordDetail?.TreatmentRecord?.Patient;
+                        if (patient != null && !string.IsNullOrEmpty(patient.EmailAddress))
                         {
-                            var patient = tracking.TreatmentRecordDetail?.TreatmentRecord?.Patient;
-                            if (patient != null && !string.IsNullOrEmpty(patient.EmailAddress))
-                            {
-                                var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
-                                var body = $@"
-                                    <h2>Xin chào {patient.Name},</h2>
-                                    <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {first.TrackingDate:dd/MM/yyyy} và Ngày {second.TrackingDate:dd/MM/yyyy}.</p>
-                                    <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
-                                    <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
-                                    <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
-                                await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
-                                sentPairs.Add(pairKey);
-                            }
+                            var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
+                            var body = $@"
+                                <h2>Xin chào {patient.Name},</h2>
+                                <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {prev.TrackingDate:dd/MM/yyyy} và Ngày {last.TrackingDate:dd/MM/yyyy}.</p>
+                                <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
+                                <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
+                                <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
+                            await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
                         }
                     }
                 }
@@ -224,38 +216,138 @@ namespace Project.Areas.Staff.Controllers.api
                 {
                     var allTrackings = await _trackingRepo.GetAllAdvancedAsync();
                     var relevantTrackings = allTrackings
-                        .Where(t => t.TreatmentRecordDetailId == updatedTracking.TreatmentRecordDetailId
-                                    && t.Status == TrackingStatus.KhongDieuTri
-                                    && t.IsActive)
+                        .Where(t => t.TreatmentRecordDetailId == updatedTracking.TreatmentRecordDetailId && t.IsActive)
                         .OrderBy(t => t.TrackingDate)
                         .ToList();
 
-                    // Để tránh gửi lặp lại trong 1 lần cập nhật
-                    var sentPairs = new HashSet<string>();
-
-                    for (int i = 0; i < relevantTrackings.Count - 1; i++)
+                    int idx = relevantTrackings.FindIndex(t => t.Id == updatedTracking.Id);
+                    var patient = updatedTracking.TreatmentRecordDetail?.TreatmentRecord?.Patient;
+                    if (patient != null && !string.IsNullOrEmpty(patient.EmailAddress))
                     {
-                        var first = relevantTrackings[i];
-                        var second = relevantTrackings[i + 1];
-                        var daysDiff = (second.TrackingDate.Date - first.TrackingDate.Date).TotalDays;
-                        if (daysDiff == 1)
+                        // Cập nhật bản ghi đầu tiên
+                        if (idx == 0 && relevantTrackings.Count > 1)
                         {
-                            // Tạo key duy nhất cho cặp này
-                            var pairKey = $"{first.Id}_{second.Id}";
-                            if (!sentPairs.Contains(pairKey))
+                            var next = relevantTrackings[1];
+                            var daysDiff = (next.TrackingDate.Date - updatedTracking.TrackingDate.Date).TotalDays;
+                            if (daysDiff == 1 &&
+                                updatedTracking.Status == TrackingStatus.KhongDieuTri &&
+                                next.Status == TrackingStatus.KhongDieuTri)
                             {
-                                var patient = updatedTracking.TreatmentRecordDetail?.TreatmentRecord?.Patient;
-                                if (patient != null && !string.IsNullOrEmpty(patient.EmailAddress))
+                                // Kiểm tra có phải 3 ngày liên tiếp không
+                                if (relevantTrackings.Count > 2)
                                 {
+                                    var next2 = relevantTrackings[2];
+                                    var daysDiff2 = (next2.TrackingDate.Date - next.TrackingDate.Date).TotalDays;
+                                    if (daysDiff2 == 1 && next2.Status == TrackingStatus.KhongDieuTri)
+                                    {
+                                        // 3 ngày liên tiếp, không gửi mail
+                                    }
+                                    else
+                                    {
+                                        // Gửi mail cho cặp updatedTracking-next
+                                        var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
+                                        var body = $@"
+                                            <h2>Xin chào {patient.Name},</h2>
+                                            <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {updatedTracking.TrackingDate:dd/MM/yyyy} và Ngày {next.TrackingDate:dd/MM/yyyy}.</p>
+                                            <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
+                                            <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
+                                            <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
+                                        await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
+                                    }
+                                }
+                                else
+                                {
+                                    // Gửi mail cho cặp updatedTracking-next
                                     var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                                     var body = $@"
                                         <h2>Xin chào {patient.Name},</h2>
-                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {first.TrackingDate:dd/MM/yyyy} và Ngày {second.TrackingDate:dd/MM/yyyy}.</p>
+                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {updatedTracking.TrackingDate:dd/MM/yyyy} và Ngày {next.TrackingDate:dd/MM/yyyy}.</p>
                                         <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
                                         <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
                                         <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
                                     await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
-                                    sentPairs.Add(pairKey);
+                                }
+                            }
+                        }
+                        // Cập nhật bản ghi cuối cùng
+                        else if (idx == relevantTrackings.Count - 1 && relevantTrackings.Count > 1)
+                        {
+                            var prev = relevantTrackings[idx - 1];
+                            var daysDiff = (updatedTracking.TrackingDate.Date - prev.TrackingDate.Date).TotalDays;
+                            if (daysDiff == 1 &&
+                                updatedTracking.Status == TrackingStatus.KhongDieuTri &&
+                                prev.Status == TrackingStatus.KhongDieuTri)
+                            {
+                                if (relevantTrackings.Count > 2)
+                                {
+                                    var prev2 = relevantTrackings[idx - 2];
+                                    var daysDiff2 = (prev.TrackingDate.Date - prev2.TrackingDate.Date).TotalDays;
+                                    if (daysDiff2 == 1 && prev2.Status == TrackingStatus.KhongDieuTri)
+                                    {
+                                        // 3 ngày liên tiếp, không gửi mail
+                                    }
+                                    else
+                                    {
+                                        // Gửi mail cho cặp prev-updatedTracking
+                                        var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
+                                        var body = $@"
+                                            <h2>Xin chào {patient.Name},</h2>
+                                            <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {prev.TrackingDate:dd/MM/yyyy} và Ngày {updatedTracking.TrackingDate:dd/MM/yyyy}.</p>
+                                            <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
+                                            <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
+                                            <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
+                                        await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
+                                    }
+                                }
+                                else
+                                {
+                                    // Gửi mail cho cặp prev-updatedTracking
+                                    var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
+                                    var body = $@"
+                                        <h2>Xin chào {patient.Name},</h2>
+                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {prev.TrackingDate:dd/MM/yyyy} và Ngày {updatedTracking.TrackingDate:dd/MM/yyyy}.</p>
+                                        <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
+                                        <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
+                                        <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
+                                    await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
+                                }
+                            }
+                        }
+                        // Cập nhật bản ghi ở giữa
+                        else if (idx > 0 && idx < relevantTrackings.Count - 1)
+                        {
+                            var prev = relevantTrackings[idx - 1];
+                            var next = relevantTrackings[idx + 1];
+                            bool prevPair = (updatedTracking.TrackingDate.Date - prev.TrackingDate.Date).TotalDays == 1 &&
+                                            updatedTracking.Status == TrackingStatus.KhongDieuTri &&
+                                            prev.Status == TrackingStatus.KhongDieuTri;
+                            bool nextPair = (next.TrackingDate.Date - updatedTracking.TrackingDate.Date).TotalDays == 1 &&
+                                            updatedTracking.Status == TrackingStatus.KhongDieuTri &&
+                                            next.Status == TrackingStatus.KhongDieuTri;
+                            bool threeConsecutive = prevPair && nextPair && next.Status == TrackingStatus.KhongDieuTri;
+                            if (!threeConsecutive)
+                            {
+                                if (prevPair)
+                                {
+                                    var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
+                                    var body = $@"
+                                        <h2>Xin chào {patient.Name},</h2>
+                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {prev.TrackingDate:dd/MM/yyyy} và Ngày {updatedTracking.TrackingDate:dd/MM/yyyy}.</p>
+                                        <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
+                                        <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
+                                        <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
+                                    await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
+                                }
+                                if (nextPair)
+                                {
+                                    var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
+                                    var body = $@"
+                                        <h2>Xin chào {patient.Name},</h2>
+                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {updatedTracking.TrackingDate:dd/MM/yyyy} và Ngày {next.TrackingDate:dd/MM/yyyy}.</p>
+                                        <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
+                                        <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
+                                        <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
+                                    await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
                                 }
                             }
                         }

@@ -76,58 +76,37 @@ namespace Project.Areas.Staff.Controllers
                     PatientId = g.Key,
                     PatientName = g.First().TreatmentRecordDetail!.TreatmentRecord!.Patient!.Name,
                     PatientEmail = g.First().TreatmentRecordDetail!.TreatmentRecord!.Patient!.EmailAddress,
-                    Trackings = g.OrderByDescending(t => t.TrackingDate).ToList()
+                    Trackings = g.OrderBy(t => t.TrackingDate).ToList()
                 })
                 .ToList();
 
-            // Lọc ra các bệnh nhân có 2 lần vắng mặt liên tiếp
-            var warningPatients = patientGroups
-                .Where(p => p.Trackings.Count >= 2)
-                .Where(p =>
+            // Lọc ra các bệnh nhân có thể có nhiều lần cảnh báo (mỗi lần là một dòng)
+            var warningPatients = new List<WarningPatientViewModel>();
+            foreach (var p in patientGroups)
+            {
+                var ordered = p.Trackings;
+                for (int i = 1; i < ordered.Count; i++)
                 {
-                    var ordered = p.Trackings.OrderBy(t => t.TrackingDate).ToList();
-                    for (int i = 1; i < ordered.Count; i++)
+                    var prev = ordered[i - 1];
+                    var curr = ordered[i];
+                    var daysDiff = (curr.TrackingDate.Date - prev.TrackingDate.Date).TotalDays;
+                    if (daysDiff == 1 &&
+                        prev.Status == TrackingStatus.KhongDieuTri &&
+                        curr.Status == TrackingStatus.KhongDieuTri)
                     {
-                        var prev = ordered[i - 1];
-                        var curr = ordered[i];
-                        var daysDiff = (curr.TrackingDate.Date - prev.TrackingDate.Date).TotalDays;
-                        if (daysDiff == 1 &&
-                            prev.Status == TrackingStatus.KhongDieuTri &&
-                            curr.Status == TrackingStatus.KhongDieuTri)
+                        warningPatients.Add(new WarningPatientViewModel
                         {
-                            return true;
-                        }
+                            PatientId = p.PatientId,
+                            PatientName = p.PatientName,
+                            PatientEmail = p.PatientEmail,
+                            FirstAbsenceDate = prev.TrackingDate,
+                            SecondAbsenceDate = curr.TrackingDate,
+                            FirstNote = prev.Note,
+                            SecondNote = curr.Note
+                        });
                     }
-                    return false;
-                })
-                .Select(p =>
-                {
-                    var ordered = p.Trackings.OrderBy(t => t.TrackingDate).ToList();
-                    for (int i = 1; i < ordered.Count; i++)
-                    {
-                        var prev = ordered[i - 1];
-                        var curr = ordered[i];
-                        var daysDiff = (curr.TrackingDate.Date - prev.TrackingDate.Date).TotalDays;
-                        if (daysDiff == 1 &&
-                            prev.Status == TrackingStatus.KhongDieuTri &&
-                            curr.Status == TrackingStatus.KhongDieuTri)
-                        {
-                            return new WarningPatientViewModel
-                            {
-                                PatientId = p.PatientId,
-                                PatientName = p.PatientName,
-                                PatientEmail = p.PatientEmail,
-                                FirstAbsenceDate = prev.TrackingDate,
-                                SecondAbsenceDate = curr.TrackingDate,
-                                FirstNote = prev.Note,
-                                SecondNote = curr.Note
-                            };
-                        }
-                    }
-                    return null;
-                })
-                .Where(x => x != null)
-                .ToList();
+                }
+            }
 
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(warningPatients);
