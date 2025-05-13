@@ -11,7 +11,7 @@ namespace Project.Repositories.Implementations
         {
         }
 
-        public async Task<List<TreatmentTracking>> GetAllAdvancedAsync()
+        public async Task<IEnumerable<TreatmentTracking>> GetAllAdvancedAsync()
         {
             return await _context.treatmentTrackings
                 .Include(t => t.TreatmentRecordDetail!)

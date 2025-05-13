@@ -6,7 +6,7 @@ namespace Project.Repositories.Interfaces
 {
     public interface ITreatmentTrackingRepository : IBaseRepository<TreatmentTracking>
     {
-        Task<List<TreatmentTracking>> GetAllAdvancedAsync();
+        Task<IEnumerable<TreatmentTracking>> GetAllAdvancedAsync();
         Task<IEnumerable<TreatmentTracking>> GetByDetailIdAsync(Guid detailId);
         Task<IEnumerable<TreatmentTracking>> GetByPatientIdAsync(Guid patientId);
     }

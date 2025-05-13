@@ -6,6 +6,8 @@ using AutoMapper;
 using Project.Services.Features;
 using Project.Helpers;
 using Hospital.Areas.Staff.Models.DTOs.TrackingDTO;
+using Project.Models.Enums;
+using SequentialGuid;
 
 namespace Project.Areas.Staff.Controllers.api
 {
@@ -20,6 +22,7 @@ namespace Project.Areas.Staff.Controllers.api
         private readonly IUserRepository _userRepository;
         private readonly JwtManager _jwtManager;
         private readonly CodeGeneratorHelper _codeGenerator;
+        private readonly EmailService _emailService;
 
         public TrackingsController
         (
@@ -29,7 +32,8 @@ namespace Project.Areas.Staff.Controllers.api
             IEmployeeRepository employeeRepository,
             IUserRepository userRepository,
             JwtManager jwtManager,
-            CodeGeneratorHelper codeGenerator
+            CodeGeneratorHelper codeGenerator,
+            EmailService emailService
         )
         {
             _trackingRepo = trackingRepo;
@@ -39,6 +43,7 @@ namespace Project.Areas.Staff.Controllers.api
             _userRepository = userRepository;
             _jwtManager = jwtManager;
             _codeGenerator = codeGenerator;
+            _emailService = emailService;
         }
 
         [HttpGet("patients-in-room")]
@@ -106,6 +111,7 @@ namespace Project.Areas.Staff.Controllers.api
 
             var employee = user.Employee;
             var code = await _codeGenerator.GenerateUniqueCodeAsync(_trackingRepo);
+            var sequentialGuid = SequentialGuidGenerator.Instance.NewGuid();
             var now = DateTime.Now;
 
             // Tìm TreatmentRecordDetail theo PatientId và RoomId
@@ -116,7 +122,7 @@ namespace Project.Areas.Staff.Controllers.api
             // Tạo TreatmentTracking
             var tracking = new TreatmentTracking
             {
-                Id = Guid.NewGuid(),
+                Id = sequentialGuid,
                 Code = code,
                 TrackingDate = now,
                 CreatedBy = employee.Code,
@@ -129,8 +135,51 @@ namespace Project.Areas.Staff.Controllers.api
             };
 
             await _trackingRepo.CreateAsync(tracking);
+            // Kiểm tra và gửi thông báo nếu có bệnh nhân vắng mặt
+            if (tracking.Status == TrackingStatus.KhongDieuTri)
+            {
+                // Lấy tất cả các tracking cùng TreatmentRecordDetailId, trạng thái Không điều trị, còn hiệu lực
+                var allTrackings = await _trackingRepo.GetAllAdvancedAsync();
+                var relevantTrackings = allTrackings
+                    .Where(t => t.TreatmentRecordDetailId == tracking.TreatmentRecordDetailId
+                                && t.Status == TrackingStatus.KhongDieuTri
+                                && t.IsActive)
+                    .OrderBy(t => t.TrackingDate)
+                    .ToList();
 
-            return Ok(new { success = true, message = "Lưu thành công!" });
+                // Để tránh gửi lặp lại trong 1 lần tạo
+                var sentPairs = new HashSet<string>();
+
+                for (int i = 0; i < relevantTrackings.Count - 1; i++)
+                {
+                    var first = relevantTrackings[i];
+                    var second = relevantTrackings[i + 1];
+                    var daysDiff = (second.TrackingDate.Date - first.TrackingDate.Date).TotalDays;
+                    if (daysDiff == 1)
+                    {
+                        // Tạo key duy nhất cho cặp này
+                        var pairKey = $"{first.Id}_{second.Id}";
+                        if (!sentPairs.Contains(pairKey))
+                        {
+                            var patient = tracking.TreatmentRecordDetail?.TreatmentRecord?.Patient;
+                            if (patient != null && !string.IsNullOrEmpty(patient.EmailAddress))
+                            {
+                                var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
+                                var body = $@"
+                                    <h2>Xin chào {patient.Name},</h2>
+                                    <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {first.TrackingDate:dd/MM/yyyy} và Ngày {second.TrackingDate:dd/MM/yyyy}.</p>
+                                    <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
+                                    <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
+                                    <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
+                                await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
+                                sentPairs.Add(pairKey);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return Ok(new { success = true, message = "Lưu thành công!", id = tracking.Id });
         }
 
         [HttpPut("{id}")]
@@ -167,8 +216,53 @@ namespace Project.Areas.Staff.Controllers.api
                 tracking.UpdatedDate = DateTime.Now;
 
                 await _trackingRepo.UpdateAsync(tracking);
+                // Lấy lại bản ghi vừa update từ database
+                var updatedTracking = await _trackingRepo.GetByIdAsync(tracking.Id);
 
-                return Ok(new { success = true, message = "Cập nhật thành công!" });
+                // Thực hiện kiểm tra và gửi mail trực tiếp
+                if (updatedTracking!.Status == TrackingStatus.KhongDieuTri)
+                {
+                    var allTrackings = await _trackingRepo.GetAllAdvancedAsync();
+                    var relevantTrackings = allTrackings
+                        .Where(t => t.TreatmentRecordDetailId == updatedTracking.TreatmentRecordDetailId
+                                    && t.Status == TrackingStatus.KhongDieuTri
+                                    && t.IsActive)
+                        .OrderBy(t => t.TrackingDate)
+                        .ToList();
+
+                    // Để tránh gửi lặp lại trong 1 lần cập nhật
+                    var sentPairs = new HashSet<string>();
+
+                    for (int i = 0; i < relevantTrackings.Count - 1; i++)
+                    {
+                        var first = relevantTrackings[i];
+                        var second = relevantTrackings[i + 1];
+                        var daysDiff = (second.TrackingDate.Date - first.TrackingDate.Date).TotalDays;
+                        if (daysDiff == 1)
+                        {
+                            // Tạo key duy nhất cho cặp này
+                            var pairKey = $"{first.Id}_{second.Id}";
+                            if (!sentPairs.Contains(pairKey))
+                            {
+                                var patient = updatedTracking.TreatmentRecordDetail?.TreatmentRecord?.Patient;
+                                if (patient != null && !string.IsNullOrEmpty(patient.EmailAddress))
+                                {
+                                    var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
+                                    var body = $@"
+                                        <h2>Xin chào {patient.Name},</h2>
+                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {first.TrackingDate:dd/MM/yyyy} và Ngày {second.TrackingDate:dd/MM/yyyy}.</p>
+                                        <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
+                                        <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
+                                        <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
+                                    await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
+                                    sentPairs.Add(pairKey);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return Ok(new { success = true, message = "Cập nhật thành công!", id = tracking.Id });
             }
             catch (Exception ex)
             {

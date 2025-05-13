@@ -12,6 +12,7 @@ namespace Project.Mappers
             CreateMap<TreatmentTracking, TreatmentTrackingDto>();
             CreateMap<TreatmentTrackingDto, TreatmentTracking>();
             CreateMap<TreatmentTrackingDto, TreatmentTrackingViewModel>();
+            CreateMap<TreatmentTrackingViewModel, TreatmentTrackingDto>();
             CreateMap<TreatmentTrackingCreateDto, TreatmentTracking>();
         }
     }

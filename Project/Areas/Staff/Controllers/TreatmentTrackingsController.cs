@@ -37,6 +37,8 @@ namespace Project.Areas.Staff.Controllers
             var list = await _treatmentTrackingRepository.GetAllAdvancedAsync();
             var activeList = list.Where(x => x.IsActive).ToList();
 
+            await _viewBagHelper.BaseViewBag(ViewData);
+
             // Lấy mã nhân viên hiện tại từ cookie AuthToken
             string? currentEmployeeCode = null;
             var token = Request.Cookies["AuthToken"];
@@ -86,10 +88,9 @@ namespace Project.Areas.Staff.Controllers
                 EmployeeCode = t.CreatedBy
             }).ToList();
 
-            // Then map to ViewModel
-            var viewModelList = _mapper.Map<List<TreatmentTrackingViewModel>>(dtoList);
-            await _viewBagHelper.BaseViewBag(ViewData);
-
+            var viewModelList = _mapper.Map<List<TreatmentTrackingViewModel>>(dtoList)
+                                    .OrderBy(vm => vm.TrackingDate)
+                                    .ToList();
             return View(viewModelList);
         }
     }

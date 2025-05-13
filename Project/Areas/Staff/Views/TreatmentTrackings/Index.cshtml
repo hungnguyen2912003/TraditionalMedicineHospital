@@ -363,6 +363,13 @@
                             }
                         },
                         {
+                            select: 3,
+                            sortable: true,
+                            render: (data, cell, row) => {
+                                return data;
+                            }
+                        },
+                        {
                             select: 4,
                             sortable: false,
                             render: (data, cell, row) => {
@@ -714,6 +721,9 @@
                 var status = statusBtn.data('status');
                 var note = $row.find('.note-input').val();
                 var trackingDate = new Date().toISOString();
+                const overlay = document.getElementById('loadingOverlay');
+
+                overlay.style.display = 'flex';
 
                 fetch('/api/trackings', {
                     method: 'POST',
@@ -731,6 +741,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success !== false) {
+                            overlay.style.display = 'none';
                             notyf.success('Lưu thành công!');
                             // Xóa dòng bệnh nhân vừa lưu khỏi bảng
                             $row.remove();
@@ -747,10 +758,12 @@
                                 );
                             }
                         } else {
+                            overlay.style.display = 'none';
                             notyf.error(data.message || 'Lưu thất bại!');
                         }
                     })
                     .catch(() => {
+                        overlay.style.display = 'none';
                         notyf.error('Có lỗi khi gửi dữ liệu!');
                     });
             });
@@ -831,11 +844,14 @@
                 const $row = $(this).closest('tr');
                 const status = $row.find('.btn-status.active-status').data('status');
                 const note = $row.find('.note-input').val();
+                const overlay = document.getElementById('loadingOverlay');
 
                 if (!status) {
                     notyf.error('Vui lòng chọn trạng thái!');
                     return;
                 }
+
+                overlay.style.display = 'flex';
 
                 fetch('/api/trackings/' + currentEditId, {
                     method: 'PUT',
@@ -848,12 +864,17 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
+                            overlay.style.display = 'none';
                             notyf.success('Cập nhật thành công!');
                         } else {
+                            overlay.style.display = 'none';
                             notyf.error(data.message || 'Cập nhật thất bại!');
                         }
                     })
-                    .catch(() => notyf.error('Có lỗi khi gửi dữ liệu!'));
+                    .catch(() => {
+                        overlay.style.display = 'none';
+                        notyf.error('Có lỗi khi gửi dữ liệu!');
+                    });
             });
         </script>
 

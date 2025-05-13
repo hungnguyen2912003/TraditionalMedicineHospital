@@ -83,34 +83,50 @@ namespace Project.Areas.Staff.Controllers
             // Lọc ra các bệnh nhân có 2 lần vắng mặt liên tiếp
             var warningPatients = patientGroups
                 .Where(p => p.Trackings.Count >= 2)
-                .Select(p => new
-                {
-                    p.PatientId,
-                    p.PatientName,
-                    p.PatientEmail,
-                    RecentTrackings = p.Trackings.Take(2).ToList()
-                })
                 .Where(p =>
                 {
-                    var firstTracking = p.RecentTrackings[1];
-                    var secondTracking = p.RecentTrackings[0];
-
-                    // Kiểm tra xem 2 ngày có liên tiếp không và đều là trạng thái không điều trị
-                    var daysDiff = (secondTracking.TrackingDate.Date - firstTracking.TrackingDate.Date).TotalDays;
-                    return daysDiff == 1 &&
-                           firstTracking.Status == TrackingStatus.KhongDieuTri &&
-                           secondTracking.Status == TrackingStatus.KhongDieuTri;
+                    var ordered = p.Trackings.OrderBy(t => t.TrackingDate).ToList();
+                    for (int i = 1; i < ordered.Count; i++)
+                    {
+                        var prev = ordered[i - 1];
+                        var curr = ordered[i];
+                        var daysDiff = (curr.TrackingDate.Date - prev.TrackingDate.Date).TotalDays;
+                        if (daysDiff == 1 &&
+                            prev.Status == TrackingStatus.KhongDieuTri &&
+                            curr.Status == TrackingStatus.KhongDieuTri)
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
                 })
-                .Select(p => new WarningPatientViewModel
+                .Select(p =>
                 {
-                    PatientId = p.PatientId,
-                    PatientName = p.PatientName,
-                    PatientEmail = p.PatientEmail,
-                    FirstAbsenceDate = p.RecentTrackings[1].TrackingDate,
-                    SecondAbsenceDate = p.RecentTrackings[0].TrackingDate,
-                    FirstNote = p.RecentTrackings[1].Note,
-                    SecondNote = p.RecentTrackings[0].Note
+                    var ordered = p.Trackings.OrderBy(t => t.TrackingDate).ToList();
+                    for (int i = 1; i < ordered.Count; i++)
+                    {
+                        var prev = ordered[i - 1];
+                        var curr = ordered[i];
+                        var daysDiff = (curr.TrackingDate.Date - prev.TrackingDate.Date).TotalDays;
+                        if (daysDiff == 1 &&
+                            prev.Status == TrackingStatus.KhongDieuTri &&
+                            curr.Status == TrackingStatus.KhongDieuTri)
+                        {
+                            return new WarningPatientViewModel
+                            {
+                                PatientId = p.PatientId,
+                                PatientName = p.PatientName,
+                                PatientEmail = p.PatientEmail,
+                                FirstAbsenceDate = prev.TrackingDate,
+                                SecondAbsenceDate = curr.TrackingDate,
+                                FirstNote = prev.Note,
+                                SecondNote = curr.Note
+                            };
+                        }
+                    }
+                    return null;
                 })
+                .Where(x => x != null)
                 .ToList();
 
             await _viewBagHelper.BaseViewBag(ViewData);

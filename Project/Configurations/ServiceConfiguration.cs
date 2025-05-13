@@ -27,6 +27,7 @@ namespace Project.Configurations
             builder.Services.AddScoped<IBaseService<HealthInsurance>, HealthInsuranceService>();
 
             builder.Services.AddScoped<EmailService>();
+            builder.Services.AddScoped<WarningService>();
             builder.Services.AddScoped<JwtManager>();
             builder.Services.Configure<GoongSettings>(builder.Configuration.GetSection("GoongSettings"));
             builder.Services.AddControllersWithViews();
