@@ -61,19 +61,17 @@ namespace Project.Areas.Staff.Controllers
                 }
             }
 
-            // Lọc chỉ các bản ghi do nhân viên hiện tại thực hiện
-            if (!string.IsNullOrEmpty(currentEmployeeCode))
-            {
-                activeTrackings = activeTrackings.Where(x => x.CreatedBy == currentEmployeeCode).ToList();
-            }
-
-            // Nhóm các tracking theo bệnh nhân
+            // Nhóm các tracking theo bệnh nhân và từng đợt điều trị
             var patientGroups = activeTrackings
                 .Where(t => t.TreatmentRecordDetail?.TreatmentRecord?.Patient != null)
-                .GroupBy(t => t.TreatmentRecordDetail!.TreatmentRecord!.Patient!.Id)
+                .GroupBy(t => new {
+                    PatientId = t.TreatmentRecordDetail!.TreatmentRecord!.Patient!.Id,
+                    TreatmentRecordDetailId = t.TreatmentRecordDetailId
+                })
                 .Select(g => new
                 {
-                    PatientId = g.Key,
+                    PatientId = g.Key.PatientId,
+                    TreatmentRecordDetailId = g.Key.TreatmentRecordDetailId,
                     PatientName = g.First().TreatmentRecordDetail!.TreatmentRecord!.Patient!.Name,
                     PatientEmail = g.First().TreatmentRecordDetail!.TreatmentRecord!.Patient!.EmailAddress,
                     Trackings = g.OrderBy(t => t.TrackingDate).ToList()

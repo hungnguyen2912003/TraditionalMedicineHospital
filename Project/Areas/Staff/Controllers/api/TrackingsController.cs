@@ -163,7 +163,7 @@ namespace Project.Areas.Staff.Controllers.api
                                 <h2>Xin chào {patient.Name},</h2>
                                 <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {prev.TrackingDate:dd/MM/yyyy} và Ngày {last.TrackingDate:dd/MM/yyyy}.</p>
                                 <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
-                                <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
+                    <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
                                 <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
                             await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
                         }
