@@ -5,8 +5,6 @@ using AutoMapper;
 using Project.Areas.Staff.Models.DTOs.TrackingDTO;
 using Project.Areas.Staff.Models.ViewModels;
 using Project.Helpers;
-using Project.Services.Features;
-using Project.Areas.Staff.Models.Entities;
 
 namespace Project.Areas.Staff.Controllers
 {
@@ -19,18 +17,13 @@ namespace Project.Areas.Staff.Controllers
         private readonly IMapper _mapper;
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IUserRepository _userRepository;
-        private readonly WarningService _warningService;
-        private readonly CodeGeneratorHelper _codeGenerator;
-
         public TreatmentTrackingsController
         (
             ITreatmentTrackingRepository treatmentTrackingRepository,
             ViewBagHelper viewBagHelper,
             IMapper mapper,
             IEmployeeRepository employeeRepository,
-            IUserRepository userRepository,
-            WarningService warningService,
-            CodeGeneratorHelper codeGenerator
+            IUserRepository userRepository
         )
         {
             _treatmentTrackingRepository = treatmentTrackingRepository;
@@ -38,10 +31,7 @@ namespace Project.Areas.Staff.Controllers
             _mapper = mapper;
             _employeeRepository = employeeRepository;
             _userRepository = userRepository;
-            _warningService = warningService;
-            _codeGenerator = codeGenerator;
         }
-
         public async Task<IActionResult> Index()
         {
             var list = await _treatmentTrackingRepository.GetAllAdvancedAsync();

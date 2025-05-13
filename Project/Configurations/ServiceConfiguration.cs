@@ -28,7 +28,6 @@ namespace Project.Configurations
 
             builder.Services.AddScoped<EmailService>();
             builder.Services.AddScoped<JwtManager>();
-            builder.Services.AddScoped<WarningService>();
             builder.Services.Configure<GoongSettings>(builder.Configuration.GetSection("GoongSettings"));
             builder.Services.AddControllersWithViews();
 

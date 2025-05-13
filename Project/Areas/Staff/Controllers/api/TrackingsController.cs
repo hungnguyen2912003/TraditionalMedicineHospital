@@ -20,7 +20,6 @@ namespace Project.Areas.Staff.Controllers.api
         private readonly IUserRepository _userRepository;
         private readonly JwtManager _jwtManager;
         private readonly CodeGeneratorHelper _codeGenerator;
-        private readonly WarningService _warningService;
 
         public TrackingsController
         (
@@ -30,8 +29,7 @@ namespace Project.Areas.Staff.Controllers.api
             IEmployeeRepository employeeRepository,
             IUserRepository userRepository,
             JwtManager jwtManager,
-            CodeGeneratorHelper codeGenerator,
-            WarningService warningService
+            CodeGeneratorHelper codeGenerator
         )
         {
             _trackingRepo = trackingRepo;
@@ -41,7 +39,6 @@ namespace Project.Areas.Staff.Controllers.api
             _userRepository = userRepository;
             _jwtManager = jwtManager;
             _codeGenerator = codeGenerator;
-            _warningService = warningService;
         }
 
         [HttpGet("patients-in-room")]
@@ -133,9 +130,6 @@ namespace Project.Areas.Staff.Controllers.api
 
             await _trackingRepo.CreateAsync(tracking);
 
-            // Kiểm tra và gửi email nhắc nhở nếu cần
-            await _warningService.CheckAndSendAbsenceNotification(tracking);
-
             return Ok(new { success = true, message = "Lưu thành công!" });
         }
 
@@ -173,9 +167,6 @@ namespace Project.Areas.Staff.Controllers.api
                 tracking.UpdatedDate = DateTime.Now;
 
                 await _trackingRepo.UpdateAsync(tracking);
-
-                // Kiểm tra và gửi email nhắc nhở nếu cần
-                await _warningService.CheckAndSendAbsenceNotification(tracking);
 
                 return Ok(new { success = true, message = "Cập nhật thành công!" });
             }
