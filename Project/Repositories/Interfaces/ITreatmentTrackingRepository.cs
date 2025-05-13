@@ -8,5 +8,6 @@ namespace Project.Repositories.Interfaces
     {
         Task<List<TreatmentTracking>> GetAllAdvancedAsync();
         Task<IEnumerable<TreatmentTracking>> GetByDetailIdAsync(Guid detailId);
+        Task<IEnumerable<TreatmentTracking>> GetByPatientIdAsync(Guid patientId);
     }
 }

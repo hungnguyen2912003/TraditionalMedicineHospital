@@ -14,10 +14,12 @@ namespace Project.Repositories.Implementations
         public async Task<List<TreatmentTracking>> GetAllAdvancedAsync()
         {
             return await _context.treatmentTrackings
-                .Include(t => t.TreatmentRecordDetail)
-                .Include(t => t.TreatmentRecordDetail!.TreatmentRecord)
-                .Include(t => t.TreatmentRecordDetail!.TreatmentRecord.Patient)
-                .Include(t => t.TreatmentRecordDetail!.Room)
+                .Include(t => t.TreatmentRecordDetail!)
+                    .ThenInclude(tr => tr.TreatmentRecord)
+                        .ThenInclude(p => p.Patient)
+                .Include(t => t.TreatmentRecordDetail!)
+                    .ThenInclude(r => r.Room)
+                .OrderBy(t => t.TrackingDate)
                 .ToListAsync();
         }
 
@@ -25,6 +27,13 @@ namespace Project.Repositories.Implementations
         {
             return await _context.treatmentTrackings
                 .Where(t => t.TreatmentRecordDetailId == detailId)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<TreatmentTracking>> GetByPatientIdAsync(Guid patientId)
+        {
+            return await _context.treatmentTrackings
+                .Where(t => t.TreatmentRecordDetail!.TreatmentRecord!.PatientId == patientId)
                 .ToListAsync();
         }
     }
