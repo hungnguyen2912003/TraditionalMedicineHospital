@@ -449,7 +449,7 @@ namespace Project.Areas.Staff.Controllers
                 }
 
                 _mapper.Map(dto.TreatmentRecord, treatmentRecord);
-                treatmentRecord.UpdatedBy = employee.Name;
+                treatmentRecord.UpdatedBy = employee.Code;
                 treatmentRecord.UpdatedDate = DateTime.Now;
 
                 await _treatmentRecordRepository.UpdateAsync(treatmentRecord);

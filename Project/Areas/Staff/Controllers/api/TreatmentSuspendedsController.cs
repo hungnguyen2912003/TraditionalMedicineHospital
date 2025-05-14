@@ -14,15 +14,21 @@ namespace Project.Areas.Staff.Controllers.api
         private readonly ITreatmentRecordRepository _treatmentRecordRepository;
         private readonly IUserRepository _userRepository;
         private readonly JwtManager _jwtManager;
+        private readonly EmailService _emailService;
+        private readonly IAssignmentRepository _assignmentRepository;
 
         public TreatmentSuspendedsController(
             ITreatmentRecordRepository treatmentRecordRepository,
             IUserRepository userRepository,
-            JwtManager jwtManager)
+            JwtManager jwtManager,
+            EmailService emailService,
+            IAssignmentRepository assignmentRepository)
         {
             _treatmentRecordRepository = treatmentRecordRepository;
             _userRepository = userRepository;
             _jwtManager = jwtManager;
+            _emailService = emailService;
+            _assignmentRepository = assignmentRepository;
         }
 
         [HttpPost("suspend")]
@@ -42,14 +48,21 @@ namespace Project.Areas.Staff.Controllers.api
                 if (user == null || user.Employee == null)
                     return NotFound("Không tìm thấy thông tin nhân viên.");
 
-                var treatmentRecord = await _treatmentRecordRepository.GetByIdAsync(request.TreatmentRecordId);
+                var treatmentRecord = await _treatmentRecordRepository.GetByIdAdvancedAsync(request.TreatmentRecordId);
                 if (treatmentRecord == null)
                     return NotFound("Không tìm thấy phiếu điều trị.");
 
-                if (treatmentRecord.Status == TreatmentStatus.DaKetThuc || !string.IsNullOrEmpty(treatmentRecord.SuspendedBy))
-                    return BadRequest("Phiếu điều trị đã bị đình chỉ hoặc đã kết thúc.");
+                if (treatmentRecord.Status == TreatmentStatus.DaHuyBo || !string.IsNullOrEmpty(treatmentRecord.SuspendedBy))
+                    return BadRequest("Phiếu điều trị đã bị đình chỉ hoặc đã hủy bỏ.");
 
-                treatmentRecord.Status = TreatmentStatus.DaKetThuc;
+                // Kiểm tra xem bác sĩ hiện tại có nằm trong danh sách phân công không
+                var assignments = await _assignmentRepository.GetByTreatmentRecordIdAsync(treatmentRecord.Id);
+                var isAssignedDoctor = assignments.Any(a => a.EmployeeId == user.Employee.Id);
+                
+                if (!isAssignedDoctor)
+                    return Forbid("Bạn không có quyền đình chỉ phiếu điều trị này. Chỉ bác sĩ được phân công mới có quyền đình chỉ.");
+
+                treatmentRecord.Status = TreatmentStatus.DaHuyBo;
                 treatmentRecord.SuspendedReason = request.SuspendedReason;
                 treatmentRecord.SuspendedNote = request.SuspendedNote;
                 treatmentRecord.SuspendedBy = user.Employee.Code;
@@ -57,11 +70,31 @@ namespace Project.Areas.Staff.Controllers.api
 
                 await _treatmentRecordRepository.UpdateAsync(treatmentRecord);
 
+                // Gửi email thông báo đình chỉ phiếu điều trị cho bệnh nhân
+                var patientEmail = treatmentRecord.Patient?.EmailAddress;
+                if (!string.IsNullOrEmpty(patientEmail))
+                {
+                    var subject = "Thông báo đình chỉ phiếu điều trị";
+                    var body = $@"
+                        <h2>Kính gửi {treatmentRecord.Patient?.Name},</h2>
+                        <p>Chúng tôi xin thông báo phiếu điều trị <strong>{treatmentRecord.Code}</strong> của bạn đã bị <strong>đình chỉ</strong>.</p>
+                        {(!string.IsNullOrEmpty(request.SuspendedNote) ? $"<p><strong>Ghi chú:</strong> {request.SuspendedNote}</p>" : "Không có")}
+                        <p>Vui lòng đến quầy tại bệnh viện để thanh toán chi phí sử dụng dịch vụ.</p>
+                        <p>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với bệnh viện để được giải đáp.</p>
+                        <p>Trân trọng,<br>Bệnh viện Y học cổ truyền Nha Trang</p>";
+
+                    await _emailService.SendEmailAsync(patientEmail, subject, body);
+                }
+                else
+                {
+                    Console.WriteLine("DEBUG: Không có email bệnh nhân, không gửi mail");
+                }
+
                 return Ok(new { success = true, message = "Đình chỉ phiếu điều trị thành công!" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Lỗi server: " + ex.Message);
+                return StatusCode(500, new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
             }
         }
 
