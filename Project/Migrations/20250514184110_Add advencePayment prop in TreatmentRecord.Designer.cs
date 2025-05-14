@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project.Datas;
 
@@ -11,9 +12,11 @@ using Project.Datas;
 namespace Project.Migrations
 {
     [DbContext(typeof(TraditionalMedicineHospitalDbContext))]
-    partial class TraditionalMedicineHospitalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250514184110_Add advencePayment prop in TreatmentRecord")]
+    partial class AddadvencePaymentpropinTreatmentRecord
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -918,7 +921,7 @@ namespace Project.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("AdvancePayment")
+                    b.Property<decimal?>("AdvancePayment")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 

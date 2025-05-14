@@ -43,6 +43,10 @@ namespace Project.Datas
                 .Property(e => e.Cost)
                 .HasPrecision(18, 2);
 
+            modelBuilder.Entity<TreatmentRecord>()
+                .Property(e => e.AdvancePayment)
+                .HasPrecision(18, 2);
+
             modelBuilder.Entity<Prescription>()
                 .Property(e => e.TotalCost)
                 .HasPrecision(18, 2);

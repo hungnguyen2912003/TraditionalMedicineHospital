@@ -21,6 +21,7 @@ namespace Project.Areas.Staff.Models.Entities
         public string? SuspendedNote { get; set; } = string.Empty;
         public string? SuspendedBy { get; set; } = string.Empty;
         public DateTime? SuspendedDate { get; set; }
+        public decimal AdvancePayment { get; set; }
 
         //Foreign key
         public Guid PatientId { get; set; }
