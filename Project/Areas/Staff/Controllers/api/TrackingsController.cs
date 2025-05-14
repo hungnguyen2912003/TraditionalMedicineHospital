@@ -176,7 +176,7 @@ namespace Project.Areas.Staff.Controllers.api
                             var body = $@"
                                 <h2>Xin chào {patient.Name},</h2>
                                 <p>Bạn đã tự ý bỏ điều trị quá 3 ngày liên tiếp: {first.TrackingDate:dd/MM/yyyy}, {mid.TrackingDate:dd/MM/yyyy}, {last.TrackingDate:dd/MM/yyyy}.</p>
-                                <p>Bác sĩ {doctorName} sẽ tiến hành đình chỉ phiếu điều trị của bạn.</p>
+                                <p>Bác sĩ chỉ định sẽ tiến hành đình chỉ phiếu điều trị của bạn.</p>
                                 <p>Sau khi đình chỉ, bạn cần thực hiện thanh toán hóa đơn điều trị theo quy định của bệnh viện.</p>
                                 <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
                             await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
@@ -279,24 +279,21 @@ namespace Project.Areas.Staff.Controllers.api
                                     if (daysDiff2 == 1 && next2.Status == TrackingStatus.KhongDieuTri)
                                     {
                                         // Lấy đúng bác sĩ thuộc khoa/phòng của TreatmentRecordDetail
-                                        var roomDepartmentId = updatedTracking.TreatmentRecordDetail?.Room?.DepartmentId;
-                                        var assignments = updatedTracking.TreatmentRecordDetail?.TreatmentRecord?.Assignments;
-                                        Employee? doctor = null;
-                                        if (assignments != null && roomDepartmentId != null)
+                                        var doctorCode = tracking.TreatmentRecordDetail?.CreatedBy;
+                                        string doctorName = "";
+                                        if (!string.IsNullOrEmpty(doctorCode))
                                         {
-                                            doctor = assignments
-                                                .Where(a => a.Employee != null && a.Employee.Room != null && a.Employee.Room.DepartmentId == roomDepartmentId)
-                                                .Select(a => a.Employee)
-                                                .FirstOrDefault();
+                                            var doctor = await _employeeRepository.GetByCodeAsync(doctorCode);
+                                            if (doctor != null)
+                                                doctorName = doctor.Name ?? "Không xác định";
                                         }
-                                        string doctorName = doctor?.Name ?? "Không xác định";
 
                                         // Gửi mail đình chỉ
                                         var subject = "Đình chỉ phiếu điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                                         var body = $@"
                                             <h2>Xin chào {patient.Name},</h2>
                                             <p>Bạn đã tự ý bỏ điều trị quá 3 ngày liên tiếp: {updatedTracking.TrackingDate:dd/MM/yyyy}, {next.TrackingDate:dd/MM/yyyy}, {next2.TrackingDate:dd/MM/yyyy}.</p>
-                                            <p>Bác sĩ {doctorName} sẽ tiến hành đình chỉ phiếu điều trị của bạn.</p>
+                                            <p>Bác sĩ chỉ định sẽ tiến hành đình chỉ phiếu điều trị của bạn.</p>
                                             <p>Sau khi đình chỉ, bạn cần thực hiện thanh toán hóa đơn điều trị theo quy định của bệnh viện.</p>
                                             <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
                                         await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
@@ -344,24 +341,21 @@ namespace Project.Areas.Staff.Controllers.api
                                     if (daysDiff2 == 1 && prev2.Status == TrackingStatus.KhongDieuTri)
                                     {
                                         // Lấy đúng bác sĩ thuộc khoa/phòng của TreatmentRecordDetail
-                                        var roomDepartmentId = updatedTracking.TreatmentRecordDetail?.Room?.DepartmentId;
-                                        var assignments = updatedTracking.TreatmentRecordDetail?.TreatmentRecord?.Assignments;
-                                        Employee? doctor = null;
-                                        if (assignments != null && roomDepartmentId != null)
+                                        var doctorCode = tracking.TreatmentRecordDetail?.CreatedBy;
+                                        string doctorName = "";
+                                        if (!string.IsNullOrEmpty(doctorCode))
                                         {
-                                            doctor = assignments
-                                                .Where(a => a.Employee != null && a.Employee.Room != null && a.Employee.Room.DepartmentId == roomDepartmentId)
-                                                .Select(a => a.Employee)
-                                                .FirstOrDefault();
+                                            var doctor = await _employeeRepository.GetByCodeAsync(doctorCode);
+                                            if (doctor != null)
+                                                doctorName = doctor.Name;
                                         }
-                                        string doctorName = doctor?.Name ?? "Không xác định";
 
                                         // Gửi mail đình chỉ
                                         var subject = "Đình chỉ phiếu điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                                         var body = $@"
                                             <h2>Xin chào {patient.Name},</h2>
                                             <p>Bạn đã tự ý bỏ điều trị quá 3 ngày liên tiếp: {prev2.TrackingDate:dd/MM/yyyy}, {prev.TrackingDate:dd/MM/yyyy}, {updatedTracking.TrackingDate:dd/MM/yyyy}.</p>
-                                            <p>Bác sĩ {doctorName} sẽ tiến hành đình chỉ phiếu điều trị của bạn.</p>
+                                            <p>Bác sĩ chỉ định sẽ tiến hành đình chỉ phiếu điều trị của bạn.</p>
                                             <p>Sau khi đình chỉ, bạn cần thực hiện thanh toán hóa đơn điều trị theo quy định của bệnh viện.</p>
                                             <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
                                         await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);
@@ -408,23 +402,11 @@ namespace Project.Areas.Staff.Controllers.api
                             // Nếu là 3 ngày liên tiếp thì chỉ gửi mail đình chỉ
                             if (prevPair && nextPair)
                             {
-                                var roomDepartmentId = updatedTracking.TreatmentRecordDetail?.Room?.DepartmentId;
-                                var assignments = updatedTracking.TreatmentRecordDetail?.TreatmentRecord?.Assignments;
-                                Employee? doctor = null;
-                                if (assignments != null && roomDepartmentId != null)
-                                {
-                                    doctor = assignments
-                                        .Where(a => a.Employee != null && a.Employee.Room != null && a.Employee.Room.DepartmentId == roomDepartmentId)
-                                        .Select(a => a.Employee)
-                                        .FirstOrDefault();
-                                }
-                                string doctorName = doctor?.Name ?? "Không xác định";
-
                                 var subject = "Đình chỉ phiếu điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                                 var body = $@"
                                     <h2>Xin chào {patient.Name},</h2>
                                     <p>Bạn đã tự ý bỏ điều trị quá 3 ngày liên tiếp: {prev.TrackingDate:dd/MM/yyyy}, {updatedTracking.TrackingDate:dd/MM/yyyy}, {next.TrackingDate:dd/MM/yyyy}.</p>
-                                    <p>Bác sĩ {doctorName} sẽ tiến hành đình chỉ phiếu điều trị của bạn.</p>
+                                    <p>Bác sĩ chỉ định sẽ tiến hành đình chỉ phiếu điều trị của bạn.</p>
                                     <p>Sau khi đình chỉ, bạn cần thực hiện thanh toán hóa đơn điều trị theo quy định của bệnh viện.</p>
                                     <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
                                 await _emailService.SendEmailAsync(patient.EmailAddress, subject, body);

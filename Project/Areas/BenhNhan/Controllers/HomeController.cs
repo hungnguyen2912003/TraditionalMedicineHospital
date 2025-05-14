@@ -74,11 +74,14 @@ namespace Project.Areas.BenhNhan.Controllers
 
             // Get all treatment record details for patient's treatment records
             var treatmentRecords = await _treatmentRecordRepository.GetByPatientIdAsync(patient.Id);
-            var viewModels = new List<PatientViewModel>();
+            var latestRecord = treatmentRecords
+                .OrderByDescending(r => r.StartDate)
+                .FirstOrDefault();
 
-            foreach (var record in treatmentRecords)
+            var viewModels = new List<PatientViewModel>();
+            if (latestRecord != null)
             {
-                var details = await _treatmentRecordDetailRepository.GetByTreatmentRecordIdAsync(record.Id);
+                var details = await _treatmentRecordDetailRepository.GetByTreatmentRecordIdAsync(latestRecord.Id);
                 foreach (var detail in details)
                 {
                     var doctorName = "Chưa phân công";
@@ -97,35 +100,34 @@ namespace Project.Areas.BenhNhan.Controllers
                     {
                         Id = detail.Id,
                         Code = detail.Code,
-                        TreatmentRecordCode = record.Code,
+                        TreatmentRecordCode = latestRecord.Code,
                         PatientName = patient.Name,
                         DoctorName = doctorName,
                         DepartmentName = departmentName,
                         TreatmentMethodName = treatmentMethodName,
                         RoomName = roomName,
-                        StartDate = record.StartDate,
-                        EndDate = record.EndDate,
-                        Status = record.Status,
+                        StartDate = latestRecord.StartDate,
+                        EndDate = latestRecord.EndDate,
+                        Status = latestRecord.Status,
                         Note = detail.Note
                     };
                     viewModels.Add(viewModel);
                 }
+                ViewBag.TreatmentRecordCode = latestRecord.Code;
+                ViewBag.StartDate = latestRecord.StartDate;
+                ViewBag.EndDate = latestRecord.EndDate;
+                if (latestRecord.Status == TreatmentStatus.DangDieuTri)
+                    ViewBag.Status = "Đang điều trị";
+                else if (latestRecord.Status == TreatmentStatus.DaHoanThanh)
+                    ViewBag.Status = "Đã hoàn tất";
+                else if (latestRecord.Status == TreatmentStatus.DaHuyBo)
+                    ViewBag.Status = "Đã hủy";
             }
 
-            ViewBag.TreatmentRecordCode = treatmentRecords.FirstOrDefault()?.Code;
-            ViewBag.StartDate = treatmentRecords.FirstOrDefault()?.StartDate;
-            ViewBag.EndDate = treatmentRecords.FirstOrDefault()?.EndDate;
-            if (treatmentRecords.FirstOrDefault()?.Status == TreatmentStatus.DangDieuTri)
-                ViewBag.Status = "Đang điều trị";
-            else if (treatmentRecords.FirstOrDefault()?.Status == TreatmentStatus.DaHoanThanh)
-                ViewBag.Status = "Đã hoàn tất";
-            else if (treatmentRecords.FirstOrDefault()?.Status == TreatmentStatus.DaHuyBo)
-                ViewBag.Status = "Đã hủy";
-
             List<string> doctorNames = new List<string>();
-            if (treatmentRecords.FirstOrDefault()?.Assignments != null)
+            if (latestRecord?.Assignments != null)
             {
-                doctorNames = treatmentRecords.FirstOrDefault()!.Assignments
+                doctorNames = latestRecord!.Assignments
                     .Where(a => a.Employee != null)
                     .Select(a => a.Employee.Name)
                     .Distinct()

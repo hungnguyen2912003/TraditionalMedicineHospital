@@ -180,200 +180,221 @@
                     <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
                         <div class="px-6">
                             <h6 class="mb-5 text-lg font-bold">Thông tin bệnh nhân</h6>
-                            <div class="flex flex-col lg:flex-row gap-6">
-                                <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
-                                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                                        <div class="w-full sm:w-1/2">
-                                            <label for="Code" class="block text-sm font-medium text-gray-700">Mã bệnh
-                                                nhân</label>
-                                            <input id="Code" name="Code"
-                                                class="form-input w-full mt-1 p-2 border rounded" readonly
-                                                value="@Model.Patient.Code" />
-                                            @Html.ValidationMessageFor(model => model.Patient.Code, "", new { @class =
+                            <div class="mb-4 flex gap-4 items-center">
+                                <label><input type="radio" class="form-radio" name="PatientType" value="new" x-model="patientType" checked> Bệnh nhân mới</label>
+                                <label><input type="radio" class="form-radio" name="PatientType" value="old" x-model="patientType"> Bệnh nhân cũ</label>
+                            </div>
+                            <div x-show="patientType === 'old'" class="mb-4">
+                                <label for="oldPatientSelect" class="block text-sm font-medium text-gray-700">Chọn bệnh nhân cũ<span class="text-danger">&nbsp*</span></label>
+                                <div class="select-wrapper">
+                                    <select id="oldPatientSelect" name="oldPatientSelect"
+                                        class="form-input w-full mt-1 p-2 border rounded choices">
+                                        <option value="">Chọn bệnh nhân</option>
+                                        @foreach (var patient in ViewBag.Patients)
+                                        {
+                                            <option value="@patient.Id">@patient.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div x-show="patientType === 'new'">
+                                <div class="flex flex-col lg:flex-row gap-6">                               
+                                    <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
+                                        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                            <div class="w-full sm:w-1/2">
+                                                <label for="Code" class="block text-sm font-medium text-gray-700">Mã bệnh
+                                                    nhân</label>
+                                                <input id="Code" name="Code"
+                                                    class="form-input w-full mt-1 p-2 border rounded" readonly
+                                                    value="@Model.Patient.Code" />
+                                                @Html.ValidationMessageFor(model => model.Patient.Code, "", new { @class =
                                                                                         "text-danger" })
-                                        </div>
-                                        <div class="w-full sm:w-1/2">
-                                            <label for="Name" class="block text-sm font-medium text-gray-700">Họ tên
-                                                bệnh nhân<span class="text-danger">&nbsp*</span></label>
-                                            <input id="Name" name="Name"
-                                                class="form-input w-full mt-1 p-2 border rounded"
-                                                placeholder="Nhập họ tên bệnh nhân"/>
-                                            @Html.ValidationMessageFor(model => model.Patient.Name, "", new { @class =
-                                                                                        "text-danger" })
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                                        <div class="w-full sm:w-1/2">
-                                            <label for="Gender" class="block text-sm font-medium text-gray-700">Giới
-                                                tính<span
-                                class="text-danger">&nbsp*</span></label>
-                                            <div class="select-wrapper">
-                                                <select id="Gender" name="Gender"
-                                                    class="form-input w-full mt-1 p-2 border rounded choices">
-                                                    <option value="">Chọn giới tính</option>
-                                                    @foreach (var gender in ViewBag.GenderOptions)
-                                                    {
-                                                        <option value="@gender.Value">@gender.Text</option>
-                                                    }
-                                                </select>
                                             </div>
-                                            @Html.ValidationMessageFor(model => model.Patient.Gender, "", new { @class =
-                                            "text-danger" })
+                                            <div class="w-full sm:w-1/2">
+                                                <label for="Name" class="block text-sm font-medium text-gray-700">Họ tên
+                                                    bệnh nhân<span class="text-danger">&nbsp*</span></label>
+                                                <input id="Name" name="Name"
+                                                    class="form-input w-full mt-1 p-2 border rounded"
+                                                    placeholder="Nhập họ tên bệnh nhân"/>
+                                                @Html.ValidationMessageFor(model => model.Patient.Name, "", new { @class =
+                                                                                        "text-danger" })
+                                            </div>
                                         </div>
-                                        <div class="w-full sm:w-1/2">
-                                            <label for="DateOfBirth"
-                                                class="block text-sm font-medium text-gray-700">Ngày sinh<span
-                                class="text-danger">&nbsp*</span></label>
-                                            <input id="DateOfBirth" name="DateOfBirth"
-                                                class="form-input w-full mt-1 p-2 border rounded flatpickr"
-                                                placeholder="Nhập ngày sinh" type="text"/>
-                                            @Html.ValidationMessageFor(model => model.Patient.DateOfBirth, "", new {
+                                        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                            <div class="w-full sm:w-1/2">
+                                                <label for="Gender" class="block text-sm font-medium text-gray-700">Giới
+                                                    tính<span
+                                    class="text-danger">&nbsp*</span></label>
+                                                <div class="select-wrapper">
+                                                    <select id="Gender" name="Gender"
+                                                        class="form-input w-full mt-1 p-2 border rounded choices">
+                                                        <option value="">Chọn giới tính</option>
+                                                        @foreach (var gender in ViewBag.GenderOptions)
+                                                        {
+                                                            <option value="@gender.Value">@gender.Text</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                @Html.ValidationMessageFor(model => model.Patient.Gender, "", new { @class =
+                                                "text-danger" })
+                                            </div>
+                                            <div class="w-full sm:w-1/2">
+                                                <label for="DateOfBirth"
+                                                    class="block text-sm font-medium text-gray-700">Ngày sinh<span
+                                    class="text-danger">&nbsp*</span></label>
+                                                <input id="DateOfBirth" name="DateOfBirth"
+                                                    class="form-input w-full mt-1 p-2 border rounded flatpickr"
+                                                    placeholder="Nhập ngày sinh" type="text"/>
+                                                @Html.ValidationMessageFor(model => model.Patient.DateOfBirth, "", new {
                                                                                         @class = "text-danger" })
+                                            </div>
+                                            <div class="w-full sm:w-1/2">
+                                                <label for="IdentityNumber"
+                                                    class="block text-sm font-medium text-gray-700">Căn cước công
+                                                    dân<span
+                                    class="text-danger">&nbsp*</span></label>
+                                                <input id="IdentityNumber" name="IdentityNumber"
+                                                    class="form-input w-full mt-1 p-2 border rounded"
+                                                    placeholder="Nhập căn cước công dân" maxlength="12"/>
+                                                @Html.ValidationMessageFor(model => model.Patient.IdentityNumber, "", new {
+                                                                                        @class = "text-danger" })
+                                            </div>
                                         </div>
-                                        <div class="w-full sm:w-1/2">
-                                            <label for="IdentityNumber"
-                                                class="block text-sm font-medium text-gray-700">Căn cước công
-                                                dân<span
-                                class="text-danger">&nbsp*</span></label>
-                                            <input id="IdentityNumber" name="IdentityNumber"
-                                                class="form-input w-full mt-1 p-2 border rounded"
-                                                placeholder="Nhập căn cước công dân" maxlength="12"/>
-                                            @Html.ValidationMessageFor(model => model.Patient.IdentityNumber, "", new {
-                                                                                        @class = "text-danger" })
+                                        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                            <div class="w-full address-container">
+                                                <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ<span
+                                    class="text-danger">&nbsp*</span></label>
+                                                <input id="Address" type="text" name="Address" class="form-input w-full mt-1 p-2 border rounded address-autocomplete" 
+                                                    placeholder="Nhập địa chỉ" autocomplete="off"/>
+                                                @Html.ValidationMessageFor(model => model.Patient.Address, "", new { @class = "text-danger" })
+                                            </div> 
                                         </div>
-                                    </div>
-                                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                                        <div class="w-full address-container">
-                                            <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ<span
-                                class="text-danger">&nbsp*</span></label>
-                                            <input id="Address" type="text" name="Address" class="form-input w-full mt-1 p-2 border rounded address-autocomplete" 
-                                                placeholder="Nhập địa chỉ" autocomplete="off"/>
-                                            @Html.ValidationMessageFor(model => model.Patient.Address, "", new { @class = "text-danger" })
-                                        </div> 
-                                    </div>
-                                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                                        <div class="w-full sm:w-1/2">
-                                            <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Số
-                                                điện thoại<span
-                                class="text-danger">&nbsp*</span></label>
-                                            <input id="PhoneNumber" name="PhoneNumber"
-                                                class="form-input w-full mt-1 p-2 border rounded"
-                                                placeholder="Nhập số điện thoại" maxlength="11"/>
-                                            @Html.ValidationMessageFor(model => model.Patient.PhoneNumber, "", new {
+                                        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                            <div class="w-full sm:w-1/2">
+                                                <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Số
+                                                    điện thoại<span
+                                    class="text-danger">&nbsp*</span></label>
+                                                <input id="PhoneNumber" name="PhoneNumber"
+                                                    class="form-input w-full mt-1 p-2 border rounded"
+                                                    placeholder="Nhập số điện thoại" maxlength="11"/>
+                                                @Html.ValidationMessageFor(model => model.Patient.PhoneNumber, "", new {
                                                                                         @class = "text-danger" })
-                                        </div>
-                                        <div class="w-full sm:w-1/2">
-                                            <label for="Email"
-                                                class="block text-sm font-medium text-gray-700">Email<span
-                                class="text-danger">&nbsp*</span></label>
-                                            <input id="Email" name="Email"
-                                                class="form-input w-full mt-1 p-2 border rounded"
-                                                placeholder="Nhập email"/>
-                                            @Html.ValidationMessageFor(model => model.Patient.EmailAddress, "", new {
+                                            </div>
+                                            <div class="w-full sm:w-1/2">
+                                                <label for="Email"
+                                                    class="block text-sm font-medium text-gray-700">Email<span
+                                    class="text-danger">&nbsp*</span></label>
+                                                <input id="Email" name="Email"
+                                                    class="form-input w-full mt-1 p-2 border rounded"
+                                                    placeholder="Nhập email"/>
+                                                @Html.ValidationMessageFor(model => model.Patient.EmailAddress, "", new {
                                                                                         @class = "text-danger" })
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="mt-6 w-full xl:mt-0 xl:w-96">
-                        <div class="panel mb-5">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 form-label mb-2">Hình ảnh bệnh nhân</label>
-                                <div class="dropzone flex-1 min-h-[200px] border-2 border-dashed border-gray-300 rounded-lg p-6 flex items-center justify-center relative hover:border-blue-500 transition-colors duration-200" id="imageDropzone">
-                                    <div class="text-center dz-message" data-dz-message>
-                                        <div class="mb-3">
-                                            <svg class="mx-auto h-14 w-14 text-gray-400 group-hover:text-blue-500 transition-colors duration-200" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
-                                        </div>
-                                        <p class="text-base font-medium text-gray-700 mb-1">
-                                            Kéo thả hoặc nhấp để chọn ảnh
-                                        </p>
-                                        <p class="text-sm text-gray-500">
-                                            hoặc click để chọn file
-                                        </p>
-                                        <p class="mt-2 text-xs text-gray-400">
-                                            Chấp nhận file: JPG, PNG, GIF (Tối đa 5MB)
-                                        </p>
-                                    </div>
-                                    <div class="dz-preview-container absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 rounded-lg hidden">
-                                        <div class="text-center">
-                                            <div class="preview-image mb-3 relative">
-                                                <img src="" alt="Preview" class="max-h-[150px] rounded-lg shadow-sm mx-auto">
-                                                <button type="button" class="remove-file absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 focus:outline-none">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                    </svg>
-                                                </button>
+                    <div x-show="patientType === 'new'">
+                        <div class="mt-6 w-full xl:mt-0 xl:w-96">
+                            <div class="panel mb-5">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 form-label mb-2">Hình ảnh bệnh nhân</label>
+                                    <div class="dropzone flex-1 min-h-[200px] border-2 border-dashed border-gray-300 rounded-lg p-6 flex items-center justify-center relative hover:border-blue-500 transition-colors duration-200" id="imageDropzone">
+                                        <div class="text-center dz-message" data-dz-message>
+                                            <div class="mb-3">
+                                                <svg class="mx-auto h-14 w-14 text-gray-400 group-hover:text-blue-500 transition-colors duration-200" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
                                             </div>
-                                            <p class="text-sm font-medium text-gray-900 preview-filename"></p>
-                                            <p class="text-xs text-gray-500 preview-size"></p>
+                                            <p class="text-base font-medium text-gray-700 mb-1">
+                                                Kéo thả hoặc nhấp để chọn ảnh
+                                            </p>
+                                            <p class="text-sm text-gray-500">
+                                                hoặc click để chọn file
+                                            </p>
+                                            <p class="mt-2 text-xs text-gray-400">
+                                                Chấp nhận file: JPG, PNG, GIF (Tối đa 5MB)
+                                            </p>
+                                        </div>
+                                        <div class="dz-preview-container absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 rounded-lg hidden">
+                                            <div class="text-center">
+                                                <div class="preview-image mb-3 relative">
+                                                    <img src="" alt="Preview" class="max-h-[150px] rounded-lg shadow-sm mx-auto">
+                                                    <button type="button" class="remove-file absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 focus:outline-none">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <p class="text-sm font-medium text-gray-900 preview-filename"></p>
+                                                <p class="text-xs text-gray-500 preview-size"></p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="panel mb-5">
-                            <label class="inline-flex cursor-pointer">
-                                <input type="checkbox" class="form-checkbox" name="HasHealthInsurance"
-                                    x-model="hasHealthInsurance" id="HasHealthInsurance" />
-                                <span class="text-sm font-medium text-gray-700 ml-2">Bệnh nhân có thẻ bảo hiểm y
-                                    tế</span>
-                            </label>
-                            <!-- Thông tin thẻ BHYT -->
-                            <div x-show="hasHealthInsurance" class="mt-5">
-                                <h6 class="mb-5 text-lg font-bold">Thông tin thẻ BHYT</h6>
-                                <div class="flex flex-col gap-4">
-                                    <div class="w-full">
-                                        <input type="hidden" id="HealthInsuranceCode" name="Patient.HealthInsuranceCode" value="@Model.Patient.HealthInsuranceCode" />
-                                        <label for="HealthInsuranceNumber"
-                                            class="block text-sm font-medium text-gray-700">Số thẻ BHYT<span
-                                class="text-danger">&nbsp*</span></label>
-                                        <input id="HealthInsuranceNumber" name="Patient.HealthInsuranceNumber" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số thẻ BHYT" maxlength="15"/>
-                                        @Html.ValidationMessageFor(model => model.Patient.HealthInsuranceNumber, "", new
-                                                                                { @class = "text-danger" })
-                                    </div>
-                                    <div class="w-full">
-                                        <label for="HealthInsuranceExpiryDate"
-                                            class="block text-sm font-medium text-gray-700">Ngày hết hạn<span
-                                class="text-danger">&nbsp*</span></label>
-                                        <input id="HealthInsuranceExpiryDate" name="HealthInsuranceExpiryDate"
-                                            class="form-input w-full mt-1 p-2 border rounded flatpickr"
-                                            placeholder="Nhập ngày hết hạn" type="text"/>
-                                        @Html.ValidationMessageFor(model => model.Patient.HealthInsuranceExpiryDate, "",
-                                                                                new { @class = "text-danger" })
-                                    </div>
-                                    <div class="w-full">
-                                        <label for="HealthInsurancePlaceOfRegistration"
-                                            class="block text-sm font-medium text-gray-700">Nơi đăng ký khám
-                                            bệnh<span
-                                class="text-danger">&nbsp*</span></label>
-                                        <div class="select-wrapper">
-                                            <select id="HealthInsurancePlaceOfRegistration"
-                                                name="HealthInsurancePlaceOfRegistration"
-                                                class="form-input w-full mt-1 p-2 border rounded choices">
-                                                <option value="">Chọn nơi đăng ký</option>
-                                                @foreach (var place in Enum.GetValues(typeof(Project.Models.Enums.HealthInsuranceRegistrationPlace)))
-                                                {
-                                                    var displayAttr = place.GetType()
-                                                        .GetField(place.ToString() ?? string.Empty)
-                                                        ?.GetCustomAttributes(typeof(DisplayAttribute), false)
-                                                        .FirstOrDefault() as DisplayAttribute;
-                                                    var displayName = displayAttr?.Name ?? place.ToString();
-                                                    <option value="@displayName">@displayName</option>
-                                                }
-                                            </select>
+                            <div class="panel mb-5">
+                                <label class="inline-flex cursor-pointer">
+                                    <input type="checkbox" class="form-checkbox" name="HasHealthInsurance"
+                                        x-model="hasHealthInsurance" id="HasHealthInsurance" />
+                                    <span class="text-sm font-medium text-gray-700 ml-2">Bệnh nhân có thẻ bảo hiểm y
+                                        tế</span>
+                                </label>
+                                <!-- Thông tin thẻ BHYT -->
+                                <div x-show="hasHealthInsurance" class="mt-5">
+                                    <h6 class="mb-5 text-lg font-bold">Thông tin thẻ BHYT</h6>
+                                    <div class="flex flex-col gap-4">
+                                        <div class="w-full">
+                                            <input type="hidden" id="HealthInsuranceCode" name="Patient.HealthInsuranceCode" value="@Model.Patient.HealthInsuranceCode" />
+                                            <label for="HealthInsuranceNumber"
+                                                class="block text-sm font-medium text-gray-700">Số thẻ BHYT<span
+                                    class="text-danger">&nbsp*</span></label>
+                                            <input id="HealthInsuranceNumber" name="Patient.HealthInsuranceNumber" class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số thẻ BHYT" maxlength="15"/>
+                                            @Html.ValidationMessageFor(model => model.Patient.HealthInsuranceNumber, "", new
+                                                                                    { @class = "text-danger" })
                                         </div>
-                                        @Html.ValidationMessageFor(model =>
-                                            model.Patient.HealthInsurancePlaceOfRegistration, "", new { @class = "text-danger" })
+                                        <div class="w-full">
+                                            <label for="HealthInsuranceExpiryDate"
+                                                class="block text-sm font-medium text-gray-700">Ngày hết hạn<span
+                                    class="text-danger">&nbsp*</span></label>
+                                            <input id="HealthInsuranceExpiryDate" name="HealthInsuranceExpiryDate"
+                                                class="form-input w-full mt-1 p-2 border rounded flatpickr"
+                                                placeholder="Nhập ngày hết hạn" type="text"/>
+                                            @Html.ValidationMessageFor(model => model.Patient.HealthInsuranceExpiryDate, "",
+                                                                                    new { @class = "text-danger" })
+                                        </div>
+                                        <div class="w-full">
+                                            <label for="HealthInsurancePlaceOfRegistration"
+                                                class="block text-sm font-medium text-gray-700">Nơi đăng ký khám
+                                                bệnh<span
+                                    class="text-danger">&nbsp*</span></label>
+                                            <div class="select-wrapper">
+                                                <select id="HealthInsurancePlaceOfRegistration"
+                                                    name="HealthInsurancePlaceOfRegistration"
+                                                    class="form-input w-full mt-1 p-2 border rounded choices">
+                                                    <option value="">Chọn nơi đăng ký</option>
+                                                    @foreach (var place in Enum.GetValues(typeof(Project.Models.Enums.HealthInsuranceRegistrationPlace)))
+                                                    {
+                                                        var displayAttr = place.GetType()
+                                                            .GetField(place.ToString() ?? string.Empty)
+                                                            ?.GetCustomAttributes(typeof(DisplayAttribute), false)
+                                                            .FirstOrDefault() as DisplayAttribute;
+                                                        var displayName = displayAttr?.Name ?? place.ToString();
+                                                        <option value="@displayName">@displayName</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            @Html.ValidationMessageFor(model =>
+                                                model.Patient.HealthInsurancePlaceOfRegistration, "", new { @class = "text-danger" })
+                                        </div>
+                                        <div class="w-full mt-2">
+                                            <input type="checkbox" class="form-checkbox" name="Patient.HealthInsuranceIsRightRoute" value="true" id="HealthInsuranceIsRightRoute">
+                                            <span class="text-sm font-medium text-gray-700 ml-2">Thẻ bảo hiểm đúng tuyến KCB<span
+                                    class="text-danger">&nbsp*</span></span>
+                                        </div>                                  
                                     </div>
-                                    <div class="w-full mt-2">
-                                        <input type="checkbox" class="form-checkbox" name="Patient.HealthInsuranceIsRightRoute" value="true" id="HealthInsuranceIsRightRoute">
-                                        <span class="text-sm font-medium text-gray-700 ml-2">Thẻ bảo hiểm đúng tuyến KCB<span
-                                class="text-danger">&nbsp*</span></span>
-                                    </div>                                  
                                 </div>
                             </div>
                         </div>

@@ -141,52 +141,64 @@ namespace Project.Areas.Staff.Controllers
 
                 var employee = user.Employee;
 
-                // Create patient
-                var patient = _mapper.Map<Patient>(dto.Patient);
-                patient.CreatedBy = employee.Code;
-                patient.CreatedDate = DateTime.Now;
-                patient.IsActive = true;
-
-                if (dto.Patient.ImageFile != null && dto.Patient.ImageFile.Length > 0)
+                Guid patientId;
+                if (dto.Patient != null && dto.Patient.Id != Guid.Empty)
                 {
-                    var imagePath = await _imageService.SaveImageAsync(dto.Patient.ImageFile, "Patients");
-                    patient.Images = imagePath;
+                    // Bệnh nhân cũ
+                    var existingPatient = await _patientRepository.GetByIdAsync(dto.Patient.Id!.Value);
+                    if (existingPatient == null)
+                        return Json(new { success = false, message = "Bệnh nhân không tồn tại" });
+                    patientId = existingPatient.Id;
                 }
-
-                await _patientRepository.CreateAsync(patient);
-
-
-                // Tạo tài khoản cho bệnh nhân
-                var userPatient = new User
+                else
                 {
-                    Id = Guid.NewGuid(),
-                    Username = patient.Code,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("11111111"),
-                    Role = RoleType.Benhnhan,
-                    CreatedDate = DateTime.UtcNow,
-                    CreatedBy = employee.Code,
-                    IsActive = true,
-                    PatientId = patient.Id,
-                    IsFirstLogin = true
-                };
-                await _userRepository.CreateAsync(userPatient);
+                    // Bệnh nhân mới
+                    var patient = _mapper.Map<Patient>(dto.Patient);
+                    patient.CreatedBy = employee.Code;
+                    patient.CreatedDate = DateTime.Now;
+                    patient.IsActive = true;
 
-                // Gửi email nếu có
-                if (!string.IsNullOrEmpty(patient.EmailAddress))
-                {
-                    var subject = "Tài khoản bệnh nhân mới tại Bệnh viện Y học cổ truyền Nha Trang";
-                    var body = $@"
-                        <h2>Xin chào {patient.Name},</h2>
-                        <p>Bạn đã được cấp tài khoản bệnh nhân tại hệ thống Bệnh viện Y học cổ truyền Nha Trang.</p>
-                        <p>Tài khoản của bạn là:</p>
-                        <p><b>Mã bệnh nhân (Username):</b> {patient.Code}</p>
-                        <p><b>Mật khẩu mặc định:</b> 11111111</p>
-                        <p>Bạn có thể sử dụng mã bệnh nhân hoặc email để đăng nhập vào hệ thống.</p>
-                        <p>Vui lòng đăng nhập tại <a href='https://localhost:5285/login'>trang đăng nhập</a> và đổi mật khẩu ngay lần đầu đăng nhập.</p>
-                        <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>
-                    ";
-                    _ = Task.Run(() => _emailService.SendEmailAsync(patient.EmailAddress, subject, body));
-                }                
+                    if (dto.Patient!.ImageFile != null && dto.Patient.ImageFile.Length > 0)
+                    {
+                        var imagePath = await _imageService.SaveImageAsync(dto.Patient.ImageFile, "Patients");
+                        patient.Images = imagePath;
+                    }
+
+                    await _patientRepository.CreateAsync(patient);
+                    patientId = patient.Id;
+
+                    // Tạo tài khoản cho bệnh nhân
+                    var userPatient = new User
+                    {
+                        Id = Guid.NewGuid(),
+                        Username = patient.Code,
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword("11111111"),
+                        Role = RoleType.Benhnhan,
+                        CreatedDate = DateTime.UtcNow,
+                        CreatedBy = employee.Code,
+                        IsActive = true,
+                        PatientId = patient.Id,
+                        IsFirstLogin = true
+                    };
+                    await _userRepository.CreateAsync(userPatient);
+
+                    // Gửi email nếu có
+                    if (!string.IsNullOrEmpty(patient.EmailAddress))
+                    {
+                        var subject = "Tài khoản bệnh nhân mới tại Bệnh viện Y học cổ truyền Nha Trang";
+                        var body = $@"
+                            <h2>Xin chào {patient.Name},</h2>
+                            <p>Bạn đã được cấp tài khoản bệnh nhân tại hệ thống Bệnh viện Y học cổ truyền Nha Trang.</p>
+                            <p>Tài khoản của bạn là:</p>
+                            <p><b>Mã bệnh nhân (Username):</b> {patient.Code}</p>
+                            <p><b>Mật khẩu mặc định:</b> 11111111</p>
+                            <p>Bạn có thể sử dụng mã bệnh nhân hoặc email để đăng nhập vào hệ thống.</p>
+                            <p>Vui lòng đăng nhập tại <a href='https://localhost:5285/login'>trang đăng nhập</a> và đổi mật khẩu ngay lần đầu đăng nhập.</p>
+                            <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>
+                        ";
+                        _ = Task.Run(() => _emailService.SendEmailAsync(patient.EmailAddress, subject, body));
+                    }
+                }
 
                 // Create health insurance
                 HealthInsurance? healthInsurance = null;
@@ -195,7 +207,7 @@ namespace Project.Areas.Staff.Controllers
                     healthInsurance = _mapper.Map<HealthInsurance>(dto.Patient);
                     if (healthInsurance != null)
                     {
-                        healthInsurance.PatientId = patient.Id;
+                        healthInsurance.PatientId = patientId;
                         healthInsurance.CreatedBy = employee.Code;
                         healthInsurance.CreatedDate = DateTime.Now;
                         healthInsurance.IsActive = true;
@@ -206,7 +218,7 @@ namespace Project.Areas.Staff.Controllers
 
                 // Create treatment record
                 var treatmentRecord = _mapper.Map<TreatmentRecord>(dto.TreatmentRecord);
-                treatmentRecord.PatientId = patient.Id;
+                treatmentRecord.PatientId = patientId;
                 treatmentRecord.CreatedBy = employee.Code;
                 treatmentRecord.CreatedDate = DateTime.Now;
                 treatmentRecord.IsActive = true;
@@ -436,9 +448,9 @@ namespace Project.Areas.Staff.Controllers
                 }
 
                 // Check if treatment record is in a valid state for editing
-                if (treatmentRecord.Status == TreatmentStatus.DaKetThuc)
+                if (treatmentRecord.Status == TreatmentStatus.DaHuyBo)
                 {
-                    return Json(new { success = false, message = "Không thể cập nhật phiếu khám đã kết thúc" });
+                    return Json(new { success = false, message = "Không thể cập nhật phiếu khám đã hủy bỏ" });
                 }
 
                 // Update patient

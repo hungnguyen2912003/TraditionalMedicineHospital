@@ -20,6 +20,7 @@ document.addEventListener('alpine:init', () => {
         assignmentEndPicker: null,
         isRightRoute: false,
         hasHealthInsurance: false,
+        patientType: 'new',
 
         /**
          * Initialize the reception component
@@ -325,15 +326,22 @@ document.addEventListener('alpine:init', () => {
             formData.append('TreatmentRecord.Note', document.getElementById('treatmentRecordNote').value);
 
             // Append patient data
-            formData.append('Patient.Code', document.getElementById('Code').value);
-            formData.append('Patient.Name', document.getElementById('Name').value);
-            formData.append('Patient.Gender', document.getElementById('Gender').value);
-            formData.append('Patient.DateOfBirth', document.getElementById('DateOfBirth').value);
-            formData.append('Patient.IdentityNumber', document.getElementById('IdentityNumber').value);
-            formData.append('Patient.Address', document.getElementById('Address').value);
-            formData.append('Patient.PhoneNumber', document.getElementById('PhoneNumber').value);
-            formData.append('Patient.EmailAddress', document.getElementById('Email').value);
-            formData.append('Patient.HasHealthInsurance', document.getElementById('HasHealthInsurance').checked);
+            if (this.patientType === 'old')
+            {
+                formData.append('Patient.Id', document.getElementById('oldPatientSelect').value);
+            }
+            else
+            {
+                formData.append('Patient.Code', document.getElementById('Code').value);
+                formData.append('Patient.Name', document.getElementById('Name').value);
+                formData.append('Patient.Gender', document.getElementById('Gender').value);
+                formData.append('Patient.DateOfBirth', document.getElementById('DateOfBirth').value);
+                formData.append('Patient.IdentityNumber', document.getElementById('IdentityNumber').value);
+                formData.append('Patient.Address', document.getElementById('Address').value);
+                formData.append('Patient.PhoneNumber', document.getElementById('PhoneNumber').value);
+                formData.append('Patient.EmailAddress', document.getElementById('Email').value);
+                formData.append('Patient.HasHealthInsurance', document.getElementById('HasHealthInsurance').checked);
+            }
 
             // Append health insurance data if exists
             if (document.getElementById('HasHealthInsurance').checked) {
@@ -767,11 +775,21 @@ document.addEventListener('alpine:init', () => {
             $("#receptionForm").validate({
                 ignore: [],
                 rules: {
-                    "Name": { required: true, minlength: 2, maxlength: 50 },
-                    "DateOfBirth": { required: true, dateFormat: true },
-                    "Gender": { required: true },
+                    "oldPatientSelect": {
+                        required: function() { return self.patientType === 'old'; }
+                    },
+                    "Name": {
+                        required: function() { return self.patientType === 'new'; },
+                        minlength: 2, maxlength: 50
+                    },
+                    "DateOfBirth": {
+                        required: function() { return self.patientType === 'new'; },
+                        dateFormat: true
+                    },
+                    "Gender": { required: function() { return self.patientType === 'new'; } },
                     "IdentityNumber": {
                         required: function () {
+                            if (self.patientType === 'old') return false;
                             var dob = $("input[name='DateOfBirth']").val();
                             if (!dob) return false;
                             var dateParts = dob.split("/");
@@ -811,7 +829,7 @@ document.addEventListener('alpine:init', () => {
                         }
                     },
                     "PhoneNumber": {
-                        required: true,
+                        required: function() { return self.patientType === 'new'; },
                         minlength: 11,
                         maxlength: 11,
                         phone: true,
@@ -839,7 +857,7 @@ document.addEventListener('alpine:init', () => {
                             }
                         }
                     },
-                    "Address": { required: true },
+                    "Address": { required: function() { return self.patientType === 'new'; } },
                     "Email": { email: true },
                     "HealthInsuranceNumber": {
                         required: () => $('#HasHealthInsurance').is(':checked'),
@@ -897,6 +915,11 @@ document.addEventListener('alpine:init', () => {
                         dateFormat: true,
                         endDateAfterStartDate: true,
                         assignmentEndDateValid: true
+                    },
+                    "oldPatientSelect": {
+                        required: function() {
+                            return $("input[name='PatientType']:checked").val() === 'old';
+                        }
                     }
                 },
                 messages: {
@@ -964,7 +987,8 @@ document.addEventListener('alpine:init', () => {
                         dateFormat: "Ngày kết thúc không hợp lệ.",
                         endDateAfterStartDate: "Ngày kết thúc phải sau ngày bắt đầu.",
                         assignmentEndDateValid: "Ngày kết thúc phân công không được sau ngày kết thúc điều trị"
-                    }
+                    },
+                    "oldPatientSelect": { required: "Vui lòng chọn bệnh nhân cũ." }
                 },
                 errorElement: "div",
                 errorClass: "text-danger",
@@ -1037,148 +1061,47 @@ document.addEventListener('alpine:init', () => {
          * Submit form handler
          */
         submitForm() {
-            // Log toàn bộ dữ liệu đã nhập
-            const formDataLog = {};
-            // Patient
-            formDataLog.Patient = {
-                Code: document.getElementById('Code')?.value,
-                Name: document.getElementById('Name')?.value,
-                Gender: document.getElementById('Gender')?.value,
-                DateOfBirth: document.getElementById('DateOfBirth')?.value,
-                IdentityNumber: document.getElementById('IdentityNumber')?.value,
-                Address: document.getElementById('Address')?.value,
-                PhoneNumber: document.getElementById('PhoneNumber')?.value,
-                Email: document.getElementById('Email')?.value,
-                HasHealthInsurance: document.getElementById('HasHealthInsurance')?.checked
-            };
-            // TreatmentRecord
-            formDataLog.TreatmentRecord = {
-                Code: document.getElementById('treatmentRecordCode')?.value,
-                Diagnosis: document.getElementById('Diagnosis')?.value,
-                StartDate: document.getElementById('StartDate')?.value,
-                EndDate: document.getElementById('EndDate')?.value,
-                Note: document.getElementById('treatmentRecordNote')?.value
-            };
-            // Assignment
-            formDataLog.Assignment = {
-                Code: document.getElementById('assignmentCode')?.value,
-                StartDate: document.getElementById('assignmentStartDate')?.value,
-                EndDate: document.getElementById('assignmentEndDate')?.value,
-                Note: document.getElementById('assignmentNote')?.value
-            };
-            // Chi tiết điều trị
-            formDataLog.TreatmentRecordDetails = [];
-            const methodSelects = document.querySelectorAll('select[name$=".TreatmentMethodId"]');
-            methodSelects.forEach(methodSelect => {
-                if (!methodSelect) return; // Bỏ qua nếu không tồn tại
-                const name = methodSelect.getAttribute('name');
-                const match = name.match(/TreatmentRecordDetails\[(\d+)\]\.TreatmentMethodId/);
-                if (!match) return;
-                const idx = match[1];
-                const roomSelect = document.querySelector(`select[name='TreatmentRecordDetails[${idx}].RoomId']`);
-                if (!roomSelect) {
-                    console.error(`Không tìm thấy select phòng cho TreatmentRecordDetails[${idx}].RoomId`);
-                    notyf.error(`Không tìm thấy trường phòng cho dòng điều trị số ${parseInt(idx)+1}`);
-                    isValid = false;
-                    return;
-                }
-                if (!methodSelect.value) {
-                    console.error(`Chưa chọn phương pháp điều trị cho dòng ${parseInt(idx)+1}`);
-                    notyf.error(`Vui lòng chọn phương pháp điều trị cho dòng ${parseInt(idx)+1}`);
-                    isValid = false;
-                }
-                if (!roomSelect.value) {
-                    console.error(`Chưa chọn phòng cho dòng ${parseInt(idx)+1}`);
-                    notyf.error(`Vui lòng chọn phòng cho dòng ${parseInt(idx)+1}`);
-                    isValid = false;
-                }
-                formDataLog.TreatmentRecordDetails.push({
-                    Code: methodSelect ? methodSelect.value : '',
-                    TreatmentMethodId: methodSelect ? methodSelect.value : '',
-                    RoomId: roomSelect ? roomSelect.value : '',
-                    Note: ''
-                });
-            });
-            // Log ra console
-            console.log('=== DỮ LIỆU FORM SUBMIT ===');
-            console.log(formDataLog);
-            // Log dữ liệu quy định
-            console.log('=== DỮ LIỆU QUY ĐỊNH ===');
-            const regulationsData = this.regulations.map((reg, index) => ({
-                Code: reg.Code,
-                RegulationId: reg.RegulationId,
-                ExecutionDate: document.getElementById(`executionDate-${index}`)?.value || '',
-                Note: document.getElementById(`note-${index}`)?.value || ''
-            }));
-            console.log(regulationsData);
-            console.log('===========================');
-            // Validate từng dòng chi tiết điều trị
+            // Validate theo loại bệnh nhân
             let isValid = true;
-            methodSelects.forEach(methodSelect => {
-                if (!methodSelect) return; // Bỏ qua nếu không tồn tại
-                const name = methodSelect.getAttribute('name');
-                const match = name.match(/TreatmentRecordDetails\[(\d+)\]\.TreatmentMethodId/);
-                if (!match) return;
-                const idx = match[1];
-                const roomSelect = document.querySelector(`select[name='TreatmentRecordDetails[${idx}].RoomId']`);
-                if (!roomSelect) {
-                    console.error(`Không tìm thấy select phòng cho TreatmentRecordDetails[${idx}].RoomId`);
-                    notyf.error(`Không tìm thấy trường phòng cho dòng điều trị số ${parseInt(idx)+1}`);
+            if (this.patientType === 'old') {
+                const oldPatientId = document.getElementById('oldPatientSelect').value;
+                if (!oldPatientId) {
+                    notyf.error('Vui lòng chọn bệnh nhân cũ!');
                     isValid = false;
+                }
+            } else {
+                // Validate như cũ cho bệnh nhân mới
+                if (!$("#receptionForm").valid()) {
+                    notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
                     return;
                 }
-                if (!methodSelect.value) {
-                    console.error(`Chưa chọn phương pháp điều trị cho dòng ${parseInt(idx)+1}`);
-                    notyf.error(`Vui lòng chọn phương pháp điều trị cho dòng ${parseInt(idx)+1}`);
-                    isValid = false;
-                }
-                if (!roomSelect.value) {
-                    console.error(`Chưa chọn phòng cho dòng ${parseInt(idx)+1}`);
-                    notyf.error(`Vui lòng chọn phòng cho dòng ${parseInt(idx)+1}`);
-                    isValid = false;
-                }
-            });
-            if (!isValid) {
-                notyf.error("Vui lòng kiểm tra lại thông tin điều trị.");
-                return;
             }
-            if (!$("#receptionForm").valid()) {
-                notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
-                return;
-            }
-            if (!validateRegulations()) {
-                notyf.error("Vui lòng kiểm tra thông tin nhập.");
-                const overlay = document.getElementById('loadingOverlay');
-                if (overlay) overlay.style.display = 'none';
-                return;
-            }
+            if (!isValid) return;
             const overlay = document.getElementById('loadingOverlay');
             overlay.style.display = 'flex';
             try {
-                if (this.dropzone?.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
-                    this.dropzone.processQueue();
-                } else {
-                    const formData = new FormData(document.getElementById('receptionForm'));
-                    this.appendFormData(formData);
-                    fetch('/Staff/Receptions/Create', {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                const formData = new FormData(document.getElementById('receptionForm'));
+                // Gửi dữ liệu theo loại bệnh nhân
+                this.appendFormData(formData);
+
+                fetch('/Staff/Receptions/Create', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
                         }
+                        return response.json();
                     })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.json();
-                        })
-                        .then(this.handleResponse)
-                        .catch(error => {
-                            overlay.style.display = 'none';
-                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error.message);
-                        });
-                }
+                    .then(this.handleResponse)
+                    .catch(error => {
+                        overlay.style.display = 'none';
+                        notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error.message);
+                    });
             } catch (error) {
                 overlay.style.display = 'none';
                 notyf.error("Có lỗi xảy ra: " + error.message);
