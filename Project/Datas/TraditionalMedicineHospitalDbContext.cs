@@ -30,7 +30,6 @@ namespace Project.Datas
         public DbSet<Permission> permissions { get; set; }
         public DbSet<User_Permission> user_Permissions { get; set; }
         public DbSet<TreatmentRecordDetail> treatmentRecordDetails { get; set; }
-        public DbSet<AdvancePayment> advancePayments { get; set; }
         public DbSet<TreatmentTracking> treatmentTrackings { get; set; }
         public DbSet<HealthInsurance> healthInsurances { get; set; }
 
