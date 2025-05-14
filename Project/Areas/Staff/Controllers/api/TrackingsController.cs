@@ -70,23 +70,29 @@ namespace Project.Areas.Staff.Controllers.api
 
                 DateTime targetDate = string.IsNullOrEmpty(date) ? DateTime.Today : DateTime.Parse(date);
 
-                // Lấy tất cả bệnh nhân trong phòng
-                var patients = await _detailRepo.GetPatientsByRoomIdAsync(roomId);
+                // Lấy tất cả detail trong phòng
+                var details = await _detailRepo.GetDetailsByRoomIdAsync(roomId);
 
-                // Lấy danh sách các tracking đã chấm trong ngày
+                // Lấy danh sách các tracking đã chấm trong ngày (theo detailId)
                 var trackings = await _trackingRepo.GetAllAdvancedAsync();
-                var trackedPatientIds = trackings
+                var trackedDetailIds = trackings
                     .Where(t => t.TrackingDate.Date == targetDate.Date && t.TreatmentRecordDetail != null && t.TreatmentRecordDetail.RoomId == roomId)
-                    .Select(t => t.TreatmentRecordDetail!.TreatmentRecord!.PatientId)
+                    .Select(t => t.TreatmentRecordDetailId)
                     .ToHashSet();
 
-                // Lọc ra các bệnh nhân chưa được chấm trong ngày
-                var patientsToTrack = patients
-                    .Where(p => !trackedPatientIds.Contains(p.Id))
-                    .Select(p => new { id = p.Id, name = p.Name })
+                // Lọc ra các detail chưa được chấm trong ngày
+                var detailsToTrack = details
+                    .Where(d => !trackedDetailIds.Contains(d.Id))
+                    .Select(d => new {
+                        detailId = d.Id,
+                        patientId = d.TreatmentRecord.Patient.Id,
+                        patientName = d.TreatmentRecord.Patient.Name,
+                        roomName = d.Room?.Name,
+                        treatmentMethod = d.Room?.TreatmentMethod?.Name
+                    })
                     .ToList();
 
-                return Ok(patientsToTrack);
+                return Ok(detailsToTrack);
             }
             catch (Exception ex)
             {

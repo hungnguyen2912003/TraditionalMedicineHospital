@@ -118,6 +118,17 @@ namespace Project.Repositories.Implementations
                         .ThenInclude(x => x.Employee)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
+
+        public async Task<List<TreatmentRecordDetail>> GetDetailsByRoomIdAsync(Guid roomId)
+        {
+            return await _context.treatmentRecordDetails
+                .Include(d => d.TreatmentRecord)
+                    .ThenInclude(p => p.Patient)
+                .Include(d => d.Room)
+                    .ThenInclude(r => r.TreatmentMethod)
+                .Where(d => d.RoomId == roomId && d.IsActive && d.TreatmentRecord.IsActive)
+                .ToListAsync();
+        }
     }
 }
 

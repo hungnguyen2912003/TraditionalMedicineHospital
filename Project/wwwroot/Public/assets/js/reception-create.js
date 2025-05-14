@@ -328,7 +328,7 @@ document.addEventListener('alpine:init', () => {
             // Append patient data
             if (this.patientType === 'old')
             {
-                formData.append('Patient.Id', document.getElementById('oldPatientSelect').value);
+                formData.append('OldPatientId', document.getElementById('oldPatientSelect').value);
             }
             else
             {
@@ -775,7 +775,7 @@ document.addEventListener('alpine:init', () => {
             $("#receptionForm").validate({
                 ignore: [],
                 rules: {
-                    "oldPatientSelect": {
+                    "OldPatientId": {
                         required: function() { return self.patientType === 'old'; }
                     },
                     "Name": {
@@ -915,11 +915,6 @@ document.addEventListener('alpine:init', () => {
                         dateFormat: true,
                         endDateAfterStartDate: true,
                         assignmentEndDateValid: true
-                    },
-                    "oldPatientSelect": {
-                        required: function() {
-                            return $("input[name='PatientType']:checked").val() === 'old';
-                        }
                     }
                 },
                 messages: {
@@ -988,7 +983,7 @@ document.addEventListener('alpine:init', () => {
                         endDateAfterStartDate: "Ngày kết thúc phải sau ngày bắt đầu.",
                         assignmentEndDateValid: "Ngày kết thúc phân công không được sau ngày kết thúc điều trị"
                     },
-                    "oldPatientSelect": { required: "Vui lòng chọn bệnh nhân cũ." }
+                    "OldPatientId": { required: "Vui lòng chọn bệnh nhân cũ." }
                 },
                 errorElement: "div",
                 errorClass: "text-danger",

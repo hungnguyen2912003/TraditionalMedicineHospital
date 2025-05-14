@@ -78,7 +78,6 @@ namespace Project.Mappers
                 .ForMember(dest => dest.TreatmentMethodId, opt => opt.MapFrom(src => src.Room.TreatmentMethodId));
 
             CreateMap<ReceptionTreatmentRecordDetailDto, TreatmentRecordDetail>()
-                .ForMember(dest => dest.TreatmentRecordId, opt => opt.Ignore())
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
                 .ForMember(dest => dest.RoomId, opt => opt.MapFrom(src => src.RoomId))
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note));

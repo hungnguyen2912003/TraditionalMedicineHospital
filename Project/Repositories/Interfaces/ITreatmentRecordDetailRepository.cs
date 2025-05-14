@@ -14,6 +14,7 @@ namespace Project.Repositories.Interfaces
         Task<List<Patient>> GetPatientsByRoomIdAsync(Guid roomId);
         Task<TreatmentRecordDetail?> GetByPatientAndRoomAsync(Guid patientId, Guid roomId);
         Task<TreatmentRecordDetail?> GetByIdAdvancedAsync(Guid id);
+        Task<List<TreatmentRecordDetail>> GetDetailsByRoomIdAsync(Guid roomId);
     }
 }
 

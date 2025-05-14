@@ -9,6 +9,7 @@ using Project.Repositories.Interfaces;
 using Project.Services.Features;
 using Project.Services.Interfaces;
 using Project.Areas.Admin.Models.Entities;
+using System.Text.Json;
 
 namespace Project.Areas.Staff.Controllers
 {
@@ -114,7 +115,7 @@ namespace Project.Areas.Staff.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromForm] ReceptionDto dto)
+        public async Task<IActionResult> Create([FromForm] ReceptionDto dto, [FromForm] Guid? OldPatientId)
         {
             try
             {
@@ -142,10 +143,10 @@ namespace Project.Areas.Staff.Controllers
                 var employee = user.Employee;
 
                 Guid patientId;
-                if (dto.Patient != null && dto.Patient.Id != Guid.Empty)
+                if (OldPatientId.HasValue && OldPatientId.Value != Guid.Empty)
                 {
                     // Bệnh nhân cũ
-                    var existingPatient = await _patientRepository.GetByIdAsync(dto.Patient.Id!.Value);
+                    var existingPatient = await _patientRepository.GetByIdAsync(OldPatientId.Value);
                     if (existingPatient == null)
                         return Json(new { success = false, message = "Bệnh nhân không tồn tại" });
                     patientId = existingPatient.Id;
@@ -412,7 +413,7 @@ namespace Project.Areas.Staff.Controllers
         public async Task<IActionResult> Edit([FromForm] ReceptionEditDto dto)
         {
             try
-            {
+            {   
                 // Get user info from token
                 var token = Request.Cookies["AuthToken"];
                 if (string.IsNullOrEmpty(token))
@@ -447,11 +448,11 @@ namespace Project.Areas.Staff.Controllers
                     return Json(new { success = false, message = "Phiếu khám không tồn tại" });
                 }
 
-                // Check if treatment record is in a valid state for editing
-                if (treatmentRecord.Status == TreatmentStatus.DaHuyBo)
-                {
-                    return Json(new { success = false, message = "Không thể cập nhật phiếu khám đã hủy bỏ" });
-                }
+                _mapper.Map(dto.TreatmentRecord, treatmentRecord);
+                treatmentRecord.UpdatedBy = employee.Name;
+                treatmentRecord.UpdatedDate = DateTime.Now;
+
+                await _treatmentRecordRepository.UpdateAsync(treatmentRecord);
 
                 // Update patient
                 var patient = await _patientRepository.GetByIdAsync(dto.TreatmentRecord.PatientId);

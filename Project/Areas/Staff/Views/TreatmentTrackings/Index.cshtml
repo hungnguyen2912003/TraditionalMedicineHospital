@@ -465,9 +465,9 @@
                     } else {
                         patients.forEach((patient, idx) => {
                             rows += `
-                                <tr data-patient-name="${patient.name}" data-patient-id="${patient.id}">
+                                <tr data-patient-name="${patient.patientName}" data-patient-id="${patient.id}">
                                     <td>${idx + 1}</td>
-                                    <td>${patient.name}</td>
+                                    <td>${patient.patientName}</td>
                                     <td>
                                         <div class="btn-group d-flex justify-content-center" style="display:flex;gap:8px;">
                                             <button class="btn btn-success btn-status" data-status="1">Có điều trị</button>
