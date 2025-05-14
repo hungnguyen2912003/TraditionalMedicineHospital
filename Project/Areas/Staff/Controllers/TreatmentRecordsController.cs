@@ -55,6 +55,23 @@ namespace Project.Areas.Staff.Controllers
                 }
             }
 
+            foreach (var vm in viewModelList)
+            {
+                var entity = activeList.FirstOrDefault(x => x.Id == vm.Id);
+                if (entity != null && entity.Assignments != null)
+                {
+                    vm.Assignments = entity.Assignments.Select(a => new Assignment
+                    {
+                        Id = a.Id,
+                        CreatedBy = a.CreatedBy
+                    }).ToList();
+                }
+                else
+                {
+                    vm.Assignments = new List<Assignment>();
+                }
+            }
+
             return View(viewModelList);
         }
 

@@ -1,4 +1,5 @@
-﻿using Project.Models.Enums;
+﻿using Project.Areas.Staff.Models.Entities;
+using Project.Models.Enums;
 
 namespace Project.Areas.Staff.Models.ViewModels
 {
@@ -12,5 +13,6 @@ namespace Project.Areas.Staff.Models.ViewModels
         public TreatmentStatus Status { get; set; }
         public string PatientName { get; set; } = string.Empty;
         public bool IsActive { get; set; }
+        public List<Assignment> Assignments { get; set; } = new List<Assignment>();
     }
 }
