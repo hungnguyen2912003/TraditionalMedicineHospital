@@ -78,6 +78,20 @@ namespace Project.Areas.Staff.Controllers
                 })
                 .ToList();
 
+            // 1. Lấy tất cả EmployeeId từ các tracking cảnh báo
+            var employeeIds = patientGroups
+                .SelectMany(p => p.Trackings)
+                .Where(t => t.EmployeeId.HasValue)
+                .Select(t => t.EmployeeId!.Value)
+                .Distinct()
+                .ToList();
+            var employeeDict = new Dictionary<Guid, string>();
+            if (employeeIds.Any())
+            {
+                var employees = await _employeeRepository.GetByIdsAsync(employeeIds);
+                employeeDict = employees.ToDictionary(e => e.Id, e => e.Name);
+            }
+
             // Lọc ra các bệnh nhân có thể có nhiều lần cảnh báo (mỗi lần là một dòng)
             var warningPatients = new List<WarningPatientViewModel>();
             foreach (var p in patientGroups)
@@ -100,11 +114,19 @@ namespace Project.Areas.Staff.Controllers
                             FirstAbsenceDate = prev.TrackingDate,
                             SecondAbsenceDate = curr.TrackingDate,
                             FirstNote = prev.Note,
-                            SecondNote = curr.Note
+                            SecondNote = curr.Note,
+                            DepartmentName = prev.TreatmentRecordDetail?.Room?.Department?.Name ?? "",
+                            RoomName = prev.TreatmentRecordDetail?.Room?.Name ?? "",
+                            EmployeeName = (prev.EmployeeId.HasValue && employeeDict.ContainsKey(prev.EmployeeId.Value)) ? employeeDict[prev.EmployeeId.Value] : ""
                         });
                     }
                 }
             }
+
+            warningPatients = warningPatients
+                .OrderBy(x => x.PatientName)
+                .ThenBy(x => x.FirstAbsenceDate)
+                .ToList();
 
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(warningPatients);

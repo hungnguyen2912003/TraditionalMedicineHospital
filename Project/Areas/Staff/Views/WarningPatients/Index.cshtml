@@ -77,6 +77,55 @@
                     </div>
                 </div>
 
+                <!-- FILTER BAR START -->
+                <div class="filter-divider">
+                    <span>Bộ lọc</span>
+                </div>
+                <div class="flex flex-col gap-2 w-full mt-4">
+                    <div class="flex flex-col sm:flex-row gap-5 mb-2 justify-center items-center">
+                        <div class="w-56">
+                            <select id="filterDepartment" class="form-input choices w-full mt-1 p-2 border rounded">
+                                <option value="">Chọn khoa...</option>
+                                @foreach (var d in ViewBag.Departments)
+                                {
+                                    <option value="@d.Name">@d.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="w-56">
+                            <select id="filterRoom" class="form-input choices w-full mt-1 p-2 border rounded">
+                                <option value="">Chọn phòng...</option>
+                                @foreach (var room in ViewBag.Rooms)
+                                {
+                                    <option value="@room.Name">@room.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="w-32">
+                            <button id="btnFilter" type="button" class="btn btn-primary w-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="inline-block mr-2" width="20" height="20"
+                                    fill="none" viewBox="0 0 24 24">
+                                    <path d="M4 5h16M6 10h12M9 15h6M10 20h4" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" />
+                                </svg>
+                                Lọc
+                            </button>
+                        </div>
+                        <div class="w-32">
+                            <button id="btnResetFilter" type="button" class="btn btn-secondary w-full" disabled
+                                style="cursor: not-allowed;">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="inline-block mr-2" width="18" height="18"
+                                    fill="none" viewBox="0 0 24 24">
+                                    <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" />
+                                </svg>
+                                Hủy lọc
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- FILTER BAR END -->                
+
                 <div class="table-responsive">
                     <table id="myTable" class="table-striped table-hover"></table>
                 </div>
@@ -156,6 +205,9 @@
                     `<input type="checkbox" class="form-checkbox" value="${entity.patientId}" />`,
                     entity.patientName,
                     entity.patientEmail || 'Không có email',
+                    entity.departmentName || '',
+                    entity.roomName || '',
+                    entity.employeeName || '',
                     new Date(entity.firstAbsenceDate).toLocaleDateString('vi-VN'),
                     `<input type='text' class='form-input' value='${entity.firstNote ? entity.firstNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}' readonly style='max-width:180px' title='${entity.firstNote ? entity.firstNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}'/>`,
                     new Date(entity.secondAbsenceDate).toLocaleDateString('vi-VN'),
@@ -168,6 +220,9 @@
                             '<input type="checkbox" class="form-checkbox" />',
                             'Tên bệnh nhân',
                             'Email',
+                            'Khoa',
+                            'Phòng',
+                            'Nhân viên theo dõi',
                             'Ngày vắng mặt lần 1',
                             'Ghi chú lần 1',
                             'Ngày vắng mặt lần 2',
@@ -290,13 +345,102 @@
                 (e.patientName && removeVietnameseTones(e.patientName).includes(keyword)) ||
                 (e.patientEmail && removeVietnameseTones(e.patientEmail).includes(keyword)) ||
                 (e.firstNote && removeVietnameseTones(e.firstNote).includes(keyword)) ||
-                (e.secondNote && removeVietnameseTones(e.secondNote).includes(keyword))
+                (e.secondNote && removeVietnameseTones(e.secondNote).includes(keyword)) ||
+                (e.departmentName && removeVietnameseTones(e.departmentName).includes(keyword)) ||
+                (e.roomName && removeVietnameseTones(e.roomName).includes(keyword)) ||
+                (e.employeeName && removeVietnameseTones(e.employeeName).includes(keyword))
             );
             window.list.filteredList = filtered;
             if (window.list.datatable) window.list.datatable.destroy();
             window.list.initializeTable();
         }
     });
+
+    // Khởi tạo Choices.js cho các select sau khi đổ option
+    $(document).ready(function () {
+        if (!window.departmentChoices) {
+            window.departmentChoices = new Choices('#filterDepartment', { searchEnabled: true, itemSelectText: '', shouldSort: false });
+        }
+        if (!window.roomChoices) {
+            window.roomChoices = new Choices('#filterRoom', { searchEnabled: true, itemSelectText: '', shouldSort: false });
+        }
+        updateResetFilterButtonState();
+
+        $('#filterDepartment, #filterRoom').on('change', function () {
+            updateResetFilterButtonState();
+            if (!$(this).val()) {
+                window.list.filteredList = window.list.entityList;
+                if (window.list.datatable) window.list.datatable.destroy();
+                window.list.initializeTable();
+            }
+        });
+    });
+
+    // Viết lại hàm filterList
+    function filterList() {
+        const department = $('#filterDepartment').val();
+        const room = $('#filterRoom').val();
+        const status = $('#filterStatus').val();
+
+        let filtered = window.list.entityList;
+        if (department) {
+            filtered = filtered.filter(e => e.departmentName === department);
+        }
+        if (room) {
+            filtered = filtered.filter(e => e.roomName === room);
+        }
+
+        window.list.filteredList = filtered;
+        if (window.list.datatable) window.list.datatable.destroy();
+        window.list.initializeTable();
+        if (filtered.length > 0) notyf.success('Lọc thành công!');
+        else if (filtered.length === 0) notyf.error('Không tìm thấy kết quả phù hợp!');
+    }
+
+    // Nút Lọc
+    $(document).on('click', '#btnFilter', function () {
+        const department = $('#filterDepartment').val();
+        const room = $('#filterRoom').val();
+
+        if (!department && !room) {
+            notyf.error('Cần chọn ít nhất một trường để lọc!');
+            window.list.filteredList = window.list.entityList;
+            if (window.list.datatable) window.list.datatable.destroy();
+            window.list.initializeTable();
+            updateResetFilterButtonState();
+            return;
+        }
+        filterList();
+    });
+
+    // Nút Hủy lọc
+    $(document).on('click', '#btnResetFilter', function () {
+        // Reset Choices.js về mặc định cho từng select
+        if (window.departmentChoices) {
+            window.departmentChoices.removeActiveItems();
+            window.departmentChoices.setChoiceByValue('');
+        }
+        if (window.roomChoices) {
+            window.roomChoices.removeActiveItems();
+            window.roomChoices.setChoiceByValue('');
+        }
+
+        window.list.filteredList = window.list.entityList;
+        if (window.list.datatable) window.list.datatable.destroy();
+        window.list.initializeTable();
+        updateResetFilterButtonState();
+    });
+
+    function updateResetFilterButtonState() {
+        const department = $('#filterDepartment').val();
+        const room = $('#filterRoom').val();
+
+        if (!department && !room) {
+            $('#btnResetFilter').prop('disabled', true).css('cursor', 'not-allowed');
+        } else {
+            $('#btnResetFilter').prop('disabled', false).css('cursor', 'pointer');
+        }
+    }
 </script>
 
 @if (TempData["SuccessMessage"] != null)

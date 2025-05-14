@@ -9,5 +9,8 @@ namespace Project.Areas.Staff.Models.ViewModels
         public DateTime SecondAbsenceDate { get; set; }
         public string? FirstNote { get; set; }
         public string? SecondNote { get; set; }
+        public string? DepartmentName { get; set; }
+        public string? RoomName { get; set; }
+        public string? EmployeeName { get; set; }
     }
 }
