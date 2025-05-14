@@ -17,6 +17,10 @@ namespace Project.Areas.Staff.Models.Entities
         public DateTime EndDate { get; set; }
         public string? Note { get; set; } = string.Empty;
         public TreatmentStatus Status { get; set; }
+        public string? SuspendedReason { get; set; } = string.Empty;
+        public string? SuspendedNote { get; set; } = string.Empty;
+        public string? SuspendedBy { get; set; } = string.Empty;
+        public DateTime? SuspendedDate { get; set; }
 
         //Foreign key
         public Guid PatientId { get; set; }
