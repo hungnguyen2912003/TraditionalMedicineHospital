@@ -343,10 +343,10 @@
 
 <script>
     window.currentStaffName = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.CurrentEmployeeName ?? ""));
+    window.currentStaffCode = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.CurrentEmployeeCode ?? ""));
 </script>
 
 <script>
-
     document.addEventListener('alpine:init', () => {
         Alpine.data('list', () => ({
             entityList: @Html.Raw(Json.Serialize(Model)),
@@ -393,7 +393,7 @@
                         const allChecked = Array.from(allCheckboxes).every(chk => chk.checked);
                         const mainCheckbox = document.querySelector('#myTable thead input[type="checkbox"]');
                         mainCheckbox.checked = allChecked;
-                    }                  
+                    }
                 });
 
                 document.querySelector('#myTable tbody').addEventListener('click', (e) => {
@@ -439,6 +439,13 @@
                         }
                         const id = suspendBtn.getAttribute('data-id');
                         const entity = this.entityList.find(e => e.id == id);
+                        
+                        // Kiểm tra xem bác sĩ hiện tại có trong danh sách phân công không
+                        if (!entity.assignments || !entity.assignments.some(a => a.employeeCode === window.currentStaffCode)) {
+                            notyf.error('Bạn không có quyền đình chỉ phiếu điều trị này. Chỉ bác sĩ được phân công mới có quyền đình chỉ.');
+                            return;
+                        }
+
                         document.getElementById('suspendModal').classList.remove('hidden', 'closing');
                         // Gán thông tin vào modal
                         document.getElementById('suspendRecordCode').value = entity ? entity.code : 'Không xác định';
