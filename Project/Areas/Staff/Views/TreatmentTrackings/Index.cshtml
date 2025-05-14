@@ -466,7 +466,7 @@
                     } else {
                         patients.forEach((patient, idx) => {
                             rows += `
-                                <tr data-patient-name="${patient.patientName}" data-patient-id="${patient.id}">
+                                <tr data-patient-name="${patient.patientName}" data-patient-id="${patient.patientId}">
                                     <td>${idx + 1}</td>
                                     <td>${patient.patientName}</td>
                                     <td>
@@ -722,7 +722,7 @@
                 var trackingDate = new Date().toISOString();
                 const overlay = document.getElementById('loadingOverlay');
 
-                overlay.style.display = 'flex';
+                overlay.style.display = 'flex';             
 
                 fetch('/api/trackings', {
                     method: 'POST',
