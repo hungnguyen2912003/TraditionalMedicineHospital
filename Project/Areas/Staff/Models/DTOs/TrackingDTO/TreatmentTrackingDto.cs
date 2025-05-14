@@ -15,5 +15,6 @@ namespace Project.Areas.Staff.Models.DTOs.TrackingDTO
         public string? PatientName { get; set; }
         public string? RoomName { get; set; }
         public string? EmployeeCode { get; set; }
+        public TreatmentStatus TreatmentRecordStatus { get; set; }      
     }
 }

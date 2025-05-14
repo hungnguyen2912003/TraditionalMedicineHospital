@@ -5,6 +5,7 @@ using AutoMapper;
 using Project.Areas.Staff.Models.DTOs.TrackingDTO;
 using Project.Areas.Staff.Models.ViewModels;
 using Project.Helpers;
+using Project.Models.Enums;
 
 namespace Project.Areas.Staff.Controllers
 {
@@ -85,7 +86,8 @@ namespace Project.Areas.Staff.Controllers
                 IsActive = t.IsActive,
                 PatientName = t.TreatmentRecordDetail?.TreatmentRecord?.Patient?.Name,
                 RoomName = t.TreatmentRecordDetail?.Room?.Name,
-                EmployeeCode = t.CreatedBy
+                EmployeeCode = t.CreatedBy,
+                TreatmentRecordStatus = (TreatmentStatus)(t.TreatmentRecordDetail?.TreatmentRecord?.Status ?? 0)
             }).ToList();
 
             var viewModelList = _mapper.Map<List<TreatmentTrackingViewModel>>(dtoList)

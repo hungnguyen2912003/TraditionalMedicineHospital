@@ -15,6 +15,7 @@ namespace Project.Areas.Staff.Models.ViewModels
         public string? RoomName { get; set; }
         public string? DoctorName { get; set; }
         public string? DoctorCode { get; set; }
+        public TreatmentStatus TreatmentRecordStatus { get; set; }
     }
 }
 
