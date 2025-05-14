@@ -44,7 +44,8 @@ namespace Project.Mappers
                 .ForMember(dest => dest.Diagnosis, opt => opt.MapFrom(src => src.Diagnosis))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
-                .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note));
+                .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
+                .ForMember(dest => dest.AdvancePayment, opt => opt.MapFrom(src => src.AdvancePayment));
 
             CreateMap<TreatmentRecord, ReceptionTreatmentRecordDto>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
@@ -53,7 +54,8 @@ namespace Project.Mappers
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.PatientId));
+                .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.PatientId))
+                .ForMember(dest => dest.AdvancePayment, opt => opt.MapFrom(src => src.AdvancePayment));
 
             // Assignment
             CreateMap<ReceptionAssignmentDto, Assignment>()

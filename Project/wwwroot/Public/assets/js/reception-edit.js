@@ -256,6 +256,7 @@ document.addEventListener('alpine:init', () => {
             this.setupValidation();
             this.setupDateListeners();
             this.updateRegulationSelectsState();
+            this.setupCleave();
 
             // Setup health insurance checkbox
             const healthInsuranceCheckbox = document.querySelector('[name="Patient.HasHealthInsurance"]');
@@ -292,6 +293,18 @@ document.addEventListener('alpine:init', () => {
             this.overlay = document.getElementById('loadingOverlay');
 
             isInitialized = true;
+        },
+
+        setupCleave() {
+            new Cleave('.advance-payment', {
+                numeral: true,
+                numeralThousandsGroupStyle: 'thousand',
+                numeralDecimalScale: 0,
+                numeralPositiveOnly: true,
+                onValueChanged: function (e) {
+                    $('#AdvancePayment').trigger('change');
+                }
+            });
         },
 
         // Thêm hàm formatVNDate để chuyển ngày ISO sang dd/MM/yyyy
@@ -854,6 +867,16 @@ document.addEventListener('alpine:init', () => {
                 return assignmentEndDate >= assignmentStart && assignmentEndDate <= treatmentEnd;
             }, "Ngày kết thúc phân công phải sau ngày bắt đầu phân công và nằm trong khoảng thời gian điều trị");
 
+            $.validator.addMethod("numberWithComma", function (value, element) {
+                var cleanValue = value.replace(/,/g, '');
+                return this.optional(element) || !isNaN(cleanValue) && cleanValue >= 0;
+            }, "Tiền ứng trước phải là số.");
+
+            $.validator.addMethod("minWithComma", function (value, element, param) {
+                var cleanValue = value.replace(/,/g, '');
+                return this.optional(element) || !isNaN(cleanValue) && Number(cleanValue) >= param;
+            }, "Tiền ứng trước phải lớn hơn 0.");
+
             $("#receptionForm").validate({
                 ignore: [],
                 rules: {
@@ -932,6 +955,11 @@ document.addEventListener('alpine:init', () => {
                         required: true,
                         dateFormat: true,
                         endDateAfterStartDate: true
+                    },
+                    "TreatmentRecord.AdvancePayment": {
+                        required: true,
+                        numberWithComma: true,
+                        minWithComma: 1
                     },
                     "TreatmentRecord.Diagnosis": {
                         required: true
@@ -1030,6 +1058,11 @@ document.addEventListener('alpine:init', () => {
                         required: "Ngày kết thúc không được bỏ trống",
                         dateFormat: "Ngày kết thúc không hợp lệ",
                         endDateAfterStartDate: "Ngày kết thúc phải sau ngày bắt đầu"
+                    },
+                    "TreatmentRecord.AdvancePayment": {
+                        required: "Tiền ứng trước không được bỏ trống.",
+                        numberWithComma: "Tiền ứng trước không hợp lệ.",
+                        minWithComma: "Tiền ứng trước phải lớn hơn 0."
                     },
                     "TreatmentRecord.Diagnosis": {
                         required: "Chẩn đoán không được bỏ trống"

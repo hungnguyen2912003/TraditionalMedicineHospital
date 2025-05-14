@@ -39,7 +39,7 @@ document.addEventListener('alpine:init', () => {
                     this.setupDateTimePicker();
                     this.setupValidation();
                     this.setupTreatmentDateListeners();
-
+                    this.setupCleave();
                     // Setup room filtering
                     const treatmentMethodSelect = document.getElementById('treatmentRecordDetailTreatmentMethod');
                     if (treatmentMethodSelect) {
@@ -49,6 +49,18 @@ document.addEventListener('alpine:init', () => {
             } catch (error) {
                 notyf.error('Có lỗi xảy ra khi khởi tạo form');
             }
+        },
+
+        setupCleave() {
+            new Cleave('.advance-payment', {
+                numeral: true,
+                numeralThousandsGroupStyle: 'thousand',
+                numeralDecimalScale: 0,
+                numeralPositiveOnly: true,
+                onValueChanged: function (e) {
+                    $('#AdvancePayment').trigger('change');
+                }
+            });
         },
 
         /**
@@ -324,7 +336,7 @@ document.addEventListener('alpine:init', () => {
             formData.append('TreatmentRecord.StartDate', document.getElementById('StartDate').value);
             formData.append('TreatmentRecord.EndDate', document.getElementById('EndDate').value);
             formData.append('TreatmentRecord.Note', document.getElementById('treatmentRecordNote').value);
-
+            formData.append('TreatmentRecord.AdvancePayment', document.getElementById('AdvancePayment').value);
             // Append patient data
             if (this.patientType === 'old')
             {
@@ -772,6 +784,16 @@ document.addEventListener('alpine:init', () => {
                 return this.optional(element) || regex.test(value);
             }, "Giá trị không hợp lệ.");
 
+            $.validator.addMethod("numberWithComma", function (value, element) {
+                var cleanValue = value.replace(/,/g, '');
+                return this.optional(element) || !isNaN(cleanValue) && cleanValue >= 0;
+            }, "Tiền ứng trước phải là số.");
+
+            $.validator.addMethod("minWithComma", function (value, element, param) {
+                var cleanValue = value.replace(/,/g, '');
+                return this.optional(element) || !isNaN(cleanValue) && Number(cleanValue) >= param;
+            }, "Tiền ứng trước phải lớn hơn 0.");
+
             $("#receptionForm").validate({
                 ignore: [],
                 rules: {
@@ -902,6 +924,11 @@ document.addEventListener('alpine:init', () => {
                     "Diagnosis": { required: true },
                     "StartDate": { required: true, dateFormat: true, notPastDate: true },
                     "EndDate": { required: true, dateFormat: true, endDateAfterStartDate: true },
+                    "AdvancePayment": {
+                        required: true,
+                        numberWithComma: true,
+                        minWithComma: 1
+                    },
                     "TreatmentRecordDetail.TreatmentMethodId": { required: true },
                     "TreatmentRecordDetail.RoomId": { required: true },
                     "Assignment.StartDate": {
@@ -968,6 +995,11 @@ document.addEventListener('alpine:init', () => {
                     "EndDate": {
                         required: "Ngày kết thúc không được bỏ trống.",
                         dateFormat: "Ngày kết thúc không hợp lệ."
+                    },
+                    "AdvancePayment": {
+                        required: "Tiền ứng trước không được bỏ trống.",
+                        numberWithComma: "Tiền ứng trước không hợp lệ.",
+                        minWithComma: "Tiền ứng trước phải lớn hơn 0."
                     },
                     "TreatmentRecordDetail.TreatmentMethodId": { required: "Phương pháp điều trị không được bỏ trống." },
                     "TreatmentRecordDetail.RoomId": { required: "Phòng điều trị không được bỏ trống." },
