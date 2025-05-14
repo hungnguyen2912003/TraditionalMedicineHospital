@@ -14,18 +14,21 @@ namespace Project.Areas.Staff.Controllers
     public class TreatmentRecordsController : Controller
     {
         private readonly ITreatmentRecordRepository _treatmentRecordRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
         private readonly CodeGeneratorHelper _codeGenerator;
         public TreatmentRecordsController
         (
             ITreatmentRecordRepository treatmentRecordRepository,
+            IUserRepository userRepository,
             IMapper mapper,
             ViewBagHelper viewBagHelper,
             CodeGeneratorHelper codeGenerator
         )
         {
             _treatmentRecordRepository = treatmentRecordRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
             _codeGenerator = codeGenerator;
@@ -36,6 +39,22 @@ namespace Project.Areas.Staff.Controllers
             var activeList = list.Where(x => x.IsActive == true).ToList();
             var viewModelList = _mapper.Map<List<TreatmentRecordViewModel>>(activeList);
             await _viewBagHelper.BaseViewBag(ViewData);
+            var token = Request.Cookies["AuthToken"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                var (username, role) = _viewBagHelper._jwtManager.GetClaimsFromToken(token);
+                if (!string.IsNullOrEmpty(username))
+                {
+                    var user = await _userRepository.GetByUsernameAsync(username);
+                    if (user != null && user.Employee != null)
+                    {
+                        ViewBag.CurrentEmployeeCode = user.Employee.Code;
+                        ViewBag.CurrentEmployeeName = user.Employee.Name;
+                        ViewBag.CurrentRole = user.Role.ToString();
+                    }
+                }
+            }
+
             return View(viewModelList);
         }
 

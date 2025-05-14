@@ -243,11 +243,58 @@
     </div>
 </div>
 
+<div id="suspendModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate">
+        <div class="text-2xl font-bold text-primary text-center mb-4">Đình chỉ phiếu điều trị</div>
+        <div id="suspendModalBody">
+            <form id="suspendForm">
+                <div class="mb-4 flex gap-4">
+                    <div class="w-1/2">
+                        <label for="suspendRecordCode" class="block font-semibold mb-1">Mã phiếu</label>
+                        <input type="text" id="suspendRecordCode" class="form-input w-full" readonly>
+                    </div>                    
+                    <div class="w-1/2">
+                        <label for="suspendPatientName" class="block font-semibold mb-1">Bệnh nhân</label>
+                        <input type="text" id="suspendPatientName" class="form-input w-full" readonly>
+                    </div>
+                    <div class="w-1/2">
+                        <label for="suspendStaffName" class="block font-semibold mb-1">Người thực hiện đình chỉ</label>
+                        <input type="text" id="suspendStaffName" class="form-input w-full" readonly>
+                    </div>                    
+                    <div class="w-1/2">
+                        <label for="suspendDate" class="block font-semibold mb-1">Ngày đình chỉ</label>
+                        <input type="text" id="suspendDate" class="form-input w-full flatpickr" value="@DateTime.Now.ToString("dd/MM/yyyy")" readonly>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="suspendReason" class="block font-semibold mb-1">Lý do đình chỉ</label>
+                    <select id="suspendReason" class="form-input w-full">
+                        <option value="">Chọn lý do đình chỉ</option>
+                        <option value="1">Vi phạm quy định: Tự ý bỏ điều trị từ 3 ngày trong 1 đợt điều trị</option>
+                        <option value="2">Bệnh nhân mong muốn xuất viện sớm</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="suspendNote" class="block font-semibold mb-1">Ghi chú đình chỉ</label>
+                    <textarea id="suspendNote" class="form-input w-full" placeholder="Nhập ghi chú..." style="resize: none; min-height: 60px; max-height: 120px; height: 80px;"></textarea>
+                </div>
+            </form>
+        </div>
+        <div style="display: flex; justify-content: center; gap: 24px;">
+            <button class="btn btn-primary btn-confirm">Xác nhận đình chỉ</button>
+            <button id="closeSuspendModal" class="btn btn-secondary">Đóng</button>
+        </div>
+    </div>
+</div>
+
 <style>
     .modal-content-animate {
         animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     #prescriptionModal.closing .modal-content-animate {
+        animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #suspendModal.closing .modal-content-animate {
         animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     @@keyframes modalFadeIn {
@@ -275,6 +322,11 @@
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
     }
+    #suspendModal {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
     .bg-modal-blur {
         background: rgba(30, 41, 59, 0.2);
         backdrop-filter: blur(6px);
@@ -283,6 +335,10 @@
 </style>
 
 <script src="~/Public/assets/js/simple-datatables.js"></script>
+
+<script>
+    window.currentStaffName = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.CurrentEmployeeName ?? ""));
+</script>
 
 <script>
 
@@ -332,7 +388,7 @@
                         const allChecked = Array.from(allCheckboxes).every(chk => chk.checked);
                         const mainCheckbox = document.querySelector('#myTable thead input[type="checkbox"]');
                         mainCheckbox.checked = allChecked;
-                    }
+                    }                  
                 });
 
                 document.querySelector('#myTable tbody').addEventListener('click', (e) => {
@@ -342,18 +398,35 @@
                         this.moveSingleToTrash(id);
                     }
                     const addBtn = e.target.closest('.add-prescription-btn');
+                    const suspendBtn = e.target.closest('.open-suspended-modal');
                     if (addBtn) {
                         const id = addBtn.getAttribute('data-id');
                         document.getElementById('prescriptionModal').classList.remove('hidden', 'closing');
                         const entity = this.entityList.find(e => e.id == id);
-                        document.getElementById('prescriptionRecordCode').value = entity ? entity.code : '';
-                        document.getElementById('prescriptionRecordPatient').value = entity ? entity.patientName : '';
+                        document.getElementById('prescriptionRecordCode').value = entity ? entity.code : 'Không xác định';
+                        document.getElementById('suspendStaffName').value = window.currentStaffName || 'Không xác định';
+                        document.getElementById('prescriptionRecordPatient').value = entity ? entity.patientName : 'Không xác định';
                         document.getElementById('prescriptionNote').value = '';
                         document.getElementById('prescriptionCreatedDate').value = new Date().toLocaleDateString('vi-VN');
                         // Reset lại danh sách thuốc mỗi lần mở modal
                         medicines = [];
                         renderMedicines();
                     }
+                    if (suspendBtn) {
+                        const id = suspendBtn.getAttribute('data-id');
+                        const entity = this.entityList.find(e => e.id == id);
+                        document.getElementById('suspendModal').classList.remove('hidden', 'closing');
+                        // Gán thông tin vào modal
+                        document.getElementById('suspendRecordCode').value = entity ? entity.code : 'Không xác định';
+                        document.getElementById('suspendPatientName').value = entity ? entity.patientName : 'Không xác định';
+                        document.getElementById('suspendDate').value = new Date().toLocaleDateString('vi-VN');
+                        // Người thực hiện đình chỉ (bác sĩ đang đăng nhập)
+                        document.getElementById('suspendStaffName').value = window.currentStaffName || 'Không xác định';
+
+                        // Reset các trường còn lại nếu cần
+                        document.getElementById('suspendReason').value = '';
+                        document.getElementById('suspendNote').value = '';
+                    }                     
                 });
             },
 
@@ -383,12 +456,24 @@
                         :
                         '<svg x-tooltip="Không hoạt động" class="w-5 h-5 mx-auto" width="24" height="24" fill="#000000" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="red" d="M13 10.65657q0 .40404-.28283.68686l-1.37374 1.37374Q11.06061 13 10.65657 13t-.68687-.28283L7 9.74747l-2.9697 2.9697Q3.74747 13 3.34343 13q-.40404 0-.68686-.28283l-1.37374-1.37374Q1 11.06061 1 10.65657t.28283-.68687L4.25253 7l-2.9697-2.9697Q1 3.74747 1 3.34343q0-.40404.28283-.68686l1.37374-1.37374Q2.93939 1 3.34343 1t.68687.28283L7 4.25253l2.9697-2.9697Q10.25253 1 10.65657 1q.40404 0 .68686.28283l1.37374 1.37374Q13 2.93939 13 3.34343t-.28283.68687L9.74747 7l2.9697 2.9697Q13 10.25253 13 10.65657z"></path></g></svg>',
                     `<div class="flex gap-4">
-                        <a href="javascript:;" class="hover:text-info add-prescription-btn" x-tooltip="Thêm đơn thuốc" data-id="${entity.id}">
+                        <a href="javascript:;" class="hover:text-primary add-prescription-btn" x-tooltip="Thêm đơn thuốc" data-id="${entity.id}">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M17.8445 6.15547C17.8445 6.15547 17.4119 8.39999 14.9057 10.9061C12.3996 13.4123 10.1555 13.8445 10.1555 13.8445M20.4075 16.4075C18.2843 18.5308 14.8418 18.5308 12.7185 16.4075L7.59246 11.2815C5.46918 9.15824 5.46918 5.71573 7.59246 3.59246C9.71573 1.46918 13.1582 1.46918 15.2815 3.59246L20.4075 8.71849C22.5308 10.8418 22.5308 14.2843 20.4075 16.4075Z" stroke="currentColor" stroke-width="1.5"/>
                                 <path opacity="0.5" d="M14.5 6.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                                 <path opacity="0.5" d="M6.73022 10.1348C4.02637 10.7173 2 13.1221 2 16.0001C2 19.3139 4.68629 22.0001 8 22.0001C10.8911 22.0001 13.3046 19.9553 13.8732 17.2331" stroke="currentColor" stroke-width="1.5"/>
                             </svg>
+                        </a>
+                        <a  href="javascript:;" 
+                            class="hover:text-secondary open-suspended-modal" 
+                            x-tooltip="Đình chỉ phiếu" 
+                            data-id="${entity.id}"
+                            data-patient="${entity.patientName}"
+                            data-code="${entity.code}">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 7V13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <circle cx="12" cy="16" r="1" fill="currentColor"/>
+                            <path opacity="0.5" d="M7.84308 3.80211C9.8718 2.6007 10.8862 2 12 2C13.1138 2 14.1282 2.6007 16.1569 3.80211L16.8431 4.20846C18.8718 5.40987 19.8862 6.01057 20.4431 7C21 7.98943 21 9.19084 21 11.5937V12.4063C21 14.8092 21 16.0106 20.4431 17C19.8862 17.9894 18.8718 18.5901 16.8431 19.7915L16.1569 20.1979C14.1282 21.3993 13.1138 22 12 22C10.8862 22 9.8718 21.3993 7.84308 20.1979L7.15692 19.7915C5.1282 18.5901 4.11384 17.9894 3.55692 17C3 16.0106 3 14.8092 3 12.4063V11.5937C3 9.19084 3 7.98943 3.55692 7C4.11384 6.01057 5.1282 5.40987 7.15692 4.20846L7.84308 3.80211Z" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>                        
                         </a>                    
                         <a href="/Staff/Receptions/Edit/${entity.id}" class="hover:text-info" x-tooltip="Chỉnh sửa">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5">
@@ -893,6 +978,106 @@
         } catch (err) {
             notyf.error('Lỗi kết nối API!');
         }
+    });
+
+    document.getElementById('closeSuspendModal').addEventListener('click', function () {
+        const modal = document.getElementById('suspendModal');
+        modal.classList.add('closing');
+        setTimeout(function () {
+            modal.classList.add('hidden');
+            modal.classList.remove('closing');
+        }, 200); // Thời gian trùng với animation out
+    });
+
+    // Xử lý nút "Xác nhận đình chỉ"
+    document.querySelector('#suspendModal .btn-confirm').addEventListener('click', function() {
+        // Lấy dữ liệu từ form
+        const treatmentRecordCode = document.getElementById('suspendRecordCode').value;
+        const suspendReasonSelect = document.getElementById('suspendReason');
+        const suspendReasonText = suspendReasonSelect.options[suspendReasonSelect.selectedIndex].text;
+        const suspendReasonValue = suspendReasonSelect.value;
+        const suspendNote = document.getElementById('suspendNote').value;
+        
+        // Tìm treatmentRecordId từ mã phiếu
+        let treatmentRecordId = null;
+        if (window.list && window.list.entityList) {
+            const found = window.list.entityList.find(e => e.code === treatmentRecordCode);
+            if (found) treatmentRecordId = found.id;
+        }
+        
+        // Validate dữ liệu
+        if (!treatmentRecordId) {
+            notyf.error('Không tìm thấy thông tin phiếu điều trị!');
+            return;
+        }
+        
+        if (!suspendReasonValue) {
+            notyf.error('Vui lòng chọn lý do đình chỉ!');
+            return;
+        }
+        
+        // Hiển thị confirm dialog trước khi gọi API
+        $.confirm({
+            title: 'Xác nhận đình chỉ',
+            content: 'Bạn có chắc chắn muốn đình chỉ phiếu điều trị này không?',
+            icon: 'fa fa-exclamation-triangle text-warning',
+            theme: 'modern',
+            type: 'orange',
+            boxWidth: '400px',
+            useBootstrap: false,
+            buttons: {
+                confirm: {
+                    text: 'Xác nhận đình chỉ',
+                    btnClass: 'btn-warning',
+                    action: function() {
+                        // Chuẩn bị dữ liệu gửi API
+                        const data = {
+                            treatmentRecordId: treatmentRecordId,
+                            suspendedReason: suspendReasonText,
+                            suspendedNote: suspendNote,
+                            suspendedBy: window.currentStaffName || '',
+                            suspendedDate: new Date().toISOString()
+                        };
+                        
+                        // Gọi API
+                        fetch('/api/TreatmentSuspendeds/suspend', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success) {
+                                notyf.success('Đình chỉ phiếu điều trị thành công!');
+                                // Đóng modal sau 1.5 giây và làm mới trang
+                                setTimeout(() => {
+                                    const modal = document.getElementById('suspendModal');
+                                    modal.classList.add('closing');
+                                    setTimeout(() => {
+                                        modal.classList.add('hidden');
+                                        modal.classList.remove('closing');
+                                        // Reload trang để cập nhật danh sách
+                                        window.location.reload();
+                                    }, 200);
+                                }, 1500);
+                            } else {
+                                notyf.error(result.message || 'Đình chỉ phiếu điều trị thất bại!');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            notyf.error('Đã xảy ra lỗi khi gọi API. Vui lòng thử lại sau!');
+                        });
+                    }
+                },
+                cancel: {
+                    text: 'Hủy',
+                    btnClass: 'btn-secondary'
+                }
+            }
+        });
     });
 </script>
 

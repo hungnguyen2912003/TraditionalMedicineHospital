@@ -15,6 +15,13 @@ namespace Project.Repositories.Implementations
         {
             return await _context.treatmentRecords
                 .Include(m => m.Patient)
+                    .ThenInclude(p => p.HealthInsurance)
+                .Include(m => m.Assignments)
+                    .ThenInclude(a => a.Employee)
+                        .ThenInclude(r => r.Room)
+                            .ThenInclude(d => d.Department)
+                .Include(m => m.TreatmentRecord_Regulations)
+                    .ThenInclude(tr => tr.Regulation)
                 .ToListAsync();
         }
 
