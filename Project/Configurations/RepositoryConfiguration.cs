@@ -38,6 +38,8 @@ namespace Project.Configurations
             builder.Services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
             builder.Services.AddScoped<IPrescriptionDetailRepository, PrescriptionDetailRepository>();
 
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+
             return builder;
         }
     }

@@ -290,6 +290,15 @@ namespace Project.Helpers
                     Text = e.GetDisplayName()
                 })
                 .ToList();
+
+            viewData["PaymentStatusOptions"] = Enum.GetValues(typeof(PaymentStatus))
+                .Cast<PaymentStatus>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Text = e.GetDisplayName()
+                })
+                .ToList();
                 
             var medicines = await _medicineRepository.GetAllAsync();
             viewData["Medicines"] = medicines

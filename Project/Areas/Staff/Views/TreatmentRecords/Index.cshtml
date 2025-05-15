@@ -439,9 +439,6 @@
                         }
                         const id = suspendBtn.getAttribute('data-id');
                         const entity = this.entityList.find(e => e.id == id);
-
-                        console.log('Assignments:', entity.assignments);
-                        console.log('CurrentStaffCode:', window.currentStaffCode);
                         
                         // Kiểm tra xem bác sĩ hiện tại có trong danh sách phân công không
                         if (!entity.assignments || !entity.assignments.some(a => a.createdBy === window.currentStaffCode)) {

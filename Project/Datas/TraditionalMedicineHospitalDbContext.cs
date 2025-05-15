@@ -51,22 +51,6 @@ namespace Project.Datas
                 .Property(e => e.TotalCost)
                 .HasPrecision(18, 2);
 
-            modelBuilder.Entity<Payment>()
-                .Property(e => e.TotalTreatmentMethodCost)
-                .HasPrecision(18, 2);
-
-            modelBuilder.Entity<Payment>()
-                .Property(e => e.TotalPrescriptionCost)
-                .HasPrecision(18, 2);
-
-            modelBuilder.Entity<Payment>()
-                .Property(e => e.InsuranceAmount)
-                .HasPrecision(18, 2);
-
-            modelBuilder.Entity<Payment>()
-                .Property(e => e.TotalCost)
-                .HasPrecision(18, 2);
-
             modelBuilder.Entity<Medicine>()
                 .HasOne(m => m.MedicineCategory)
                 .WithMany(mc => mc.Medicines)

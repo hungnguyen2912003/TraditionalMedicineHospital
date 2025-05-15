@@ -1,4 +1,5 @@
 ﻿using Project.Models.Commons;
+using Project.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,14 +14,10 @@ namespace Project.Areas.Staff.Models.Entities
         public string Code { get; set; } = string.Empty;
         public DateTime PaymentDate { get; set; }
         public string? Note { get; set; } = string.Empty;
-        public int Status { get; set; }
-        public decimal TotalPrescriptionCost { get; set; }
-        public decimal TotalTreatmentMethodCost { get; set; }
-        public decimal InsuranceAmount { get; set; }
-        public decimal TotalCost { get; set; }
-        public int PaymentMethod { get; set; }
+        public PaymentStatus Status { get; set; }
+        [StringLength(50)]
 
-        //Foreign Key
+        //Foreign Key 
         public Guid TreatmentRecordId { get; set; }
 
         /////////////////////////////////////////////////////

@@ -39,6 +39,7 @@ namespace Project.Repositories.Implementations
                     .ThenInclude(a => a.Employee)
                 .Include(m => m.TreatmentRecord_Regulations)
                     .ThenInclude(tr => tr.Regulation)
+                .Include(p => p.Prescriptions)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
 

@@ -31,10 +31,10 @@ namespace Project.Areas.Staff.Models.Entities
         ///
         [ForeignKey("PatientId")]
         public required virtual Patient Patient { get; set; }
+        public virtual Payment? Payment { get; set; }
         public virtual ICollection<Assignment> Assignments { get; set; } = new HashSet<Assignment>();
         public virtual ICollection<Prescription> Prescriptions { get; set; } = new HashSet<Prescription>();
         public virtual ICollection<TreatmentRecord_Regulation> TreatmentRecord_Regulations { get; set; } = new HashSet<TreatmentRecord_Regulation>();
-        public virtual ICollection<Payment> Payments { get; set; } = new HashSet<Payment>();
         public virtual ICollection<TreatmentRecordDetail> TreatmentRecordDetails { get; set; } = new HashSet<TreatmentRecordDetail>();
     }
 }
