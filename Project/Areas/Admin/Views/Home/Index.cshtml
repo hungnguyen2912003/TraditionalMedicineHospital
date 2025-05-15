@@ -3,3 +3,131 @@
     Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
 }
 
+<div class="pt-5">
+    <div class="mb-5 flex items-center font-bold">
+        <span class="text-lg">Danh mục</span>
+    </div>
+    <div class="mb-6 grid grid-cols-1 gap-6 text-white sm:grid-cols-2 xl:grid-cols-4">
+        <a asp-area="Admin" asp-controller="MedicineCategories" asp-action="Index" class="group">
+            <div class="panel bg-gradient-to-r from-cyan-500 to-cyan-400">
+                <div class="mt-5 flex items-center">
+                    <div class="text-2xl font-bold ltr:mr-3 rtl:ml-3">Quản lý loại thuốc</div>
+                </div>
+            </div>
+        </a>
+        <a asp-area="Admin" asp-controller="EmployeeCategories" asp-action="Index" class="group">
+            <div class="panel bg-gradient-to-r from-blue-500 to-blue-400">
+                <div class="mt-5 flex items-center">
+                    <div class="text-2xl font-bold ltr:mr-3 rtl:ml-3">Quản lý loại nhân sự</div>
+                </div>
+            </div>
+        </a>
+        <a asp-area="Admin" asp-controller="Medicines" asp-action="Index" class="group">
+            <div class="panel bg-gradient-to-r from-violet-500 to-violet-400">
+                <div class="mt-5 flex items-center">
+                    <div class="text-2xl font-bold ltr:mr-3 rtl:ml-3">Quản lý thuốc</div>
+                </div>
+            </div>
+        </a>
+        <a asp-area="Admin" asp-controller="Employees" asp-action="Index" class="group">
+            <div class="panel bg-gradient-to-r from-fuchsia-500 to-cyan-400">
+                <div class="mt-5 flex items-center">
+                    <div class="text-2xl font-bold ltr:mr-3 rtl:ml-3">Quản lý nhân sự</div>
+                </div>
+            </div>
+        </a>
+        <a asp-area="Admin" asp-controller="Departments" asp-action="Index" class="group">
+            <div class="panel bg-gradient-to-r from-cyan-500 to-cyan-400">
+                <div class="mt-5 flex items-center">
+                    <div class="text-2xl font-bold ltr:mr-3 rtl:ml-3">Quản lý Khoa</div>
+                </div>
+            </div>
+        </a>
+        <a asp-area="Admin" asp-controller="Rooms" asp-action="Index" class="group">
+            <div class="panel bg-gradient-to-r from-blue-500 to-blue-400">
+                <div class="mt-5 flex items-center">
+                    <div class="text-2xl font-bold ltr:mr-3 rtl:ml-3">Quản lý Phòng</div>
+                </div>
+            </div>
+        </a>
+        <a asp-area="Admin" asp-controller="TreatmentMethods" asp-action="Index" class="group">
+            <div class="panel bg-gradient-to-r from-violet-500 to-violet-400">
+                <div class="mt-5 flex items-center">
+                    <div class="text-2xl font-bold ltr:mr-2 rtl:ml-3">Phương pháp điều trị</div>
+                </div>
+            </div>
+        </a>
+        <a asp-area="Admin" asp-controller="Regulations" asp-action="Index" class="group">
+            <div class="panel bg-gradient-to-r from-fuchsia-500 to-cyan-400">
+                <div class="mt-5 flex items-center">
+                    <div class="text-2xl font-bold ltr:mr-3 rtl:ml-3">Quản lý quy định</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+
+    <div class="panel h-full pb-0 sm:col-span-2 xl:col-span-1">
+        <h5 class="mb-5 text-lg font-semibold dark:text-white-light font-bold">Một số quy định đối với nhân viên làm việc tại Bệnh viện Y học cổ truyền Nha Trang</h5>
+        <div class="perfect-scrollbar relative -mr-3 mb-4 h-[290px] pr-3">
+            <div class="cursor-pointer text-sm">
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-primary ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Thời gian làm việc chính thức: Sáng: 7h00 – 11h30 và Chiều: 13h00 – 17h00</div>
+                </div>
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-success ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Không đi muộn về sớm, nhân viên cần có mặt trước 10 phút để chuẩn bị công việc</div>
+                </div>
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-danger ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Nhân viên phải mặc đồng phục đúng quy định (áo blouse trắng, bảng tên, khẩu trang).</div>
+                </div>
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-warning ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Tác phong phải nghiêm túc, chuẩn mực, giao tiếp nhẹ nhàng với bệnh nhân và đồng nghiệp.</div>
+                </div>
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-info ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Không sử dụng điện thoại cá nhân trong giờ làm việc, trừ trường hợp khẩn cấp.</div>
+                </div>
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-black ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Nhân viên y tế phải thực hiện đúng quy trình khám, chữa bệnh, kê đơn, cấp phát thuốc theo quy định.</div>
+                </div>
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-secondary ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Không tự ý rời khỏi vị trí làm việc khi chưa có sự đồng ý của quản lý.</div>
+                </div>
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-primary ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Không tự ý đưa người lạ vào khu vực khám, chữa bệnh.</div>
+                </div>
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-success ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Hợp tác, hỗ trợ lẫn nhau trong công việc, không đùn đẩy trách nhiệm.</div>
+                </div>
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-danger ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Thường xuyên cập nhật và báo cáo tiến độ công việc với quản lý.</div>
+                </div>
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-black ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Tham gia đầy đủ các cuộc họp chuyên môn, tập huấn nghiệp vụ.</div>
+                </div>
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-warning ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Bảo mật thông tin bệnh nhân tuyệt đối.</div>
+                </div>
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-info ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Tuân thủ quy trình xử lý chất thải y tế và vệ sinh khu vực làm việc.</div>
+                </div>
+                <div class="group relative flex items-center py-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-secondary ltr:mr-1 rtl:ml-1.5"></div>
+                    <div class="flex-1">Ghi chép sổ sách, hồ sơ bệnh án chính xác, đầy đủ và kịp thời.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
