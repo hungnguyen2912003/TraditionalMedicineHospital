@@ -1,0 +1,244 @@
+﻿@{
+    ViewData["Title"] = "Thống kê";
+    Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Thống kê</h1>
+
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê theo phòng</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="roomChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê theo phương pháp điều trị</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="treatmentMethodChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê bệnh nhân</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="patientChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê tài chính</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="financialChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Date range picker
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 1);
+    const endDate = new Date();
+
+    // Room Treatment Chart
+    const roomCtx = document.getElementById('roomChart').getContext('2d');
+    const roomChart = new Chart(roomCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Số lượt điều trị',
+                data: [],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Treatment Method Chart
+    const methodCtx = document.getElementById('treatmentMethodChart').getContext('2d');
+    const methodChart = new Chart(methodCtx, {
+        type: 'pie',
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(153, 102, 255, 0.5)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+    // Patient Chart
+    const patientCtx = document.getElementById('patientChart').getContext('2d');
+    const patientChart = new Chart(patientCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Tổng số bệnh nhân',
+                data: [],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.1
+            }, {
+                label: 'Bệnh nhân cảnh báo',
+                data: [],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Financial Chart
+    const financialCtx = document.getElementById('financialChart').getContext('2d');
+    const financialChart = new Chart(financialCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Thu nhập',
+                data: [],
+                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                yAxisID: 'y'
+            }, {
+                label: 'Số đơn thuốc',
+                data: [],
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    beginAtZero: true
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    beginAtZero: true,
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                }
+            }
+        }
+    });
+
+    // Load data functions
+    async function loadRoomStats() {
+        const response = await fetch(`/Staff/Statistics/GetRoomTreatmentStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`);
+        const data = await response.json();
+        
+        const roomData = data.reduce((acc, curr) => {
+            if (!acc[curr.roomName]) {
+                acc[curr.roomName] = 0;
+            }
+            acc[curr.roomName] += curr.treatmentCount;
+            return acc;
+        }, {});
+
+        roomChart.data.labels = Object.keys(roomData);
+        roomChart.data.datasets[0].data = Object.values(roomData);
+        roomChart.update();
+    }
+
+    async function loadTreatmentMethodStats() {
+        const response = await fetch(`/Staff/Statistics/GetTreatmentMethodStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`);
+        const data = await response.json();
+        
+        const methodData = data.reduce((acc, curr) => {
+            if (!acc[curr.treatmentMethodName]) {
+                acc[curr.treatmentMethodName] = 0;
+            }
+            acc[curr.treatmentMethodName] += curr.treatmentCount;
+            return acc;
+        }, {});
+
+        methodChart.data.labels = Object.keys(methodData);
+        methodChart.data.datasets[0].data = Object.values(methodData);
+        methodChart.update();
+    }
+
+    async function loadPatientStats() {
+        const response = await fetch(`/Staff/Statistics/GetPatientStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`);
+        const data = await response.json();
+        
+        patientChart.data.labels = data.map(d => new Date(d.date).toLocaleDateString());
+        patientChart.data.datasets[0].data = data.map(d => d.totalPatients);
+        patientChart.data.datasets[1].data = data.map(d => d.warningPatients);
+        patientChart.update();
+    }
+
+    async function loadFinancialStats() {
+        const response = await fetch(`/Staff/Statistics/GetFinancialStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`);
+        const data = await response.json();
+        
+        financialChart.data.labels = data.map(d => new Date(d.date).toLocaleDateString());
+        financialChart.data.datasets[0].data = data.map(d => d.totalIncome);
+        financialChart.data.datasets[1].data = data.map(d => d.prescriptionCount);
+        financialChart.update();
+    }
+
+    // Initial load
+    loadRoomStats();
+    loadTreatmentMethodStats();
+    loadPatientStats();
+    loadFinancialStats();
+</script>
+
