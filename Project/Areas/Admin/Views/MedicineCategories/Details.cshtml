@@ -22,7 +22,7 @@
         <div>
             <button type="button"
                 class="btn btn-secondary w-full py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600"
-                @@click = "goBack()" >
+                @@click="goBack()">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
                     class="h-5 w-5">
                     <path
@@ -69,7 +69,7 @@
                 Tải xuống
             </button>
 
-            <a href="/Admin/MedicineCategories/Create" class="btn btn-primary">
+            <a href="/tao-moi-loai-thuoc" class="btn btn-primary">
                 <svg width="24" height="24" class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -85,7 +85,7 @@
                 Thêm loại thuốc
             </a>
 
-            <a href="/Admin/MedicineCategories/Edit/@Model.Id" class="btn btn-warning gap-2">
+            <a href="/sua-loai-thuoc/@Model.Id" class="btn btn-warning gap-2">
                 <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
                     class="h-5 w-5">
                     <path opacity="0.5"
@@ -156,7 +156,7 @@
                 window.print();
             },
             goBack() {
-                window.history.back();
+                window.location.href = '/danh-muc-loai-thuoc';
             }
         }));
     });

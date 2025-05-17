@@ -1,4 +1,4 @@
-﻿@model Project.Areas.Admin.Models.DTOs.MedicineCategoryDto
+@model Project.Areas.Admin.Models.DTOs.MedicineCategoryDto
 
 @{
     ViewData["Title"] = "Chỉnh sửa thông tin loại thuốc";
@@ -42,8 +42,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Tên loại
-                                        thuốc<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        thuốc<span class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập tên loại thuốc" value="@Model.Name" />
@@ -81,7 +80,7 @@
                                 </button>
                                 <button type="button"
                                     class="btn btn-secondary py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600 w-40 justify-center"
-                                                                        @@click = "goBack()" >
+                                    @@click="goBack()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
                                         <path
@@ -186,7 +185,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/Admin/MedicineCategories/';
+                        window.location.href = '/danh-muc-loai-thuoc';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -224,7 +223,7 @@
             },
 
             goBack() {
-                window.history.back();
+                window.location.href = '/danh-muc-loai-thuoc';
             }
         }));
     });

@@ -50,12 +50,40 @@
                 defaults: new { area = "Admin", controller = "Users", action = "Index" }
             );
 
+
+            /////////////////////////////////////////////
+            // Danh mục loại thuốc
+            /////////////////////////////////////////////
             app.MapControllerRoute(
                 name: "danh-muc-loai-thuoc",
                 pattern: "danh-muc-loai-thuoc",
                 defaults: new { area = "Admin", controller = "MedicineCategories", action = "Index" }
             );
 
+            app.MapControllerRoute(
+                name: "tao-moi-loai-thuoc",
+                pattern: "tao-moi-loai-thuoc",
+                defaults: new { area = "Admin", controller = "MedicineCategories", action = "Create" }
+            );
+
+            app.MapControllerRoute(
+                name: "sua-loai-thuoc",
+                pattern: "sua-loai-thuoc/{id}",
+                defaults: new { area = "Admin", controller = "MedicineCategories", action = "Edit" }
+            );
+
+            app.MapControllerRoute(
+                name: "xem-chi-tiet-loai-thuoc",
+                pattern: "xem-chi-tiet-loai-thuoc/{id}",
+                defaults: new { area = "Admin", controller = "MedicineCategories", action = "Details" }
+            );
+
+            app.MapControllerRoute(
+                name: "thung-rac-loai-thuoc",
+                pattern: "thung-rac-loai-thuoc",
+                defaults: new { area = "Admin", controller = "MedicineCategories", action = "Trash" }
+            );
+                  
             app.MapControllerRoute(
                 name: "danh-muc-thuoc",
                 pattern: "danh-muc-thuoc",
