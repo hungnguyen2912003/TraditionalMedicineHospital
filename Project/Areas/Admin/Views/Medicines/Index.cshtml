@@ -221,6 +221,12 @@
 
             initializeTable() {
                 try {
+                    if (!Array.isArray(this.filteredList)) {
+                        console.error('filteredList is not an array:', this.filteredList);
+                        this.filteredList = [];
+                        return;
+                    }
+
                     const tableData = this.filteredList.map(entity => [
                         `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
                         entity.code,
@@ -332,9 +338,7 @@
                     });
 
                     // Reattach event handlers after table is fully initialized
-                    setTimeout(() => {
-                        this.reattachEventHandlers();
-                    }, 0);
+                    this.reattachEventHandlers();
                 } catch (error) {
                     console.error('Error in initializeTable:', error);
                 }
@@ -457,12 +461,12 @@
 
     document.getElementById('customSearchInput').addEventListener('input', function () {
         const keyword = removeVietnameseTones(this.value.trim().toLowerCase());
-        if (window.list) {
+        if (!window.list) return;
+
+        try {
             if (keyword === '') {
-                // Reset to original list when search is cleared
                 window.list.filteredList = [...window.list.entityList];
             } else {
-                // Search with non-empty keyword
                 window.list.filteredList = window.list.entityList.filter(e =>
                     (e.name && removeVietnameseTones(e.name.toLowerCase()).includes(keyword)) ||
                     (e.code && removeVietnameseTones(e.code.toLowerCase()).includes(keyword)) ||
@@ -471,72 +475,72 @@
                 );
             }
 
-            // Safely reinitialize table
-            try {
-                if (window.list.datatable) {
-                    window.list.datatable.destroy();
-                    window.list.datatable = null;
-                }
-                // Wait for DOM to be ready before reinitializing
-                setTimeout(() => {
-                    window.list.initializeTable();
-                }, 0);
-            } catch (error) {
-                console.error('Error reinitializing table:', error);
+            // Destroy existing table if it exists
+            if (window.list.datatable) {
+                window.list.datatable.destroy();
+                window.list.datatable = null;
             }
+
+            // Initialize new table with filtered data
+            window.list.initializeTable();
+        } catch (error) {
+            console.error('Error in search handler:', error);
         }
     });
 
     // Khởi tạo Choices.js cho 4 select sau khi đổ option
     $(document).ready(function () {
         if (!window.categoryChoices) {
-            window.categoryChoices = new Choices('#filterCategory', { searchEnabled: true, itemSelectText: '', shouldSort: false });
+            window.categoryChoices = new Choices('#filterCategory', {
+                searchEnabled: true,
+                itemSelectText: '',
+                shouldSort: false,
+                placeholder: true,
+                placeholderValue: 'Chọn loại thuốc...'
+            });
         }
         if (!window.manufacturerChoices) {
-            window.manufacturerChoices = new Choices('#filterManufacturer', { searchEnabled: true, itemSelectText: '', shouldSort: false });
+            window.manufacturerChoices = new Choices('#filterManufacturer', {
+                searchEnabled: true,
+                itemSelectText: '',
+                shouldSort: false,
+                placeholder: true,
+                placeholderValue: 'Chọn nhà sản xuất...'
+            });
         }
         if (!window.activeChoices) {
-            window.activeChoices = new Choices('#filterActive', { searchEnabled: true, itemSelectText: '', shouldSort: false });
+            window.activeChoices = new Choices('#filterActive', {
+                searchEnabled: true,
+                itemSelectText: '',
+                shouldSort: false,
+                placeholder: true,
+                placeholderValue: 'Chọn tình trạng thuốc...'
+            });
         }
         updateResetFilterButtonState();
 
+        // Xử lý sự kiện change cho các select
         $('#filterCategory, #filterManufacturer, #filterActive').on('change', function () {
             updateResetFilterButtonState();
-            if (!$(this).val()) {
-                window.list.filteredList = window.list.entityList;
-                if (window.list.datatable) window.list.datatable.destroy();
+
+            // Kiểm tra nếu tất cả các select đều có giá trị mặc định
+            const categoryValue = $('#filterCategory').val();
+            const manufacturerValue = $('#filterManufacturer').val();
+            const activeValue = $('#filterActive').val();
+
+            if ((!categoryValue || categoryValue === "") &&
+                (!manufacturerValue || manufacturerValue === "") &&
+                (!activeValue || activeValue === "")) {
+                // Reset về danh sách ban đầu
+                window.list.filteredList = [...window.list.entityList];
+                if (window.list.datatable) {
+                    window.list.datatable.destroy();
+                    window.list.datatable = null;
+                }
                 window.list.initializeTable();
             }
         });
     });
-
-    // Viết lại hàm filterList
-    function filterList() {
-        const category = $('#filterCategory').val();
-        const manufacturer = $('#filterManufacturer').val();
-        const active = $('#filterActive').val();
-        const today = new Date();
-        let filtered = window.list.entityList;
-        if (category) {
-            filtered = filtered.filter(e => e.categoryName === category);
-        }
-        if (manufacturer) {
-            filtered = filtered.filter(e => String(e.manufacturer) === String(manufacturer));
-        }
-        if (active !== "") {
-            filtered = filtered.filter(e => {
-                const expiry = new Date(e.expiryDate);
-                if (active === "1") return expiry >= today;
-                if (active === "0") return expiry < today;
-                return true;
-            });
-        }
-        window.list.filteredList = filtered;
-        if (window.list.datatable) window.list.datatable.destroy();
-        window.list.initializeTable();
-        if (filtered.length > 0) notyf.success('Lọc thành công!');
-        else if (filtered.length === 0) notyf.error('Không tìm thấy kết quả phù hợp!');
-    }
 
     // Nút Lọc
     $(document).on('click', '#btnFilter', function () {
@@ -545,14 +549,51 @@
         const active = $('#filterActive').val();
 
         if (!category && !manufacturer && !active) {
-            notyf.error('Cần chọn ít nhất một trường để lọc!');
-            window.list.filteredList = window.list.entityList;
-            if (window.list.datatable) window.list.datatable.destroy();
-            window.list.initializeTable();
-            updateResetFilterButtonState();
+            notyf.error('Vui lòng chọn ít nhất một trường để lọc!');
             return;
         }
-        filterList();
+
+        try {
+            let filtered = [...window.list.entityList]; // Create a new array to avoid reference issues
+
+            if (category) {
+                filtered = filtered.filter(e => e.categoryName === category);
+            }
+            if (manufacturer) {
+                filtered = filtered.filter(e => String(e.manufacturer) === String(manufacturer));
+            }
+            if (active !== "") {
+                const today = new Date();
+                filtered = filtered.filter(e => {
+                    const expiry = new Date(e.expiryDate);
+                    if (active === "1") return expiry >= today;
+                    if (active === "0") return expiry < today;
+                    return true;
+                });
+            }
+
+            // Update filteredList and reinitialize table
+            window.list.filteredList = filtered;
+
+            // Destroy existing table if it exists
+            if (window.list.datatable) {
+                window.list.datatable.destroy();
+                window.list.datatable = null;
+            }
+
+            // Initialize new table with filtered data
+            window.list.initializeTable();
+
+            // Show appropriate message
+            if (filtered.length > 0) {
+                notyf.success('Lọc thành công!');
+            } else {
+                notyf.error('Không tìm thấy kết quả phù hợp!');
+            }
+        } catch (error) {
+            console.error('Error in filterList:', error);
+            notyf.error('Đã xảy ra lỗi khi lọc dữ liệu!');
+        }
     });
 
     // Nút Hủy lọc
@@ -561,25 +602,36 @@
         if (window.categoryChoices) {
             window.categoryChoices.removeActiveItems();
             window.categoryChoices.setChoiceByValue('');
-        } else {
-            $('#filterCategory').val('').trigger('change');
         }
         if (window.manufacturerChoices) {
             window.manufacturerChoices.removeActiveItems();
             window.manufacturerChoices.setChoiceByValue('');
-        } else {
-            $('#filterManufacturer').val('').trigger('change');
         }
         if (window.activeChoices) {
             window.activeChoices.removeActiveItems();
             window.activeChoices.setChoiceByValue('');
-        } else {
-            $('#filterActive').val('').trigger('change');
         }
-        window.list.filteredList = window.list.entityList;
-        if (window.list.datatable) window.list.datatable.destroy();
+
+        // Reset search input
+        $('#customSearchInput').val('');
+
+        // Reset filtered list to original data
+        window.list.filteredList = [...window.list.entityList];
+
+        // Destroy existing table if it exists
+        if (window.list.datatable) {
+            window.list.datatable.destroy();
+            window.list.datatable = null;
+        }
+
+        // Reinitialize table with original data
         window.list.initializeTable();
+
+        // Update reset button state
         updateResetFilterButtonState();
+
+        // Show success message
+        notyf.success('Đã hủy bộ lọc thành công!');
     });
 
     function updateResetFilterButtonState() {
