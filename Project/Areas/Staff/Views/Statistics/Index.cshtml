@@ -3,242 +3,813 @@
     Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
 }
 
-<div class="container-fluid">
-    <h1 class="h3 mb-4 text-gray-800">Thống kê</h1>
+<div class="overlay" id="loadingOverlay">
+    <span
+        class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
+</div>
 
-    <div class="row">
-        <div class="col-xl-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Thống kê theo phòng</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="roomChart"></canvas>
-                </div>
-            </div>
-        </div>
+<ul class="flex space-x-2 rtl:space-x-reverse mb-5">
+    <li>
+        <a href="javascript:;" class="text-primary hover:underline">Thống kê</a>
+    </li>
+</ul>
 
-        <div class="col-xl-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Thống kê theo phương pháp điều trị</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="treatmentMethodChart"></canvas>
-                </div>
-            </div>
-        </div>
+<div class="panel h-full sm:col-span-2 lg:col-span-1 mt-8">
+    <div class="mb-5 flex items-center justify-between dark:text-white-light">
+        <h5 class="text-xl font-bold">Thống kê phương pháp điều trị theo từng khoa</h5>
     </div>
-
-    <div class="row">
-        <div class="col-xl-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Thống kê bệnh nhân</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="patientChart"></canvas>
-                </div>
+    <div class="grid gap-8 text-sm font-bold text-[#515365] sm:grid-cols-3">
+        <div>
+            <div>
+                <div>Khoa</div>
+                <div class="text-lg text-[#f8538d]">Châm cứu Dưỡng sinh</div>
             </div>
+            <div id="acupunctureChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
         </div>
 
-        <div class="col-xl-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Thống kê tài chính</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="financialChart"></canvas>
-                </div>
+        <div>
+            <div>
+                <div>Khoa</div>
+                <div class="text-lg text-[#f8538d]">Vật lý trị liệu - Phục hồi chức năng</div>
             </div>
+            <div id="physicalTherapyChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+        </div>
+
+        <div>
+            <div>
+                <div>Khoa</div>
+                <div class="text-lg text-[#f8538d]">Xét nghiệm - Chẩn đoán hình ảnh</div>
+            </div>
+            <div id="diagnosticChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="panel h-full sm:col-span-2 lg:col-span-1 mt-8">
+    <div class="mb-5 flex items-center justify-between dark:text-white-light">
+        <h5 class="text-xl font-bold">Thống kê số lượt khám bệnh theo phòng của từng khoa</h5>
+    </div>
+    <div class="grid gap-8 text-sm font-bold text-[#515365] sm:grid-cols-3">
+        <div>
+            <div>
+                <div>Khoa</div>
+                <div class="text-lg text-[#f8538d]">Châm cứu Dưỡng sinh</div>
+            </div>
+            <div id="acupunctureRoomChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+        </div>
+
+        <div>
+            <div>
+                <div>Khoa</div>
+                <div class="text-lg text-[#f8538d]">Vật lý trị liệu - Phục hồi chức năng</div>
+            </div>
+            <div id="physicalTherapyRoomChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+        </div>
+
+        <div>
+            <div>
+                <div>Khoa</div>
+                <div class="text-lg text-[#f8538d]">Xét nghiệm - Chẩn đoán hình ảnh</div>
+            </div>
+            <div id="diagnosticRoomChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-8 panel h-full sm:col-span-2 lg:col-span-1">
+    <div class="mb-5 flex items-center justify-between dark:text-white-light">
+        <h5 class="text-xl font-bold">Thống kê số lượng bệnh nhân đến khám điều trị ngoại trú tại Bệnh viện</h5>
+    </div>
+    <div class="mb-5 flex flex-wrap items-center gap-4">
+        <div class="flex items-center gap-3">
+            <label class="text-sm font-semibold">Nhóm theo:</label>
+            <select id="groupBySelect" class="form-select text-sm">
+                <option value="day">Ngày</option>
+                <option value="week">Tuần</option>
+                <option value="month">Tháng</option>
+                <option value="year">Năm</option>
+            </select>
+        </div>
+        <div class="flex items-center gap-2">
+            <label class="text-sm font-semibold">Từ ngày:</label>
+            <input type="date" id="startDate" class="form-input text-sm">
+        </div>
+        <div class="flex items-center gap-2">
+            <label class="text-sm font-semibold">Đến ngày:</label>
+            <input type="date" id="endDate" class="form-input text-sm">
+        </div>
+        <button id="applyFilter" class="btn btn-primary text-sm">Áp dụng</button>
+    </div>
+    <div id="patientAdmissionChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+</div>
+
+<div class="mt-8 mb-6 grid gap-6 lg:grid-cols-3">
+    <div class="panel h-full p-0 lg:col-span-2">
+        <div
+            class="mb-5 flex items-start justify-between border-b border-[#e0e6ed] p-5 dark:border-[#1b2e4b] dark:text-white-light">
+            <h5 class="text-xl font-bold">Thống kê trạng thái điều trị của bệnh nhân theo tháng</h5>
+        </div>
+
+        <div class="mb-5 flex flex-wrap items-center gap-4">
+            <div class="flex items-center gap-3">
+                <label class="text-sm font-semibold">Năm:</label>
+                <select id="yearSelect" class="form-select text-sm">
+                    @{
+                        int currentYear = DateTime.Now.Year;
+                        for (int year = currentYear; year >= currentYear - 4; year--)
+                        {
+                            <option value="@year">@year</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div id="treatmentCompletionChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+    </div>
+</div>
+
+<div class="panel h-full p-0">
+    <div
+        class="mb-5 flex items-start justify-between border-b border-[#e0e6ed] p-5 dark:border-[#1b2e4b] dark:text-white-light">
+        <h5 class="text-xl font-bold">Thống kê số lượng bệnh nhân tái khám</h5>
+    </div>
+    <div class="mb-5 flex flex-wrap items-center gap-4 px-5">
+        <div class="flex items-center gap-3">
+            <label class="text-sm font-semibold">Năm:</label>
+            <select id="followUpYearSelect" class="form-select text-sm">
+                @{
+                    for (int year = currentYear; year >= currentYear - 4; year--)
+                    {
+                        <option value="@year">@year</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+    <div id="followUpChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+</div>
+
+<div class="mt-8 panel h-full p-0">
+    <div
+        class="mb-5 flex items-start justify-between border-b border-[#e0e6ed] p-5 dark:border-[#1b2e4b] dark:text-white-light">
+        <h5 class="text-xl font-bold">Thống kê doanh thu điều trị ngoại trú</h5>
+    </div>
+    <div class="mb-5 flex flex-wrap items-center gap-4 px-5">
+        <div class="flex items-center gap-2">
+            <label class="text-sm font-semibold">Từ ngày:</label>
+            <input type="date" id="revenueStartDate" class="form-input text-sm">
+        </div>
+        <div class="flex items-center gap-2">
+            <label class="text-sm font-semibold">Đến ngày:</label>
+            <input type="date" id="revenueEndDate" class="form-input text-sm">
+        </div>
+        <button id="applyRevenueFilter" class="btn btn-primary text-sm">Áp dụng</button>
+    </div>
+    <div id="revenueChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
-    // Date range picker
-    const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - 1);
-    const endDate = new Date();
-
-    // Room Treatment Chart
-    const roomCtx = document.getElementById('roomChart').getContext('2d');
-    const roomChart = new Chart(roomCtx, {
-        type: 'bar',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Số lượt điều trị',
-                data: [],
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
-    // Treatment Method Chart
-    const methodCtx = document.getElementById('treatmentMethodChart').getContext('2d');
-    const methodChart = new Chart(methodCtx, {
-        type: 'pie',
-        data: {
-            labels: [],
-            datasets: [{
-                data: [],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.5)',
-                    'rgba(54, 162, 235, 0.5)',
-                    'rgba(255, 206, 86, 0.5)',
-                    'rgba(75, 192, 192, 0.5)',
-                    'rgba(153, 102, 255, 0.5)'
-                ]
-            }]
-        },
-        options: {
-            responsive: true
-        }
-    });
-
-    // Patient Chart
-    const patientCtx = document.getElementById('patientChart').getContext('2d');
-    const patientChart = new Chart(patientCtx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Tổng số bệnh nhân',
-                data: [],
-                borderColor: 'rgba(75, 192, 192, 1)',
-                tension: 0.1
-            }, {
-                label: 'Bệnh nhân cảnh báo',
-                data: [],
-                borderColor: 'rgba(255, 99, 132, 1)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
-    // Financial Chart
-    const financialCtx = document.getElementById('financialChart').getContext('2d');
-    const financialChart = new Chart(financialCtx, {
-        type: 'bar',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Thu nhập',
-                data: [],
-                backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1,
-                yAxisID: 'y'
-            }, {
-                label: 'Số đơn thuốc',
-                data: [],
-                backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1,
-                yAxisID: 'y1'
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
-                    beginAtZero: true
+    // Function to create pie chart configuration
+    function createChartOptions(data) {
+        if (!data || data.length === 0) {
+            return {
+                series: [1],
+                chart: {
+                    type: 'pie',
+                    height: 380
                 },
-                y1: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    beginAtZero: true,
-                    grid: {
-                        drawOnChartArea: false
+                labels: ['Chưa có dữ liệu'],
+                colors: ['#E0E0E0'],
+                legend: {
+                    show: false
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function () {
+                        return 'Chưa có dữ liệu'
+                    },
+                    style: {
+                        fontSize: '16px',
+                        fontFamily: 'inherit'
+                    }
+                },
+                tooltip: {
+                    enabled: false
+                },
+                states: {
+                    hover: {
+                        filter: {
+                            type: 'none'
+                        }
+                    }
+                }
+            };
+        }
+
+        return {
+            series: data.map(item => item.totalTreatments),
+            chart: {
+                type: 'pie',
+                height: 380
+            },
+            labels: data.map(item => item.methodName),
+            colors: ['#4CAF50', '#2196F3', '#FFC107', '#E91E63', '#9C27B0'],
+            legend: {
+                position: 'bottom',
+                labels: {
+                    colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val, opts) {
+                    return opts.w.config.series[opts.seriesIndex] + ' lượt'
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return val + ' lượt điều trị'
                     }
                 }
             }
+        };
+    }
+
+    // Function to create donut chart configuration
+    function createDonutChartOptions(data) {
+        if (!data || data.length === 0) {
+            return {
+                series: [1],
+                chart: {
+                    type: 'donut',
+                    height: 380
+                },
+                labels: ['Chưa có dữ liệu'],
+                colors: ['#E0E0E0'],
+                legend: {
+                    show: false
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function () {
+                        return 'Chưa có dữ liệu'
+                    },
+                    style: {
+                        fontSize: '16px',
+                        fontFamily: 'inherit'
+                    }
+                },
+                tooltip: {
+                    enabled: false
+                },
+                states: {
+                    hover: {
+                        filter: {
+                            type: 'none'
+                        }
+                    }
+                }
+            };
         }
+
+        return {
+            series: data.map(item => item.patientCount),
+            chart: {
+                type: 'donut',
+                height: 380
+            },
+            labels: data.map(item => item.roomName),
+            colors: ['#4CAF50', '#2196F3', '#FFC107', '#E91E63', '#9C27B0', '#FF9800', '#795548', '#607D8B'],
+            legend: {
+                position: 'bottom',
+                labels: {
+                    colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val, opts) {
+                    return opts.w.config.series[opts.seriesIndex] + ' bệnh nhân'
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return val + ' bệnh nhân'
+                    }
+                }
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '65%',
+                        labels: {
+                            show: true,
+                            total: {
+                                show: true,
+                                label: 'Tổng',
+                                formatter: function (w) {
+                                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0) + ' bệnh nhân'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    // Function to create and render a chart for a specific department
+    async function createDepartmentChart(elementId, departmentCode) {
+        try {
+            const response = await fetch(`/Staff/Statistics/GetTreatmentStatsByDepartment?departmentCode=${departmentCode}`);
+            const data = await response.json();
+            const chart = new ApexCharts(
+                document.querySelector(`#${elementId}`),
+                createChartOptions(data)
+            );
+            chart.render();
+        } catch (error) {
+            console.error(`Error loading treatment statistics for department ${departmentCode}:`, error);
+            const chart = new ApexCharts(
+                document.querySelector(`#${elementId}`),
+                createChartOptions([])
+            );
+            chart.render();
+        }
+    }
+
+    // Function to create and render a room chart for a specific department
+    async function createRoomChart(elementId, departmentCode) {
+        try {
+            const response = await fetch(`/Staff/Statistics/GetPatientStatsByRoom?departmentCode=${departmentCode}`);
+            const data = await response.json();
+            const chart = new ApexCharts(
+                document.querySelector(`#${elementId}`),
+                createDonutChartOptions(data)
+            );
+            chart.render();
+        } catch (error) {
+            console.error(`Error loading room statistics for department ${departmentCode}:`, error);
+            const chart = new ApexCharts(
+                document.querySelector(`#${elementId}`),
+                createDonutChartOptions([])
+            );
+            chart.render();
+        }
+    }
+
+    // Function to format date for display
+    function formatDate(date, groupBy) {
+        const options = {
+            day: { day: '2-digit', month: '2-digit', year: 'numeric' },
+            week: { day: '2-digit', month: '2-digit', year: 'numeric' },
+            month: { month: 'long', year: 'numeric' },
+            year: { year: 'numeric' }
+        };
+        return new Date(date).toLocaleDateString('vi-VN', options[groupBy]);
+    }
+
+    // Function to load and render patient admission chart
+    async function loadPatientAdmissionStats(startDate, endDate, groupBy) {
+        try {
+            const response = await fetch(`/Staff/Statistics/GetPatientAdmissionStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&groupBy=${groupBy}`);
+            const data = await response.json();
+
+            // Destroy existing chart if any
+            const existingChart = document.querySelector('#patientAdmissionChart');
+            if (existingChart.__chartInstance) {
+                existingChart.__chartInstance.destroy();
+            }
+
+            const options = {
+                series: [{
+                    name: 'Số lượng bệnh nhân',
+                    data: data.map(item => item.patientCount)
+                }],
+                chart: {
+                    type: 'line',
+                    height: 350,
+                    zoom: {
+                        enabled: true
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                colors: ['#4361ee'],
+                xaxis: {
+                    categories: data.map(item => formatDate(item.date, groupBy)),
+                    labels: {
+                        style: {
+                            colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                        },
+                        rotate: -45,
+                        rotateAlways: false
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: 'Số lượng bệnh nhân',
+                        style: {
+                            colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                        }
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return val + ' bệnh nhân'
+                        }
+                    }
+                }
+            };
+
+            const chart = new ApexCharts(existingChart, options);
+            existingChart.__chartInstance = chart;
+            chart.render();
+        } catch (error) {
+            console.error('Error loading patient admission statistics:', error);
+        }
+    }
+
+    // Function to load and render treatment completion chart
+    async function loadTreatmentCompletionStats(year) {
+        try {
+            const response = await fetch(`/Staff/Statistics/GetTreatmentCompletionStats?year=${year}`);
+            const data = await response.json();
+
+            // Destroy existing chart if any
+            const existingChart = document.querySelector('#treatmentCompletionChart');
+            if (existingChart.__chartInstance) {
+                existingChart.__chartInstance.destroy();
+            }
+
+            const options = {
+                series: [{
+                    name: 'Đã hoàn thành',
+                    data: data.map(item => item.completedCount)
+                }, {
+                    name: 'Đã hủy bỏ',
+                    data: data.map(item => item.cancelledCount)
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                    stacked: false,
+                    toolbar: {
+                        show: true
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '55%',
+                        endingShape: 'rounded',
+                        borderRadius: 4
+                    },
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
+                },
+                xaxis: {
+                    categories: ['Th.1', 'Th.2', 'Th.3', 'Th.4', 'Th.5', 'Th.6', 'Th.7', 'Th.8', 'Th.9', 'Th.10', 'Th.11', 'Th.12'],
+                    labels: {
+                        style: {
+                            colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                        }
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: 'Số lượng bệnh nhân',
+                        style: {
+                            colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                        }
+                    }
+                },
+                colors: ['#4CAF50', '#FF5252'],
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'left',
+                    labels: {
+                        colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                    }
+                },
+                fill: {
+                    opacity: 1
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return val + ' bệnh nhân'
+                        }
+                    }
+                }
+            };
+
+            const chart = new ApexCharts(existingChart, options);
+            existingChart.__chartInstance = chart;
+            chart.render();
+        } catch (error) {
+            console.error('Error loading treatment completion statistics:', error);
+        }
+    }
+
+    // Function to load and render follow-up treatment chart
+    async function loadFollowUpStats(year) {
+        try {
+            const response = await fetch(`/Staff/Statistics/GetFollowUpTreatmentStats?year=${year}`);
+            const data = await response.json();
+
+            // Destroy existing chart if any
+            const existingChart = document.querySelector('#followUpChart');
+            if (existingChart.__chartInstance) {
+                existingChart.__chartInstance.destroy();
+            }
+
+            const options = {
+                series: [{
+                    name: 'Số lượt tái khám',
+                    data: data.map(item => item.followUpCount)
+                }],
+                chart: {
+                    type: 'area',
+                    height: 350,
+                    zoom: {
+                        enabled: true
+                    },
+                    toolbar: {
+                        show: true
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 2
+                },
+                colors: ['#1e88e5'],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.7,
+                        opacityTo: 0.3,
+                        stops: [0, 90, 100]
+                    }
+                },
+                xaxis: {
+                    categories: ['Th.1', 'Th.2', 'Th.3', 'Th.4', 'Th.5', 'Th.6', 'Th.7', 'Th.8', 'Th.9', 'Th.10', 'Th.11', 'Th.12'],
+                    labels: {
+                        style: {
+                            colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                        }
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: 'Số lượng bệnh nhân',
+                        style: {
+                            colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                        }
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return val + ' bệnh nhân'
+                        }
+                    }
+                }
+            };
+
+            const chart = new ApexCharts(existingChart, options);
+            existingChart.__chartInstance = chart;
+            chart.render();
+        } catch (error) {
+            console.error('Error loading follow-up treatment statistics:', error);
+        }
+    }
+
+    // Function to load and display all statistics
+    async function loadAllStats() {
+        const departments = [
+            {
+                id: '5A63IRSN',
+                chartId: 'acupunctureChart',
+                roomChartId: 'acupunctureRoomChart'
+            },
+            {
+                id: 'AIW7UWMB',
+                chartId: 'physicalTherapyChart',
+                roomChartId: 'physicalTherapyRoomChart'
+            },
+            {
+                id: 'E10H0Z26',
+                chartId: 'diagnosticChart',
+                roomChartId: 'diagnosticRoomChart'
+            }
+        ];
+
+        // Load patient admission stats
+        await loadPatientAdmissionStats(new Date(), new Date(), 'day');
+
+        // Load department stats
+        for (const dept of departments) {
+            await createDepartmentChart(dept.chartId, dept.id);
+            await createRoomChart(dept.roomChartId, dept.id);
+        }
+    }
+
+    // Initialize date inputs with default values
+    document.addEventListener('DOMContentLoaded', function () {
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 1);
+
+        document.getElementById('startDate').valueAsDate = startDate;
+        document.getElementById('endDate').valueAsDate = endDate;
+
+        // Initial load
+        loadPatientAdmissionStats(startDate, endDate, 'day');
     });
 
-    // Load data functions
-    async function loadRoomStats() {
-        const response = await fetch(`/Staff/Statistics/GetRoomTreatmentStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`);
-        const data = await response.json();
-        
-        const roomData = data.reduce((acc, curr) => {
-            if (!acc[curr.roomName]) {
-                acc[curr.roomName] = 0;
+    // Handle filter application
+    document.getElementById('applyFilter').addEventListener('click', function () {
+        const startDate = new Date(document.getElementById('startDate').value);
+        const endDate = new Date(document.getElementById('endDate').value);
+        const groupBy = document.getElementById('groupBySelect').value;
+
+        loadPatientAdmissionStats(startDate, endDate, groupBy);
+    });
+
+    // Initialize treatment completion chart
+    document.addEventListener('DOMContentLoaded', function () {
+        const currentYear = new Date().getFullYear();
+        loadTreatmentCompletionStats(currentYear);
+
+        // Handle year selection change
+        document.getElementById('yearSelect').addEventListener('change', function (e) {
+            loadTreatmentCompletionStats(e.target.value);
+        });
+    });
+
+    // Initialize follow-up chart
+    document.addEventListener('DOMContentLoaded', function () {
+        const currentYear = new Date().getFullYear();
+        loadFollowUpStats(currentYear);
+
+        // Handle year selection change for follow-up chart
+        document.getElementById('followUpYearSelect').addEventListener('change', function (e) {
+            loadFollowUpStats(e.target.value);
+        });
+    });
+
+    // Load all charts when the page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        loadAllStats();
+
+        // Initialize revenue chart dates
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 1);
+
+        document.getElementById('revenueStartDate').valueAsDate = startDate;
+        document.getElementById('revenueEndDate').valueAsDate = endDate;
+
+        // Initial load of revenue chart
+        loadRevenueStats(startDate, endDate);
+    });
+
+    // Function to load and render revenue chart
+    async function loadRevenueStats(startDate, endDate) {
+        try {
+            const response = await fetch(`/Staff/Statistics/GetFinancialStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`);
+            const data = await response.json();
+
+            // Destroy existing chart if any
+            const existingChart = document.querySelector('#revenueChart');
+            if (existingChart.__chartInstance) {
+                existingChart.__chartInstance.destroy();
             }
-            acc[curr.roomName] += curr.treatmentCount;
-            return acc;
-        }, {});
 
-        roomChart.data.labels = Object.keys(roomData);
-        roomChart.data.datasets[0].data = Object.values(roomData);
-        roomChart.update();
+            const options = {
+                series: [{
+                    name: 'Doanh thu',
+                    data: data.map(item => item.totalIncome)
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                    toolbar: {
+                        show: true
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '55%',
+                        endingShape: 'rounded',
+                        borderRadius: 4
+                    },
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function (val) {
+                        return new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                            maximumFractionDigits: 0
+                        }).format(val);
+                    }
+                },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
+                },
+                xaxis: {
+                    categories: data.map(item => new Date(item.date).toLocaleDateString('vi-VN')),
+                    labels: {
+                        style: {
+                            colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                        }
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: 'Doanh thu (VNĐ)',
+                        style: {
+                            colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                        }
+                    },
+                    labels: {
+                        formatter: function (val) {
+                            return new Intl.NumberFormat('vi-VN', {
+                                style: 'currency',
+                                currency: 'VND',
+                                maximumFractionDigits: 0
+                            }).format(val);
+                        },
+                        style: {
+                            colors: document.documentElement.classList.contains('dark') ? '#fff' : '#000'
+                        }
+                    }
+                },
+                colors: ['#00ab55'],
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return new Intl.NumberFormat('vi-VN', {
+                                style: 'currency',
+                                currency: 'VND',
+                                maximumFractionDigits: 0
+                            }).format(val);
+                        }
+                    }
+                }
+            };
+
+            const chart = new ApexCharts(existingChart, options);
+            existingChart.__chartInstance = chart;
+            chart.render();
+        } catch (error) {
+            console.error('Error loading revenue statistics:', error);
+        }
     }
 
-    async function loadTreatmentMethodStats() {
-        const response = await fetch(`/Staff/Statistics/GetTreatmentMethodStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`);
-        const data = await response.json();
-        
-        const methodData = data.reduce((acc, curr) => {
-            if (!acc[curr.treatmentMethodName]) {
-                acc[curr.treatmentMethodName] = 0;
-            }
-            acc[curr.treatmentMethodName] += curr.treatmentCount;
-            return acc;
-        }, {});
-
-        methodChart.data.labels = Object.keys(methodData);
-        methodChart.data.datasets[0].data = Object.values(methodData);
-        methodChart.update();
-    }
-
-    async function loadPatientStats() {
-        const response = await fetch(`/Staff/Statistics/GetPatientStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`);
-        const data = await response.json();
-        
-        patientChart.data.labels = data.map(d => new Date(d.date).toLocaleDateString());
-        patientChart.data.datasets[0].data = data.map(d => d.totalPatients);
-        patientChart.data.datasets[1].data = data.map(d => d.warningPatients);
-        patientChart.update();
-    }
-
-    async function loadFinancialStats() {
-        const response = await fetch(`/Staff/Statistics/GetFinancialStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`);
-        const data = await response.json();
-        
-        financialChart.data.labels = data.map(d => new Date(d.date).toLocaleDateString());
-        financialChart.data.datasets[0].data = data.map(d => d.totalIncome);
-        financialChart.data.datasets[1].data = data.map(d => d.prescriptionCount);
-        financialChart.update();
-    }
-
-    // Initial load
-    loadRoomStats();
-    loadTreatmentMethodStats();
-    loadPatientStats();
-    loadFinancialStats();
+    // Handle revenue filter application
+    document.getElementById('applyRevenueFilter').addEventListener('click', function () {
+        const startDate = new Date(document.getElementById('revenueStartDate').value);
+        const endDate = new Date(document.getElementById('revenueEndDate').value);
+        loadRevenueStats(startDate, endDate);
+    });
 </script>
-

@@ -11,30 +11,33 @@ namespace Project.Areas.Staff.Controllers
     [Authorize(Roles = "Admin, Bacsi")]
     public class StatisticsController : Controller
     {
-        private readonly ITreatmentTrackingRepository _treatmentTrackingRepo;
-        private readonly ITreatmentRecordDetailRepository _treatmentRecordDetailRepo;
-        private readonly IPatientRepository _patientRepo;
-        private readonly IPaymentRepository _paymentRepo;
-        private readonly IPrescriptionRepository _prescriptionRepo;
-        private readonly IRoomRepository _roomRepo;
-        private readonly ITreatmentMethodRepository _treatmentMethodRepo;
+        private readonly ITreatmentTrackingRepository _treatmentTrackingRepository;
+        private readonly ITreatmentRecordDetailRepository _treatmentRecordDetailRepository;
+        private readonly IPatientRepository _patientRepository;
+        private readonly IPaymentRepository _paymentRepository;
+        private readonly IPrescriptionRepository _prescriptionRepository;
+        private readonly IRoomRepository _roomRepository;
+        private readonly ITreatmentMethodRepository _treatmentMethodRepository;
+        private readonly ITreatmentRecordRepository _treatmentRecordRepository;
 
         public StatisticsController(
-            ITreatmentTrackingRepository treatmentTrackingRepo,
-            ITreatmentRecordDetailRepository treatmentRecordDetailRepo,
-            IPatientRepository patientRepo,
-            IPaymentRepository paymentRepo,
-            IPrescriptionRepository prescriptionRepo,
-            IRoomRepository roomRepo,
-            ITreatmentMethodRepository treatmentMethodRepo)
+            ITreatmentTrackingRepository treatmentTrackingRepository,
+            ITreatmentRecordDetailRepository treatmentRecordDetailRepository,
+            IPatientRepository patientRepository,
+            IPaymentRepository paymentRepository,
+            IPrescriptionRepository prescriptionRepository,
+            IRoomRepository roomRepository,
+            ITreatmentMethodRepository treatmentMethodRepository,
+            ITreatmentRecordRepository treatmentRecordRepository)
         {
-            _treatmentTrackingRepo = treatmentTrackingRepo;
-            _treatmentRecordDetailRepo = treatmentRecordDetailRepo;
-            _patientRepo = patientRepo;
-            _paymentRepo = paymentRepo;
-            _prescriptionRepo = prescriptionRepo;
-            _roomRepo = roomRepo;
-            _treatmentMethodRepo = treatmentMethodRepo;
+            _treatmentTrackingRepository = treatmentTrackingRepository;
+            _treatmentRecordDetailRepository = treatmentRecordDetailRepository;
+            _patientRepository = patientRepository;
+            _paymentRepository = paymentRepository;
+            _prescriptionRepository = prescriptionRepository;
+            _roomRepository = roomRepository;
+            _treatmentMethodRepository = treatmentMethodRepository;
+            _treatmentRecordRepository = treatmentRecordRepository;
         }
 
         public IActionResult Index()
@@ -43,81 +46,9 @@ namespace Project.Areas.Staff.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetRoomTreatmentStats(DateTime startDate, DateTime endDate)
-        {
-            var trackingData = await _treatmentTrackingRepo.GetAllAsync();
-            var detailData = await _treatmentRecordDetailRepo.GetAllAsync();
-            var roomData = await _roomRepo.GetAllAsync();
-
-            var stats = trackingData
-                .Where(t => t.Status == TrackingStatus.CoDieuTri && t.CreatedDate >= startDate && t.CreatedDate <= endDate)
-                .Join(detailData,
-                    tracking => tracking.TreatmentRecordDetailId,
-                    detail => detail.Id,
-                    (tracking, detail) => new { tracking, detail })
-                .Join(roomData,
-                    joined => joined.detail.RoomId,
-                    room => room.Id,
-                    (joined, room) => new RoomTreatmentStats
-                    {
-                        RoomId = room.Id,
-                        RoomName = room.Name,
-                        TreatmentCount = 1,
-                        Date = joined.tracking.CreatedDate
-                    })
-                .GroupBy(x => new { x.RoomId, x.RoomName, x.Date.Date })
-                .Select(g => new RoomTreatmentStats
-                {
-                    RoomId = g.Key.RoomId,
-                    RoomName = g.Key.RoomName,
-                    TreatmentCount = g.Count(),
-                    Date = g.Key.Date
-                })
-                .ToList();
-
-            return Json(stats);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetTreatmentMethodStats(DateTime startDate, DateTime endDate)
-        {
-            var detailData = await _treatmentRecordDetailRepo.GetAllAsync();
-            var roomData = await _roomRepo.GetAllAsync();
-            var methodData = await _treatmentMethodRepo.GetAllAsync();
-
-            var stats = detailData
-                .Where(d => d.CreatedDate >= startDate && d.CreatedDate <= endDate)
-                .Join(roomData,
-                    detail => detail.RoomId,
-                    room => room.Id,
-                    (detail, room) => new { detail, room })
-                .Join(methodData,
-                    joined => joined.room.TreatmentMethodId,
-                    method => method.Id,
-                    (joined, method) => new TreatmentMethodStats
-                    {
-                        TreatmentMethodId = method.Id,
-                        TreatmentMethodName = method.Name,
-                        TreatmentCount = 1,
-                        Date = joined.detail.CreatedDate
-                    })
-                .GroupBy(x => new { x.TreatmentMethodId, x.TreatmentMethodName, x.Date.Date })
-                .Select(g => new TreatmentMethodStats
-                {
-                    TreatmentMethodId = g.Key.TreatmentMethodId,
-                    TreatmentMethodName = g.Key.TreatmentMethodName,
-                    TreatmentCount = g.Count(),
-                    Date = g.Key.Date
-                })
-                .ToList();
-
-            return Json(stats);
-        }
-
-        [HttpGet]
         public async Task<IActionResult> GetPatientStats(DateTime startDate, DateTime endDate)
         {
-            var patientData = await _patientRepo.GetAllAsync();
+            var patientData = await _patientRepository.GetAllAsync();
 
             var stats = patientData
                 .Where(p => p.CreatedDate >= startDate && p.CreatedDate <= endDate)
@@ -133,35 +64,174 @@ namespace Project.Areas.Staff.Controllers
             return Json(stats);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetFinancialStats(DateTime startDate, DateTime endDate)
-        {
-            var paymentData = await _paymentRepo.GetAllAsync();
-            var prescriptionData = await _prescriptionRepo.GetAllAsync();
+        // [HttpGet]
+        // public async Task<IActionResult> GetFinancialStats(DateTime startDate, DateTime endDate)
+        // {
+        //     var paymentData = await _paymentRepository.GetAllAsync();
+        //     var detailData = await _treatmentRecordDetailRepository.GetAllAsync();
 
-            var stats = paymentData
-                .Where(p => p.CreatedDate >= startDate && p.CreatedDate <= endDate)
-                .GroupBy(p => p.CreatedDate.Date)
-                .Select(g => new FinancialStats
+        //     var stats = paymentData
+        //         .Where(p => p.CreatedDate >= startDate && p.CreatedDate <= endDate)
+        //         .Join(detailData,
+        //             payment => payment.TreatmentRecordDetailId,
+        //             detail => detail.Id,
+        //             (payment, detail) => new { 
+        //                 Date = payment.CreatedDate.Date,
+        //                 Amount = detail.Price * detail.Quantity
+        //             })
+        //         .GroupBy(x => x.Date)
+        //         .Select(g => new FinancialStats
+        //         {
+        //             TotalIncome = g.Sum(x => x.Amount),
+        //             Date = g.Key
+        //         })
+        //         .OrderBy(x => x.Date)
+        //         .ToList();
+
+        //     return Json(stats);
+        // }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTreatmentStatsByDepartment(string departmentCode)
+        {
+            var detailData = await _treatmentRecordDetailRepository.GetAllAsync();
+            var roomData = await _roomRepository.GetAllAdvancedAsync();
+            var methodData = await _treatmentMethodRepository.GetAllAsync();
+
+            var stats = detailData
+                .Join(roomData,
+                    detail => detail.RoomId,
+                    room => room.Id,
+                    (detail, room) => new { detail, room })
+                .Where(x => x.room.Department.Code == departmentCode)
+                .Join(methodData,
+                    joined => joined.room.TreatmentMethodId,
+                    method => method.Id,
+                    (joined, method) => new
+                    {
+                        TreatmentMethodId = method.Id,
+                        TreatmentMethodName = method.Name,
+                        Count = 1
+                    })
+                .GroupBy(x => new { x.TreatmentMethodId, x.TreatmentMethodName })
+                .Select(g => new
                 {
-                    TotalIncome = g.Count(),
-                    Date = g.Key
+                    MethodName = g.Key.TreatmentMethodName,
+                    TotalTreatments = g.Count()
                 })
                 .ToList();
 
-            var prescriptionStats = prescriptionData
-                .Where(p => p.CreatedDate >= startDate && p.CreatedDate <= endDate)
-                .GroupBy(p => p.CreatedDate.Date)
-                .Select(g => new { Date = g.Key, Count = g.Count() })
+            return Json(stats);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPatientStatsByRoom(string departmentCode)
+        {
+            var detailData = await _treatmentRecordDetailRepository.GetAllAsync();
+            var roomData = await _roomRepository.GetAllAdvancedAsync();
+
+            var stats = detailData
+                .Join(roomData,
+                    detail => detail.RoomId,
+                    room => room.Id,
+                    (detail, room) => new { detail, room })
+                .Where(x => x.room.Department.Code == departmentCode)
+                .GroupBy(x => new { x.room.Id, x.room.Name })
+                .Select(g => new
+                {
+                    RoomName = g.Key.Name,
+                    PatientCount = g.Count()
+                })
                 .ToList();
 
-            foreach (var stat in stats)
-            {
-                var prescriptionCount = prescriptionStats.FirstOrDefault(p => p.Date == stat.Date)?.Count ?? 0;
-                stat.PrescriptionCount = prescriptionCount;
-            }
+            return Json(stats);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPatientAdmissionStats(string period = "month")
+        {
+            var patientData = await _patientRepository.GetAllAsync();
+            var currentDate = DateTime.Now;
+            var startDate = period.ToLower() == "month" 
+                ? currentDate.AddMonths(-1) 
+                : currentDate.AddYears(-1);
+
+            var stats = patientData
+                .Where(p => p.CreatedDate >= startDate && p.CreatedDate <= currentDate)
+                .GroupBy(p => period.ToLower() == "month" 
+                    ? p.CreatedDate.Date 
+                    : new DateTime(p.CreatedDate.Year, p.CreatedDate.Month, 1))
+                .Select(g => new
+                {
+                    Date = g.Key,
+                    PatientCount = g.Count()
+                })
+                .OrderBy(x => x.Date)
+                .ToList();
 
             return Json(stats);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTreatmentCompletionStats(int year)
+        {
+            var treatmentRecords = await _treatmentRecordRepository.GetAllAsync();
+            
+            var stats = Enumerable.Range(1, 12)
+                .Select(month => new
+                {
+                    Month = month,
+                    CompletedCount = treatmentRecords.Count(t => 
+                        t.Status == TreatmentStatus.DaHoanThanh && 
+                        t.CreatedDate.Year == year && 
+                        t.CreatedDate.Month == month),
+                    CancelledCount = treatmentRecords.Count(t => 
+                        t.Status == TreatmentStatus.DaHuyBo && 
+                        t.CreatedDate.Year == year && 
+                        t.CreatedDate.Month == month)
+                })
+                .ToList();
+
+            return Json(stats);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetFollowUpTreatmentStats(int year)
+        {
+            var treatmentRecords = await _treatmentRecordRepository.GetAllAsync();
+            
+            var stats = treatmentRecords
+                .GroupBy(t => t.PatientId)
+                .Where(g => g.Count() > 1) // Lấy các bệnh nhân có nhiều hơn 1 đợt điều trị
+                .SelectMany(g => g
+                    .Where(t => t.Status == TreatmentStatus.DaHoanThanh) // Chỉ tính các đợt đã hoàn thành
+                    .OrderBy(t => t.CreatedDate)
+                    .Skip(1) // Bỏ qua đợt điều trị đầu tiên
+                    .Where(t => t.CreatedDate.Year == year)) // Lọc theo năm
+                    .GroupBy(t => t.CreatedDate.Month)
+                    .Select(g => new
+                    {
+                        Month = g.Key,
+                        FollowUpCount = g.Count()
+                    })
+                    .OrderBy(x => x.Month)
+                    .ToList();
+
+            // Đảm bảo có đủ 12 tháng với số lượng 0 nếu không có dữ liệu
+            var fullStats = Enumerable.Range(1, 12)
+                .GroupJoin(
+                    stats,
+                    month => month,
+                    stat => stat.Month,
+                    (month, statGroup) => new
+                    {
+                        Month = month,
+                        FollowUpCount = statGroup.FirstOrDefault()?.FollowUpCount ?? 0
+                    }
+                )
+                .ToList();
+
+            return Json(fullStats);
         }
     }
 }

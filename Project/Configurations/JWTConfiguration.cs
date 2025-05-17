@@ -40,13 +40,13 @@ namespace Project.Configurations
                     },
                     OnChallenge = context =>
                     {
-                        context.Response.Redirect("/login");
+                        context.Response.Redirect("/dang-nhap");
                         context.HandleResponse();
                         return Task.CompletedTask;
                     },
                     OnForbidden = context =>
                     {
-                        context.Response.Redirect("/access-denied");
+                        context.Response.Redirect("/tu-choi-truy-cap");
                         return Task.CompletedTask;
                     }
                 };
