@@ -152,7 +152,7 @@ namespace Project.Areas.Admin.Controllers
                    ? $"Không thể xóa Khoa {names} vì vẫn còn phòng đang thuộc Khoa này."
                    : $"Không thể xóa các Khoa: {names} vì vẫn còn phòng đang thuộc Khoa này.";
                TempData["ErrorMessage"] = message;
-               return RedirectToAction("Index");
+               return RedirectToAction("Trash");
             }
 
             var delList = new List<Department>();
@@ -195,30 +195,28 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            //var departments = new List<Department>();
-            //foreach (var id in ids)
-            //{
-            //    var dep = await _repository.GetByIdAsync(id);
-            //    if (dep == null) continue;
-            //    var e = await _employeeRepository.GetAllAdvancedAsync();
-            //    var t = await _treatmentRepository.GetAllAdvancedAsync();
-            //    var hasEmployees = e.Any(m => m.DepartmentId == id);
-            //    var hasTreatments = t.Any(m => m.DepartmentId == id);
-            //    if (hasEmployees || hasTreatments)
-            //    {
-            //        departments.Add(dep);
-            //    }
-            //}
+            var departments = new List<Department>();
+            foreach (var id in ids)
+            {
+               var dep = await _repository.GetByIdAsync(id);
+               if (dep == null) continue;
+               var r = await _roomRepository.GetAllAdvancedAsync();
+               var hasRooms = r.Any(x => x.DepartmentId == id);
+               if (hasRooms)
+               {
+                   departments.Add(dep);
+               }
+            }
 
-            //if (departments.Any())
-            //{
-            //    var names = string.Join(", ", departments.Select(c => $"\"{c.Name}\""));
-            //    var message = departments.Count == 1
-            //        ? $"Không thể đưa Khoa {names} vào thùng rác vì vẫn còn nhân sự hoặc phương pháp điều trị đang sử dụng Khoa này."
-            //        : $"Không thể đưa các Khoa: {names} vào thùng rác vì vẫn còn các nhân sự hoặc phương pháp điều trị đang sử dụng Khoa này.";
-            //    TempData["ErrorMessage"] = message;
-            //    return RedirectToAction("Index");
-            //}
+            if (departments.Any())
+            {
+               var names = string.Join(", ", departments.Select(c => $"\"{c.Name}\""));
+               var message = departments.Count == 1
+                   ? $"Không thể đưa Khoa {names} vào thùng rác vì vẫn còn phòng đang thuộc Khoa này."
+                   : $"Không thể đưa các Khoa: {names} vào thùng rác vì vẫn còn phòng đang thuộc Khoa này.";
+               TempData["ErrorMessage"] = message;
+               return RedirectToAction("Index");
+            }
 
             var movedList = new List<Department>();
             foreach (var id in ids)
