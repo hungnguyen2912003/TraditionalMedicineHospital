@@ -150,7 +150,7 @@ namespace Project.Areas.Admin.Controllers
                     ? $"Không thể xóa loại nhân sự {names} vì vẫn còn nhân sự đang sử dụng loại này."
                     : $"Không thể xóa các loại nhân sự: {names} vì vẫn còn nhân sự đang sử dụng các loại này.";
                 TempData["ErrorMessage"] = message;
-                return RedirectToAction("Index");
+                return RedirectToAction("Trash");
             }
 
             var delList = new List<EmployeeCategory>();
