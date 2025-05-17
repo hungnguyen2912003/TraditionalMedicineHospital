@@ -13,92 +13,92 @@
 
                 <a href="javascript:;"
                     class="collapse-icon flex flex-none rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary ltr:ml-2 rtl:mr-2 dark:bg-dark/40 dark:text-[#d0d2d6] dark:hover:bg-dark/60 dark:hover:text-primary lg:hidden"
-                    @@click = "$store.app.toggleSidebar()" >
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M20 7L4 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                    <path opacity="0.5" d="M20 12L4 12" stroke="currentColor" stroke-width="1.5"
+                    @@click="$store.app.toggleSidebar()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 7L4 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                        <path opacity="0.5" d="M20 12L4 12" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round"></path>
+                        <path d="M20 17L4 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                    </svg>
+                </a>
+            </div>
+            <div class="hidden ltr:mr-2 rtl:ml-2 sm:block">
+            </div>
+            <div x-data="header"
+                class="flex items-center space-x-1.5 ltr:ml-auto rtl:mr-auto rtl:space-x-reverse dark:text-[#d0d2d6] sm:flex-1 ltr:sm:ml-0 sm:rtl:mr-0 lg:space-x-2">
+                <div class="sm:ltr:mr-auto sm:rtl:ml-auto" x-data="{ search: false }" @@click.outside="search = false">
+                    <form
+                        class="absolute inset-x-0 top-1/2 z-10 mx-4 hidden -translate-y-1/2 sm:relative sm:top-0 sm:mx-0 sm:block sm:translate-y-0"
+                        :class="{'!block' : search}" @@submit.prevent="search = false">
+                        <div class="relative">
+                            <input type="text"
+                                class="peer form-input bg-gray-100 placeholder:tracking-widest ltr:pl-9 ltr:pr-9 rtl:pl-9 rtl:pr-9 sm:bg-transparent ltr:sm:pr-4 rtl:sm:pl-4"
+                                placeholder="Tìm kiếm...">
+                            <button type="button"
+                                class="absolute inset-0 h-9 w-9 appearance-none peer-focus:text-primary ltr:right-auto rtl:left-auto">
+                                <svg class="mx-auto" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="11.5" cy="11.5" r="9.5" stroke="currentColor" stroke-width="1.5"
+                                        opacity="0.5"></circle>
+                                    <path d="M18.5 18.5L22 22" stroke="currentColor" stroke-width="1.5"
                                         stroke-linecap="round"></path>
-                                    <path d="M20 17L4 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
                                 </svg>
-                            </a>
+                            </button>
+                            <button type="button"
+                                class="absolute top-1/2 block -translate-y-1/2 hover:opacity-80 ltr:right-2 rtl:left-2 sm:hidden"
+                                @@click="search = false">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <circle opacity="0.5" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="1.5"></circle>
+                                    <path d="M14.5 9.50002L9.5 14.5M9.49998 9.5L14.5 14.5" stroke="currentColor"
+                                        stroke-width="1.5" stroke-linecap="round"></path>
+                                </svg>
+                            </button>
                         </div>
-                        <div class="hidden ltr:mr-2 rtl:ml-2 sm:block">
-                        </div>
-                        <div x-data="header"
-                            class="flex items-center space-x-1.5 ltr:ml-auto rtl:mr-auto rtl:space-x-reverse dark:text-[#d0d2d6] sm:flex-1 ltr:sm:ml-0 sm:rtl:mr-0 lg:space-x-2">
-                            <div class="sm:ltr:mr-auto sm:rtl:ml-auto" x-data="{ search: false }" @@click.outside="search = false">
-                                <form
-                                    class="absolute inset-x-0 top-1/2 z-10 mx-4 hidden -translate-y-1/2 sm:relative sm:top-0 sm:mx-0 sm:block sm:translate-y-0"
-                                    :class="{'!block' : search}" @@submit.prevent="search = false">
-                                    <div class="relative">
-                                        <input type="text"
-                                            class="peer form-input bg-gray-100 placeholder:tracking-widest ltr:pl-9 ltr:pr-9 rtl:pl-9 rtl:pr-9 sm:bg-transparent ltr:sm:pr-4 rtl:sm:pl-4"
-                                            placeholder="Search...">
-                                        <button type="button"
-                                            class="absolute inset-0 h-9 w-9 appearance-none peer-focus:text-primary ltr:right-auto rtl:left-auto">
-                                            <svg class="mx-auto" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <circle cx="11.5" cy="11.5" r="9.5" stroke="currentColor" stroke-width="1.5"
-                                                    opacity="0.5"></circle>
-                                                <path d="M18.5 18.5L22 22" stroke="currentColor" stroke-width="1.5"
-                                                    stroke-linecap="round"></path>
-                                            </svg>
-                                        </button>
-                                        <button type="button"
-                                            class="absolute top-1/2 block -translate-y-1/2 hover:opacity-80 ltr:right-2 rtl:left-2 sm:hidden"
-                                            @@click = "search = false" >
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <circle opacity="0.5" cx="12" cy="12" r="10" stroke="currentColor"
-                                            stroke-width="1.5"></circle>
-                                        <path d="M14.5 9.50002L9.5 14.5M9.49998 9.5L14.5 14.5" stroke="currentColor"
-                                            stroke-width="1.5" stroke-linecap="round"></path>
-                                    </svg>
-                                </button>
+                    </form>
+                    <button type="button"
+                        class="search_btn rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 dark:bg-dark/40 dark:hover:bg-dark/60 sm:hidden"
+                        @@click="search = ! search">
+                        <svg class="mx-auto h-4.5 w-4.5 dark:text-[#d0d2d6]" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="11.5" cy="11.5" r="9.5" stroke="currentColor" stroke-width="1.5" opacity="0.5">
+                            </circle>
+                            <path d="M18.5 18.5L22 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+                <div>
+                    Chào mừng, <span id="user-name-main" style="font-weight: 900;"></span>
+                </div>
+                <div class="dropdown flex-shrink-0" x-data="dropdown" @@click.outside="open = false">
+                    <a href="javascript:;" class="group relative" @@click="toggle()">
+                        <span><img id="profile-img-top"
+                                class="h-9 w-9 rounded-full object-cover saturate-50 group-hover:saturate-100" src=""
+                                alt="image"></span>
+                    </a>
+                    <ul x-cloak="" x-show="open" x-transition="" x-transition.duration.300ms=""
+                        class="top-11 w-max min-w-[230px] !py-0 font-semibold text-dark ltr:right-0 rtl:left-0 dark:text-white-dark dark:text-white-light/90">
+                        <li>
+                            <div class="flex items-center px-4 py-4">
+                                <div class="flex-none">
+                                    <img id="profile-img-dropdown" class="h-10 w-10 rounded-md object-cover" src=""
+                                        alt="image">
+                                </div>
+                                <div class="truncate ltr:pl-4 rtl:pr-4">
+                                    <h4 class="text-base" id="user-name-dropdown" style="font-weight: 900;"></h4>
+                                    <a class="text-black/60 hover:text-primary dark:text-dark-light/60 dark:hover:text-white"
+                                        href="javascript:;" id="user-email"></a>
+                                    <div id="user-category" class="text-xs text-gray-500 mt-1"></div>
+                                    <div id="user-department" class="text-xs text-gray-500 mt-1"></div>
+                                    <div id="user-room" class="text-xs text-gray-500 mt-1"></div>
+                                </div>
                             </div>
-                        </form>
-                        <button type="button"
-                            class="search_btn rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 dark:bg-dark/40 dark:hover:bg-dark/60 sm:hidden"
-                            @@click = "search = ! search" >
-                                    <svg class="mx-auto h-4.5 w-4.5 dark:text-[#d0d2d6]" width="20" height="20" viewBox="0 0 24 24"
-                                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="11.5" cy="11.5" r="9.5" stroke="currentColor" stroke-width="1.5" opacity="0.5">
-                                        </circle>
-                                        <path d="M18.5 18.5L22 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-                                        </path>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div>
-                                Chào mừng, <span id="user-name-main" style="font-weight: 900;"></span>
-                            </div>
-                            <div class="dropdown flex-shrink-0" x-data="dropdown" @@click.outside="open = false">
-                                <a href="javascript:;" class="group relative" @@click="toggle()">
-                                    <span><img id="profile-img-top"
-                                            class="h-9 w-9 rounded-full object-cover saturate-50 group-hover:saturate-100" src=""
-                                            alt="image"></span>
-                                </a>
-                                <ul x-cloak="" x-show="open" x-transition="" x-transition.duration.300ms=""
-                                    class="top-11 w-max min-w-[230px] !py-0 font-semibold text-dark ltr:right-0 rtl:left-0 dark:text-white-dark dark:text-white-light/90">
-                                    <li>
-                                        <div class="flex items-center px-4 py-4">
-                                            <div class="flex-none">
-                                                <img id="profile-img-dropdown" class="h-10 w-10 rounded-md object-cover" src=""
-                                                    alt="image">
-                                            </div>
-                                            <div class="truncate ltr:pl-4 rtl:pr-4">
-                                                <h4 class="text-base" id="user-name-dropdown" style="font-weight: 900;"></h4>
-                                                <a class="text-black/60 hover:text-primary dark:text-dark-light/60 dark:hover:text-white"
-                                                    href="javascript:;" id="user-email"></a>
-                                                <div id="user-category" class="text-xs text-gray-500 mt-1"></div>
-                                                <div id="user-department" class="text-xs text-gray-500 mt-1"></div>
-                                                <div id="user-room" class="text-xs text-gray-500 mt-1"></div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <a href="/Admin/Employees/Details/" id="user-details" class="dark:hover:text-white"
-                                            @@click = "toggle" >
+                        </li>
+                        <li>
+                            <a href="/Admin/Employees/Details/" id="user-details" class="dark:hover:text-white"
+                                @@click="toggle">
                                 <svg class="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" width="18" height="18"
                                     viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="12" cy="6" r="4" stroke="currentColor" stroke-width="1.5"></circle>
@@ -110,7 +110,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="/change-password" class="dark:hover:text-white" @@click="toggle">
+                            <a href="/doi-mat-khau" class="dark:hover:text-white" @@click="toggle">
                                 <svg class="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" width="18" height="18"
                                     viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -135,7 +135,7 @@
                             </a>
                         </li>
                         <li class="border-t border-white-light dark:border-white-light/10">
-                            <a href="/logout" class="!py-3 text-danger" @@click="toggle">
+                            <a href="/dang-xuat" class="!py-3 text-danger" @@click="toggle">
                                 <svg class="h-4.5 w-4.5 shrink-0 rotate-90 ltr:mr-2 rtl:ml-2" width="18" height="18"
                                     viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path opacity="0.5"

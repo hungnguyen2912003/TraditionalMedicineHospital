@@ -93,11 +93,11 @@ namespace Project.Areas.Admin.Controllers
 
                     string redirectURL = user.Role.ToString() switch
                     {
-                        "Admin" => Url.Action("Index", "Home", new { area = "Admin" }) ?? "/Admin/Home/Index",
-                        "Bacsi" => Url.Action("Index", "Home", new { area = "Staff" }) ?? "/Staff/Home/Index",
-                        "Yta" => Url.Action("Index", "Home", new { area = "Staff" }) ?? "/Staff/Home/Index",
-                        "Benhnhan" => Url.Action("Index", "Home", new { area = "BenhNhan" }) ?? "/BenhNhan/Home/Index",
-                        _ => Url.Action("") ?? "",
+                        "Admin" => "/admin",
+                        "Bacsi" => "/nhan-vien",
+                        "Yta" => "/nhan-vien",
+                        "Benhnhan" => "/benh-nhan",
+                        _ => "/",
                     };
 
                     return Json(new
