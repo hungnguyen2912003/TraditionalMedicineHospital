@@ -10,13 +10,13 @@
         class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
 </div>
 
-<form id="myForm" method="post" enctype="multipart/form-data" asp-action="Create">
+<form id="myForm" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
 
     <div x-data="addData">
         <ul class="flex space-x-2 rtl:space-x-reverse">
             <li>
-                <a href="javascript:;" class="text-primary hover:underline">Loại thuốc</a>
+                <a href="javascript:;" class="text-primary hover:underline">Danh mục loại thuốc</a>
             </li>
             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
                 <span>Thêm mới</span>
@@ -112,7 +112,7 @@
                     rules: {
                         Name: {
                             required: true,
-                            minlength: 6,
+                            minlength: 3,
                             maxlength: 50,
                             customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
                             remote: {
@@ -143,7 +143,7 @@
                     messages: {
                         Name: {
                             required: "Tên loại thuốc không được bỏ trống.",
-                            minlength: "Tên phải có ít nhất 6 ký tự.",
+                            minlength: "Tên phải có ít nhất 3 ký tự.",
                             maxlength: "Tên không được vượt quá 50 ký tự.",
                             customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng.",
                             remote: "Tên loại thuốc này đã tồn tại."
@@ -183,7 +183,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/Admin/MedicineCategories/';
+                        window.location.href = '/danh-muc-loai-thuoc';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -200,7 +200,7 @@
                     overlay.style.display = 'flex';
                     const form = document.getElementById('myForm');
                     const formData = new FormData(form);
-                    fetch('/Admin/MedicineCategories/Create', {
+                    fetch('/danh-muc-loai-thuoc/them-moi', {
                         method: 'POST',
                         body: formData
                     })

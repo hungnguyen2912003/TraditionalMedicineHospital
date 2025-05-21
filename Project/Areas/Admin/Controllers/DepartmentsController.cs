@@ -58,7 +58,7 @@ namespace Project.Areas.Admin.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost("them-moi")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromForm] DepartmentDto inputDto)
         {
@@ -92,11 +92,11 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost("chinh-sua/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromForm] DepartmentDto inputDto, Guid Id)
+        public async Task<IActionResult> Edit([FromForm] DepartmentDto inputDto, Guid id)
         {
             try
             {
-                var entity = await _repository.GetByIdAsync(Id);
+                var entity = await _repository.GetByIdAsync(id);
                 if (entity == null) return NotFound();
 
                 _mapper.Map(inputDto, entity);

@@ -18,7 +18,7 @@
     <div x-data="editData">
         <ul class="flex space-x-2 rtl:space-x-reverse">
             <li>
-                <a href="javascript:;" class="text-primary hover:underline">Loại thuốc</a>
+                <a href="javascript:;" class="text-primary hover:underline">Danh mục loại thuốc</a>
             </li>
             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
                 <span>Chỉnh sửa</span>
@@ -112,7 +112,7 @@
                     rules: {
                         Name: {
                             required: true,
-                            minlength: 6,
+                            minlength: 3,
                             maxlength: 50,
                             customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
                             remote: {
@@ -144,7 +144,7 @@
                     messages: {
                         Name: {
                             required: "Tên loại thuốc không được bỏ trống.",
-                            minlength: "Tên phải có ít nhất 6 ký tự.",
+                            minlength: "Tên phải có ít nhất 3 ký tự.",
                             maxlength: "Tên không được vượt quá 50 ký tự.",
                             customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng.",
                             remote: "Tên loại thuốc đã tồn tại."
@@ -206,7 +206,7 @@
 
                     const formData = new FormData(form);
                     formData.append('Id', id);
-                    fetch('/Admin/MedicineCategories/Edit', {
+                    fetch('/danh-muc-loai-thuoc/chinh-sua/' + id, {
                         method: 'POST',
                         body: formData
                     })

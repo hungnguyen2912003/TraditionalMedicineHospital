@@ -1,23 +1,21 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
 using Project.Areas.Admin.Models.Entities;
 using Project.Helpers;
 using Project.Repositories.Interfaces;
-using Project.Services.Interfaces;
 
 namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Admin")]
+    [Route("danh-muc-loai-thuoc")]
     public class MedicineCategoriesController : Controller
     {
         private readonly IMedicineCategoryRepository _repository;
         private readonly IMedicineRepository _medicineRepository;
         private readonly IMapper _mapper;
-        private readonly IImageService _imgService;
         private readonly CodeGeneratorHelper _codeGenerator;
 
         public MedicineCategoriesController
@@ -25,14 +23,12 @@ namespace Project.Areas.Admin.Controllers
             IMedicineCategoryRepository repository,
             IMedicineRepository medicineRepository,
             IMapper mapper,
-            IImageService imgService,
             CodeGeneratorHelper codeGenerator
         )
         {
             _repository = repository;
             _medicineRepository = medicineRepository;
             _mapper = mapper;
-            _imgService = imgService;
             _codeGenerator = codeGenerator;
         }
 
@@ -42,6 +38,7 @@ namespace Project.Areas.Admin.Controllers
             return View(list);
         }
 
+        [HttpGet("chi-tiet/{id}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var entity = await _repository.GetByIdAsync(id);
@@ -50,7 +47,7 @@ namespace Project.Areas.Admin.Controllers
             return View(entity);
         }
 
-        [HttpGet]
+        [HttpGet("them-moi")]
         public async Task<IActionResult> Create()
         {
             var model = new MedicineCategoryDto
@@ -60,7 +57,7 @@ namespace Project.Areas.Admin.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost("them-moi")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromForm] MedicineCategoryDto inputDto)
         {
@@ -80,7 +77,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("chinh-sua/{id}")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var entity = await _repository.GetByIdAsync(id);
@@ -92,13 +89,13 @@ namespace Project.Areas.Admin.Controllers
             return View(dto);
         }
 
-        [HttpPost]
+        [HttpPost("chinh-sua/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromForm] MedicineCategoryDto inputDto, Guid Id)
+        public async Task<IActionResult> Edit([FromForm] MedicineCategoryDto inputDto, Guid id)
         {
             try
             {
-                var entity = await _repository.GetByIdAsync(Id);
+                var entity = await _repository.GetByIdAsync(id);
                 if (entity == null) return NotFound();
 
                 _mapper.Map(inputDto, entity);
@@ -115,7 +112,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("xoa")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
         {
@@ -171,7 +168,7 @@ namespace Project.Areas.Admin.Controllers
                 var names = string.Join(", ", delList.Select(c => $"\"{c.Name}\""));
                 var message = delList.Count == 1
                     ? $"Đã xóa loại thuốc {names} thành công"
-                    : $"Đã xóa các loại thuốc {names} thành công";
+                    : $"Đã xóa các loại thuốc thành công";
                 TempData["SuccessMessage"] = message;
             }
             else
