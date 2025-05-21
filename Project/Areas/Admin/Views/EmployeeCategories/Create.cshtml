@@ -9,13 +9,13 @@
         class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
 </div>
 
-<form id="myForm" method="post" enctype="multipart/form-data" asp-action="Create">
+<form id="myForm" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
 
     <div x-data="addData">
         <ul class="flex space-x-2 rtl:space-x-reverse">
             <li>
-                <a href="javascript:;" class="text-primary hover:underline">Loại nhân sự</a>
+                <a href="javascript:;" class="text-primary hover:underline">Danh mục loại nhân sự</a>
             </li>
             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
                 <span>Thêm mới</span>
@@ -39,8 +39,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Tên loại nhân
-                                        sự<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        sự<span class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập tên loại nhân sự" />
@@ -78,7 +77,7 @@
                                 </button>
                                 <button type="button"
                                     class="btn btn-secondary py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600 w-40 justify-center"
-                                                                        @@click = "goBack()" >
+                                    @@click="goBack()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
                                         <path
@@ -184,7 +183,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/Admin/EmployeeCategories/';
+                        window.location.href = '/danh-muc-loai-nhan-su';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -201,7 +200,7 @@
                     overlay.style.display = 'flex';
                     const form = document.getElementById('myForm');
                     const formData = new FormData(form);
-                    fetch('/Admin/EmployeeCategories/Create', {
+                    fetch('/danh-muc-loai-nhan-su/them-moi', {
                         method: 'POST',
                         body: formData
                     })
@@ -218,7 +217,7 @@
             },
 
             goBack() {
-                window.history.back();
+                window.location.href = '/danh-muc-loai-nhan-su';
             }
         }));
     });

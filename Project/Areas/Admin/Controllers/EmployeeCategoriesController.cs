@@ -10,6 +10,7 @@ namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Admin")]
+    [Route("danh-muc-loai-nhan-su")]
     public class EmployeeCategoriesController : Controller
     {
         private readonly IEmployeeCategoryRepository _repository;
@@ -36,6 +37,7 @@ namespace Project.Areas.Admin.Controllers
             return View(list);
         }
 
+        [HttpGet("chi-tiet/{id}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var entity = await _repository.GetByIdAsync(id);
@@ -44,7 +46,7 @@ namespace Project.Areas.Admin.Controllers
             return View(entity);
         }
 
-        [HttpGet]
+        [HttpGet("them-moi")]
         public async Task<IActionResult> Create()
         {
             var model = new EmployeeCategoryDto
@@ -54,7 +56,7 @@ namespace Project.Areas.Admin.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost("them-moi")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromForm] EmployeeCategoryDto inputDto)
         {
@@ -74,7 +76,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("chinh-sua/{id}")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var entity = await _repository.GetByIdAsync(id);
@@ -86,7 +88,7 @@ namespace Project.Areas.Admin.Controllers
             return View(dto);
         }
 
-        [HttpPost]
+        [HttpPost("chinh-sua/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([FromForm] EmployeeCategoryDto inputDto, Guid Id)
         {
@@ -108,7 +110,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("xoa")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
         {
@@ -160,7 +162,7 @@ namespace Project.Areas.Admin.Controllers
                 var names = string.Join(", ", delList.Select(c => $"\"{c.Name}\""));
                 var message = delList.Count == 1
                     ? $"Đã xóa loại nhân sự {names} thành công"
-                    : $"Đã xóa các loại nhân sự: {names} thành công";
+                    : $"Đã xóa các loại nhân sự thành công";
                 TempData["SuccessMessage"] = message;
             }
             else
