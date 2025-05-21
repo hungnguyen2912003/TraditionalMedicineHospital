@@ -10,13 +10,13 @@
         class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
 </div>
 
-<form id="myForm" method="post" enctype="multipart/form-data" asp-action="Create">
+<form id="myForm" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
 
     <div x-data="addData">
         <ul class="flex space-x-2 rtl:space-x-reverse">
             <li>
-                <a href="javascript:;" class="text-primary hover:underline">Khoa</a>
+                <a href="javascript:;" class="text-primary hover:underline">Danh mục Khoa</a>
             </li>
             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
                 <span>Thêm mới</span>
@@ -39,7 +39,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Tên Khoa<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập tên Khoa" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
@@ -76,7 +76,7 @@
                                 </button>
                                 <button type="button"
                                     class="btn btn-secondary py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600 w-40 justify-center"
-                                                                        @@click = "goBack()" >
+                                    @@click="goBack()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
                                         <path
@@ -182,7 +182,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/Admin/Departments/';
+                        window.location.href = '/danh-muc-khoa';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -199,7 +199,7 @@
                     overlay.style.display = 'flex';
                     const form = document.getElementById('myForm');
                     const formData = new FormData(form);
-                    fetch('/Admin/Departments/Create', {
+                    fetch('/danh-muc-khoa', {
                         method: 'POST',
                         body: formData
                     })
@@ -216,7 +216,7 @@
             },
 
             goBack() {
-                window.history.back();
+                window.location.href = '/danh-muc-khoa';
             }
         }));
     });

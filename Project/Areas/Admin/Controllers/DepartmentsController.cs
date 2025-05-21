@@ -90,7 +90,7 @@ namespace Project.Areas.Admin.Controllers
             return View(dto);
         }
 
-        [HttpPost]
+        [HttpPost("chinh-sua/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([FromForm] DepartmentDto inputDto, Guid Id)
         {
@@ -165,7 +165,7 @@ namespace Project.Areas.Admin.Controllers
                 var names = string.Join(", ", delList.Select(c => $"\"{c.Name}\""));
                 var message = delList.Count == 1
                     ? $"Đã xóa Khoa {names} thành công"
-                    : $"Đã xóa các Khoa: {names} thành công";
+                    : $"Đã xóa các Khoa thành công";
                 TempData["SuccessMessage"] = message;
             }
             else
