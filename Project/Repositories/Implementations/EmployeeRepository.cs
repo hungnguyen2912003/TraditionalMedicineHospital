@@ -46,7 +46,7 @@ namespace Project.Repositories.Implementations
         public async Task<string?> GetRoomNameByEmployeeIdAsync(Guid employeeId)
         {
             return await _context.employees
-                .Where(e => e.Id == employeeId && e.IsActive)
+                .Where(e => e.Id == employeeId)
                 .Select(e => e.Room!.Name)
                 .FirstOrDefaultAsync();
         }

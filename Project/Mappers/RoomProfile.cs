@@ -12,8 +12,7 @@ namespace Project.Mappers
             CreateMap<Room, RoomDto>();
             CreateMap<RoomDto, Room>()
                 .ForMember(dest => dest.TreatmentMethod, opt => opt.Ignore())
-                .ForMember(dest => dest.Department, opt => opt.Ignore())
-                .ForMember(dest => dest.IsActive, opt => opt.Ignore());
+                .ForMember(dest => dest.Department, opt => opt.Ignore());
             CreateMap<Room, RoomViewModel>()
                 .ForMember(dest => dest.TreatmentMethodName,
                     opt => opt.MapFrom(src => src.TreatmentMethod != null ? src.TreatmentMethod.Name : "Không xác định"))

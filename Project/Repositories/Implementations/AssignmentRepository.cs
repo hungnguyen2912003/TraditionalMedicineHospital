@@ -16,7 +16,6 @@ namespace Project.Repositories.Implementations
             return await _context.assignments
                 .Include(a => a.Employee)
                 .Include(a => a.TreatmentRecord)
-                .Where(a => a.IsActive)
                 .ToListAsync();
         }
 
@@ -25,14 +24,14 @@ namespace Project.Repositories.Implementations
             return await _context.assignments
                 .Include(a => a.Employee)
                 .Include(a => a.TreatmentRecord)
-                .FirstOrDefaultAsync(a => a.Id == id && a.IsActive);
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async Task<List<Assignment>> GetByTreatmentRecordIdAsync(Guid treatmentRecordId)
         {
             return await _context.assignments
                 .Include(a => a.Employee)
-                .Where(a => a.TreatmentRecordId == treatmentRecordId && a.IsActive)
+                .Where(a => a.TreatmentRecordId == treatmentRecordId)
                 .ToListAsync();
         }
 

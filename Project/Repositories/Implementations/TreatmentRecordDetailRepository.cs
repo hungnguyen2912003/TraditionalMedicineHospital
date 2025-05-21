@@ -22,7 +22,7 @@ namespace Project.Repositories.Implementations
                 .Include(t => t.TreatmentRecord)
                     .ThenInclude(t => t.Assignments)
                         .ThenInclude(a => a.Employee)
-                .Where(t => t.TreatmentRecordId == treatmentRecordId && t.IsActive)
+                .Where(t => t.TreatmentRecordId == treatmentRecordId)
                 .ToListAsync();
         }
 
@@ -91,7 +91,7 @@ namespace Project.Repositories.Implementations
         public async Task<List<Patient>> GetPatientsByRoomIdAsync(Guid roomId)
         {
             return await _context.treatmentRecordDetails
-                .Where(d => d.RoomId == roomId && d.IsActive && d.TreatmentRecord.IsActive)
+                .Where(d => d.RoomId == roomId)
                 .Select(d => d.TreatmentRecord.Patient)
                 .Distinct()
                 .ToListAsync();
@@ -101,7 +101,7 @@ namespace Project.Repositories.Implementations
         {
             return await _context.treatmentRecordDetails
                 .Include(d => d.TreatmentRecord)
-                .Where(d => d.TreatmentRecord.PatientId == patientId && d.RoomId == roomId && d.IsActive)
+                .Where(d => d.TreatmentRecord.PatientId == patientId && d.RoomId == roomId)
                 .OrderByDescending(d => d.CreatedDate)
                 .FirstOrDefaultAsync();
         }
@@ -126,7 +126,7 @@ namespace Project.Repositories.Implementations
                     .ThenInclude(p => p.Patient)
                 .Include(d => d.Room)
                     .ThenInclude(r => r.TreatmentMethod)
-                .Where(d => d.RoomId == roomId && d.IsActive && d.TreatmentRecord.IsActive)
+                .Where(d => d.RoomId == roomId)
                 .ToListAsync();
         }
     }

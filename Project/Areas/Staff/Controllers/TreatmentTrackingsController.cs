@@ -36,7 +36,6 @@ namespace Project.Areas.Staff.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _treatmentTrackingRepository.GetAllAdvancedAsync();
-            var activeList = list.Where(x => x.IsActive).ToList();
 
             await _viewBagHelper.BaseViewBag(ViewData);
 
@@ -61,11 +60,11 @@ namespace Project.Areas.Staff.Controllers
             // Lọc chỉ các bản ghi do bác sĩ hiện tại thực hiện
             if (!string.IsNullOrEmpty(currentEmployeeCode))
             {
-                activeList = activeList.Where(x => x.CreatedBy == currentEmployeeCode).ToList();
+                list = list.Where(x => x.CreatedBy == currentEmployeeCode).ToList();
             }
 
             // Lấy tất cả mã nhân viên đã chấm
-            var createdByCodes = activeList
+            var createdByCodes = list
                 .Where(t => !string.IsNullOrEmpty(t.CreatedBy))
                 .Select(t => t.CreatedBy)
                 .Distinct()
@@ -75,7 +74,7 @@ namespace Project.Areas.Staff.Controllers
             var employees = await _employeeRepository.GetByCodesAsync(createdByCodes);
             var codeNameDict = employees.ToDictionary(e => e.Code, e => e.Name);
 
-            var dtoList = activeList.Select(t => new TreatmentTrackingDto
+            var dtoList = list.Select(t => new TreatmentTrackingDto
             {
                 Id = t.Id,
                 Code = t.Code,
@@ -83,7 +82,6 @@ namespace Project.Areas.Staff.Controllers
                 Note = t.Note,
                 Status = t.Status,
                 TreatmentRecordDetailId = t.TreatmentRecordDetailId ?? Guid.Empty,
-                IsActive = t.IsActive,
                 PatientName = t.TreatmentRecordDetail?.TreatmentRecord?.Patient?.Name,
                 RoomName = t.TreatmentRecordDetail?.Room?.Name,
                 EmployeeCode = t.CreatedBy,

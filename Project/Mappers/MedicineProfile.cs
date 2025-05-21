@@ -22,8 +22,7 @@ namespace Project.Mappers
 
             CreateMap<MedicineDto, Medicine>()
                 .ForMember(dest => dest.MedicineCategory, opt => opt.Ignore())
-                .ForMember(dest => dest.Images, opt => opt.Ignore())
-                .ForMember(dest => dest.IsActive, opt => opt.Ignore());
+                .ForMember(dest => dest.Images, opt => opt.Ignore());
         }
     }
 }

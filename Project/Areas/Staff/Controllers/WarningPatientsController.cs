@@ -41,7 +41,6 @@ namespace Project.Areas.Staff.Controllers
         {
             // Lấy tất cả tracking
             var allTrackings = await _treatmentTrackingRepository.GetAllAdvancedAsync();
-            var activeTrackings = allTrackings.Where(x => x.IsActive).ToList();
 
             // Lấy mã nhân viên hiện tại từ cookie AuthToken
             string? currentEmployeeCode = null;
@@ -62,7 +61,7 @@ namespace Project.Areas.Staff.Controllers
             }
 
             // Nhóm các tracking theo bệnh nhân và từng đợt điều trị
-            var patientGroups = activeTrackings
+            var patientGroups = allTrackings
                 .Where(t => t.TreatmentRecordDetail?.TreatmentRecord?.Patient != null)
                 .GroupBy(t => new {
                     PatientId = t.TreatmentRecordDetail!.TreatmentRecord!.Patient!.Id,

@@ -31,7 +31,6 @@ namespace Project.Areas.Admin.Controllers
                 Username = u.Username,
                 Role = u.Role,
                 EmployeeName = u.Employee != null ? u.Employee.Name : null,
-                IsActive = u.IsActive,
                 CreatedBy = u.CreatedBy,
                 CreatedDate = u.CreatedDate
             }).ToList();
@@ -52,7 +51,6 @@ namespace Project.Areas.Admin.Controllers
                 Username = user.Username,
                 Role = user.Role,
                 EmployeeName = user.Employee != null ? user.Employee.Name : null,
-                IsActive = user.IsActive,
                 CreatedBy = user.CreatedBy,
                 CreatedDate = user.CreatedDate
             };

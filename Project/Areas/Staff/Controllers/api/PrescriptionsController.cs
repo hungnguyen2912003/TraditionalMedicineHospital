@@ -66,7 +66,6 @@ namespace Project.Areas.Staff.Controllers.api
                     EmployeeId = employee.Id,
                     CreatedBy = employee.Code,
                     CreatedDate = DateTime.UtcNow,
-                    IsActive = true
                 };
 
                 decimal totalCost = 0;
@@ -81,7 +80,6 @@ namespace Project.Areas.Staff.Controllers.api
                         Quantity = d.Quantity,
                         CreatedBy = employee.Code,
                         CreatedDate = DateTime.UtcNow,
-                        IsActive = true
                     };
                     // Tính tổng tiền
                     totalCost += d.UnitPrice * d.Quantity;
@@ -160,7 +158,6 @@ namespace Project.Areas.Staff.Controllers.api
                             Quantity = nd.Quantity,
                             CreatedBy = employee.Code,
                             CreatedDate = DateTime.UtcNow,
-                            IsActive = true
                         };
                         await _prescriptionDetailRepository.CreateAsync(detail);
                     }

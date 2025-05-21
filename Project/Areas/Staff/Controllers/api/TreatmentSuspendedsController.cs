@@ -126,7 +126,7 @@ namespace Project.Areas.Staff.Controllers.api
 
             // Lọc các tracking có status = Không điều trị, sắp xếp theo ngày
             var absentTrackings = allTrackings
-                .Where(t => t.Status == Project.Models.Enums.TrackingStatus.KhongDieuTri && t.IsActive)
+                .Where(t => t.Status == Project.Models.Enums.TrackingStatus.KhongDieuTri)
                 .OrderBy(t => t.TrackingDate)
                 .ToList();
 

@@ -38,8 +38,7 @@ namespace Project.Areas.Staff.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _healthInsuranceRepository.GetAllAdvancedAsync();
-            var activeList = list.Where(x => x.IsActive == true).ToList();
-            var viewModelList = _mapper.Map<List<HealthInsuranceViewModel>>(activeList);
+            var viewModelList = _mapper.Map<List<HealthInsuranceViewModel>>(list);
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
@@ -82,7 +81,6 @@ namespace Project.Areas.Staff.Controllers
 
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
-                entity.IsActive = true;
                 entity.PatientId = inputDto.PatientId; // Explicitly set PatientId
 
                 await _healthInsuranceRepository.CreateAsync(entity);
@@ -146,15 +144,6 @@ namespace Project.Areas.Staff.Controllers
             }
         }
 
-        public async Task<IActionResult> Trash()
-        {
-            var list = await _healthInsuranceRepository.GetAllAdvancedAsync();
-            var activeList = list.Where(x => x.IsActive == false).ToList();
-            var viewModelList = _mapper.Map<List<HealthInsuranceViewModel>>(activeList);
-            await _viewBagHelper.BaseViewBag(ViewData);
-            return View(viewModelList);
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
@@ -192,92 +181,7 @@ namespace Project.Areas.Staff.Controllers
                 TempData["ErrorMessage"] = "Không tìm thấy thẻ BHYT nào để xóa.";
             }
 
-            return RedirectToAction("Trash");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MoveToTrash([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-
-            var movedList = new List<HealthInsurance>();
-            foreach (var id in ids)
-            {
-                var entity = await _healthInsuranceRepository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = false;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _healthInsuranceRepository.UpdateAsync(entity);
-                    movedList.Add(entity);
-                }
-            }
-
-            if (movedList.Any())
-            {
-                var names = string.Join(", ", movedList.Select(c => $"\"{c.Number}\""));
-                var message = movedList.Count == 1
-                    ? $"Đã đưa thẻ BHYT {names} thành công vào thùng rác"
-                    : $"Đã đưa các thẻ BHYT: {names} thành công vào thùng rác";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy thẻ BHYT nào để đưa vào thùng rác.";
-            }
-
             return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Restore([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-            var restoredEntity = new List<HealthInsurance>();
-            foreach (var id in ids)
-            {
-                var entity = await _healthInsuranceRepository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = true;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _healthInsuranceRepository.UpdateAsync(entity);
-                    restoredEntity.Add(entity);
-                }
-            }
-
-            if (restoredEntity.Any())
-            {
-                var names = string.Join(", ", restoredEntity.Select(c => $"\"{c.Number}\""));
-                var message = restoredEntity.Count == 1
-                    ? $"Đã khôi phục thẻ BHYT {names} thành công."
-                    : $"Đã khôi phục các thẻ BHYT: {names} thành công.";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy thẻ BHYT nào để khôi phục.";
-            }
-
-            return RedirectToAction("Trash");
         }
     }
 }

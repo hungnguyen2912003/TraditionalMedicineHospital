@@ -10,6 +10,7 @@ namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Admin")]
+    [Route("danh-muc-khoa")]
     public class DepartmentsController : Controller
     {
         private readonly IDepartmentRepository _repository;
@@ -31,13 +32,14 @@ namespace Project.Areas.Admin.Controllers
             _codeGenerator = codeGenerator;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAsync();
-            var activeList = list.Where(x => x.IsActive == true).ToList();
-            return View(activeList);
+            return View(list);
         }
 
+        [HttpGet("chi-tiet/{id}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var entity = await _repository.GetByIdAsync(id);
@@ -46,7 +48,7 @@ namespace Project.Areas.Admin.Controllers
             return View(entity);
         }
 
-        [HttpGet]
+        [HttpGet("them-moi")]
         public async Task<IActionResult> Create()
         {
             var model = new DepartmentDto
@@ -66,7 +68,6 @@ namespace Project.Areas.Admin.Controllers
 
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
-                entity.IsActive = true;
 
                 await _repository.CreateAsync(entity);
                 return Json(new { success = true, message = "Thêm khoa thành công!" });
@@ -77,7 +78,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("chinh-sua/{id}")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var entity = await _repository.GetByIdAsync(id);
@@ -111,15 +112,8 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        public async Task<IActionResult> Trash()
-        {
-            var list = await _repository.GetAllAsync();
-            var trashList = list.Where(x => x.IsActive == false).ToList();
-            return View(trashList);
-        }
 
-
-        [HttpPost]
+        [HttpPost("xoa")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
         {
@@ -152,7 +146,7 @@ namespace Project.Areas.Admin.Controllers
                    ? $"Không thể xóa Khoa {names} vì vẫn còn phòng đang thuộc Khoa này."
                    : $"Không thể xóa các Khoa: {names} vì vẫn còn phòng đang thuộc Khoa này.";
                TempData["ErrorMessage"] = message;
-               return RedirectToAction("Trash");
+               return RedirectToAction("Index");
             }
 
             var delList = new List<Department>();
@@ -179,115 +173,7 @@ namespace Project.Areas.Admin.Controllers
                 TempData["ErrorMessage"] = "Không tìm thấy Khoa nào để xóa.";
             }
 
-            return RedirectToAction("Trash");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MoveToTrash([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-
-            var departments = new List<Department>();
-            foreach (var id in ids)
-            {
-               var dep = await _repository.GetByIdAsync(id);
-               if (dep == null) continue;
-               var r = await _roomRepository.GetAllAdvancedAsync();
-               var hasRooms = r.Any(x => x.DepartmentId == id);
-               if (hasRooms)
-               {
-                   departments.Add(dep);
-               }
-            }
-
-            if (departments.Any())
-            {
-               var names = string.Join(", ", departments.Select(c => $"\"{c.Name}\""));
-               var message = departments.Count == 1
-                   ? $"Không thể đưa Khoa {names} vào thùng rác vì vẫn còn phòng đang thuộc Khoa này."
-                   : $"Không thể đưa các Khoa: {names} vào thùng rác vì vẫn còn phòng đang thuộc Khoa này.";
-               TempData["ErrorMessage"] = message;
-               return RedirectToAction("Index");
-            }
-
-            var movedList = new List<Department>();
-            foreach (var id in ids)
-            {
-                var entity = await _repository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = false;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _repository.UpdateAsync(entity);
-                    movedList.Add(entity);
-                }
-            }
-
-            if (movedList.Any())
-            {
-                var names = string.Join(", ", movedList.Select(c => $"\"{c.Name}\""));
-                var message = movedList.Count == 1
-                    ? $"Đã đưa Khoa {names} thành công vào thùng rác"
-                    : $"Đã đưa các Khoa: {names} thành công vào thùng rác";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy Khoa nào để đưa vào thùng rác.";
-            }
-
             return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Restore([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-            var restoredEntity = new List<Department>();
-            foreach (var id in ids)
-            {
-                var entity = await _repository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = true;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _repository.UpdateAsync(entity);
-                    restoredEntity.Add(entity);
-                }
-            }
-
-            if (restoredEntity.Any())
-            {
-                var names = string.Join(", ", restoredEntity.Select(c => $"\"{c.Name}\""));
-                var message = restoredEntity.Count == 1
-                    ? $"Đã khôi phục Khoa {names} thành công."
-                    : $"Đã khôi phục các Khoa: {names} thành công.";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy Khoa nào để khôi phục.";
-            }
-
-            return RedirectToAction("Trash");
         }
     }
 }

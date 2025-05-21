@@ -31,7 +31,6 @@ namespace Project.Mappers
             CreateMap<EmployeeDto, Employee>()
                 .ForMember(dest => dest.EmployeeCategory, opt => opt.Ignore())
                 .ForMember(dest => dest.Images, opt => opt.Ignore())
-                .ForMember(dest => dest.IsActive, opt => opt.Ignore())
                 .ForMember(dest => dest.Room, opt => opt.Ignore());
         }
     }

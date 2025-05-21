@@ -15,7 +15,7 @@ namespace Project.Repositories.Implementations
         {
             return await _context.treatmentRecord_Regulations
                 .Include(t => t.Regulation)
-                .Where(t => t.TreatmentRecordId == treatmentRecordId && t.IsActive)
+                .Where(t => t.TreatmentRecordId == treatmentRecordId)
                 .ToListAsync();
         }
     }

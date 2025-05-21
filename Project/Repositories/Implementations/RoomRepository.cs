@@ -34,7 +34,7 @@ namespace Project.Repositories.Implementations
         {
             return await _context.rooms
                 .Include(r => r.TreatmentMethod)
-                .Where(r => r.DepartmentId == departmentId && r.IsActive)
+                .Where(r => r.DepartmentId == departmentId)
                 .Select(r => new Room
                 {
                     Id = r.Id,

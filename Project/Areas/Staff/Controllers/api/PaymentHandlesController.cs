@@ -116,7 +116,6 @@ namespace Project.Areas.Staff.Controllers.api
                     Status = PaymentStatus.ChuaThanhToan,
                     CreatedBy = user.Employee.Code,
                     CreatedDate = DateTime.UtcNow,
-                    IsActive = true,
                     TreatmentRecord = null!
                 };
 

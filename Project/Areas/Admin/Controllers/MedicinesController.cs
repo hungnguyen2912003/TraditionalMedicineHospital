@@ -43,8 +43,7 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAdvancedAsync();
-            var activeList = list.Where(x => x.IsActive == true).ToList();
-            var viewModelList = _mapper.Map<List<MedicineViewModel>>(activeList);
+            var viewModelList = _mapper.Map<List<MedicineViewModel>>(list);
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
@@ -78,7 +77,6 @@ namespace Project.Areas.Admin.Controllers
                 var entity = _mapper.Map<Medicine>(inputDto);
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
-                entity.IsActive = true;
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
@@ -136,15 +134,6 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        public async Task<IActionResult> Trash()
-        {
-            var list = await _repository.GetAllAdvancedAsync();
-            var activeList = list.Where(x => x.IsActive == false).ToList();
-            var viewModelList = _mapper.Map<List<MedicineViewModel>>(activeList);
-            await _viewBagHelper.BaseViewBag(ViewData);
-            return View(viewModelList);
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
@@ -161,7 +150,7 @@ namespace Project.Areas.Admin.Controllers
             if (_repository == null)
             {
                 TempData["ErrorMessage"] = "Hệ thống gặp lỗi, vui lòng thử lại sau.";
-                return RedirectToAction("Trash");
+                return RedirectToAction("Index");
             }
 
             var delList = new List<Medicine>();
@@ -192,92 +181,7 @@ namespace Project.Areas.Admin.Controllers
                 TempData["ErrorMessage"] = "Không tìm thấy thuốc nào để xóa.";
             }
 
-            return RedirectToAction("Trash");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MoveToTrash([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-
-            var movedList = new List<Medicine>();
-            foreach (var id in ids)
-            {
-                var entity = await _repository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = false;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _repository.UpdateAsync(entity);
-                    movedList.Add(entity);
-                }
-            }
-
-            if (movedList.Any())
-            {
-                var names = string.Join(", ", movedList.Select(c => $"\"{c.Name}\""));
-                var message = movedList.Count == 1
-                    ? $"Đã đưa thuốc {names} thành công vào thùng rác"
-                    : $"Đã đưa các thuốc: {names} thành công vào thùng rác";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy thuốc nào để đưa vào thùng rác.";
-            }
-
             return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Restore([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-            var restoredList = new List<Medicine>();
-            foreach (var id in ids)
-            {
-                var entity = await _repository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = true;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _repository.UpdateAsync(entity);
-                    restoredList.Add(entity);
-                }
-            }
-
-            if (restoredList.Any())
-            {
-                var names = string.Join(", ", restoredList.Select(c => $"\"{c.Name}\""));
-                var message = restoredList.Count == 1
-                    ? $"Đã khôi phục thuốc {names} thành công."
-                    : $"Đã khôi phục các thuốc: {names} thành công.";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy thuốc nào để khôi phục.";
-            }
-
-            return RedirectToAction("Trash");
         }
     }
 }

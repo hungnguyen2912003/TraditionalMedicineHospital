@@ -38,8 +38,7 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAdvancedAsync();
-            var activeList = list.Where(x => x.IsActive == true).ToList();
-            var viewModelList = _mapper.Map<List<TreatmentMethodViewModel>>(activeList);
+            var viewModelList = _mapper.Map<List<TreatmentMethodViewModel>>(list);
             return View(viewModelList);
         }
 
@@ -77,7 +76,6 @@ namespace Project.Areas.Admin.Controllers
                 entity.DepartmentId = inputDto.DepartmentId;
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
-                entity.IsActive = true;
 
                 await _repository.CreateAsync(entity);
                 return Json(new { success = true, message = "Thêm phương pháp điều trị thành công!" });
@@ -123,14 +121,6 @@ namespace Project.Areas.Admin.Controllers
             {
                 return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật phương pháp điều trị: " + ex });
             }
-        }
-
-        public async Task<IActionResult> Trash()
-        {
-            var list = await _repository.GetAllAdvancedAsync();
-            var activeList = list.Where(x => x.IsActive == false).ToList();
-            var viewModelList = _mapper.Map<List<TreatmentMethodViewModel>>(activeList);
-            return View(viewModelList);
         }
 
         [HttpPost]
@@ -193,115 +183,7 @@ namespace Project.Areas.Admin.Controllers
                 TempData["ErrorMessage"] = "Không tìm thấy phương pháp điều trị nào để xóa.";
             }
 
-            return RedirectToAction("Trash");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MoveToTrash([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-
-            var treatments = new List<TreatmentMethod>();
-            foreach (var id in ids)
-            {
-                var tm = await _repository.GetByIdAsync(id);
-                if (tm == null) continue;
-                var r = await _roomRepository.GetAllAdvancedAsync();
-                var hasRooms = r.Any(m => m.TreatmentMethodId == id);
-                if (hasRooms)
-                {
-                    treatments.Add(tm);
-                }
-            }
-
-            if (treatments.Any())
-            {
-                var names = string.Join(", ", treatments.Select(c => $"\"{c.Name}\""));
-                var message = treatments.Count == 1
-                    ? $"Không thể đưa phương pháp điều trị {names} vào thùng rác vì vẫn còn phòng đang sử dụng phương pháp này."
-                    : $"Không thể đưa các phương pháp điều trị: {names} vào thùng rác vì vẫn còn các phòng đang sử dụng phương pháp này.";
-                TempData["ErrorMessage"] = message;
-                return RedirectToAction("Index");
-            }
-
-            var movedList = new List<TreatmentMethod>();
-            foreach (var id in ids)
-            {
-                var entity = await _repository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = false;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _repository.UpdateAsync(entity);
-                    movedList.Add(entity);
-                }
-            }
-
-            if (movedList.Any())
-            {
-                var names = string.Join(", ", movedList.Select(c => $"\"{c.Name}\""));
-                var message = movedList.Count == 1
-                    ? $"Đã đưa phương pháp điều trị {names} thành công vào thùng rác"
-                    : $"Đã đưa các phương pháp điều trị: {names} thành công vào thùng rác";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy phương pháp điều trị nào để đưa vào thùng rác.";
-            }
-
             return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Restore([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-            var restoredList = new List<TreatmentMethod>();
-            foreach (var id in ids)
-            {
-                var entity = await _repository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = true;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _repository.UpdateAsync(entity);
-                    restoredList.Add(entity);
-                }
-            }
-
-            if (restoredList.Any())
-            {
-                var names = string.Join(", ", restoredList.Select(c => $"\"{c.Name}\""));
-                var message = restoredList.Count == 1
-                    ? $"Đã khôi phục phương pháp điều trị {names} thành công."
-                    : $"Đã khôi phục các phương pháp điều trị: {names} thành công.";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy phương pháp điều trị nào để khôi phục.";
-            }
-
-            return RedirectToAction("Trash");
         }
     }
 }

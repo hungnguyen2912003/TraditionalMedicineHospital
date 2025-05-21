@@ -49,8 +49,7 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAdvancedAsync();
-            var activeList = list.Where(x => x.IsActive == true).OrderBy(x => x.EmployeeCategory.Name).ToList();
-            var viewModelList = _mapper.Map<List<EmployeeViewModel>>(activeList);
+            var viewModelList = _mapper.Map<List<EmployeeViewModel>>(list);
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
@@ -89,7 +88,6 @@ namespace Project.Areas.Admin.Controllers
                 entity.CreatedBy = "Admin";
                 entity.Status = EmployeeStatus.DangLamViec;
                 entity.CreatedDate = DateTime.UtcNow;
-                entity.IsActive = true;
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
                 {
@@ -106,7 +104,6 @@ namespace Project.Areas.Admin.Controllers
                     Role = entity.EmployeeCategory?.Name?.ToLower().Contains("y tá") == true ? RoleType.Yta : RoleType.Bacsi,
                     CreatedDate = DateTime.UtcNow,
                     CreatedBy = "Admin",
-                    IsActive = true,
                     EmployeeId = entity.Id,
                     IsFirstLogin = true
                 };
@@ -180,16 +177,6 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Trash()
-        {
-            var list = await _repository.GetAllAdvancedAsync();
-            var activeList = list.Where(x => x.IsActive == false).ToList();
-            var viewModelList = _mapper.Map<List<EmployeeViewModel>>(activeList);
-            await _viewBagHelper.BaseViewBag(ViewData);
-            return View(viewModelList);
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -207,7 +194,7 @@ namespace Project.Areas.Admin.Controllers
             if (_repository == null)
             {
                 TempData["ErrorMessage"] = "Hệ thống gặp lỗi, vui lòng thử lại sau.";
-                return RedirectToAction("Trash");
+                return RedirectToAction("Index");
             }
 
             var delList = new List<Employee>();
@@ -238,94 +225,7 @@ namespace Project.Areas.Admin.Controllers
                 TempData["ErrorMessage"] = "Không tìm thấy nhân sự nào để xóa.";
             }
 
-            return RedirectToAction("Trash");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> MoveToTrash([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-
-            var movedList = new List<Employee>();
-            foreach (var id in ids)
-            {
-                var entity = await _repository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = false;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _repository.UpdateAsync(entity);
-                    movedList.Add(entity);
-                }
-            }
-
-            if (movedList.Any())
-            {
-                var names = string.Join(", ", movedList.Select(c => $"\"{c.Name}\""));
-                var message = movedList.Count == 1
-                    ? $"Đã đưa nhân sự {names} thành công vào thùng rác"
-                    : $"Đã đưa các nhân sự: {names} thành công vào thùng rác";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy nhân sự nào để đưa vào thùng rác.";
-            }
-
             return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Restore([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-            var restoredList = new List<Employee>();
-            foreach (var id in ids)
-            {
-                var entity = await _repository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = true;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _repository.UpdateAsync(entity);
-                    restoredList.Add(entity);
-                }
-            }
-
-            if (restoredList.Any())
-            {
-                var names = string.Join(", ", restoredList.Select(c => $"\"{c.Name}\""));
-                var message = restoredList.Count == 1
-                    ? $"Đã khôi phục nhân sự {names} thành công."
-                    : $"Đã khôi phục các nhân sự: {names} thành công.";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy nhân sự nào để khôi phục.";
-            }
-
-            return RedirectToAction("Trash");
         }
     }
 }

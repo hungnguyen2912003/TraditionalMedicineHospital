@@ -10,8 +10,7 @@ namespace Project.Mappers
         public HealthInsuranceProfile()
         {
             CreateMap<HealthInsurance, HealthInsuranceDto>();
-            CreateMap<HealthInsuranceDto, HealthInsurance>()
-                .ForMember(dest => dest.IsActive, opt => opt.Ignore());
+            CreateMap<HealthInsuranceDto, HealthInsurance>();
             CreateMap<HealthInsurance, HealthInsuranceViewModel>()
                 .ForMember(dest => dest.PatientName,
                     opt => opt.MapFrom(src => src.Patient != null ? src.Patient.Name : "Không xác định"))

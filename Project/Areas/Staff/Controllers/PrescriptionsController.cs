@@ -42,8 +42,7 @@ namespace Staff.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _prescriptionRepository.GetAllAdvancedAsync();
-            var activeList = list.Where(x => x.IsActive == true).ToList();
-            var viewModelList = _mapper.Map<List<PrescriptionViewModel>>(activeList);
+            var viewModelList = _mapper.Map<List<PrescriptionViewModel>>(list);
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }

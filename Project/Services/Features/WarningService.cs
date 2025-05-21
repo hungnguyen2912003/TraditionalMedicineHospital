@@ -32,8 +32,7 @@ namespace Project.Services.Features
             var allTrackings = await _treatmentTrackingRepository.GetAllAdvancedAsync();
             var relevantTrackings = allTrackings
                 .Where(t => t.TreatmentRecordDetailId == treatmentRecordDetailId &&
-                           t.Status == Models.Enums.TrackingStatus.KhongDieuTri &&
-                           t.IsActive)
+                           t.Status == Models.Enums.TrackingStatus.KhongDieuTri)
                 .OrderBy(t => t.TrackingDate)
                 .ToList();
 

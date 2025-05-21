@@ -44,9 +44,8 @@ namespace Project.Areas.Staff.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _patientRepository.GetAllAsync();
-            var activeList = list.Where(x => x.IsActive == true).ToList();
             await _viewBagHelper.BaseViewBag(ViewData);
-            return View(activeList);
+            return View(list);
         }
 
         public async Task<IActionResult> Details(Guid id)
@@ -99,14 +98,6 @@ namespace Project.Areas.Staff.Controllers
             {
                 return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật bệnh nhân: " + ex.Message });
             }
-        }
-
-        public async Task<IActionResult> Trash()
-        {
-            var list = await _patientRepository.GetAllAsync();
-            var trashList = list.Where(x => x.IsActive == false).ToList();
-            await _viewBagHelper.BaseViewBag(ViewData);
-            return View(trashList);
         }
 
         [HttpPost]
@@ -169,115 +160,7 @@ namespace Project.Areas.Staff.Controllers
                 TempData["ErrorMessage"] = "Không tìm thấy bệnh nhân nào để xóa.";
             }
 
-            return RedirectToAction("Trash");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MoveToTrash([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-
-            var treatmentRecords = new List<TreatmentRecord>();
-            foreach (var id in ids)
-            {
-                var patient = await _patientRepository.GetByIdAsync(id);
-                if (patient == null) continue;
-
-                var patientTreatmentRecords = await _treatmentRecordRepository.GetByPatientIdAsync(id);
-                if (patientTreatmentRecords.Any())
-                {
-                    treatmentRecords.AddRange(patientTreatmentRecords);
-                }
-            }
-
-            if (treatmentRecords.Any())
-            {
-                var names = string.Join(", ", treatmentRecords.Select(c => $"\"{c.Patient.Name}\"").Distinct());
-                var message = treatmentRecords.Select(c => c.PatientId).Distinct().Count() == 1
-                    ? $"Không thể đưa bệnh nhân {names} vào thùng rác vì vẫn còn lưu trữ hồ sơ khám bệnh."
-                    : $"Không thể đưa các bệnh nhân: {names} vào thùng rác vì vẫn còn lưu trữ hồ sơ khám bệnh.";
-                TempData["ErrorMessage"] = message;
-                return RedirectToAction("Index");
-            }
-
-            var movedList = new List<Patient>();
-            foreach (var id in ids)
-            {
-                var entity = await _patientRepository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = false;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _patientRepository.UpdateAsync(entity);
-                    movedList.Add(entity);
-                }
-            }
-
-            if (movedList.Any())
-            {
-                var names = string.Join(", ", movedList.Select(c => $"\"{c.Name}\""));
-                var message = movedList.Count == 1
-                    ? $"Đã đưa bệnh nhân {names} thành công vào thùng rác"
-                    : $"Đã đưa các bệnh nhân: {names} thành công vào thùng rác";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy bệnh nhân nào để đưa vào thùng rác.";
-            }
-
             return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Restore([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-            var restoredEntity = new List<Patient>();
-            foreach (var id in ids)
-            {
-                var entity = await _patientRepository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = true;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _patientRepository.UpdateAsync(entity);
-                    restoredEntity.Add(entity);
-                }
-            }
-
-            if (restoredEntity.Any())
-            {
-                var names = string.Join(", ", restoredEntity.Select(c => $"\"{c.Name}\""));
-                var message = restoredEntity.Count == 1
-                    ? $"Đã khôi phục bệnh nhân {names} thành công."
-                    : $"Đã khôi phục các bệnh nhân: {names} thành công.";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy bệnh nhân nào để khôi phục.";
-            }
-
-            return RedirectToAction("Trash");
         }
     }
 }

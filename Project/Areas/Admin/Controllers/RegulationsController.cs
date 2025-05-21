@@ -31,8 +31,7 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAsync();
-            var activeList = list.Where(x => x.IsActive == true).ToList();
-            return View(activeList);
+            return View(list);
         }
 
         public async Task<IActionResult> Details(Guid id)
@@ -62,7 +61,6 @@ namespace Project.Areas.Admin.Controllers
 
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
-                entity.IsActive = true;
 
                 await _repository.CreateAsync(entity);
                 return Json(new { success = true, message = "Thêm quy định thành công!" });
@@ -107,13 +105,6 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        public async Task<IActionResult> Trash()
-        {
-            var list = await _repository.GetAllAsync();
-            var trashList = list.Where(x => x.IsActive == false).ToList();
-            return View(trashList);
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
@@ -151,92 +142,7 @@ namespace Project.Areas.Admin.Controllers
                 TempData["ErrorMessage"] = "Không tìm thấy quy định nào để xóa.";
             }
 
-            return RedirectToAction("Trash");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MoveToTrash([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-
-            var movedList = new List<Regulation>();
-            foreach (var id in ids)
-            {
-                var entity = await _repository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = false;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _repository.UpdateAsync(entity);
-                    movedList.Add(entity);
-                }
-            }
-
-            if (movedList.Any())
-            {
-                var names = string.Join(", ", movedList.Select(c => $"\"{c.Name}\""));
-                var message = movedList.Count == 1
-                    ? $"Đã đưa quy định {names} thành công vào thùng rác"
-                    : $"Đã đưa các quy định: {names} thành công vào thùng rác";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy quy định nào để đưa vào thùng rác.";
-            }
-
             return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Restore([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-            var restoredEntity = new List<Regulation>();
-            foreach (var id in ids)
-            {
-                var entity = await _repository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = true;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _repository.UpdateAsync(entity);
-                    restoredEntity.Add(entity);
-                }
-            }
-
-            if (restoredEntity.Any())
-            {
-                var names = string.Join(", ", restoredEntity.Select(c => $"\"{c.Name}\""));
-                var message = restoredEntity.Count == 1
-                    ? $"Đã khôi phục quy định {names} thành công."
-                    : $"Đã khôi phục các quy định: {names} thành công.";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy quy định nào để khôi phục.";
-            }
-
-            return RedirectToAction("Trash");
         }
     }
 }

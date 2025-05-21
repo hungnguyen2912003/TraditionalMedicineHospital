@@ -38,8 +38,7 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAdvancedAsync();
-            var activeList = list.Where(x => x.IsActive == true).OrderBy(x => x.Name).ToList();
-            var viewModelList = _mapper.Map<List<RoomViewModel>>(activeList);
+            var viewModelList = _mapper.Map<List<RoomViewModel>>(list);
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
@@ -76,7 +75,6 @@ namespace Project.Areas.Admin.Controllers
                 var entity = _mapper.Map<Room>(inputDto);
                 entity.CreatedBy = "Admin";
                 entity.CreatedDate = DateTime.UtcNow;
-                entity.IsActive = true;
 
                 await _repository.CreateAsync(entity);
                 return Json(new { success = true, message = "Thêm phòng thành công!" });
@@ -123,15 +121,6 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        public async Task<IActionResult> Trash()
-        {
-            var list = await _repository.GetAllAdvancedAsync();
-            var activeList = list.Where(x => x.IsActive == false).ToList();
-            var viewModelList = _mapper.Map<List<RoomViewModel>>(activeList);
-            await _viewBagHelper.BaseViewBag(ViewData);
-            return View(viewModelList);
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
@@ -148,7 +137,7 @@ namespace Project.Areas.Admin.Controllers
             if (_repository == null)
             {
                 TempData["ErrorMessage"] = "Hệ thống gặp lỗi, vui lòng thử lại sau.";
-                return RedirectToAction("Trash");
+                return RedirectToAction("Index");
             }
 
             var rooms = new List<Room>();
@@ -171,7 +160,7 @@ namespace Project.Areas.Admin.Controllers
                     ? $"Không thể xóa phòng {names} vì vẫn còn nhân sự đang làm việc trong phòng này."
                     : $"Không thể xóa các phòng: {names} vì vẫn còn nhân sự đang làm việc trong phòng này.";
                 TempData["ErrorMessage"] = message;
-                return RedirectToAction("Trash");
+                return RedirectToAction("Index");
             }
 
             var delList = new List<Room>();
@@ -198,92 +187,7 @@ namespace Project.Areas.Admin.Controllers
                 TempData["ErrorMessage"] = "Không tìm thấy phòng nào để xóa.";
             }
 
-            return RedirectToAction("Trash");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MoveToTrash([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-
-            var movedList = new List<Room>();
-            foreach (var id in ids)
-            {
-                var entity = await _repository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = false;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _repository.UpdateAsync(entity);
-                    movedList.Add(entity);
-                }
-            }
-
-            if (movedList.Any())
-            {
-                var names = string.Join(", ", movedList.Select(c => $"\"{c.Name}\""));
-                var message = movedList.Count == 1
-                    ? $"Đã đưa phòng {names} thành công vào thùng rác"
-                    : $"Đã đưa các phòng: {names} thành công vào thùng rác";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy phòng nào để đưa vào thùng rác.";
-            }
-
             return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Restore([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-            var restoredList = new List<Room>();
-            foreach (var id in ids)
-            {
-                var entity = await _repository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    entity.IsActive = true;
-                    entity.UpdatedBy = "Admin";
-                    entity.UpdatedDate = DateTime.UtcNow;
-                    await _repository.UpdateAsync(entity);
-                    restoredList.Add(entity);
-                }
-            }
-
-            if (restoredList.Any())
-            {
-                var names = string.Join(", ", restoredList.Select(c => $"\"{c.Name}\""));
-                var message = restoredList.Count == 1
-                    ? $"Đã khôi phục phòng {names} thành công."
-                    : $"Đã khôi phục các phòng: {names} thành công.";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy phòng nào để khôi phục.";
-            }
-
-            return RedirectToAction("Trash");
         }
     }
 }

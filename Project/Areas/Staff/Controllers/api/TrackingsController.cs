@@ -135,7 +135,6 @@ namespace Project.Areas.Staff.Controllers.api
                 CreatedBy = employee.Code,
                 CreatedDate = now,
                 Status = dto.Status,
-                IsActive = true,
                 Note = dto.Note,
                 TreatmentRecordDetailId = detail.Id,
                 EmployeeId = employee.Id
@@ -148,8 +147,7 @@ namespace Project.Areas.Staff.Controllers.api
                 var allTrackings = await _trackingRepo.GetAllAdvancedAsync();
                 var relevantTrackings = allTrackings
                     .Where(t => t.TreatmentRecordDetailId == tracking.TreatmentRecordDetailId
-                                && t.Status == TrackingStatus.KhongDieuTri
-                                && t.IsActive)
+                                && t.Status == TrackingStatus.KhongDieuTri)
                     .OrderBy(t => t.TrackingDate)
                     .ToList();
 
@@ -260,7 +258,7 @@ namespace Project.Areas.Staff.Controllers.api
                 {
                     var allTrackings = await _trackingRepo.GetAllAdvancedAsync();
                     var relevantTrackings = allTrackings
-                        .Where(t => t.TreatmentRecordDetailId == updatedTracking.TreatmentRecordDetailId && t.IsActive)
+                        .Where(t => t.TreatmentRecordDetailId == updatedTracking.TreatmentRecordDetailId)
                         .OrderBy(t => t.TrackingDate)
                         .ToList();
 

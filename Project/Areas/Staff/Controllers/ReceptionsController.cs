@@ -157,7 +157,6 @@ namespace Project.Areas.Staff.Controllers
                     var patient = _mapper.Map<Patient>(dto.Patient);
                     patient.CreatedBy = employee.Code;
                     patient.CreatedDate = DateTime.Now;
-                    patient.IsActive = true;
 
                     if (dto.Patient!.ImageFile != null && dto.Patient.ImageFile.Length > 0)
                     {
@@ -177,7 +176,6 @@ namespace Project.Areas.Staff.Controllers
                         Role = RoleType.Benhnhan,
                         CreatedDate = DateTime.UtcNow,
                         CreatedBy = employee.Code,
-                        IsActive = true,
                         PatientId = patient.Id,
                         IsFirstLogin = true
                     };
@@ -211,7 +209,6 @@ namespace Project.Areas.Staff.Controllers
                         healthInsurance.PatientId = patientId;
                         healthInsurance.CreatedBy = employee.Code;
                         healthInsurance.CreatedDate = DateTime.Now;
-                        healthInsurance.IsActive = true;
 
                         await _healthInsuranceRepository.CreateAsync(healthInsurance);
                     }
@@ -222,7 +219,6 @@ namespace Project.Areas.Staff.Controllers
                 treatmentRecord.PatientId = patientId;
                 treatmentRecord.CreatedBy = employee.Code;
                 treatmentRecord.CreatedDate = DateTime.Now;
-                treatmentRecord.IsActive = true;
                 treatmentRecord.Status = TreatmentStatus.DangDieuTri;
 
                 await _treatmentRecordRepository.CreateAsync(treatmentRecord);
@@ -246,7 +242,6 @@ namespace Project.Areas.Staff.Controllers
                         treatmentRecordDetail.RoomId = detailDto.RoomId;
                         treatmentRecordDetail.CreatedBy = employee.Code;
                         treatmentRecordDetail.CreatedDate = DateTime.Now;
-                        treatmentRecordDetail.IsActive = true;
 
                         // Validate RoomId exists
                         var room = await _roomRepository.GetByIdAsync(treatmentRecordDetail.RoomId);
@@ -277,7 +272,6 @@ namespace Project.Areas.Staff.Controllers
                         treatmentRecordRegulation.TreatmentRecordId = treatmentRecord.Id;
                         treatmentRecordRegulation.CreatedBy = employee.Code;
                         treatmentRecordRegulation.CreatedDate = DateTime.Now;
-                        treatmentRecordRegulation.IsActive = true;
 
                         await _treatmentRecordRegulationRepository.CreateAsync(treatmentRecordRegulation);
                     }
@@ -289,7 +283,6 @@ namespace Project.Areas.Staff.Controllers
                 assignment.EmployeeId = employee.Id;
                 assignment.CreatedBy = employee.Code;
                 assignment.CreatedDate = DateTime.Now;
-                assignment.IsActive = true;
 
                 await _assignmentRepository.CreateAsync(assignment);
 
@@ -487,7 +480,6 @@ namespace Project.Areas.Staff.Controllers
                         healthInsurance.PatientId = patient.Id;
                         healthInsurance.CreatedBy = employee.Code;
                         healthInsurance.CreatedDate = DateTime.Now;
-                        healthInsurance.IsActive = true;
 
                         await _healthInsuranceRepository.CreateAsync(healthInsurance);
                     }
@@ -502,7 +494,6 @@ namespace Project.Areas.Staff.Controllers
                 }
                 else if (healthInsurance != null)
                 {
-                    healthInsurance.IsActive = false;
                     healthInsurance.UpdatedBy = employee.Name;
                     healthInsurance.UpdatedDate = DateTime.Now;
 
@@ -535,7 +526,6 @@ namespace Project.Areas.Staff.Controllers
                     assignment.EmployeeId = employee.Id;
                     assignment.CreatedBy = employee.Code;
                     assignment.CreatedDate = DateTime.Now;
-                    assignment.IsActive = true;
 
                     await _assignmentRepository.CreateAsync(assignment);
                 }
@@ -563,7 +553,6 @@ namespace Project.Areas.Staff.Controllers
                             treatmentRecordRegulation.TreatmentRecordId = dto.TreatmentRecord.Id;
                             treatmentRecordRegulation.CreatedBy = employee.Code;
                             treatmentRecordRegulation.CreatedDate = DateTime.Now;
-                            treatmentRecordRegulation.IsActive = true;
 
                             if (string.IsNullOrWhiteSpace(treatmentRecordRegulation.Code))
                             {
@@ -613,7 +602,6 @@ namespace Project.Areas.Staff.Controllers
                         newDetail.TreatmentRecordId = treatmentRecord.Id;
                         newDetail.CreatedBy = employee.Code;
                         newDetail.CreatedDate = DateTime.Now;
-                        newDetail.IsActive = true;
                         await _treatmentRecordDetailRepository.CreateAsync(newDetail);
                     }
                     else

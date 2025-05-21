@@ -74,7 +74,6 @@ namespace Project.Areas.Staff.Controllers
                     TotalTreatmentMethodCost = totalTreatmentMethodCost,
                     InsuranceAmount = insuranceAmount,
                     TotalCost = totalCostBeforeInsurance,
-                    IsActive = p.IsActive,
                     Status = p.Status == PaymentStatus.DaThanhToan ? PaymentStatus.DaThanhToan : PaymentStatus.ChuaThanhToan
                 };
             });
@@ -160,7 +159,6 @@ namespace Project.Areas.Staff.Controllers
                 AdvancePayment = tr.AdvancePayment,
                 TotalCost = totalCostBeforeInsurance,
                 FinalCost = finalCost,
-                IsActive = payment.IsActive,
                 Status = payment.Status,
                 Prescriptions = tr.Prescriptions?.ToList() ?? new(),
                 PatientHealthInsuranceNumber = hi?.Number,

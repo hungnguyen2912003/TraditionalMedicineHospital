@@ -114,25 +114,21 @@ namespace Project.Helpers
 
             var patients = await _patientRepository.GetAllAsync();
             viewData["Patients"] = patients
-                .Where(mc => mc.IsActive)
                 .Select(mc => new { mc.Id, mc.Name })
                 .ToList();
 
             var employeeCategories = await _employeecategoryRepository.GetAllAsync();
             viewData["EmployeeCategories"] = employeeCategories
-                .Where(mc => mc.IsActive)
                 .Select(mc => new { mc.Id, mc.Name })
                 .ToList();
 
             var departments = await _depRepository.GetAllAsync();
             viewData["Departments"] = departments
-                .Where(mc => mc.IsActive)
                 .Select(mc => new { mc.Id, mc.Name })
                 .ToList();
 
             var medicineCategories = await _medicinecategoryRepository.GetAllAsync();
             viewData["MedicineCategories"] = medicineCategories
-                .Where(mc => mc.IsActive)
                 .Select(mc => new { mc.Id, mc.Name })
                 .ToList();
 
@@ -142,7 +138,7 @@ namespace Project.Helpers
                 // Get all treatment methods that belong to this department
                 // This includes methods from all rooms in the department, including administrative rooms
                 var filtered = treatmentMethods
-                   .Where(tm => tm.IsActive && tm.DepartmentId == depId)
+                   .Where(tm => tm.DepartmentId == depId)
                    .Select(tm => new { tm.Id, tm.Name })
                    .ToList();
                 
@@ -150,7 +146,6 @@ namespace Project.Helpers
             }
 
             viewData["TreatmentMethods"] = treatmentMethods
-                .Where(tm => tm.IsActive)
                 .Select(tm => new
                 {
                     tm.Id,
@@ -161,7 +156,6 @@ namespace Project.Helpers
 
             var rooms = await _roomRepository.GetAllAsync();
             viewData["Rooms"] = rooms
-                .Where(r => r.IsActive)
                 .Select(r => new
                 {
                     r.Id,
@@ -173,7 +167,7 @@ namespace Project.Helpers
             var currentDate = DateTime.Now;
             var regulations = await _regulationRepository.GetAllAsync();
             viewData["Regulations"] = regulations
-                .Where(r => r.IsActive && r.ExpirationDate >= currentDate)
+                .Where(r => r.ExpirationDate >= currentDate)
                 .Select(r => new
                 {
                     id = r.Id,
@@ -302,7 +296,6 @@ namespace Project.Helpers
                 
             var medicines = await _medicineRepository.GetAllAsync();
             viewData["Medicines"] = medicines
-                .Where(m => m.IsActive)
                 .Select(m => new { m.Id, m.Name, m.Price })
                 .ToList();
                 
@@ -314,15 +307,13 @@ namespace Project.Helpers
         {
             // Get all active patients
             var allPatients = await _patientRepository.GetAllAdvancedAsync();
-            var activePatients = allPatients.Where(x => x.IsActive == true);
 
             // Get all active health insurances
             var allHealthInsurances = await _healthInsuranceRepository.GetAllAdvancedAsync();
-            var activeHealthInsurances = allHealthInsurances.Where(x => x.IsActive == true);
 
             // Get patients who don't have health insurance
-            var patientsWithoutInsurance = activePatients.Where(p =>
-                !activeHealthInsurances.Any(hi => hi.PatientId == p.Id));
+            var patientsWithoutInsurance = allPatients.Where(p =>
+                !allHealthInsurances.Any(hi => hi.PatientId == p.Id));
 
             viewData["PatientsWithoutInsurance"] = patientsWithoutInsurance;
         }
