@@ -10,7 +10,7 @@ namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Admin")]
-    [Route("danh-muc-loai-nhan-su")]
+    [Route("loai-nhan-su")]
     public class EmployeeCategoriesController : Controller
     {
         private readonly IEmployeeCategoryRepository _repository;

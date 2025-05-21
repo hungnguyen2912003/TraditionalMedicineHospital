@@ -188,7 +188,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/danh-muc-khoa';
+                        window.location.href = '/khoa';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -208,7 +208,7 @@
                     const id = document.querySelector('input[name="Id"]').value;
                     const formData = new FormData(form);
                     formData.append('Id', id);
-                    fetch('/danh-muc-khoa/chinh-sua/' + id, {
+                    fetch('/khoa/chinh-sua/' + id, {
                         method: 'POST',
                         body: formData
                     })
@@ -225,7 +225,7 @@
             },
 
             goBack() {
-                window.location.href = '/danh-muc-khoa';
+                window.location.href = '/khoa';
             }
         }));
     });

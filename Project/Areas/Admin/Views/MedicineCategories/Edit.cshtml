@@ -185,7 +185,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/danh-muc-loai-thuoc';
+                        window.location.href = '/loai-thuoc';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -206,7 +206,7 @@
 
                     const formData = new FormData(form);
                     formData.append('Id', id);
-                    fetch('/danh-muc-loai-thuoc/chinh-sua/' + id, {
+                    fetch('/loai-thuoc/chinh-sua/' + id, {
                         method: 'POST',
                         body: formData
                     })
@@ -223,7 +223,7 @@
             },
 
             goBack() {
-                window.location.href = '/danh-muc-loai-thuoc';
+                window.location.href = '/loai-thuoc';
             }
         }));
     });

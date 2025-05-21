@@ -31,7 +31,7 @@
             </button>
         </div>
         <div class="flex gap-2 lg:justify-end">
-            <a href="/danh-muc-loai-nhan-su/them-moi" class="btn btn-primary">
+            <a href="/loai-nhan-su/them-moi" class="btn btn-primary">
                 <svg width="24" height="24" class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -47,7 +47,7 @@
                 Thêm loại nhân sự
             </a>
 
-            <a href="/danh-muc-loai-nhan-su/chinh-sua/@Model.Id" class="btn btn-warning gap-2">
+            <a href="/loai-nhan-su/chinh-sua/@Model.Id" class="btn btn-warning gap-2">
                 <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
                     class="h-5 w-5">
                     <path opacity="0.5"
@@ -115,7 +115,7 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('details', () => ({
             goBack() {
-                window.location.href = '/danh-muc-loai-nhan-su';
+                window.location.href = '/loai-nhan-su';
             }
         }));
     });

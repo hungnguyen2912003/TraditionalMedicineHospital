@@ -17,7 +17,7 @@
     <div x-data="editData">
         <ul class="flex space-x-2 rtl:space-x-reverse">
             <li>
-                <a href="javascript:;" class="text-primary hover:underline">Phương pháp điều trị</a>
+                <a href="javascript:;" class="text-primary hover:underline">Danh mục phương pháp điều trị</a>
             </li>
             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
                 <span>Chỉnh sửa</span>
@@ -41,8 +41,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Tên phương pháp
-                                        điều trị<span
-                                            class="text-danger">&nbsp*</span></label>
+                                        điều trị<span class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập tên phương pháp điều trị" value="@Model.Name" />
@@ -70,12 +69,12 @@
                                             }
                                         </select>
                                     </div>
-                                    @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
+                                    @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class =
+                                    "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Chi phí phương
-                                        pháp điều trị<span
-                                            class="text-danger">&nbsp*</span></label>
+                                        pháp điều trị<span class="text-danger">&nbsp*</span></label>
                                     <div class="flex items-center">
                                         <input id="Cost" type="text" name="Cost"
                                             class="form-input w-full mt-1 p-2 border rounded cost-input"
@@ -117,7 +116,7 @@
                                 </button>
                                 <button type="button"
                                     class="btn btn-secondary py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600 w-40 justify-center"
-                                                                        @@click = "goBack()" >
+                                    @@click="goBack()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
                                         <path
@@ -304,7 +303,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/Admin/TreatmentMethods/';
+                        window.location.href = '/phuong-phap-dieu-tri';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -324,7 +323,7 @@
                     const id = document.querySelector('input[name="Id"]').value;
                     const formData = new FormData(form);
                     formData.append('Id', id);
-                    fetch('/Admin/TreatmentMethods/Edit', {
+                    fetch('/phuong-phap-dieu-tri/chinh-sua/' + id, {
                         method: 'POST',
                         body: formData
                     })
@@ -341,7 +340,7 @@
             },
 
             goBack() {
-                window.history.back();
+                window.location.href = '/phuong-phap-dieu-tri';
             }
         }));
     });

@@ -183,7 +183,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/danh-muc-loai-nhan-su';
+                        window.location.href = '/loai-nhan-su';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -200,7 +200,7 @@
                     overlay.style.display = 'flex';
                     const form = document.getElementById('myForm');
                     const formData = new FormData(form);
-                    fetch('/danh-muc-loai-nhan-su/them-moi', {
+                    fetch('/loai-nhan-su/them-moi', {
                         method: 'POST',
                         body: formData
                     })
@@ -217,7 +217,7 @@
             },
 
             goBack() {
-                window.location.href = '/danh-muc-loai-nhan-su';
+                window.location.href = '/loai-nhan-su';
             }
         }));
     });
