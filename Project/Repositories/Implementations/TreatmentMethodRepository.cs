@@ -14,14 +14,16 @@ namespace Project.Repositories.Implementations
         public async Task<IEnumerable<TreatmentMethod>> GetAllAdvancedAsync()
         {
             return await _context.treatments
-                //.Include(t => t.Department)
+                .Include(r => r.Rooms)
+                    .ThenInclude(d => d.Department)
                 .ToListAsync();
         }
 
         public async Task<TreatmentMethod?> GetByIdAdvancedAsync(Guid id)
         {
             return await _context.treatments
-                //.Include(t => t.Department)
+                .Include(r => r.Rooms)
+                    .ThenInclude(d => d.Department)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
