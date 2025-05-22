@@ -10,7 +10,7 @@
         class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
 </div>
 
-<form id="myForm" method="post" enctype="multipart/form-data" asp-action="Edit">
+<form id="myForm" method="post" enctype="multipart/form-data">
     <input type="hidden" id="Id" name="Id" value="@ViewBag.RoomId" />
     @Html.AntiForgeryToken()
 
@@ -40,8 +40,8 @@
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="RoomType" class="block text-sm font-medium text-gray-700">Loại phòng<span
-                                            class="text-danger">&nbsp*</span></label>
+                                    <label for="RoomType" class="block text-sm font-medium text-gray-700">Loại
+                                        phòng<span class="text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="RoomType" name="RoomType"
                                             class="form-input w-full mt-1 p-2 border rounded">
@@ -59,7 +59,8 @@
                                             }
                                         </select>
                                     </div>
-                                    @Html.ValidationMessageFor(model => model.RoomType, "", new { @class = "text-danger" })
+                                    @Html.ValidationMessageFor(model => model.RoomType, "", new { @class = "text-danger"
+                                                                        })
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Tên phòng<span
@@ -73,8 +74,7 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="DepartmentId" class="block text-sm font-medium text-gray-700">Khoa phụ
-                                        trách<span
-                                            class="text-danger">&nbsp*</span></label>
+                                        trách<span class="text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="DepartmentId" name="DepartmentId"
                                             class="form-input w-full mt-1 p-2 border rounded">
@@ -151,7 +151,7 @@
                                 </button>
                                 <button type="button"
                                     class="btn btn-secondary py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600 w-40 justify-center"
-                                                                        @@click = "goBack()" >
+                                    @@click="goBack()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
                                         <path
@@ -186,7 +186,7 @@
             setupChoices() {
                 const selectElements = document.querySelectorAll('select.form-input');
                 const choicesInstances = new Map();
-                
+
                 selectElements.forEach(select => {
                     const choices = new Choices(select, {
                         searchEnabled: true,
@@ -200,25 +200,24 @@
                 });
 
                 // Add event listener for RoomType changes
-                $('#RoomType').on('change', function() {
+                $('#RoomType').on('change', function () {
                     const treatmentMethodSelect = $('#TreatmentMethodId')[0];
                     const treatmentMethodWrapper = $(treatmentMethodSelect).closest('.select-wrapper');
                     const treatmentMethodLabel = $(treatmentMethodSelect).closest('div').find('label');
                     const choicesInstance = choicesInstances.get('TreatmentMethodId');
-                    
-                    if ($(this).val() === "0") { // Administrative room
+
+                    if ($(this).val() === "0") {
                         choicesInstance.disable();
                         treatmentMethodWrapper.addClass('opacity-50');
                         treatmentMethodLabel.addClass('opacity-50');
                         choicesInstance.setChoiceByValue('');
-                    } else { // Treatment room
+                    } else {
                         choicesInstance.enable();
                         treatmentMethodWrapper.removeClass('opacity-50');
                         treatmentMethodLabel.removeClass('opacity-50');
                     }
                 });
 
-                // Trigger initial state based on current RoomType value
                 $('#RoomType').trigger('change');
             },
 
@@ -257,8 +256,8 @@
                             }
                         },
                         TreatmentMethodId: {
-                            required: function() {
-                                return $("#RoomType").val() === "1"; // Required only for Treatment room type
+                            required: function () {
+                                return $("#RoomType").val() === "1";
                             }
                         },
                         DepartmentId: {
@@ -347,7 +346,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/Admin/Rooms/';
+                        window.location.href = '/phong';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -367,7 +366,7 @@
                     const id = document.querySelector('input[name="Id"]').value;
                     const formData = new FormData(form);
                     formData.append('Id', id);
-                    fetch('/Admin/Rooms/Edit', {
+                    fetch('/phong/chinh-sua/' + id, {
                         method: 'POST',
                         body: formData
                     })
@@ -384,7 +383,7 @@
             },
 
             goBack() {
-                window.history.back();
+                window.location.href = '/phong';
             }
         }));
     });

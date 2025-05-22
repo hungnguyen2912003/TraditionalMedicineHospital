@@ -460,7 +460,7 @@
         }
 
         try {
-            let filtered = [...window.list.entityList]; // Create a new array to avoid reference issues
+            let filtered = [...window.list.entityList];
 
             if (category) {
                 filtered = filtered.filter(e => e.categoryName === category);

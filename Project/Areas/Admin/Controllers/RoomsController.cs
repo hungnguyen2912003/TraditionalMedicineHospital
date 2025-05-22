@@ -11,6 +11,7 @@ namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Admin")]
+    [Route("phong")]
     public class RoomsController : Controller
     {
         private readonly IRoomRepository _repository;
@@ -39,10 +40,12 @@ namespace Project.Areas.Admin.Controllers
         {
             var list = await _repository.GetAllAdvancedAsync();
             var viewModelList = _mapper.Map<List<RoomViewModel>>(list);
+            viewModelList = viewModelList.OrderBy(x => x.DepartmentName).ToList();
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
 
+        [HttpGet("chi-tiet/{id}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var entity = await _repository.GetByIdAdvancedAsync(id);
@@ -53,7 +56,7 @@ namespace Project.Areas.Admin.Controllers
             return View(entity);
         }
 
-        [HttpGet]
+        [HttpGet("them-moi")]
         public async Task<IActionResult> Create()
         {
             await _viewBagHelper.BaseViewBag(ViewData);
@@ -66,7 +69,7 @@ namespace Project.Areas.Admin.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost("them-moi")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromForm] RoomDto inputDto)
         {
@@ -85,7 +88,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("chinh-sua/{id}")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var entity = await _repository.GetByIdAdvancedAsync(id);
@@ -99,7 +102,7 @@ namespace Project.Areas.Admin.Controllers
             return View(dto);
         }
 
-        [HttpPost]
+        [HttpPost("chinh-sua/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([FromForm] RoomDto inputDto, Guid Id)
         {
@@ -121,7 +124,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("xoa")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
         {
@@ -158,7 +161,7 @@ namespace Project.Areas.Admin.Controllers
                 var names = string.Join(", ", rooms.Select(c => $"\"{c.Name}\""));
                 var message = rooms.Count == 1
                     ? $"Không thể xóa phòng {names} vì vẫn còn nhân sự đang làm việc trong phòng này."
-                    : $"Không thể xóa các phòng: {names} vì vẫn còn nhân sự đang làm việc trong phòng này.";
+                    : $"Không thể xóa các phòng đã chọn vì vẫn còn nhân sự đang làm việc trong các phòng này.";
                 TempData["ErrorMessage"] = message;
                 return RedirectToAction("Index");
             }
