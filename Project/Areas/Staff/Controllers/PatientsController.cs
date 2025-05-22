@@ -11,6 +11,7 @@ namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
     [Authorize(Roles = "Admin, Bacsi, Yta")]
+    [Route("benh-nhan")]
     public class PatientsController : Controller
     {
         private readonly IPatientRepository _patientRepository;
@@ -41,6 +42,7 @@ namespace Project.Areas.Staff.Controllers
             _codeGenerator = codeGenerator;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var list = await _patientRepository.GetAllAsync();
@@ -48,6 +50,7 @@ namespace Project.Areas.Staff.Controllers
             return View(list);
         }
 
+        [HttpGet("chi-tiet/{id}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var patient = await _patientRepository.GetByIdAdvancedAsync(id);
@@ -58,7 +61,7 @@ namespace Project.Areas.Staff.Controllers
             return View(patient);
         }
 
-        [HttpGet]
+        [HttpGet("chinh-sua/{id}")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var entity = await _patientRepository.GetByIdAsync(id);
@@ -73,7 +76,7 @@ namespace Project.Areas.Staff.Controllers
             return View(dto);
         }
 
-        [HttpPost]
+        [HttpPost("chinh-sua/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([FromForm] PatientDto inputDto, Guid Id)
         {
@@ -100,7 +103,7 @@ namespace Project.Areas.Staff.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("xoa")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
         {
@@ -152,7 +155,7 @@ namespace Project.Areas.Staff.Controllers
                 var names = string.Join(", ", delList.Select(c => $"\"{c.Name}\""));
                 var message = delList.Count == 1
                     ? $"Đã xóa bệnh nhân {names} thành công"
-                    : $"Đã xóa các bệnh nhân: {names} thành công";
+                    : $"Đã xóa các bệnh nhân đã chọn thành công";
                 TempData["SuccessMessage"] = message;
             }
             else

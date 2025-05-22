@@ -11,13 +11,13 @@
         class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
 </div>
 
-<form id="myForm" method="post" enctype="multipart/form-data" asp-action="Create">
+<form id="myForm" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
 
     <div x-data="addData">
         <ul class="flex space-x-2 rtl:space-x-reverse">
             <li>
-                <a href="javascript:;" class="text-primary hover:underline">Bảo hiểm Y tế</a>
+                <a href="javascript:;" class="text-primary hover:underline">Danh mục bảo hiểm y tế</a>
             </li>
             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
                 <span>Thêm mới</span>
@@ -132,7 +132,7 @@
                                 </button>
                                 <button type="button"
                                     class="btn btn-secondary py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600 w-40 justify-center"
-                                                                        @@click = "goBack()" >
+                                    @@click="goBack()">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
                                         <path
@@ -327,7 +327,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/Staff/HealthInsurances/';
+                        window.location.href = '/bao-hiem-y-te';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -345,7 +345,7 @@
                     const form = document.getElementById('myForm');
                     const formData = new FormData(form);
 
-                    fetch('/Staff/HealthInsurances/Create', {
+                    fetch('/bao-hiem-y-te/them-moi', {
                         method: 'POST',
                         body: formData
                     })
@@ -366,7 +366,7 @@
             },
 
             goBack() {
-                window.history.back();
+                window.location.href = '/bao-hiem-y-te';
             }
         }));
     });

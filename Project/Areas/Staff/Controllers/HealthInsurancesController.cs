@@ -11,6 +11,7 @@ namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
     [Authorize(Roles = "Admin, Bacsi, Yta")]
+    [Route("bao-hiem-y-te")]
     public class HealthInsurancesController : Controller
     {
         private readonly IHealthInsuranceRepository _healthInsuranceRepository;
@@ -35,6 +36,7 @@ namespace Project.Areas.Staff.Controllers
             _codeGenerator = codeGenerator;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var list = await _healthInsuranceRepository.GetAllAdvancedAsync();
@@ -43,6 +45,7 @@ namespace Project.Areas.Staff.Controllers
             return View(viewModelList);
         }
 
+        [HttpGet("chi-tiet/{id}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var healthInsurance = await _healthInsuranceRepository.GetByIdAdvancedAsync(id);
@@ -53,7 +56,7 @@ namespace Project.Areas.Staff.Controllers
             return View(healthInsurance);
         }
 
-        [HttpGet]
+        [HttpGet("them-moi")]
         public async Task<IActionResult> Create()
         {
             await _viewBagHelper.GetPatientsWithoutInsurance(ViewData);
@@ -64,7 +67,7 @@ namespace Project.Areas.Staff.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost("them-moi")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromForm] HealthInsuranceDto inputDto)
         {
@@ -93,7 +96,7 @@ namespace Project.Areas.Staff.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("chinh-sua/{id}")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var entity = await _healthInsuranceRepository.GetByIdAdvancedAsync(id);
@@ -107,7 +110,7 @@ namespace Project.Areas.Staff.Controllers
             return View(dto);
         }
 
-        [HttpPost]
+        [HttpPost("chinh-sua/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([FromForm] HealthInsuranceDto inputDto, Guid Id)
         {
@@ -144,7 +147,7 @@ namespace Project.Areas.Staff.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("xoa")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
         {
@@ -173,7 +176,7 @@ namespace Project.Areas.Staff.Controllers
                 var names = string.Join(", ", delList.Select(c => $"\"{c.Number}\""));
                 var message = delList.Count == 1
                     ? $"Đã xóa thẻ BHYT {names} thành công"
-                    : $"Đã xóa các thẻ BHYT: {names} thành công";
+                    : $"Đã xóa các thẻ BHYT đã chọn thành công";
                 TempData["SuccessMessage"] = message;
             }
             else
