@@ -282,7 +282,7 @@
             },
 
             update() {
-                if ($("#myForm").valid() && $("#myForm").validate().pendingRequest === 0) {
+                if ($("#myForm").valid()) {
                     const expiryDateStr = $('#ExpirationDate').val();
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);

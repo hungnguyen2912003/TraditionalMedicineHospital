@@ -5,7 +5,7 @@ namespace Project.Services.Implementations
     public class ImageService : IImageService
     {
         private readonly IWebHostEnvironment _environment;
-        private readonly string[] _allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+        private readonly string[] _allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".jfif" };
         private const long _maxFileSize = 5 * 1024 * 1024;
         private const string _imageFolder = "Images";
 
@@ -48,7 +48,7 @@ namespace Project.Services.Implementations
             var extension = Path.GetExtension(imageFile.FileName).ToLower();
             if (!_allowedExtensions.Contains(extension))
             {
-                throw new Exception("Định dạng file không hợp lệ. Chỉ chấp nhận .jpg, .jpeg, .png, .gif.");
+                throw new Exception("Định dạng file không hợp lệ. Chỉ chấp nhận .jpg, .jpeg, .png, .gif, .jfif.");
             }
         }
 

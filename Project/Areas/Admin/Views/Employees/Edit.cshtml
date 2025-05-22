@@ -348,7 +348,7 @@
                 </div>
                 <div class="panel">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
-                        <button type="button" @@click="update()"
+                        <button type="button" @@click="$('#myForm').submit()"
                             class="btn btn-success py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 hover:bg-green-700">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
@@ -759,6 +759,12 @@
                             this.element(element);
                         }
                     },
+                    submitHandler: (form) => {
+                        this.doUpdate();
+                    },
+                    invalidHandler: function (event, validator) {
+                        notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
+                    },
                     onkeyup: false
                 });
                 $('select.form-input').on('change', function () {
@@ -804,32 +810,31 @@
             },
 
             update() {
+                $('#myForm').submit();
+            },
+
+            doUpdate() {
                 const form = document.getElementById('myForm');
-                if ($("#myForm").valid() && $("#myForm").validate().pendingRequest === 0) {
-                    const overlay = document.getElementById('loadingOverlay');
-                    overlay.style.display = 'flex';
+                const overlay = document.getElementById('loadingOverlay');
+                overlay.style.display = 'flex';
 
-                    const id = document.querySelector('input[name="Id"]').value;
+                const id = document.querySelector('input[name="Id"]').value;
 
-                    if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
-                        this.dropzone.processQueue();
-                    } else {
-                        const formData = new FormData(form);
-                        formData.append('Id', id);
-                        fetch('/nhan-su/chinh-sua/' + id, {
-                            method: 'POST',
-                            body: formData
-                        })
-                            .then(response => response.json())
-                            .then(this.handleResponse)
-                            .catch(error => {
-                                overlay.style.display = 'none';
-                                notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
-                            });
-                    }
-                }
-                else {
-                    notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
+                if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
+                    this.dropzone.processQueue();
+                } else {
+                    const formData = new FormData(form);
+                    formData.append('Id', id);
+                    fetch('/nhan-su/chinh-sua/' + id, {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(this.handleResponse)
+                        .catch(error => {
+                            overlay.style.display = 'none';
+                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                        });
                 }
             },
 

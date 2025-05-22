@@ -330,7 +330,7 @@
             },
 
             add() {
-                if ($("#myForm").valid() && $("#myForm").validate().pendingRequest === 0) {
+                if ($("#myForm").valid()) {
                     const overlay = document.getElementById('loadingOverlay');
                     overlay.style.display = 'flex';
                     const form = document.getElementById('myForm');
