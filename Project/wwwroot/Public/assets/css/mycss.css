@@ -42,6 +42,10 @@ input:invalid+.text-danger {
     border-radius: 0.375rem;
 }
 
+#imageDropzone .dz-preview {
+    z-index: 1 !important;
+}
+
 .theme-dropdown .whitespace-nowrap {
     white-space: nowrap;
 }

@@ -10,13 +10,14 @@
         class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
 </div>
 
-<form id="myForm" method="post" enctype="multipart/form-data" asp-action="Create">
+
+<form id="myForm" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
 
     <div x-data="addData">
         <ul class="flex space-x-2 rtl:space-x-reverse">
             <li>
-                <a href="javascript:;" class="text-primary hover:underline">Thuốc</a>
+                <a href="javascript:;" class="text-primary hover:underline">Danh mục thuốc</a>
             </li>
             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
                 <span>Thêm mới</span>
@@ -39,7 +40,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Tên thuốc<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập tên thuốc" />
@@ -47,8 +48,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="MedicineCategoryId" class="block text-sm font-medium text-gray-700">Loại
-                                        thuốc<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        thuốc<span class="text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="MedicineCategoryId" name="MedicineCategoryId"
                                             class="form-input w-full mt-1 p-2 border rounded">
@@ -66,8 +66,7 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Manufacturer" class="block text-sm font-medium text-gray-700">Nhà sản
-                                        xuất<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        xuất<span class="text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="Manufacturer" name="Manufacturer"
                                             class="form-input w-full mt-1 p-2 border rounded">
@@ -83,8 +82,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="ManufacturedDate" class="block text-sm font-medium text-gray-700">Ngày
-                                        sản xuất<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        sản xuất<span class="text-danger">&nbsp*</span></label>
                                     <input id="ManufacturedDate" type="text" name="ManufacturedDate"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                         placeholder="Nhập ngày sản xuất" />
@@ -93,8 +91,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="ExpiryDate" class="block text-sm font-medium text-gray-700">Ngày hết
-                                        hạn<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        hạn<span class="text-danger">&nbsp*</span></label>
                                     <input id="ExpiryDate" type="text" name="ExpiryDate"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                         placeholder="Nhập ngày hết hạn" />
@@ -115,8 +112,7 @@
                             <hr class="my-6 border-[#e0e6ed] dark:border-[#1b2e4b]">
                             <div>
                                 <label for="ActiveIngredient" class="block text-sm font-medium text-gray-700">Thành phần
-                                    thuốc<span
-                                        class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                    thuốc<span class="text-danger">&nbsp*</span></label>
                                 <textarea id="ActiveIngredient" name="ActiveIngredient"
                                     class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]"
                                     placeholder="Nhập thành phần thuốc..."></textarea>
@@ -155,14 +151,14 @@
                     </div>
                     <div class="mt-4">
                         <label class="block text-sm font-medium text-gray-700">Nhập số lượng tồn kho<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                class="text-danger">&nbsp*</span></label>
                         <input id="StockQuantity" type="number" name="StockQuantity"
                             class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số lượng" />
                         @Html.ValidationMessageFor(model => model.StockQuantity, "", new { @class = "text-danger" })
                     </div>
                     <div class="mt-4">
                         <label class="block text-sm font-medium text-gray-700">Nhập đơn vị tồn kho<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                class="text-danger">&nbsp*</span></label>
                         <div class="select-wrapper">
                             <select id="StockUnit" name="StockUnit" class="form-input w-full mt-1 p-2 border rounded">
                                 <option value="">Chọn đơn vị</option>
@@ -176,10 +172,11 @@
                     </div>
                     <div class="mt-4">
                         <label for="Price" class="block text-sm font-medium text-gray-700">Giá bán<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                class="text-danger">&nbsp*</span></label>
                         <div class="flex items-center">
                             <input id="Price" type="text" name="Price"
-                                class="form-input w-full mt-1 p-2 border rounded price-input" placeholder="Nhập giá bán" />
+                                class="form-input w-full mt-1 p-2 border rounded price-input"
+                                placeholder="Nhập giá bán" />
                             <span class="ml-2 text-gray-700" style="font-weight: 900">VND</span>
                         </div>
                         @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
@@ -204,7 +201,7 @@
                         </button>
                         <button type="button"
                             class="btn btn-secondary w-full py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600"
-                            @@click = "goBack()" >
+                            @@click="goBack()">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
                                 <path
@@ -275,7 +272,7 @@
             setupDropzone() {
                 const self = this;
                 this.dropzone = new Dropzone('#imageDropzone', {
-                    url: '/Admin/Medicines/Create',
+                    url: '/thuoc/them-moi',
                     autoProcessQueue: false,
                     maxFiles: 1,
                     acceptedFiles: 'image/*',
@@ -294,8 +291,11 @@
                         this.on('success', (file, response) => {
                             self.handleResponse(response);
                         });
-                        this.on('error', (file, errorMessage) => {
+                        this.on('error', function (file, errorMessage) {
+                            const overlay = document.getElementById('loadingOverlay');
+                            overlay.style.display = 'none';
                             notyf.error("Có lỗi xảy ra: " + errorMessage);
+                            this.removeFile(file); // Xóa file không hợp lệ khỏi dropzone
                         });
                     }
                 });
@@ -374,7 +374,7 @@
                         ActiveIngredient: {
                             required: true,
                             minlength: 2,
-                            maxlength: 100
+                            maxlength: 1000
                         }
                     },
                     messages: {
@@ -415,7 +415,7 @@
                         ActiveIngredient: {
                             required: "Thành phần hoạt chất không được bỏ trống.",
                             minlength: "Thành phần hoạt chất phải có ít nhất 2 ký tự.",
-                            maxlength: "Thành phần hoạt chất không được vượt quá 100 ký tự."
+                            maxlength: "Thành phần hoạt chất không được vượt quá 1000 ký tự."
                         }
                     },
                     errorElement: "div",
@@ -497,7 +497,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/Admin/Medicines/';
+                        window.location.href = '/thuoc';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -560,7 +560,7 @@
                 } else {
                     const form = document.getElementById('myForm');
                     const formData = new FormData(form);
-                    fetch('/Admin/Medicines/Create', {
+                    fetch('/thuoc/them-moi', {
                         method: 'POST',
                         body: formData
                     })
@@ -574,7 +574,7 @@
             },
 
             goBack() {
-                window.history.back();
+                window.location.href = '/thuoc';
             }
         }));
     });

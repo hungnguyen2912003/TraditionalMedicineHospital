@@ -13,6 +13,7 @@ namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Admin")]
+    [Route("thuoc")]
     public class MedicinesController : Controller
     {
         private readonly IMedicineRepository _repository;
@@ -48,7 +49,7 @@ namespace Project.Areas.Admin.Controllers
             return View(viewModelList);
         }
 
-        [HttpGet]
+        [HttpGet("chi-tiet/{id}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var entity = await _repository.GetByIdAdvancedAsync(id);
@@ -57,7 +58,7 @@ namespace Project.Areas.Admin.Controllers
             return View(entity);
         }
 
-        [HttpGet]
+        [HttpGet("them-moi")]
         public async Task<IActionResult> Create()
         {
             await _viewBagHelper.BaseViewBag(ViewData);
@@ -68,7 +69,7 @@ namespace Project.Areas.Admin.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost("them-moi")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromForm] MedicineDto inputDto)
         {
@@ -92,7 +93,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("chinh-sua/{id}")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var entity = await _repository.GetByIdAdvancedAsync(id);
@@ -107,13 +108,13 @@ namespace Project.Areas.Admin.Controllers
             return View(dto);
         }
 
-        [HttpPost]
+        [HttpPost("chinh-sua/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromForm] MedicineDto inputDto, Guid Id)
+        public async Task<IActionResult> Edit([FromForm] MedicineDto inputDto, Guid id)
         {
             try
             {
-                var entity = await _repository.GetByIdAsync(Id);
+                var entity = await _repository.GetByIdAsync(id);
                 if (entity == null) return NotFound();
 
                 _mapper.Map(inputDto, entity);
@@ -134,7 +135,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("xoa")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
         {
@@ -173,7 +174,7 @@ namespace Project.Areas.Admin.Controllers
                 var names = string.Join(", ", delList.Select(c => $"\"{c.Name}\""));
                 var message = delList.Count == 1
                     ? $"Đã xóa vĩnh viễn thuốc {names} thành công"
-                    : $"Đã xóa vĩnh viễn các thuốc: {names} thành công";
+                    : $"Đã xóa vĩnh viễn các thuốc thành công";
                 TempData["SuccessMessage"] = message;
             }
             else

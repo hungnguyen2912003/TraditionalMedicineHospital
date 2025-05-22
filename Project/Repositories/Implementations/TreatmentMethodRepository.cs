@@ -22,8 +22,8 @@ namespace Project.Repositories.Implementations
         public async Task<TreatmentMethod?> GetByIdAdvancedAsync(Guid id)
         {
             return await _context.treatments
-                .Include(r => r.Rooms)
-                    .ThenInclude(d => d.Department)
+                .Include(t => t.Rooms)
+                    .ThenInclude(r => r.Department)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 

@@ -51,6 +51,7 @@ namespace Project.Areas.Admin.Controllers
             {
                 return NotFound();
             }
+
             return View(entity);
         }
 
