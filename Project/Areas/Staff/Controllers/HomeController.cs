@@ -5,6 +5,7 @@ namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
     [Authorize(Roles = "Admin, Bacsi, Yta")]
+    [Route("nhan-vien")]
     public class HomeController : Controller
     {
         public IActionResult Index()

@@ -11,13 +11,13 @@
         class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
 </div>
 
-<form id="myForm" method="post" enctype="multipart/form-data" asp-action="Create">
+<form id="myForm" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
 
     <div x-data="addData">
         <ul class="flex space-x-2 rtl:space-x-reverse">
             <li>
-                <a href="javascript:;" class="text-primary hover:underline">Nhân sự</a>
+                <a href="javascript:;" class="text-primary hover:underline">Danh mục nhân sự</a>
             </li>
             <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
                 <span>Thêm mới</span>
@@ -357,7 +357,7 @@
             setupDropzone() {
                 const self = this;
                 this.dropzone = new Dropzone('#imageDropzone', {
-                    url: '/Admin/Employees/Create',
+                    url: '/nhan-su/them-moi',
                     autoProcessQueue: false,
                     maxFiles: 1,
                     acceptedFiles: 'image/*',
@@ -379,8 +379,11 @@
                             self.handleResponse(response);
                         });
 
-                        this.on('error', (file, errorMessage) => {
+                        this.on('error', function (file, errorMessage) {
+                            const overlay = document.getElementById('loadingOverlay');
+                            overlay.style.display = 'none';
                             notyf.error("Có lỗi xảy ra: " + errorMessage);
+                            this.removeFile(file); // Xóa file không hợp lệ khỏi dropzone
                         });
                     }
                 });
@@ -631,7 +634,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/Admin/Employees/';
+                        window.location.href = '/nhan-su';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -652,7 +655,7 @@
                         this.dropzone.processQueue();
                     } else {
                         const formData = new FormData(form);
-                        fetch('/Admin/Employees/Create', {
+                        fetch('/nhan-su/them-moi', {
                             method: 'POST',
                             body: formData
                         })
@@ -669,7 +672,7 @@
             },
 
             goBack() {
-                window.history.back();
+                window.location.href = '/nhan-su';
             },
 
             onDepartmentChange(e) {

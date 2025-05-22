@@ -28,7 +28,7 @@
                 name: "tu-choi-truy-cap",
                 pattern: "tu-choi-truy-cap",
                 defaults: new { area = "Admin", controller = "Account", action = "AccessDenied" }
-            );            
+            );
 
             // Route cụ thể cho home
             app.MapControllerRoute(
@@ -41,6 +41,12 @@
                 name: "admin",
                 pattern: "admin",
                 defaults: new { area = "Admin", controller = "Home", action = "Index" }
+            );
+
+            app.MapControllerRoute(
+                name: "nhan-vien",
+                pattern: "nhan-vien",
+                defaults: new { area = "Staff", controller = "Home", action = "Index" }
             );
 
             // Route chung cho các area

@@ -13,6 +13,7 @@ using Project.Services.Interfaces;
 namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Route("nhan-su")]
     public class EmployeesController : Controller
     {
         private readonly IEmployeeRepository _repository;
@@ -55,6 +56,7 @@ namespace Project.Areas.Admin.Controllers
         }
 
         [Authorize(Roles = "Admin, Bacsi, Yta")]
+        [Route("chi-tiet/{id}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var entity = await _repository.GetByIdAdvancedAsync(id);
@@ -65,7 +67,7 @@ namespace Project.Areas.Admin.Controllers
             return View(entity);
         }
 
-        [HttpGet]
+        [HttpGet("them-moi")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {
@@ -78,7 +80,7 @@ namespace Project.Areas.Admin.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost("them-moi")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromForm] EmployeeDto inputDto)
         {
@@ -134,7 +136,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("chinh-sua/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Guid id)
         {
@@ -150,7 +152,7 @@ namespace Project.Areas.Admin.Controllers
             return View(dto);
         }
 
-        [HttpPost]
+        [HttpPost("chinh-sua/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([FromForm] EmployeeDto inputDto, Guid Id)
         {
@@ -177,7 +179,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("xoa")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
@@ -217,7 +219,7 @@ namespace Project.Areas.Admin.Controllers
                 var names = string.Join(", ", delList.Select(c => $"\"{c.Name}\""));
                 var message = delList.Count == 1
                     ? $"Đã xóa vĩnh viễn nhân sự {names} thành công"
-                    : $"Đã xóa vĩnh viễn các nhân sự: {names} thành công";
+                    : $"Đã xóa vĩnh viễn các nhân sự đã chọn thành công";
                 TempData["SuccessMessage"] = message;
             }
             else

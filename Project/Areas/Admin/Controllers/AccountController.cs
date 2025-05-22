@@ -86,7 +86,7 @@ namespace Project.Areas.Admin.Controllers
                         {
                             success = true,
                             message = "Đây là lần đăng nhập đầu tiên của bạn. Vui lòng đổi mật khẩu!",
-                            redirectUrl = Url.Action("ChangePassword", "Account", new { area = "Admin" }),
+                            redirectUrl = "/doi-mat-khau",
                             loginTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                         });
                     }
@@ -130,14 +130,14 @@ namespace Project.Areas.Admin.Controllers
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))
             {
-                return RedirectToAction("Login", "Account", new { area = "Admin" });
+                return Redirect("/dang-nhap");
             }
 
             var (username, role) = _jwtManager.GetClaimsFromToken(token);
             if (string.IsNullOrEmpty(username))
             {
                 Response.Cookies.Delete("AuthToken");
-                return RedirectToAction("Login", "Account", new { area = "Admin" });
+                return Redirect("/dang-nhap");
             }
 
             ViewData["Username"] = username;
@@ -152,20 +152,20 @@ namespace Project.Areas.Admin.Controllers
                 var token = Request.Cookies["AuthToken"];
                 if (string.IsNullOrEmpty(token))
                 {
-                    return RedirectToAction("Login", "Account", new { area = "Admin" });
+                    return Redirect("/dang-nhap");
                 }
 
                 var (username, role) = _jwtManager.GetClaimsFromToken(token);
                 if (string.IsNullOrEmpty(username))
                 {
                     Response.Cookies.Delete("AuthToken");
-                    return RedirectToAction("Login", "Account", new { area = "Admin" });
+                    return Redirect("/dang-nhap");
                 }
 
                 var user = await _userRepository.GetByUsernameAsync(username);
                 if (user == null)
                 {
-                    return RedirectToAction("Login", "Account", new { area = "Admin" });
+                    return Redirect("/dang-nhap");
                 }
 
                 var validationResult = _validator.ValidateChangePassword(oldPassword, newPassword, confirmPassword, user.PasswordHash);
@@ -186,7 +186,7 @@ namespace Project.Areas.Admin.Controllers
                 {
                     success = true,
                     message = "Thay đổi mật khẩu thành công! Vui lòng đăng nhập lại.",
-                    redirectUrl = Url.Action("Login", "Account", new { area = "Admin" })
+                    redirectUrl = "/dang-nhap"
                 });
             }
             catch (Exception ex)
@@ -201,7 +201,7 @@ namespace Project.Areas.Admin.Controllers
             Response.Cookies.Delete("AuthToken");
             Response.Cookies.Delete("TokenExpiration");
             HttpContext.Session.Clear();
-            return RedirectToAction("Login", "Account", new { area = "Admin" });
+            return Redirect("/dang-nhap");
         }
 
         [HttpGet]
@@ -275,7 +275,7 @@ namespace Project.Areas.Admin.Controllers
             var email = TempData["ResetPasswordEmail"]?.ToString();
             if (string.IsNullOrEmpty(email))
             {
-                return RedirectToAction("ForgotPassword");
+                return Redirect("/quen-mat-khau");
             }
             ViewData["Email"] = email;
             return View();
@@ -287,7 +287,7 @@ namespace Project.Areas.Admin.Controllers
         {
             if (string.IsNullOrEmpty(code))
             {
-                return RedirectToAction("Login");
+                return Redirect("/dang-nhap");
             }
 
             // Decode URL-encoded characters
@@ -367,7 +367,7 @@ namespace Project.Areas.Admin.Controllers
                 {
                     success = true,
                     message = "Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.",
-                    redirectUrl = Url.Action("Login", "Account", new { area = "Admin" })
+                    redirectUrl = "/dang-nhap"
                 });
             }
             catch (Exception ex)
