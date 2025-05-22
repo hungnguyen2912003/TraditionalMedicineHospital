@@ -51,6 +51,7 @@ namespace Project.Areas.Admin.Controllers
         {
             var list = await _repository.GetAllAdvancedAsync();
             var viewModelList = _mapper.Map<List<EmployeeViewModel>>(list);
+            viewModelList = viewModelList.OrderBy(x => x.DepartmentName).ToList();
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }

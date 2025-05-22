@@ -124,7 +124,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("doi-mat-khau")]
         public IActionResult ChangePassword()
         {
             var token = Request.Cookies["AuthToken"];
@@ -144,7 +144,7 @@ namespace Project.Areas.Admin.Controllers
             return View();
         }
 
-        [HttpPost]
+        [HttpPost("doi-mat-khau")]
         public async Task<IActionResult> ChangePassword([FromForm] string oldPassword, string newPassword, string confirmPassword)
         {
             try
@@ -195,7 +195,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("dang-xuat")]
         public IActionResult Logout()
         {
             Response.Cookies.Delete("AuthToken");
@@ -204,14 +204,14 @@ namespace Project.Areas.Admin.Controllers
             return Redirect("/dang-nhap");
         }
 
-        [HttpGet]
+        [HttpGet("quen-mat-khau")]
         [AllowAnonymous]
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
-        [HttpPost]
+        [HttpPost("quen-mat-khau")]
         [AllowAnonymous]
         public async Task<IActionResult> ForgotPassword([FromForm] string identifier, [FromForm] string captcha)
         {
@@ -268,7 +268,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("gui-yeu-cau-doi-mat-khau")]
         [AllowAnonymous]
         public IActionResult ForgetPasswordSent()
         {
@@ -281,7 +281,7 @@ namespace Project.Areas.Admin.Controllers
             return View();
         }
 
-        [HttpGet]
+        [HttpGet("dat-lai-mat-khau")]
         [AllowAnonymous]
         public async Task<IActionResult> ResetPassword(string code)
         {
@@ -321,7 +321,7 @@ namespace Project.Areas.Admin.Controllers
             return View();
         }
 
-        [HttpPost]
+        [HttpPost("dat-lai-mat-khau")]
         [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromForm] string code, [FromForm] string newPassword, [FromForm] string confirmPassword)
         {
@@ -376,7 +376,7 @@ namespace Project.Areas.Admin.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("tu-choi-truy-cap")]
         [AllowAnonymous]
         public IActionResult AccessDenied()
         {

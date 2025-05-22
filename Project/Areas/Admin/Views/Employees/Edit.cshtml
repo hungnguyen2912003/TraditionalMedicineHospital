@@ -492,7 +492,7 @@
             setupDropzone() {
                 const self = this;
                 this.dropzone = new Dropzone('#imageDropzone', {
-                    url: '/nhan-su/chinh-sua' + this.id,
+                    url: '/nhan-su/chinh-sua/' + this.id,
                     autoProcessQueue: false,
                     maxFiles: 1,
                     acceptedFiles: 'image/*',
@@ -805,7 +805,7 @@
 
             update() {
                 const form = document.getElementById('myForm');
-                if ($("#myForm").valid()) {
+                if ($("#myForm").valid() && $("#myForm").validate().pendingRequest === 0) {
                     const overlay = document.getElementById('loadingOverlay');
                     overlay.style.display = 'flex';
 
@@ -816,7 +816,7 @@
                     } else {
                         const formData = new FormData(form);
                         formData.append('Id', id);
-                        fetch('/nhan-su/chinh-sua' + id, {
+                        fetch('/nhan-su/chinh-sua/' + id, {
                             method: 'POST',
                             body: formData
                         })
