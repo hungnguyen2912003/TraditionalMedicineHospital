@@ -98,7 +98,8 @@ namespace Project.Areas.Staff.Controllers
             foreach (var p in patientGroups)
             {
                 var ordered = p.Trackings;
-                for (int i = 1; i < ordered.Count; i++)
+                int i = 1;
+                while (i < ordered.Count)
                 {
                     var prev = ordered[i - 1];
                     var curr = ordered[i];
@@ -120,7 +121,16 @@ namespace Project.Areas.Staff.Controllers
                             RoomName = prev.TreatmentRecordDetail?.Room?.Name ?? "",
                             EmployeeName = (prev.EmployeeId.HasValue && employeeDict.ContainsKey(prev.EmployeeId.Value)) ? employeeDict[prev.EmployeeId.Value] : ""
                         });
+                        // Bỏ qua các ngày tiếp theo trong chuỗi liên tiếp "Không điều trị"
+                        while (i + 1 < ordered.Count &&
+                               (ordered[i + 1].TrackingDate.Date - ordered[i].TrackingDate.Date).TotalDays == 1 &&
+                               ordered[i].Status == TrackingStatus.KhongDieuTri &&
+                               ordered[i + 1].Status == TrackingStatus.KhongDieuTri)
+                        {
+                            i++;
+                        }
                     }
+                    i++;
                 }
             }
 

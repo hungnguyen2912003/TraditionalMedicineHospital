@@ -6,6 +6,7 @@ using Project.Areas.Staff.Models.DTOs.TrackingDTO;
 using Project.Areas.Staff.Models.ViewModels;
 using Project.Helpers;
 using Project.Models.Enums;
+using Project.Areas.Staff.Models.Entities;
 
 namespace Project.Areas.Staff.Controllers
 {
@@ -94,6 +95,46 @@ namespace Project.Areas.Staff.Controllers
                                     .OrderBy(vm => vm.TrackingDate)
                                     .ToList();
             return View(viewModelList);
+        }
+
+        [HttpPost("xoa")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete([FromForm] string selectedIds)
+        {
+            var ids = new List<Guid>();
+            foreach (var id in selectedIds.Split(','))
+            {
+                if (Guid.TryParse(id, out var parsedId))
+                {
+                    ids.Add(parsedId);
+                }
+            }
+
+            var delList = new List<TreatmentTracking>();
+            foreach (var id in ids)
+            {
+                var entity = await _treatmentTrackingRepository.GetByIdAsync(id);
+                if (entity != null)
+                {
+                    await _treatmentTrackingRepository.DeleteAsync(id);
+                    delList.Add(entity);
+                }
+            }
+
+            if (delList.Any())
+            {
+                var names = string.Join(", ", delList.Select(c => $"\"{c.Code}\""));
+                var message = delList.Count == 1
+                    ? $"Đã xóa bản ghi theo dõi điều trị {names} thành công"
+                    : $"Đã xóa các bản ghi theo dõi điều trị đã chọn thành công";
+                TempData["SuccessMessage"] = message;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy bản ghi theo dõi điều trị nào để xóa.";
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

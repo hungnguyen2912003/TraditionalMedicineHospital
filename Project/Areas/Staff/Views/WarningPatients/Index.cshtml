@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
 }
 
-<form id="indexForm" method="post">
+<form id="myForm" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" name="selectedIds" id="selectedIds" />
 
@@ -119,10 +119,9 @@
 
             initializeTable() {
                 try {
-                    const tableData = this.filteredList.map(entity => [
-                        `<input type="checkbox" class="form-checkbox" value="${entity.patientId}" ${this.selectedRows.includes(entity.patientId.toString()) ? 'checked' : ''} />`,
+                    const tableData = this.filteredList.map((entity, index) => [
+                        index + 1,
                         entity.patientName,
-                        entity.patientEmail || 'Không có email',
                         entity.departmentName || '',
                         entity.roomName || '',
                         entity.employeeName || '',
@@ -135,9 +134,8 @@
                     this.datatable = new simpleDatatables.DataTable('#myTable', {
                         data: {
                             headings: [
-                                '<input type="checkbox" class="form-checkbox" />',
+                                'STT',
                                 'Tên bệnh nhân',
-                                'Email',
                                 'Khoa',
                                 'Phòng',
                                 'Nhân viên theo dõi',
@@ -174,84 +172,18 @@
                             }
                         ],
                     });
-
-                    // Gán lại sự kiện cho checkbox và delete-btn
-                    this.rebindCheckboxEvents();
-                    // Gán lại sự kiện khi chuyển trang
-                    this.datatable.on('datatable.page', () => {
-                        this.rebindCheckboxEvents();
-                    });
                 } catch (error) {
                     console.error('Lỗi khởi tạo bảng:', error);
                 }
             },
 
-            rebindCheckboxEvents() {
-                // Gán lại sự kiện cho nút xóa
-                document.querySelectorAll('.delete-btn').forEach(btn => {
-                    btn.onclick = function () {
-                        const id = this.getAttribute('data-id');
-                        if (window.list && typeof window.list.delete === 'function') {
-                            window.list.delete(id);
-                        }
-                    };
-                });
-
-                // Gán lại sự kiện cho checkbox "chọn tất cả"
-                const checkAll = document.querySelector('#myTable thead input[type="checkbox"]');
-                const rowCheckboxes = document.querySelectorAll('#myTable tbody input[type="checkbox"]');
-                if (checkAll) {
-                    checkAll.onclick = function () {
-                        if (checkAll.checked) {
-                            // Chỉ chọn các bản ghi đang hiển thị (filteredList)
-                            window.list.selectedRows = window.list.filteredList.map(e => e.id.toString());
-                        } else {
-                            // Bỏ chọn tất cả các bản ghi đang hiển thị
-                            window.list.selectedRows = window.list.selectedRows.filter(id =>
-                                !window.list.filteredList.some(e => e.id.toString() === id)
-                            );
-                        }
-                        // Cập nhật lại trạng thái checkbox trên trang hiện tại
-                        rowCheckboxes.forEach(cb => {
-                            cb.checked = checkAll.checked;
-                        });
-                    };
+            updateTable() {
+                if (this.datatable) {
+                    this.datatable.destroy();
+                    this.datatable = null;
                 }
-                // Gán lại sự kiện cho từng checkbox dòng
-                rowCheckboxes.forEach(cb => {
-                    cb.checked = window.list.selectedRows.includes(cb.value);
-                    cb.onclick = function () {
-                        const id = cb.value;
-                        if (cb.checked) {
-                            if (!window.list.selectedRows.includes(id)) window.list.selectedRows.push(id);
-                        } else {
-                            window.list.selectedRows = window.list.selectedRows.filter(x => x !== id);
-                            if (checkAll) checkAll.checked = false;
-                        }
-                    };
-                });
-            },
-
-            sendMail(patientId, patientEmail) {
-                if (!patientEmail) {
-                    notyf.error('Bệnh nhân không có email!');
-                    return;
-                }
-                $.ajax({
-                    url: '/Staff/WarningPatients/SendMail',
-                    type: 'POST',
-                    data: { patientId: patientId },
-                    headers: {
-                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (response) {
-                        notyf.success('Đã gửi mail thành công!');
-                    },
-                    error: function () {
-                        notyf.error('Gửi mail thất bại!');
-                    }
-                });
-            },
+                this.initializeTable();
+            }
         }));
     });
 
@@ -265,12 +197,11 @@
             } else {
                 window.list.filteredList = window.list.entityList.filter(e =>
                     (e.patientName && removeVietnameseTones(e.patientName).includes(keyword)) ||
-                    (e.patientEmail && removeVietnameseTones(e.patientEmail).includes(keyword)) ||
-                    (e.firstNote && removeVietnameseTones(e.firstNote).includes(keyword)) ||
-                    (e.secondNote && removeVietnameseTones(e.secondNote).includes(keyword)) ||
                     (e.departmentName && removeVietnameseTones(e.departmentName).includes(keyword)) ||
                     (e.roomName && removeVietnameseTones(e.roomName).includes(keyword)) ||
-                    (e.employeeName && removeVietnameseTones(e.employeeName).includes(keyword))
+                    (e.employeeName && removeVietnameseTones(e.employeeName).includes(keyword)) ||
+                    (e.firstAbsenceDate && removeVietnameseTones(e.firstAbsenceDate).includes(keyword)) ||
+                    (e.secondAbsenceDate && removeVietnameseTones(e.secondAbsenceDate).includes(keyword))
                 );
             }
             window.list.updateTable();
@@ -279,46 +210,47 @@
         }
     });
 
-    // Khởi tạo Choices.js cho các select sau khi đổ option
     $(document).ready(function () {
         if (!window.departmentChoices) {
-            window.departmentChoices = new Choices('#filterDepartment', { searchEnabled: true, itemSelectText: '', shouldSort: false });
+            window.departmentChoices = new Choices('#filterDepartment', {
+                searchEnabled: true,
+                itemSelectText: '',
+                shouldSort: false,
+                placeholder: true,
+                placeholderValue: 'Chọn khoa...'
+            });
         }
         if (!window.roomChoices) {
-            window.roomChoices = new Choices('#filterRoom', { searchEnabled: true, itemSelectText: '', shouldSort: false });
+            window.roomChoices = new Choices('#filterRoom', {
+                searchEnabled: true,
+                itemSelectText: '',
+                shouldSort: false,
+                placeholder: true,
+                placeholderValue: 'Chọn phòng...'
+            });
         }
         updateResetFilterButtonState();
 
+        // Xử lý sự kiện change cho các select
         $('#filterDepartment, #filterRoom').on('change', function () {
             updateResetFilterButtonState();
-            if (!$(this).val()) {
-                window.list.filteredList = window.list.entityList;
-                if (window.list.datatable) window.list.datatable.destroy();
+
+            // Kiểm tra nếu tất cả các select đều có giá trị mặc định
+            const departmentValue = $('#filterDepartment').val();
+            const roomValue = $('#filterRoom').val();
+
+            if ((!departmentValue || departmentValue === "") &&
+                (!roomValue || roomValue === "")) {
+                // Reset về danh sách ban đầu
+                window.list.filteredList = [...window.list.entityList];
+                if (window.list.datatable) {
+                    window.list.datatable.destroy();
+                    window.list.datatable = null;
+                }
                 window.list.initializeTable();
             }
         });
     });
-
-    // Viết lại hàm filterList
-    function filterList() {
-        const department = $('#filterDepartment').val();
-        const room = $('#filterRoom').val();
-        const status = $('#filterStatus').val();
-
-        let filtered = window.list.entityList;
-        if (department) {
-            filtered = filtered.filter(e => e.departmentName === department);
-        }
-        if (room) {
-            filtered = filtered.filter(e => e.roomName === room);
-        }
-
-        window.list.filteredList = filtered;
-        if (window.list.datatable) window.list.datatable.destroy();
-        window.list.initializeTable();
-        if (filtered.length > 0) notyf.success('Lọc thành công!');
-        else if (filtered.length === 0) notyf.error('Không tìm thấy kết quả phù hợp!');
-    }
 
     // Nút Lọc
     $(document).on('click', '#btnFilter', function () {
@@ -326,14 +258,42 @@
         const room = $('#filterRoom').val();
 
         if (!department && !room) {
-            notyf.error('Cần chọn ít nhất một trường để lọc!');
-            window.list.filteredList = window.list.entityList;
-            if (window.list.datatable) window.list.datatable.destroy();
-            window.list.initializeTable();
-            updateResetFilterButtonState();
+            notyf.error('Vui lòng chọn ít nhất một trường để lọc!');
             return;
         }
-        filterList();
+
+        try {
+            let filtered = [...window.list.entityList];
+
+            if (department) {
+                filtered = filtered.filter(e => e.departmentName === department);
+            }
+            if (room) {
+                filtered = filtered.filter(e => e.roomName === room);
+            }
+
+            // Update filteredList and reinitialize table
+            window.list.filteredList = filtered;
+
+            // Destroy existing table if it exists
+            if (window.list.datatable) {
+                window.list.datatable.destroy();
+                window.list.datatable = null;
+            }
+
+            // Initialize new table with filtered data
+            window.list.initializeTable();
+
+            // Show appropriate message
+            if (filtered.length > 0) {
+                notyf.success('Lọc thành công!');
+            } else {
+                notyf.error('Không tìm thấy kết quả phù hợp!');
+            }
+        } catch (error) {
+            console.error('Error in filterList:', error);
+            notyf.error('Đã xảy ra lỗi khi lọc dữ liệu!');
+        }
     });
 
     // Nút Hủy lọc
@@ -348,16 +308,31 @@
             window.roomChoices.setChoiceByValue('');
         }
 
-        window.list.filteredList = window.list.entityList;
-        if (window.list.datatable) window.list.datatable.destroy();
+        // Reset search input
+        $('#customSearchInput').val('');
+
+        // Reset filtered list to original data
+        window.list.filteredList = [...window.list.entityList];
+
+        // Destroy existing table if it exists
+        if (window.list.datatable) {
+            window.list.datatable.destroy();
+            window.list.datatable = null;
+        }
+
+        // Reinitialize table with original data
         window.list.initializeTable();
+
+        // Update reset button state
         updateResetFilterButtonState();
+
+        // Show success message
+        notyf.success('Đã hủy bộ lọc thành công!');
     });
 
     function updateResetFilterButtonState() {
         const department = $('#filterDepartment').val();
         const room = $('#filterRoom').val();
-
         if (!department && !room) {
             $('#btnResetFilter').prop('disabled', true).css('cursor', 'not-allowed');
         } else {

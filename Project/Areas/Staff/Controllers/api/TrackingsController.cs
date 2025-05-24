@@ -9,6 +9,7 @@ using Hospital.Areas.Staff.Models.DTOs.TrackingDTO;
 using Project.Models.Enums;
 using SequentialGuid;
 using Project.Areas.Admin.Models.Entities;
+using System.Globalization;
 
 namespace Project.Areas.Staff.Controllers.api
 {
@@ -83,7 +84,8 @@ namespace Project.Areas.Staff.Controllers.api
                 // Lọc ra các detail chưa được chấm trong ngày
                 var detailsToTrack = details
                     .Where(d => !trackedDetailIds.Contains(d.Id))
-                    .Select(d => new {
+                    .Select(d => new
+                    {
                         detailId = d.Id,
                         patientId = d.TreatmentRecord.Patient.Id,
                         patientName = d.TreatmentRecord.Patient.Name,
@@ -179,7 +181,7 @@ namespace Project.Areas.Staff.Controllers.api
                             var subject = "Đình chỉ phiếu điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                             var body = $@"
                                 <h2>Xin chào {patient.Name},</h2>
-                                <p>Bạn đã tự ý bỏ điều trị quá 3 ngày liên tiếp: {first.TrackingDate:dd/MM/yyyy}, {mid.TrackingDate:dd/MM/yyyy}, {last.TrackingDate:dd/MM/yyyy}.</p>
+                                <p>Bạn đã tự ý bỏ điều trị quá 3 ngày liên tiếp: {first.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}, {mid.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}, {last.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}.</p>
                                 <p>Bác sĩ chỉ định sẽ tiến hành đình chỉ phiếu điều trị của bạn.</p>
                                 <p>Sau khi đình chỉ, bạn cần thực hiện thanh toán hóa đơn điều trị theo quy định của bệnh viện.</p>
                                 <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
@@ -203,7 +205,7 @@ namespace Project.Areas.Staff.Controllers.api
                             var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                             var body = $@"
                                 <h2>Xin chào {patient.Name},</h2>
-                                <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {prev.TrackingDate:dd/MM/yyyy} và Ngày {last.TrackingDate:dd/MM/yyyy}.</p>
+                                <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {prev.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)} và Ngày {last.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}.</p>
                                 <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
                     <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
                                 <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
@@ -296,7 +298,7 @@ namespace Project.Areas.Staff.Controllers.api
                                         var subject = "Đình chỉ phiếu điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                                         var body = $@"
                                             <h2>Xin chào {patient.Name},</h2>
-                                            <p>Bạn đã tự ý bỏ điều trị quá 3 ngày liên tiếp: {updatedTracking.TrackingDate:dd/MM/yyyy}, {next.TrackingDate:dd/MM/yyyy}, {next2.TrackingDate:dd/MM/yyyy}.</p>
+                                            <p>Bạn đã tự ý bỏ điều trị quá 3 ngày liên tiếp: {updatedTracking.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}, {next.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}, {next2.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}.</p>
                                             <p>Bác sĩ chỉ định sẽ tiến hành đình chỉ phiếu điều trị của bạn.</p>
                                             <p>Sau khi đình chỉ, bạn cần thực hiện thanh toán hóa đơn điều trị theo quy định của bệnh viện.</p>
                                             <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
@@ -308,7 +310,7 @@ namespace Project.Areas.Staff.Controllers.api
                                         var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                                         var body = $@"
                                             <h2>Xin chào {patient.Name},</h2>
-                                            <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {updatedTracking.TrackingDate:dd/MM/yyyy} và Ngày {next.TrackingDate:dd/MM/yyyy}.</p>
+                                            <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {updatedTracking.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)} và Ngày {next.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}.</p>
                                             <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
                                             <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
                                             <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
@@ -321,7 +323,7 @@ namespace Project.Areas.Staff.Controllers.api
                                     var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                                     var body = $@"
                                         <h2>Xin chào {patient.Name},</h2>
-                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {updatedTracking.TrackingDate:dd/MM/yyyy} và Ngày {next.TrackingDate:dd/MM/yyyy}.</p>
+                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {updatedTracking.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)} và Ngày {next.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}.</p>
                                         <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
                                         <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
                                         <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
@@ -358,7 +360,7 @@ namespace Project.Areas.Staff.Controllers.api
                                         var subject = "Đình chỉ phiếu điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                                         var body = $@"
                                             <h2>Xin chào {patient.Name},</h2>
-                                            <p>Bạn đã tự ý bỏ điều trị quá 3 ngày liên tiếp: {prev2.TrackingDate:dd/MM/yyyy}, {prev.TrackingDate:dd/MM/yyyy}, {updatedTracking.TrackingDate:dd/MM/yyyy}.</p>
+                                            <p>Bạn đã tự ý bỏ điều trị quá 3 ngày liên tiếp: {prev2.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}, {prev.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}, {updatedTracking.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}.</p>
                                             <p>Bác sĩ chỉ định sẽ tiến hành đình chỉ phiếu điều trị của bạn.</p>
                                             <p>Sau khi đình chỉ, bạn cần thực hiện thanh toán hóa đơn điều trị theo quy định của bệnh viện.</p>
                                             <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
@@ -370,7 +372,7 @@ namespace Project.Areas.Staff.Controllers.api
                                         var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                                         var body = $@"
                                             <h2>Xin chào {patient.Name},</h2>
-                                            <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {prev.TrackingDate:dd/MM/yyyy} và Ngày {updatedTracking.TrackingDate:dd/MM/yyyy}.</p>
+                                            <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {prev.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)} và Ngày {updatedTracking.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}.</p>
                                             <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
                                             <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
                                             <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
@@ -383,7 +385,7 @@ namespace Project.Areas.Staff.Controllers.api
                                     var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                                     var body = $@"
                                         <h2>Xin chào {patient.Name},</h2>
-                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {prev.TrackingDate:dd/MM/yyyy} và Ngày {updatedTracking.TrackingDate:dd/MM/yyyy}.</p>
+                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {prev.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)} và Ngày {updatedTracking.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}.</p>
                                         <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
                                         <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
                                         <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
@@ -409,7 +411,7 @@ namespace Project.Areas.Staff.Controllers.api
                                 var subject = "Đình chỉ phiếu điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                                 var body = $@"
                                     <h2>Xin chào {patient.Name},</h2>
-                                    <p>Bạn đã tự ý bỏ điều trị quá 3 ngày liên tiếp: {prev.TrackingDate:dd/MM/yyyy}, {updatedTracking.TrackingDate:dd/MM/yyyy}, {next.TrackingDate:dd/MM/yyyy}.</p>
+                                    <p>Bạn đã tự ý bỏ điều trị quá 3 ngày liên tiếp: {prev.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}, {updatedTracking.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}, {next.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}.</p>
                                     <p>Bác sĩ chỉ định sẽ tiến hành đình chỉ phiếu điều trị của bạn.</p>
                                     <p>Sau khi đình chỉ, bạn cần thực hiện thanh toán hóa đơn điều trị theo quy định của bệnh viện.</p>
                                     <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
@@ -422,7 +424,7 @@ namespace Project.Areas.Staff.Controllers.api
                                     var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                                     var body = $@"
                                         <h2>Xin chào {patient.Name},</h2>
-                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {prev.TrackingDate:dd/MM/yyyy} và Ngày {updatedTracking.TrackingDate:dd/MM/yyyy}.</p>
+                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {prev.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)} và Ngày {updatedTracking.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}.</p>
                                         <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
                                         <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
                                         <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
@@ -433,7 +435,7 @@ namespace Project.Areas.Staff.Controllers.api
                                     var subject = "Nhắc nhở điều trị - Bệnh viện Y học cổ truyền Nha Trang";
                                     var body = $@"
                                         <h2>Xin chào {patient.Name},</h2>
-                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {updatedTracking.TrackingDate:dd/MM/yyyy} và Ngày {next.TrackingDate:dd/MM/yyyy}.</p>
+                                        <p>Hệ thống ghi nhận bạn đã vắng mặt trong 2 ngày liên tiếp: Ngày {updatedTracking.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)} và Ngày {next.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}.</p>
                                         <p>Để đảm bảo hiệu quả điều trị, vui lòng sắp xếp thời gian đến bệnh viện để tiếp tục điều trị.</p>
                                         <p>Nếu bạn có lý do đặc biệt, vui lòng liên hệ với bác sĩ điều trị của bạn.</p>
                                         <p>Trân trọng,<br>Hệ thống quản lý Bệnh viện Y học cổ truyền Nha Trang</p>";
