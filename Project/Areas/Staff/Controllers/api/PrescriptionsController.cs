@@ -202,7 +202,8 @@ namespace Project.Areas.Staff.Controllers.api
                     return NotFound("Không tìm thấy đơn thuốc.");
 
                 // Lấy danh sách chi tiết đơn thuốc
-                var details = prescription.PrescriptionDetails?.Select(d => new {
+                var details = prescription.PrescriptionDetails?.Select(d => new
+                {
                     medicineId = d.MedicineId,
                     medicineName = d.Medicine?.Name,
                     quantity = d.Quantity,
@@ -210,7 +211,8 @@ namespace Project.Areas.Staff.Controllers.api
                 }).ToList();
 
                 // Trả về thông tin đơn thuốc và chi tiết
-                return Ok(new {
+                return Ok(new
+                {
                     id = prescription.Id,
                     code = prescription.Code,
                     prescriptionDate = prescription.PrescriptionDate,
@@ -227,4 +229,4 @@ namespace Project.Areas.Staff.Controllers.api
             }
         }
     }
-} 
+}

@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
 }
 
-<form id="indexForm" method="post">
+<form id="myForm" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" name="selectedIds" id="selectedIds" />
 
@@ -204,6 +204,15 @@
                                     <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" stroke-width="1.5"></path>
                                 </svg>
                             </a>
+                            <button type="button" class="hover:text-danger delete-btn" data-id="${entity.id}" x-tooltip="Đưa vào thùng rác">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
+                                    <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path opacity="0.5" d="M6.5 6C6.55588 6 6.58382 6 6.60915 5.99936C7.43259 5.97849 8.15902 5.45491 8.43922 4.68032C8.44784 4.65649 8.45667 4.62999 8.47434 4.57697L8.57143 4.28571C8.65431 4.03708 8.69575 3.91276 8.75071 3.8072C8.97001 3.38607 9.37574 3.09364 9.84461 3.01877C9.96213 3 10.0932 3 10.3553 3H13.6447C13.9068 3 14.0379 3 14.1554 3.01877C14.6243 3.09364 15.03 3.38607 15.2493 3.8072C15.3043 3.91276 15.3457 4.03708 15.4286 4.28571L15.5257 4.57697C15.5433 4.62992 15.5522 4.65651 15.5608 4.68032C15.841 5.45491 16.5674 5.97849 17.3909 5.99936C17.4162 6 17.4441 6 17.5 6" stroke="currentColor" stroke-width="1.5"></path>
+                                </svg>
+                            </button>                            
                         </div>`
                     ]);
 
@@ -273,6 +282,40 @@
                         if (window.list && typeof window.list.delete === 'function') {
                             window.list.delete(id);
                         }
+                    };
+                });
+
+
+                // Gán lại sự kiện cho nút chỉnh sửa
+                document.querySelectorAll('.edit-prescription-btn').forEach(btn => {
+                    btn.onclick = (e) => {
+                        const id = btn.getAttribute('data-id');
+                        document.getElementById('prescriptionModal').classList.remove('hidden', 'closing');
+                        // Gọi API lấy chi tiết đơn thuốc
+                        fetch(`/api/Prescriptions/${id}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                currentPrescriptionId = data.id;
+                                // Fill thông tin vào modal
+                                if (window.flatpickr && document.getElementById('prescriptionCreatedDate')._flatpickr) {
+                                    document.getElementById('prescriptionCreatedDate')._flatpickr.setDate(data.prescriptionDate, true, "Y-m-dTH:i:s");
+                                } else {
+                                    document.getElementById('prescriptionCreatedDate').value = data.prescriptionDate
+                                        ? new Date(data.prescriptionDate).toLocaleDateString('vi-VN')
+                                        : '';
+                                }
+                                document.getElementById('prescriptionRecordCode').value = data.treatmentRecordCode || '';
+                                document.getElementById('prescriptionRecordPatient').value = data.patientName || '';
+                                document.getElementById('prescriptionNote').value = data.note || '';
+                                // Fill danh sách thuốc
+                                medicines = (data.details || []).map(d => ({
+                                    medicineId: d.medicineId,
+                                    name: d.medicineName,
+                                    qty: d.quantity,
+                                    price: d.unitPrice
+                                }));
+                                renderMedicines();
+                            });
                     };
                 });
 
@@ -390,7 +433,8 @@
             } else {
                 window.list.filteredList = window.list.entityList.filter(e =>
                     (e.patientName && removeVietnameseTones(e.patientName).includes(keyword)) ||
-                    (e.code && removeVietnameseTones(e.code).includes(keyword))
+                    (e.code && removeVietnameseTones(e.code).includes(keyword)) ||
+                    (e.treatmentRecordCode && removeVietnameseTones(e.treatmentRecordCode).includes(keyword))
                 );
             }
             window.list.updateTable();
@@ -417,65 +461,109 @@
         });
     });
 
-    function pad2(n) { return n < 10 ? '0' + n : n; }
-
-    function formatDateString(dateStr) {
-        // dateStr: "5/5/2025" hoặc "05/05/2025"
-        const parts = dateStr.split('/');
-        if (parts.length === 3) {
-            return `${pad2(Number(parts[0]))}/${pad2(Number(parts[1]))}/${parts[2]}`;
-        }
-        return dateStr;
-    }
-
-    function filterList() {
-        const date = $('#filterDate').val();
-        let filtered = window.list.entityList;
-        if (date) {
-            const filterDate = formatDateString(date);
-            filtered = filtered.filter(e => {
-                if (!e.prescriptionDate) return false;
-                // e.prescriptionDate có thể là ISO hoặc Date object
-                const d = new Date(e.prescriptionDate);
-                const dStr = `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
-                return dStr === filterDate;
+    // Khởi tạo Choices.js cho 4 select sau khi đổ option
+    $(document).ready(function () {
+        if (window.flatpickr) {
+            flatpickr("#filterDate", {
+                dateFormat: "d/m/Y",
+                allowInput: true,
             });
         }
-        window.list.filteredList = filtered;
-        if (window.list.datatable) window.list.datatable.destroy();
-        window.list.initializeTable();
-        if (filtered.length > 0) notyf.success('Lọc thành công!');
-        else if (filtered.length === 0) notyf.error('Không tìm thấy kết quả phù hợp!');
-    }
+        updateResetFilterButtonState();
+
+        // Xử lý sự kiện change cho các select
+        $('#filterDate').on('change', function () {
+            updateResetFilterButtonState();
+
+            // Kiểm tra nếu tất cả các select đều có giá trị mặc định
+            const dateValue = $('#filterDate').val();
+
+            if (!dateValue || dateValue === "") {
+                // Reset về danh sách ban đầu
+                window.list.filteredList = [...window.list.entityList];
+                if (window.list.datatable) {
+                    window.list.datatable.destroy();
+                    window.list.datatable = null;
+                }
+                window.list.initializeTable();
+            }
+        });
+    });
 
     // Nút Lọc
     $(document).on('click', '#btnFilter', function () {
-        const date = $('#filterDate').val();
+        const dateStr = $('#filterDate').val();
+        let date = dateStr;
+        if (date && date.includes('/')) {
+            const [day, month, year] = date.split('/');
+            date = `${year}-${month}-${day}`;
+        }
 
         if (!date) {
-            notyf.error('Cần chọn ngày lập đơn thuốc!');
-            window.list.filteredList = window.list.entityList;
-            if (window.list.datatable) window.list.datatable.destroy();
-            window.list.initializeTable();
-            updateResetFilterButtonState();
+            notyf.error('Vui lòng chọn ngày lập đơn thuốc để lọc!');
             return;
         }
-        filterList();
+
+        try {
+            let filtered = [...window.list.entityList];
+
+            if (date) {
+                filtered = filtered.filter(e => {
+                    if (!e.prescriptionDate) return false;
+                    const onlyDate = e.prescriptionDate.split('T')[0];
+                    return onlyDate === date;
+                });
+            }
+
+            // Update filteredList and reinitialize table
+            window.list.filteredList = filtered;
+
+            // Destroy existing table if it exists
+            if (window.list.datatable) {
+                window.list.datatable.destroy();
+                window.list.datatable = null;
+            }
+
+            // Initialize new table with filtered data
+            window.list.initializeTable();
+
+            // Show appropriate message
+            if (filtered.length > 0) {
+                notyf.success('Lọc thành công!');
+            } else {
+                notyf.error('Không tìm thấy kết quả phù hợp!');
+            }
+        } catch (error) {
+            console.error('Error in filterList:', error);
+            notyf.error('Đã xảy ra lỗi khi lọc dữ liệu!');
+        }
     });
 
     // Nút Hủy lọc
     $(document).on('click', '#btnResetFilter', function () {
-        // Reset Choices.js về mặc định cho từng select
-        if (window.dateChoices) {
-            window.dateChoices.removeActiveItems();
-            window.dateChoices.setChoiceByValue('');
-        } else {
-            $('#filterDate').val('').trigger('change');
+
+        $('#filterDate').val('');
+
+        // Reset search input
+        $('#customSearchInput').val('');
+
+        // Reset filtered list to original data
+        window.list.filteredList = [...window.list.entityList];
+
+        // Destroy existing table if it exists
+        if (window.list.datatable) {
+            window.list.datatable.destroy();
+            window.list.datatable = null;
         }
-        window.list.filteredList = window.list.entityList;
-        if (window.list.datatable) window.list.datatable.destroy();
+
+        // Reinitialize table with original data
         window.list.initializeTable();
+
+        // Update reset button state
         updateResetFilterButtonState();
+
+        // Show success message
+        notyf.success('Đã hủy bộ lọc thành công!');
     });
 
     function updateResetFilterButtonState() {
@@ -486,6 +574,8 @@
             $('#btnResetFilter').prop('disabled', false).css('cursor', 'pointer');
         }
     }
+
+
     document.getElementById('closePrescriptionModal').addEventListener('click', function () {
         const modal = document.getElementById('prescriptionModal');
         modal.classList.add('closing');
@@ -629,6 +719,10 @@
             const result = await res.json();
             if (res.ok && result.success) {
                 notyf.success(result.message || 'Chỉnh sửa đơn thuốc thành công!');
+                // Đóng modal sau 2 giây
+                setTimeout(() => {
+                    document.getElementById('closePrescriptionModal').click();
+                }, 2000);
             } else {
                 notyf.error(result.message || 'Chỉnh sửa đơn thuốc thất bại!');
             }

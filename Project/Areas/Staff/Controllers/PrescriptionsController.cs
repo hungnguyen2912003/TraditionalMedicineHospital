@@ -46,6 +46,7 @@ namespace Staff.Controllers
         {
             var list = await _prescriptionRepository.GetAllAdvancedAsync();
             var viewModelList = _mapper.Map<List<PrescriptionViewModel>>(list);
+            viewModelList = viewModelList.OrderBy(x => x.PrescriptionDate).ToList();
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }

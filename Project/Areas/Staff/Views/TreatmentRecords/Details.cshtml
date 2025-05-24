@@ -28,7 +28,7 @@
                 </svg>
                 Thông tin phiếu điều trị
             </a>
-    </li>
+        </li>
         <li class="inline-block">
             <a href="javascript:;"
                 class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
@@ -48,7 +48,7 @@
             <a href="javascript:;"
                 class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
                 :class="{'!border-primary text-primary' : tab == 'treatment-details'}"
-                @@click = "tab='treatment-details'" >
+                @@click="tab='treatment-details'">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M12 11.75C12.4142 11.75 12.75 12.0858 12.75 12.5V13.25H13.5C13.9142 13.25 14.25 13.5858 14.25 14C14.25 14.4142 13.9142 14.75 13.5 14.75H12.75V15.5C12.75 15.9142 12.4142 16.25 12 16.25C11.5858 16.25 11.25 15.9142 11.25 15.5V14.75H10.5C10.0858 14.75 9.75 14.4142 9.75 14C9.75 13.5858 10.0858 13.25 10.5 13.25H11.25V12.5C11.25 12.0858 11.5858 11.75 12 11.75Z"
@@ -131,6 +131,17 @@
                                     <div class="w-full sm:w-1/2">
                                         <label for="Diagnosis">Chẩn đoán</label>
                                         <input id="Diagnosis" class="form-input" readonly value="@Model.Diagnosis" />
+                                    </div>
+                                    <div class="w-full sm:w-1/2">
+                                        <label for="AdvancePayment">Tiền ứng trước<span
+                                                class="text-danger">&nbsp*</span></label>
+                                        <div class="flex items-center">
+                                            <input id="AdvancePayment" name="TreatmentRecord.AdvancePayment"
+                                                class="form-input advance-payment w-full mt-1 p-2 border rounded"
+                                                type="text" placeholder="Nhập tiền ứng trước"
+                                                value="@Model.AdvancePayment.ToString("N0", CultureInfo.InvariantCulture)" />
+                                            <span class="ml-2 text-gray-700" style="font-weight: 900">VND</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="flex flex-col sm:flex-row gap-4 mb-4">
@@ -235,7 +246,7 @@
                                     <img src="~/Public/assets/images/no_image.png" alt="image"
                                         class="mx-auto h-40 w-40 rounded-full object-cover md:h-64 md:w-64">
                                 }
-                        </div>
+                            </div>
                         </div>
                     </div>
                     <div class="panel mb-5">
@@ -267,7 +278,8 @@
                                         value="@Model.Patient.HealthInsurance.ExpiryDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" />
                                 </div>
                                 <div>
-                                    <input type="checkbox" class="form-checkbox" disabled name="Patient.HealthInsuranceIsRightRoute" id="HealthInsuranceIsRightRoute"
+                                    <input type="checkbox" class="form-checkbox" disabled
+                                        name="Patient.HealthInsuranceIsRightRoute" id="HealthInsuranceIsRightRoute"
                                         @(Model.Patient.HealthInsurance.IsRightRoute == true ? "checked" : "")>
                                     <span class="text-sm font-medium text-gray-700 ml-2">Thẻ bảo hiểm đúng tuyến KCB</span>
                                 </div>
@@ -358,10 +370,12 @@
                                                     <td>@assignmentIndex</td>
                                                     <td>@assignment.Code</td>
                                                     <td>@assignment.Employee.Name</td>
-                                                    <td>@assignment.StartDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
-                                                    <td>@assignment.EndDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
-                                                </tr>
-                                                assignmentIndex++;
+                                                    <td>@assignment.StartDate.ToString("dd/MM/yyyy",
+                                                                                                        CultureInfo.InvariantCulture)</td>
+                                            <td>@assignment.EndDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)
+                                            </td>
+                                        </tr>
+                                                                                assignmentIndex++;
                                             }
                                         </tbody>
                                     </table>
@@ -409,15 +423,16 @@
                                                     <td>@regulationIndex</td>
                                                     <td>@regulation.Code</td>
                                                     <td>@regulation.Regulation.Name</td>
-                                                    <td>@(regulation.ExecutionDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture))</td>
-                                                    <td>
-                                                        <button type="button" class="view-note-btn"
-                                                            onclick="showNoteModal('@(regulation.Note?.Replace("'", "\\'"))', 'regulation', '@regulation.Code')">
-                                                            Xem ghi chú
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                regulationIndex++;
+                                                    <td>@(regulation.ExecutionDate.ToString("dd/MM/yyyy",
+                                                                                                        CultureInfo.InvariantCulture))</td>
+                                            <td>
+                                                <button type="button" class="view-note-btn"
+                                                    onclick="showNoteModal('@(regulation.Note?.Replace("'", "\\'"))', 'regulation', '@regulation.Code')">
+                                                    Xem ghi chú
+                                                </button>
+                                            </td>
+                                        </tr>
+                                                                                regulationIndex++;
                                             }
                                         </tbody>
                                     </table>
@@ -427,7 +442,7 @@
                             {
                                 <div class="text-center text-gray-500">
                                     Chưa có thông tin quy định
-                        </div>
+                                </div>
                             }
                     </div>
                 </div>
@@ -625,41 +640,39 @@
     }
 
     /* Modal Animations */
-    @@keyframes modalFadeIn
-    {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+    @@keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
         }
 
-        @@keyframes modalFadeOut
-        {
-                from {
-                    opacity: 1;
-                    transform: scale(1);
-                }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
 
-                to {
-                    opacity: 0;
-                    transform: scale(0.95);
-                }
-            }
+    @@keyframes modalFadeOut {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
 
-            .modal-overlay {
-                transition: opacity 0.2s ease-in-out;
-            }
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    }
 
-            .modal-content {
-                animation: modalFadeIn 0.3s ease-out forwards;
-            }
+    .modal-overlay {
+        transition: opacity 0.2s ease-in-out;
+    }
 
-            .modal-closing {
-                animation: modalFadeOut 0.2s ease-in forwards;
-            }
+    .modal-content {
+        animation: modalFadeIn 0.3s ease-out forwards;
+    }
+
+    .modal-closing {
+        animation: modalFadeOut 0.2s ease-in forwards;
+    }
 </style>
