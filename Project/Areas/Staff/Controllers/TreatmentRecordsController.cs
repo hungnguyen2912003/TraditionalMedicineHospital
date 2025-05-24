@@ -5,6 +5,7 @@ using Project.Areas.Staff.Models.DTOs;
 using Project.Areas.Staff.Models.Entities;
 using Project.Areas.Staff.Models.ViewModels;
 using Project.Helpers;
+using Project.Models.Enums;
 using Project.Repositories.Interfaces;
 
 namespace Project.Areas.Staff.Controllers
@@ -39,6 +40,7 @@ namespace Project.Areas.Staff.Controllers
         {
             var list = await _treatmentRecordRepository.GetAllAdvancedAsync();
             var viewModelList = _mapper.Map<List<TreatmentRecordViewModel>>(list);
+            viewModelList = viewModelList.Where(x => x.Status == TreatmentStatus.DangDieuTri).ToList();
             await _viewBagHelper.BaseViewBag(ViewData);
             var token = Request.Cookies["AuthToken"];
             if (!string.IsNullOrEmpty(token))

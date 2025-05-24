@@ -10,7 +10,7 @@ using Repositories.Interfaces;
 namespace Staff.Controllers
 {
     [Area("Staff")]
-    [Authorize(Roles = "Bacsi, Yta")]
+    [Authorize(Roles = "Bacsi")]
     [Route("don-thuoc")]
     public class PrescriptionsController : Controller
     {
