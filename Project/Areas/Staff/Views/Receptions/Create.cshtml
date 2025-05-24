@@ -419,9 +419,10 @@
             <div x-data="treatmentDetailTable" class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4">
                 <h6 class="mb-5 text-lg font-bold">Thông tin điều trị</h6>
                 <div class="table-responsive">
-                    <table class="table-striped w-full">
+                    <table class="table-striped w-full table-bordered">
                         <thead>
                             <tr>
+                                <th style="text-align: center; font-weight: bold;">STT</th>
                                 <th style="text-align: center; font-weight: bold;">Mã chi tiết điều trị</th>
                                 <th style="text-align: center; font-weight: bold;">Phương pháp điều trị</th>
                                 <th style="text-align: center; font-weight: bold;">Phòng</th>
@@ -432,6 +433,7 @@
                         <tbody>
                             <template x-for="(detail, idx) in details" :key="detail.Code">
                                 <tr>
+                                    <td style="text-align: center;" x-text="idx + 1"></td>
                                     <td>
                                         <input :id="'treatmentRecordDetailCode-' + idx" type="text" class="form-input" x-model="detail.Code" readonly
                                             :name="'TreatmentRecordDetails['+idx+'].Code'">
