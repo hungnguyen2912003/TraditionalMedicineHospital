@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Staff.Models.DTOs;
 using Project.Models.Enums;
@@ -62,7 +63,7 @@ namespace Project.Areas.Staff.Controllers.api
                 if (!isAssignedDoctor)
                     return Forbid("Bạn không có quyền đình chỉ phiếu điều trị này. Chỉ bác sĩ được phân công mới có quyền đình chỉ.");
 
-                treatmentRecord.Status = TreatmentStatus.DaHuyBo;
+                treatmentRecord.Status = request.Status;
                 treatmentRecord.SuspendedReason = request.SuspendedReason;
                 treatmentRecord.SuspendedNote = request.SuspendedNote;
                 treatmentRecord.SuspendedBy = user.Employee.Code;
@@ -74,11 +75,11 @@ namespace Project.Areas.Staff.Controllers.api
                 var patientEmail = treatmentRecord.Patient?.EmailAddress;
                 if (!string.IsNullOrEmpty(patientEmail))
                 {
-                    var subject = "Thông báo đình chỉ phiếu điều trị";
+                    var subject = "Thông báo đình chỉ đợt điều trị";
                     var body = $@"
                         <h2>Kính gửi {treatmentRecord.Patient?.Name},</h2>
-                        <p>Chúng tôi xin thông báo phiếu điều trị <strong>{treatmentRecord.Code}</strong> của bạn đã bị <strong>đình chỉ</strong>.</p>
-                        <p><strong>Ghi chú:</strong>{(!string.IsNullOrEmpty(request.SuspendedNote) ? $"{request.SuspendedNote}" : "Không có")}</p>
+                        <p>Chúng tôi xin thông báo phiếu điều trị <strong>{treatmentRecord.Code}</strong> (KCB từ ngày {treatmentRecord.StartDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)} đến ngày {treatmentRecord.EndDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}) của bạn đã bị <strong>đình chỉ</strong>.</p>
+                        <p>Lý do đình chỉ: <strong>{treatmentRecord.SuspendedReason}</strong></p>
                         <p>Vui lòng đến quầy tại bệnh viện để thanh toán chi phí sử dụng dịch vụ.</p>
                         <p>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với bệnh viện để được giải đáp.</p>
                         <p>Trân trọng,<br>Bệnh viện Y học cổ truyền Nha Trang</p>";
@@ -144,7 +145,7 @@ namespace Project.Areas.Staff.Controllers.api
                     {
                         RoomId = roomId,
                         RoomName = t1.TreatmentRecordDetail!.Room?.Name,
-                        Dates = new[] { t1.TrackingDate.ToString("yyyy-MM-dd"), t2.TrackingDate.ToString("yyyy-MM-dd"), t3.TrackingDate.ToString("yyyy-MM-dd") },
+                        Dates = new[] { t1.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture), t2.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture), t3.TrackingDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) },
                         TrackingIds = new[] { t1.Id, t2.Id, t3.Id },
                         Notes = new[] { t1.Note, t2.Note, t3.Note }
                     });

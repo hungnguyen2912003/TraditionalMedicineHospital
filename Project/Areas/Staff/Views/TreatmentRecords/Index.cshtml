@@ -199,6 +199,7 @@
                         <option value="">Chọn lý do đình chỉ</option>
                         <option value="1">Vi phạm quy định: Tự ý bỏ điều trị từ 3 ngày trong 1 đợt điều trị</option>
                         <option value="2">Bệnh nhân mong muốn xuất viện sớm</option>
+                        <option value="3">Kết thúc đợt điều trị và xuất viện</option>
                     </select>
                 </div>
                 <div class="mb-4">
@@ -940,7 +941,8 @@
             suspendedReason: suspendReasonText,
             suspendedNote: suspendNote,
             suspendedBy: window.currentStaffName || '',
-            suspendedDate: new Date().toISOString()
+            suspendedDate: new Date().toISOString(),
+            status: suspendReasonValue == 1 || suspendReasonValue == 2 ? 3 : 2
         };
         const overlay = document.getElementById('loadingOverlay');
         overlay.style.display = 'flex';
