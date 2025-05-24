@@ -296,6 +296,21 @@
         }, 200);
     }
 
+    function formatDateVN(dateStr) {
+        // Nếu là dạng yyyy-MM-dd
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+            const [y, m, d] = dateStr.split('-');
+            return `${d}/${m}/${y}`;
+        }
+        // Nếu là dạng dd MM yyyy
+        if (/^\d{2} \d{2} \d{4}$/.test(dateStr)) {
+            const [d, m, y] = dateStr.split(' ');
+            return `${d}/${m}/${y}`;
+        }
+        // Nếu là dạng khác, trả về nguyên bản
+        return dateStr;
+    }
+
     function showLogModal(detailId) {
         fetch(`/BenhNhan/Home/GetTreatmentTracking?detailId=${detailId}`)
             .then(res => res.json())
@@ -332,7 +347,7 @@
                                     : data.logs.map((log, idx) => `
                                         <tr>
                                             <td>${idx + 1}</td>
-                                            <td>${log.date}</td>
+                                            <td>${formatDateVN(log.date)}</td>
                                             <td>${getStatusBadge(log.status)}</td>
                                             <td>${log.staff}</td>
                                             <td>

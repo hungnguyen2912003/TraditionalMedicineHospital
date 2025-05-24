@@ -161,7 +161,7 @@ const tokenHandler = {
         document.cookie = 'TokenExpiration=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         
         // Gọi API logout và chuyển hướng
-        fetch('/Admin/Account/Logout', {
+        fetch('/dang-xuat', {
             method: 'GET',
             redirect: 'follow'
         }).then(response => {

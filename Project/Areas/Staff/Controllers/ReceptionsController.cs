@@ -9,12 +9,12 @@ using Project.Repositories.Interfaces;
 using Project.Services.Features;
 using Project.Services.Interfaces;
 using Project.Areas.Admin.Models.Entities;
-using System.Text.Json;
 
 namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
     [Authorize(Roles = "Bacsi")]
+    [Route("tiep-nhan-benh-nhan")]
     public class ReceptionsController : Controller
     {
         private readonly IPatientRepository _patientRepository;
@@ -70,7 +70,7 @@ namespace Project.Areas.Staff.Controllers
             _treatmentMethodRepository = treatmentMethodRepository;
         }
 
-        [HttpGet]
+        [HttpGet("tao-phieu")]
         public async Task<IActionResult> Create()
         {
             // Token
@@ -113,7 +113,7 @@ namespace Project.Areas.Staff.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost("tao-phieu")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromForm] ReceptionDto dto, [FromForm] Guid? OldPatientId)
         {
@@ -294,7 +294,7 @@ namespace Project.Areas.Staff.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("chinh-sua-phieu/{id}")]
         public async Task<IActionResult> Edit(Guid id)
         {
             // Token
@@ -401,12 +401,12 @@ namespace Project.Areas.Staff.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost("chinh-sua-phieu/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([FromForm] ReceptionEditDto dto)
         {
             try
-            {   
+            {
                 // Get user info from token
                 var token = Request.Cookies["AuthToken"];
                 if (string.IsNullOrEmpty(token))

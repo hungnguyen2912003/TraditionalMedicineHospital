@@ -25,13 +25,13 @@ namespace Project.Areas.BenhNhan.Controllers
         private readonly IEmployeeRepository _employeeRepository;
 
         public HomeController
-        (   
-            IHealthInsuranceRepository healthInsuranceRepository, 
-            IPatientRepository patientRepository, 
-            IMapper mapper, 
-            ViewBagHelper viewBagHelper, 
-            ITreatmentRecordRepository treatmentRecordRepository, 
-            ITreatmentTrackingRepository treatmentTrackingRepository, 
+        (
+            IHealthInsuranceRepository healthInsuranceRepository,
+            IPatientRepository patientRepository,
+            IMapper mapper,
+            ViewBagHelper viewBagHelper,
+            ITreatmentRecordRepository treatmentRecordRepository,
+            ITreatmentTrackingRepository treatmentTrackingRepository,
             ITreatmentRecordDetailRepository treatmentRecordDetailRepository,
             IUserRepository userRepository,
             JwtManager jwtManager,
@@ -160,10 +160,12 @@ namespace Project.Areas.BenhNhan.Controllers
             var employees = await _employeeRepository.GetByIdsAsync(employeeIds);
             var employeeDict = employees.ToDictionary(e => e.Id, e => e.Name);
 
-            var result = new {
+            var result = new
+            {
                 methodName = detail.Room?.TreatmentMethod?.Name ?? "",
                 roomName = detail.Room?.Name ?? "",
-                logs = logs.Select(x => new {
+                logs = logs.Select(x => new
+                {
                     date = x.TrackingDate.ToString("dd/MM/yyyy"),
                     status = x.Status,
                     staff = x.EmployeeId != null && employeeDict.ContainsKey(x.EmployeeId.Value)

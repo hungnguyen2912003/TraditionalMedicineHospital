@@ -1,3 +1,4 @@
+using System.Globalization;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Staff.Models.DTOs;
@@ -76,7 +77,7 @@ namespace Project.Areas.Staff.Controllers.api
                 // Tính toán các chi phí
                 var prescriptions = tr.Prescriptions ?? new List<Prescription>();
                 decimal totalPrescriptionCost = prescriptions.Sum(p => p.TotalCost);
-                
+
                 decimal totalTreatmentMethodCost = 0;
                 foreach (var detail in tr.TreatmentRecordDetails ?? new List<TreatmentRecordDetail>())
                 {
@@ -124,7 +125,7 @@ namespace Project.Areas.Staff.Controllers.api
                 // Gửi email cho bệnh nhân
                 if (tr.Patient?.EmailAddress != null)
                 {
-                    var emailSubject = $"Thông báo thanh toán - Phiếu thanh toán {payment.Code}";
+                    var emailSubject = $"Thông báo thanh toán chi phí";
                     var emailBody = $@"
                         <h2>Thông báo thanh toán</h2>
                         <p>Kính gửi {tr.Patient.Name},</p>
@@ -138,100 +139,100 @@ namespace Project.Areas.Staff.Controllers.api
                             <li><b>Tổng số tiền cần thanh toán: {finalCost:N0} VNĐ</b></li>
                         </ul>";
 
-                if (advanceRefund > 0)
-                {
-                    emailBody += $@"
+                    if (advanceRefund > 0)
+                    {
+                        emailBody += $@"
                         <li>Số tiền tạm ứng còn dư: <strong>{advanceRefund:N0} VNĐ</strong></li>
                     </ul>
                     <p>Bạn cần đến bệnh viện để nhân viên tại quầy trả lại số tiền tạm ứng còn dư trên.</p>";
-                }
-                else if (advanceRefund < 0)
-                {
-                    emailBody += $@"
+                    }
+                    else if (advanceRefund < 0)
+                    {
+                        emailBody += $@"
                         <li>Số tiền còn thiếu: <strong>{Math.Abs(advanceRefund):N0} VNĐ</strong></li>
                     </ul>
                     <p>Bạn cần đến bệnh viện để thanh toán số tiền còn thiếu.</p>";
-                }
-                else
-                {
-                    emailBody += $@"
+                    }
+                    else
+                    {
+                        emailBody += $@"
                     </ul>";
+                    }
+
+                    emailBody += $@"
+                <p>Trân trọng,<br>Bệnh viện Y học cổ truyền</p>";
+
+                    await _emailService.SendEmailAsync(tr.Patient.EmailAddress, emailSubject, emailBody);
                 }
 
-                emailBody += $@"
-                    <p>Trân trọng,<br>Bệnh viện Y học cổ truyền</p>";
-
-                await _emailService.SendEmailAsync(tr.Patient.EmailAddress, emailSubject, emailBody);
+                return Ok(new { success = true, message = "Tạo phiếu thanh toán thành công!", paymentId = payment.Id });
             }
-
-            return Ok(new { success = true, message = "Tạo phiếu thanh toán thành công!", paymentId = payment.Id });
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi server: " + ex.Message });
+            }
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { success = false, message = "Lỗi server: " + ex.Message });
-        }
-    }
 
         [HttpGet("CalculateCost/{treatmentRecordId}")]
         public async Task<IActionResult> CalculateCost(Guid treatmentRecordId)
-    {
-        // 1. Lấy TreatmentRecord đầy đủ
-        var tr = await _treatmentRecordRepository.GetByIdAdvancedAsync(treatmentRecordId);
-        if (tr == null) return NotFound("Không tìm thấy phiếu điều trị");
-
-        // 2. Tổng tiền đơn thuốc
-        var prescriptions = tr.Prescriptions ?? new List<Project.Areas.Staff.Models.Entities.Prescription>();
-        decimal totalPrescriptionCost = prescriptions.Sum(p => p.TotalCost);
-
-        // 3. Tổng tiền phương pháp điều trị
-        decimal totalTreatmentMethodCost = 0;
-        foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
         {
-            var room = detail.Room;
-            var method = room?.TreatmentMethod;
-            if (method == null) continue;
-            // Đếm số lần điều trị (status = 1)
-            int count = detail.TreatmentTrackings?.Count(t => t.Status == TrackingStatus.CoDieuTri) ?? 0;
-            totalTreatmentMethodCost += method.Cost * count;
-        }
+            // 1. Lấy TreatmentRecord đầy đủ
+            var tr = await _treatmentRecordRepository.GetByIdAdvancedAsync(treatmentRecordId);
+            if (tr == null) return NotFound("Không tìm thấy phiếu điều trị");
 
-        // 4. Tạm ứng
-        decimal advancePayment = tr.AdvancePayment;
+            // 2. Tổng tiền đơn thuốc
+            var prescriptions = tr.Prescriptions ?? new List<Project.Areas.Staff.Models.Entities.Prescription>();
+            decimal totalPrescriptionCost = prescriptions.Sum(p => p.TotalCost);
 
-        // 5. Tổng chi phí trước BHYT (KHÔNG trừ tạm ứng)
-        decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
+            // 3. Tổng tiền phương pháp điều trị
+            decimal totalTreatmentMethodCost = 0;
+            foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
+            {
+                var room = detail.Room;
+                var method = room?.TreatmentMethod;
+                if (method == null) continue;
+                // Đếm số lần điều trị (status = 1)
+                int count = detail.TreatmentTrackings?.Count(t => t.Status == TrackingStatus.CoDieuTri) ?? 0;
+                totalTreatmentMethodCost += method.Cost * count;
+            }
 
-        // 6. Tính giảm BHYT
-        decimal insuranceAmount = 0;
-        var patient = tr.Patient;
-        var hi = patient?.HealthInsurance;
-        if (hi != null)
-        {
-            if (hi.IsRightRoute)
-                insuranceAmount = totalCostBeforeInsurance * 0.8m;
-            else
-                insuranceAmount = totalCostBeforeInsurance * 0.6m;
-        }
-        // Nếu không có thẻ thì insuranceAmount = 0
+            // 4. Tạm ứng
+            decimal advancePayment = tr.AdvancePayment;
 
-        // Số tiền thực tế bệnh nhân phải trả (không trừ tạm ứng, không ép về 0)
-        decimal actualPatientPay = totalCostBeforeInsurance - insuranceAmount;
+            // 5. Tổng chi phí trước BHYT (KHÔNG trừ tạm ứng)
+            decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
 
-        // 7. Tổng thanh toán cuối cùng
-        decimal finalCost = totalCostBeforeInsurance - insuranceAmount - advancePayment;
-        if (finalCost < 0) finalCost = 0;
+            // 6. Tính giảm BHYT
+            decimal insuranceAmount = 0;
+            var patient = tr.Patient;
+            var hi = patient?.HealthInsurance;
+            if (hi != null)
+            {
+                if (hi.IsRightRoute)
+                    insuranceAmount = totalCostBeforeInsurance * 0.8m;
+                else
+                    insuranceAmount = totalCostBeforeInsurance * 0.6m;
+            }
+            // Nếu không có thẻ thì insuranceAmount = 0
 
-        return Ok(new
-        {
-            totalPrescriptionCost,
-            totalTreatmentMethodCost,
-            insuranceAmount,
-            advancePayment,
-            finalCost,
-            actualPatientPay
+            // Số tiền thực tế bệnh nhân phải trả (không trừ tạm ứng, không ép về 0)
+            decimal actualPatientPay = totalCostBeforeInsurance - insuranceAmount;
+
+            // 7. Tổng thanh toán cuối cùng
+            decimal finalCost = totalCostBeforeInsurance - insuranceAmount - advancePayment;
+            if (finalCost < 0) finalCost = 0;
+
+            return Ok(new
+            {
+                totalPrescriptionCost,
+                totalTreatmentMethodCost,
+                insuranceAmount,
+                advancePayment,
+                finalCost,
+                actualPatientPay
             });
         }
-    
+
         [HttpPut("UpdateStatus")]
         public async Task<IActionResult> UpdateStatus([FromBody] UpdatePaymentStatusRequest request)
         {
@@ -258,6 +259,38 @@ namespace Project.Areas.Staff.Controllers.api
             }
             await _paymentRepository.UpdateAsync(payment);
             return Ok(new { success = true, message = "Cập nhật trạng thái thành công!" });
+        }
+
+        [HttpGet("GetTreatmentDetails/{treatmentRecordId}")]
+        public async Task<IActionResult> GetTreatmentDetails(Guid treatmentRecordId)
+        {
+            var tr = await _treatmentRecordRepository.GetByIdAdvancedAsync(treatmentRecordId);
+            if (tr == null) return NotFound();
+            var details = tr.TreatmentRecordDetails?.Select(detail => new
+            {
+                departmentName = detail.Room?.Department?.Name ?? "",
+                roomName = detail.Room?.Name ?? "",
+                methodName = detail.Room?.TreatmentMethod?.Name ?? "",
+                cost = detail.Room?.TreatmentMethod?.Cost ?? 0,
+                count = detail.TreatmentTrackings?.Count(t => t.Status == TrackingStatus.CoDieuTri) ?? 0
+            }).ToList();
+            if (details != null) return Ok(details);
+            return Ok(new List<object>());
+        }
+
+        [HttpGet("GetPrescriptions/{treatmentRecordId}")]
+        public async Task<IActionResult> GetPrescriptions(Guid treatmentRecordId)
+        {
+            var tr = await _treatmentRecordRepository.GetByIdAdvancedAsync(treatmentRecordId);
+            if (tr == null) return NotFound();
+            var prescriptions = tr.Prescriptions?.Select(p => new
+            {
+                code = p.Code,
+                createdDate = p.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                totalCost = p.TotalCost
+            }).ToList();
+            if (prescriptions != null) return Ok(prescriptions);
+            return Ok(new List<object>());
         }
     }
 }

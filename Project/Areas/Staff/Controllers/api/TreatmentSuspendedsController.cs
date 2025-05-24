@@ -58,7 +58,7 @@ namespace Project.Areas.Staff.Controllers.api
                 // Kiểm tra xem bác sĩ hiện tại có nằm trong danh sách phân công không
                 var assignments = await _assignmentRepository.GetByTreatmentRecordIdAsync(treatmentRecord.Id);
                 var isAssignedDoctor = assignments.Any(a => a.EmployeeId == user.Employee.Id);
-                
+
                 if (!isAssignedDoctor)
                     return Forbid("Bạn không có quyền đình chỉ phiếu điều trị này. Chỉ bác sĩ được phân công mới có quyền đình chỉ.");
 
@@ -78,7 +78,7 @@ namespace Project.Areas.Staff.Controllers.api
                     var body = $@"
                         <h2>Kính gửi {treatmentRecord.Patient?.Name},</h2>
                         <p>Chúng tôi xin thông báo phiếu điều trị <strong>{treatmentRecord.Code}</strong> của bạn đã bị <strong>đình chỉ</strong>.</p>
-                        {(!string.IsNullOrEmpty(request.SuspendedNote) ? $"<p><strong>Ghi chú:</strong> {request.SuspendedNote}</p>" : "Không có")}
+                        <p><strong>Ghi chú:</strong>{(!string.IsNullOrEmpty(request.SuspendedNote) ? $"{request.SuspendedNote}" : "Không có")}</p>
                         <p>Vui lòng đến quầy tại bệnh viện để thanh toán chi phí sử dụng dịch vụ.</p>
                         <p>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với bệnh viện để được giải đáp.</p>
                         <p>Trân trọng,<br>Bệnh viện Y học cổ truyền Nha Trang</p>";
@@ -140,7 +140,8 @@ namespace Project.Areas.Staff.Controllers.api
                 if ((t2.TrackingDate.Date - t1.TrackingDate.Date).TotalDays == 1 &&
                     (t3.TrackingDate.Date - t2.TrackingDate.Date).TotalDays == 1)
                 {
-                    result.Add(new {
+                    result.Add(new
+                    {
                         RoomId = roomId,
                         RoomName = t1.TreatmentRecordDetail!.Room?.Name,
                         Dates = new[] { t1.TrackingDate.ToString("yyyy-MM-dd"), t2.TrackingDate.ToString("yyyy-MM-dd"), t3.TrackingDate.ToString("yyyy-MM-dd") },

@@ -35,10 +35,11 @@
                 <hr class="mb-6">
                 <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
                     <div class="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
-                        @if (currentRole == "yta"){
+                        @if (currentRole == "yta")
+                        {
                             <div>
                                 <a href="javascript:;" id="btnAddTracking" class="btn btn-primary"
-                                    @@click = "openTrackingModal" >
+                                    @@click="openTrackingModal">
                                     <svg width="24" height="24" class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24"
                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -56,7 +57,9 @@
                                 </a>
                             </div>
                         }
-                        <div class="flex gap-2 ml-4">
+                    </div>
+                    <div class="flex w-1/2 flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
+                        <div class="flex gap-3">
                             <div class="group relative">
                                 <input type="text" placeholder="Tìm kiếm..." id="customSearchInput"
                                     class="peer form-input ltr:pr-8 rtl:pl-8">
@@ -71,45 +74,6 @@
                                     </svg>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="flex w-1/2 flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
-                        <div class="flex gap-3">
-                            <button type="button" class="btn btn-primary gap-2" @@click="print">
-                                <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
-                                    <path
-                                        d="M6 17.9827C4.44655 17.9359 3.51998 17.7626 2.87868 17.1213C2 16.2426 2 14.8284 2 12C2 9.17157 2 7.75736 2.87868 6.87868C3.75736 6 5.17157 6 8 6H16C18.8284 6 20.2426 6 21.1213 6.87868C22 7.75736 22 9.17157 22 12C22 14.8284 22 16.2426 21.1213 17.1213C20.48 17.7626 19.5535 17.9359 18 17.9827"
-                                        stroke="currentColor" stroke-width="1.5"></path>
-                                    <path opacity="0.5" d="M9 10H6" stroke="currentColor" stroke-width="1.5"
-                                        stroke-linecap="round"></path>
-                                    <path d="M19 14L5 14" stroke="currentColor" stroke-width="1.5"
-                                        stroke-linecap="round"></path>
-                                    <path
-                                        d="M18 14V16C18 18.8284 18 20.2426 17.1213 21.1213C16.2426 22 14.8284 22 12 22C9.17157 22 7.75736 22 6.87868 21.1213C6 20.2426 6 18.8284 6 16V14"
-                                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                    <path opacity="0.5"
-                                        d="M17.9827 6C17.9359 4.44655 17.7626 3.51998 17.1213 2.87868C16.2427 2 14.8284 2 12 2C9.17158 2 7.75737 2 6.87869 2.87868C6.23739 3.51998 6.06414 4.44655 6.01733 6"
-                                        stroke="currentColor" stroke-width="1.5"></path>
-                                    <circle opacity="0.5" cx="17" cy="10" r="1" fill="currentColor"></circle>
-                                    <path opacity="0.5" d="M15 16.5H9" stroke="currentColor" stroke-width="1.5"
-                                        stroke-linecap="round"></path>
-                                    <path opacity="0.5" d="M13 19H9" stroke="currentColor" stroke-width="1.5"
-                                        stroke-linecap="round"></path>
-                                </svg>
-                                In
-                            </button>
-                            <button type="button" class="btn btn-success gap-2">
-                                <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
-                                    <path opacity="0.5"
-                                        d="M17 9.00195C19.175 9.01406 20.3529 9.11051 21.1213 9.8789C22 10.7576 22 12.1718 22 15.0002V16.0002C22 18.8286 22 20.2429 21.1213 21.1215C20.2426 22.0002 18.8284 22.0002 16 22.0002H8C5.17157 22.0002 3.75736 22.0002 2.87868 21.1215C2 20.2429 2 18.8286 2 16.0002L2 15.0002C2 12.1718 2 10.7576 2.87868 9.87889C3.64706 9.11051 4.82497 9.01406 7 9.00195"
-                                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                    <path d="M12 2L12 15M12 15L9 11.5M12 15L15 11.5" stroke="currentColor"
-                                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                </svg>
-                                Tải xuống
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -586,220 +550,218 @@
     }
 
     /* Hiệu ứng mở (fade + scale) */
-    @@keyframes modalFadeIn
-    {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+    @@keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
         }
 
-        @@keyframes modalFadeOut
-        {
-                from {
-                    opacity: 1;
-                    transform: scale(1);
-                }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
 
-                to {
-                    opacity: 0;
-                    transform: scale(0.95);
-                }
-            }
+    @@keyframes modalFadeOut {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
 
-            #trackingModal .modal-content-animate {
-                animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    }
 
-            #trackingModal.closing .modal-content-animate {
-                animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            }
+    #trackingModal .modal-content-animate {
+        animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-            #editTrackingModal .modal-content-animate {
-                animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
+    #trackingModal.closing .modal-content-animate {
+        animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-            #editTrackingModal.closing .modal-content-animate {
-                animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            }
+    #editTrackingModal .modal-content-animate {
+        animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-            /* Nền mờ xung quanh modal */
-            .bg-modal-blur {
-                background: rgba(30, 41, 59, 0.2);
-                backdrop-filter: blur(6px);
-                -webkit-backdrop-filter: blur(6px);
-            }
+    #editTrackingModal.closing .modal-content-animate {
+        animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-            .note-input {
-                border: 2px solid #a3a3a3;
-                border-radius: 8px;
-                padding: 6px 14px;
-                transition: border-color 0.2s, box-shadow 0.2s;
-                outline: none;
-                box-shadow: none;
-            }
+    /* Nền mờ xung quanh modal */
+    .bg-modal-blur {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
 
-            .note-input:focus {
-                border-color: #22c55e;
-                /* xanh lá khi focus */
-                box-shadow: 0 0 0 2px #22c55e33;
-                background: #f6fff8;
-            }
+    .note-input {
+        border: 2px solid #a3a3a3;
+        border-radius: 8px;
+        padding: 6px 14px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        outline: none;
+        box-shadow: none;
+    }
 
-            .filter-bar-item {
-                height: 40px !important;
-                min-height: 40px !important;
-                padding-top: 0.375rem !important;
-                padding-bottom: 0.375rem !important;
-                box-sizing: border-box;
-            }
+    .note-input:focus {
+        border-color: #22c55e;
+        /* xanh lá khi focus */
+        box-shadow: 0 0 0 2px #22c55e33;
+        background: #f6fff8;
+    }
 
-            .filter-bar-container {
-                flex-wrap: nowrap !important;
-                justify-content: center;
-                gap: 24px;
-            }
+    .filter-bar-item {
+        height: 40px !important;
+        min-height: 40px !important;
+        padding-top: 0.375rem !important;
+        padding-bottom: 0.375rem !important;
+        box-sizing: border-box;
+    }
 
-            .filter-bar-container>* {
-                flex: 0 0 auto !important;
-            }
+    .filter-bar-container {
+        flex-wrap: nowrap !important;
+        justify-content: center;
+        gap: 24px;
+    }
 
-            #filterPatient+.choices,
-            #filterStatus+.choices {
-                width: 260px !important;
-                min-width: 260px !important;
-                max-width: 260px !important;
-                flex: none !important;
-            }
+    .filter-bar-container>* {
+        flex: 0 0 auto !important;
+    }
 
-            #filterPatient+.choices .choices__inner,
-            #filterStatus+.choices .choices__inner {
-                width: 100% !important;
-                min-width: 100% !important;
-                max-width: 100% !important;
-                box-sizing: border-box;
-            }
+    #filterPatient+.choices,
+    #filterStatus+.choices {
+        width: 260px !important;
+        min-width: 260px !important;
+        max-width: 260px !important;
+        flex: none !important;
+    }
 
-            input:disabled {
-                cursor: not-allowed;
-                background: #f3f4f6 !important;
-                color: #a3a3a3 !important;
-            }
+    #filterPatient+.choices .choices__inner,
+    #filterStatus+.choices .choices__inner {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    input:disabled {
+        cursor: not-allowed;
+        background: #f3f4f6 !important;
+        color: #a3a3a3 !important;
+    }
 </style>
 
-        <script>
-            $(document).on('click', '.btn-status', function () {
-                var $row = $(this).closest('tr');
-                if ($(this).hasClass('active-status')) {
-                    // Nếu đã active thì bỏ chọn
-                    $(this).removeClass('active-status');
-                } else {
-                    // Nếu chưa active thì chuyển active
-                    $row.find('.btn-status').removeClass('active-status');
-                    $(this).addClass('active-status');
-                }
-            });
-        </script>
+<script>
+    $(document).on('click', '.btn-status', function () {
+        var $row = $(this).closest('tr');
+        if ($(this).hasClass('active-status')) {
+            // Nếu đã active thì bỏ chọn
+            $(this).removeClass('active-status');
+        } else {
+            // Nếu chưa active thì chuyển active
+            $row.find('.btn-status').removeClass('active-status');
+            $(this).addClass('active-status');
+        }
+    });
+</script>
 
-        <script>
-            $(document).on('click', '.btn-save', function (e) {
-                e.preventDefault();
-                var $row = $(this).closest('tr');
-                var patientId = $row.data('patient-id');
-                var roomId = $('#trackingModal').data('room-id');
-                var statusBtn = $row.find('.btn-status.active-status');
-                if (statusBtn.length === 0) {
-                    notyf.error('Vui lòng chọn trạng thái!');
-                    return;
-                }
-                var status = statusBtn.data('status');
-                var note = $row.find('.note-input').val();
-                var trackingDate = new Date().toISOString();
-                const overlay = document.getElementById('loadingOverlay');
+<script>
+    $(document).on('click', '.btn-save', function (e) {
+        e.preventDefault();
+        var $row = $(this).closest('tr');
+        var patientId = $row.data('patient-id');
+        var roomId = $('#trackingModal').data('room-id');
+        var statusBtn = $row.find('.btn-status.active-status');
+        if (statusBtn.length === 0) {
+            notyf.error('Vui lòng chọn trạng thái!');
+            return;
+        }
+        var status = statusBtn.data('status');
+        var note = $row.find('.note-input').val();
+        var trackingDate = new Date().toISOString();
+        const overlay = document.getElementById('loadingOverlay');
 
-                overlay.style.display = 'flex';             
+        overlay.style.display = 'flex';
 
-                fetch('/api/trackings', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        patientId: patientId,
-                        roomId: roomId,
-                        status: status,
-                        note: note,
-                        trackingDate: trackingDate
-                    })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success !== false) {
-                            overlay.style.display = 'none';
-                            notyf.success('Lưu thành công!');
-                            // Xóa dòng bệnh nhân vừa lưu khỏi bảng
-                            $row.remove();
-                            // Cập nhật lại số thứ tự (STT)
-                            $('#modalPatientTableBody tr').each(function (index) {
-                                $(this).find('td').eq(0).text(index + 1);
-                            });
-                            // Nếu không còn bệnh nhân nào, hiển thị dòng thông báo
-                            if ($('#modalPatientTableBody tr').length === 0) {
-                                $('#modalPatientTableBody').html(
-                                    `<tr><td colspan="5" style="text-align:center;color:#888;font-style:italic;">
+        fetch('/api/trackings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                patientId: patientId,
+                roomId: roomId,
+                status: status,
+                note: note,
+                trackingDate: trackingDate
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success !== false) {
+                    overlay.style.display = 'none';
+                    notyf.success('Lưu thành công!');
+                    // Xóa dòng bệnh nhân vừa lưu khỏi bảng
+                    $row.remove();
+                    // Cập nhật lại số thứ tự (STT)
+                    $('#modalPatientTableBody tr').each(function (index) {
+                        $(this).find('td').eq(0).text(index + 1);
+                    });
+                    // Nếu không còn bệnh nhân nào, hiển thị dòng thông báo
+                    if ($('#modalPatientTableBody tr').length === 0) {
+                        $('#modalPatientTableBody').html(
+                            `<tr><td colspan="5" style="text-align:center;color:#888;font-style:italic;">
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 Không còn bệnh nhân nào cần chấm theo dõi trong ngày hôm nay
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             </td></tr>`
-                                );
-                            }
-                        } else {
-                            overlay.style.display = 'none';
-                            notyf.error(data.message || 'Lưu thất bại!');
-                        }
-                    })
-                    .catch(() => {
-                        overlay.style.display = 'none';
-                        notyf.error('Có lỗi khi gửi dữ liệu!');
-                    });
-            });
-        </script>
-
-        <script>
-            $(document).on('click', '#closeTrackingModal', function () {
-                $('#trackingModal').addClass('closing');
-                setTimeout(function () {
-                    $('#trackingModal').addClass('hidden').removeClass('closing');
-                    // Reload lại trang sau khi modal đóng
-                    window.location.reload();
-                }, 200); // Thời gian trùng với animation out
-            });
-        </script>
-
-        <script>
-            let currentEditId = null;
-            const currentEmployeeCode = '@ViewBag.CurrentEmployeeCode'.trim();
-
-            $(document).on('click', '.edit-btn', function () {
-                // Lấy dữ liệu từ entityList (hoặc data attribute)
-                const treatmentRecordStatus = $(this).data('treatmentrecord-status');
-                if (treatmentRecordStatus == 2 || treatmentRecordStatus == 3) {
-                    notyf.error('Phiếu điều trị này đã hoàn thành hoặc đã hủy, không thể cập nhật!');
-                    return;
+                        );
+                    }
+                } else {
+                    overlay.style.display = 'none';
+                    notyf.error(data.message || 'Lưu thất bại!');
                 }
-                const id = $(this).data('id');
-                const entity = window.entityList?.find(e => e.id === id);
-                currentEditId = id;
+            })
+            .catch(() => {
+                overlay.style.display = 'none';
+                notyf.error('Có lỗi khi gửi dữ liệu!');
+            });
+    });
+</script>
 
-                // Set tiêu đề phòng
-                $('#editModalRoomTitle').text(entity ? `Ngày ${new Date(entity.trackingDate).toLocaleDateString('vi-VN')} – Phòng ${entity.roomName}` : '');
+<script>
+    $(document).on('click', '#closeTrackingModal', function () {
+        $('#trackingModal').addClass('closing');
+        setTimeout(function () {
+            $('#trackingModal').addClass('hidden').removeClass('closing');
+            // Reload lại trang sau khi modal đóng
+            window.location.reload();
+        }, 200); // Thời gian trùng với animation out
+    });
+</script>
 
-                // Set trạng thái, tên bệnh nhân, ghi chú
-                $('#editModalPatientTableBody').empty();
-                $('#editModalPatientTableBody').append(`
+<script>
+    let currentEditId = null;
+    const currentEmployeeCode = '@ViewBag.CurrentEmployeeCode'.trim();
+
+    $(document).on('click', '.edit-btn', function () {
+        // Lấy dữ liệu từ entityList (hoặc data attribute)
+        const treatmentRecordStatus = $(this).data('treatmentrecord-status');
+        if (treatmentRecordStatus == 2 || treatmentRecordStatus == 3) {
+            notyf.error('Phiếu điều trị này đã hoàn thành hoặc đã hủy, không thể cập nhật!');
+            return;
+        }
+        const id = $(this).data('id');
+        const entity = window.entityList?.find(e => e.id === id);
+        currentEditId = id;
+
+        // Set tiêu đề phòng
+        $('#editModalRoomTitle').text(entity ? `Ngày ${new Date(entity.trackingDate).toLocaleDateString('vi-VN')} – Phòng ${entity.roomName}` : '');
+
+        // Set trạng thái, tên bệnh nhân, ghi chú
+        $('#editModalPatientTableBody').empty();
+        $('#editModalPatientTableBody').append(`
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     <tr>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         <td style="font-weight:bold;">${entity ? entity.patientName : ''}</td>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         <td style="text-align:center;">
@@ -818,299 +780,299 @@
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     </tr>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 `);
 
-                $('#editTrackingModal').removeClass('hidden closing');
-            });
+        $('#editTrackingModal').removeClass('hidden closing');
+    });
 
-            // Chọn trạng thái
-            $('#editTrackingModal .btn-status').on('click', function () {
-                $('#editTrackingModal .btn-status').removeClass('active-status');
-                $(this).addClass('active-status');
-            });
+    // Chọn trạng thái
+    $('#editTrackingModal .btn-status').on('click', function () {
+        $('#editTrackingModal .btn-status').removeClass('active-status');
+        $(this).addClass('active-status');
+    });
 
-            // Đóng modal với hiệu ứng
-            $('#closeEditTrackingModal').on('click', function () {
-                $('#editTrackingModal').addClass('closing');
-                setTimeout(function () {
-                    $('#editTrackingModal').addClass('hidden').removeClass('closing');
-                    window.location.reload();
-                }, 200);
-            });
+    // Đóng modal với hiệu ứng
+    $('#closeEditTrackingModal').on('click', function () {
+        $('#editTrackingModal').addClass('closing');
+        setTimeout(function () {
+            $('#editTrackingModal').addClass('hidden').removeClass('closing');
+            window.location.reload();
+        }, 200);
+    });
 
-            // Submit cập nhật
-            $(document).on('click', '#editModalPatientTableBody .btn-update', function (e) {
-                e.preventDefault();
+    // Submit cập nhật
+    $(document).on('click', '#editModalPatientTableBody .btn-update', function (e) {
+        e.preventDefault();
 
-                const $btn = $(this);
-                if ($btn.prop('disabled')) return;
+        const $btn = $(this);
+        if ($btn.prop('disabled')) return;
 
-                $btn.prop('disabled', true);
+        $btn.prop('disabled', true);
 
-                const $row = $(this).closest('tr');
-                const status = $row.find('.btn-status.active-status').data('status');
-                const note = $row.find('.note-input').val();
-                const overlay = document.getElementById('loadingOverlay');
+        const $row = $(this).closest('tr');
+        const status = $row.find('.btn-status.active-status').data('status');
+        const note = $row.find('.note-input').val();
+        const overlay = document.getElementById('loadingOverlay');
 
-                if (!status) {
-                    notyf.error('Vui lòng chọn trạng thái!');
-                    return;
+        if (!status) {
+            notyf.error('Vui lòng chọn trạng thái!');
+            return;
+        }
+
+        overlay.style.display = 'flex';
+
+        fetch('/api/trackings/' + currentEditId, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            body: JSON.stringify({ status, note })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    overlay.style.display = 'none';
+                    notyf.success('Cập nhật thành công!');
+                } else {
+                    overlay.style.display = 'none';
+                    notyf.error(data.message || 'Cập nhật thất bại!');
                 }
-
-                overlay.style.display = 'flex';
-
-                fetch('/api/trackings/' + currentEditId, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value
-                    },
-                    body: JSON.stringify({ status, note })
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            overlay.style.display = 'none';
-                            notyf.success('Cập nhật thành công!');
-                        } else {
-                            overlay.style.display = 'none';
-                            notyf.error(data.message || 'Cập nhật thất bại!');
-                        }
-                    })
-                    .catch(() => {
-                        overlay.style.display = 'none';
-                        notyf.error('Có lỗi khi gửi dữ liệu!');
-                    });
+            })
+            .catch(() => {
+                overlay.style.display = 'none';
+                notyf.error('Có lỗi khi gửi dữ liệu!');
             });
-        </script>
+    });
+</script>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // Lấy danh sách bệnh nhân duy nhất
-                const entityList = window.entityList || [];
-                const patientNames = [...new Set(entityList.map(e => e.patientName).filter(Boolean))];
-                const patientSelect = document.getElementById('filterPatient');
-                patientSelect.innerHTML = '<option value="">Chọn bệnh nhân...</option>' +
-                    patientNames.map(name => `<option value="${name}">${name}</option>`).join('');
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Lấy danh sách bệnh nhân duy nhất
+        const entityList = window.entityList || [];
+        const patientNames = [...new Set(entityList.map(e => e.patientName).filter(Boolean))];
+        const patientSelect = document.getElementById('filterPatient');
+        patientSelect.innerHTML = '<option value="">Chọn bệnh nhân...</option>' +
+            patientNames.map(name => `<option value="${name}">${name}</option>`).join('');
 
-                // Đổ option cho trạng thái
-                const statusSelect = document.getElementById('filterStatus');
-                const statusOptions = [
-                    { value: '', text: 'Chọn trạng thái...' },
-                    { value: 1, text: 'Có điều trị' },
-                    { value: 2, text: 'Xin phép' },
-                    { value: 3, text: 'Không điều trị' }
-                ];
-                statusSelect.innerHTML = statusOptions.map(opt => `<option value="${opt.value}">${opt.text}</option>`).join('');
+        // Đổ option cho trạng thái
+        const statusSelect = document.getElementById('filterStatus');
+        const statusOptions = [
+            { value: '', text: 'Chọn trạng thái...' },
+            { value: 1, text: 'Có điều trị' },
+            { value: 2, text: 'Xin phép' },
+            { value: 3, text: 'Không điều trị' }
+        ];
+        statusSelect.innerHTML = statusOptions.map(opt => `<option value="${opt.value}">${opt.text}</option>`).join('');
 
-                if (window.flatpickr) {
-                    flatpickr("#filterDate", {
-                        dateFormat: "d/m/Y",
-                        allowInput: true,
-                    });
+        if (window.flatpickr) {
+            flatpickr("#filterDate", {
+                dateFormat: "d/m/Y",
+                allowInput: true,
+            });
+            flatpickr("#filterDateFrom", {
+                dateFormat: "d/m/Y",
+                allowInput: true,
+            });
+            flatpickr("#filterDateTo", {
+                dateFormat: "d/m/Y",
+                allowInput: true,
+            });
+        }
+
+        // Chỉ khởi tạo Choices.js sau khi đã đổ option xong và chưa có instance
+        if (window.Choices) {
+            if (!patientSelect.classList.contains('choices-initialized')) {
+                window.patientChoices = new Choices(patientSelect, {
+                    searchEnabled: true,
+                    searchPlaceholderValue: 'Tìm kiếm...',
+                    removeItemButton: true,
+                    noResultsText: 'Không tìm thấy kết quả',
+                    noChoicesText: 'Không có lựa chọn nào',
+                    itemSelectText: ''
+                });
+                patientSelect.classList.add('choices-initialized');
+            }
+            if (!statusSelect.classList.contains('choices-initialized')) {
+                window.statusChoices = new Choices(statusSelect, {
+                    searchEnabled: true,
+                    searchPlaceholderValue: 'Tìm kiếm...',
+                    removeItemButton: true,
+                    noResultsText: 'Không tìm thấy kết quả',
+                    noChoicesText: 'Không có lựa chọn nào',
+                    itemSelectText: ''
+                });
+                statusSelect.classList.add('choices-initialized');
+            }
+            setTimeout(function () {
+                document.querySelectorAll('#filterPatient + .choices, #filterStatus + .choices').forEach(el => {
+                    el.style.width = '260px';
+                    el.style.minWidth = '260px';
+                    el.style.maxWidth = '260px';
+                    el.style.flex = 'none';
+                });
+                document.querySelectorAll('#filterPatient + .choices .choices__inner, #filterStatus + .choices .choices__inner').forEach(el => {
+                    el.style.width = '100%';
+                    el.style.minWidth = '100%';
+                    el.style.maxWidth = '100%';
+                });
+            }, 200);
+        }
+    });
+</script>
+
+<script>
+    // Lọc danh sách khi nhấn nút Lọc
+    $(document).on('click', '#btnFilter', function () {
+        const patient = $('#filterPatient').val();
+        const date = $('#filterDate').val();
+        const status = $('#filterStatus').val();
+        const dateFrom = $('#filterDateFrom').val();
+        const dateTo = $('#filterDateTo').val();
+
+        // Nếu chỉ nhập 1 trong 2 trường khoảng ngày thì báo lỗi
+        if ((dateFrom && !dateTo) || (!dateFrom && dateTo)) {
+            notyf.error('Vui lòng chọn đầy đủ khoảng thời gian khi lọc nâng cao!');
+            return;
+        }
+
+        // Nếu nhập đủ cả 2 trường thì kiểm tra logic ngày
+        if (dateFrom && dateTo) {
+            // Chuyển về dạng yyyy-mm-dd để so sánh
+            const fromParts = dateFrom.split('/');
+            const toParts = dateTo.split('/');
+            const fromDate = new Date(`${fromParts[2]}-${fromParts[1]}-${fromParts[0]}`);
+            const toDate = new Date(`${toParts[2]}-${toParts[1]}-${toParts[0]}`);
+            if (fromDate > toDate) {
+                notyf.error('Khoảng thời gian để lọc không hợp lệ!');
+                return;
+            }
+        }
+
+        // Nếu không có trường nào được chọn
+        if (!patient && !date && !status && !dateFrom && !dateTo) {
+            notyf.error('Cần chọn ít nhất một trường để lọc!');
+            window.list.filteredList = window.list.entityList;
+            if (window.list.datatable) window.list.datatable.destroy();
+            window.list.initializeTable();
+            updateResetFilterButtonState();
+            return;
+        }
+        if (window.list && typeof window.list.filterList === 'function') {
+            window.list.filterList(patient, date, status, dateFrom, dateTo);
+        }
+    });
+</script>
+
+<script>
+    function updateResetFilterButtonState() {
+        const patient = $('#filterPatient').val();
+        const date = $('#filterDate').val();
+        const status = $('#filterStatus').val();
+        const dateFrom = $('#filterDateFrom').val();
+        const dateTo = $('#filterDateTo').val();
+        if (!patient && !date && !status && !dateFrom && !dateTo) {
+            $('#btnResetFilter').prop('disabled', true).css('cursor', 'not-allowed');
+        } else {
+            $('#btnResetFilter').prop('disabled', false).css('cursor', 'pointer');
+        }
+    }
+    $(document).ready(function () {
+        updateResetFilterButtonState();
+        $('#filterPatient, #filterDate, #filterStatus, #filterDateFrom, #filterDateTo').on('change input', function () {
+            updateResetFilterButtonState();
+            if (!$(this).val()) {
+                window.list.filteredList = window.list.entityList;
+                if (window.list.datatable) window.list.datatable.destroy();
+                window.list.initializeTable();
+            }
+        });
+    });
+    $(document).on('click', '#btnResetFilter', function () {
+        // Reset input ngày đơn
+        $('#filterDate').val('');
+        // Reset input khoảng ngày
+        $('#filterDateFrom').val('');
+        $('#filterDateTo').val('');
+
+        // Reset Choices.js cho select bệnh nhân và trạng thái
+        if (window.patientChoices) {
+            window.patientChoices.removeActiveItems();
+            window.patientChoices.setChoiceByValue('');
+        } else {
+            $('#filterPatient').val('').trigger('change');
+        }
+        if (window.statusChoices) {
+            window.statusChoices.removeActiveItems();
+            window.statusChoices.setChoiceByValue('');
+        } else {
+            $('#filterStatus').val('').trigger('change');
+        }
+
+        if (window.list && typeof window.list.filterList === 'function') {
+            window.list.filterList('', '', '', '', '', false);
+        }
+        updateResetFilterButtonState();
+    });
+</script>
+
+<script>
+    // Toggle advanced filter
+    $(document).on('click', '#btnAdvancedFilter', function () {
+        $('#advancedFilter').slideToggle(150);
+
+        setTimeout(function () {
+            if ($('#advancedFilter').is(':visible')) {
+                // Khi bật lọc nâng cao: disable và xóa giá trị ngày đơn
+                $('#filterDate').val('').prop('disabled', true);
+
+                // Khởi tạo lại flatpickr cho 2 input nếu chưa có
+                if (!$('#filterDateFrom').hasClass('flatpickr-input')) {
                     flatpickr("#filterDateFrom", {
                         dateFormat: "d/m/Y",
                         allowInput: true,
                     });
+                }
+                if (!$('#filterDateTo').hasClass('flatpickr-input')) {
                     flatpickr("#filterDateTo", {
                         dateFormat: "d/m/Y",
                         allowInput: true,
                     });
                 }
+            } else {
+                $('#filterDate').prop('disabled', false);
 
-                // Chỉ khởi tạo Choices.js sau khi đã đổ option xong và chưa có instance
-                if (window.Choices) {
-                    if (!patientSelect.classList.contains('choices-initialized')) {
-                        window.patientChoices = new Choices(patientSelect, {
-                            searchEnabled: true,
-                            searchPlaceholderValue: 'Tìm kiếm...',
-                            removeItemButton: true,
-                            noResultsText: 'Không tìm thấy kết quả',
-                            noChoicesText: 'Không có lựa chọn nào',
-                            itemSelectText: ''
-                        });
-                        patientSelect.classList.add('choices-initialized');
-                    }
-                    if (!statusSelect.classList.contains('choices-initialized')) {
-                        window.statusChoices = new Choices(statusSelect, {
-                            searchEnabled: true,
-                            searchPlaceholderValue: 'Tìm kiếm...',
-                            removeItemButton: true,
-                            noResultsText: 'Không tìm thấy kết quả',
-                            noChoicesText: 'Không có lựa chọn nào',
-                            itemSelectText: ''
-                        });
-                        statusSelect.classList.add('choices-initialized');
-                    }
-                    setTimeout(function () {
-                        document.querySelectorAll('#filterPatient + .choices, #filterStatus + .choices').forEach(el => {
-                            el.style.width = '260px';
-                            el.style.minWidth = '260px';
-                            el.style.maxWidth = '260px';
-                            el.style.flex = 'none';
-                        });
-                        document.querySelectorAll('#filterPatient + .choices .choices__inner, #filterStatus + .choices .choices__inner').forEach(el => {
-                            el.style.width = '100%';
-                            el.style.minWidth = '100%';
-                            el.style.maxWidth = '100%';
-                        });
-                    }, 200);
-                }
-            });
-        </script>
-
-        <script>
-            // Lọc danh sách khi nhấn nút Lọc
-            $(document).on('click', '#btnFilter', function () {
-                const patient = $('#filterPatient').val();
-                const date = $('#filterDate').val();
-                const status = $('#filterStatus').val();
-                const dateFrom = $('#filterDateFrom').val();
-                const dateTo = $('#filterDateTo').val();
-
-                // Nếu chỉ nhập 1 trong 2 trường khoảng ngày thì báo lỗi
-                if ((dateFrom && !dateTo) || (!dateFrom && dateTo)) {
-                    notyf.error('Vui lòng chọn đầy đủ khoảng thời gian khi lọc nâng cao!');
-                    return;
-                }
-
-                // Nếu nhập đủ cả 2 trường thì kiểm tra logic ngày
-                if (dateFrom && dateTo) {
-                    // Chuyển về dạng yyyy-mm-dd để so sánh
-                    const fromParts = dateFrom.split('/');
-                    const toParts = dateTo.split('/');
-                    const fromDate = new Date(`${fromParts[2]}-${fromParts[1]}-${fromParts[0]}`);
-                    const toDate = new Date(`${toParts[2]}-${toParts[1]}-${toParts[0]}`);
-                    if (fromDate > toDate) {
-                        notyf.error('Khoảng thời gian để lọc không hợp lệ!');
-                        return;
-                    }
-                }
-
-                // Nếu không có trường nào được chọn
-                if (!patient && !date && !status && !dateFrom && !dateTo) {
-                    notyf.error('Cần chọn ít nhất một trường để lọc!');
-                    window.list.filteredList = window.list.entityList;
-                    if (window.list.datatable) window.list.datatable.destroy();
-                    window.list.initializeTable();
-                    updateResetFilterButtonState();
-                    return;
-                }
-                if (window.list && typeof window.list.filterList === 'function') {
-                    window.list.filterList(patient, date, status, dateFrom, dateTo);
-                }
-            });
-        </script>
-
-        <script>
-            function updateResetFilterButtonState() {
-                const patient = $('#filterPatient').val();
-                const date = $('#filterDate').val();
-                const status = $('#filterStatus').val();
-                const dateFrom = $('#filterDateFrom').val();
-                const dateTo = $('#filterDateTo').val();
-                if (!patient && !date && !status && !dateFrom && !dateTo) {
-                    $('#btnResetFilter').prop('disabled', true).css('cursor', 'not-allowed');
-                } else {
-                    $('#btnResetFilter').prop('disabled', false).css('cursor', 'pointer');
-                }
-            }
-            $(document).ready(function () {
-                updateResetFilterButtonState();
-                $('#filterPatient, #filterDate, #filterStatus, #filterDateFrom, #filterDateTo').on('change input', function () {
-                    updateResetFilterButtonState();
-                    if (!$(this).val()) {
-                        window.list.filteredList = window.list.entityList;
-                        if (window.list.datatable) window.list.datatable.destroy();
-                        window.list.initializeTable();
-                    }
-                });
-            });
-            $(document).on('click', '#btnResetFilter', function () {
-                // Reset input ngày đơn
-                $('#filterDate').val('');
-                // Reset input khoảng ngày
                 $('#filterDateFrom').val('');
                 $('#filterDateTo').val('');
-
-                // Reset Choices.js cho select bệnh nhân và trạng thái
-                if (window.patientChoices) {
-                    window.patientChoices.removeActiveItems();
-                    window.patientChoices.setChoiceByValue('');
-                } else {
-                    $('#filterPatient').val('').trigger('change');
-                }
-                if (window.statusChoices) {
-                    window.statusChoices.removeActiveItems();
-                    window.statusChoices.setChoiceByValue('');
-                } else {
-                    $('#filterStatus').val('').trigger('change');
-                }
-
-                if (window.list && typeof window.list.filterList === 'function') {
-                    window.list.filterList('', '', '', '', '', false);
-                }
+                if ($('#filterDateFrom')[0]._flatpickr) $('#filterDateFrom')[0]._flatpickr.clear();
+                if ($('#filterDateTo')[0]._flatpickr) $('#filterDateTo')[0]._flatpickr.clear();
                 updateResetFilterButtonState();
-            });
-        </script>
+            }
+        }, 160); // slideToggle 150ms, nên để 160ms
+    });
+</script>
 
-        <script>
-            // Toggle advanced filter
-            $(document).on('click', '#btnAdvancedFilter', function () {
-                $('#advancedFilter').slideToggle(150);
+<script>
+    $('#filterDate').on('change', function () {
+        if ($(this).val()) {
+            $('#filterDateFrom').val('');
+            $('#filterDateTo').val('');
+        }
+    });
+</script>
 
-                setTimeout(function () {
-                    if ($('#advancedFilter').is(':visible')) {
-                        // Khi bật lọc nâng cao: disable và xóa giá trị ngày đơn
-                        $('#filterDate').val('').prop('disabled', true);
-
-                        // Khởi tạo lại flatpickr cho 2 input nếu chưa có
-                        if (!$('#filterDateFrom').hasClass('flatpickr-input')) {
-                            flatpickr("#filterDateFrom", {
-                                dateFormat: "d/m/Y",
-                                allowInput: true,
-                            });
-                        }
-                        if (!$('#filterDateTo').hasClass('flatpickr-input')) {
-                            flatpickr("#filterDateTo", {
-                                dateFormat: "d/m/Y",
-                                allowInput: true,
-                            });
-                        }
-                    } else {
-                        $('#filterDate').prop('disabled', false);
-
-                        $('#filterDateFrom').val('');
-                        $('#filterDateTo').val('');
-                        if ($('#filterDateFrom')[0]._flatpickr) $('#filterDateFrom')[0]._flatpickr.clear();
-                        if ($('#filterDateTo')[0]._flatpickr) $('#filterDateTo')[0]._flatpickr.clear();
-                        updateResetFilterButtonState();
-                    }
-                }, 160); // slideToggle 150ms, nên để 160ms
-            });
-        </script>
-
-        <script>
-            $('#filterDate').on('change', function () {
-                if ($(this).val()) {
-                    $('#filterDateFrom').val('');
-                    $('#filterDateTo').val('');
-                }
-            });
-        </script>
-
-        <script>
-            $(document).on('click', '#customSearchBtn', function () {
-                const keyword = $('#customSearchInput').val().toLowerCase().trim();
-                if (window.list) {
-                    // Lọc trên filteredList hiện tại hoặc entityList gốc
-                    let filtered = window.list.entityList.filter(e =>
-                        (e.code && e.code.toLowerCase().includes(keyword)) ||
-                        (e.patientName && e.patientName.toLowerCase().includes(keyword)) ||
-                        (e.trackingDate && new Date(e.trackingDate).toLocaleDateString('vi-VN').includes(keyword)) ||
-                        (e.status && getEnumDisplayName('TrackingStatus', e.status).toLowerCase().includes(keyword))
-                    );
-                    window.list.filteredList = filtered;
-                    if (window.list.datatable) window.list.datatable.destroy();
-                    window.list.initializeTable();
-                }
-            });
-        </script>
+<script>
+    $(document).on('click', '#customSearchBtn', function () {
+        const keyword = $('#customSearchInput').val().toLowerCase().trim();
+        if (window.list) {
+            // Lọc trên filteredList hiện tại hoặc entityList gốc
+            let filtered = window.list.entityList.filter(e =>
+                (e.code && e.code.toLowerCase().includes(keyword)) ||
+                (e.patientName && e.patientName.toLowerCase().includes(keyword)) ||
+                (e.trackingDate && new Date(e.trackingDate).toLocaleDateString('vi-VN').includes(keyword)) ||
+                (e.status && getEnumDisplayName('TrackingStatus', e.status).toLowerCase().includes(keyword))
+            );
+            window.list.filteredList = filtered;
+            if (window.list.datatable) window.list.datatable.destroy();
+            window.list.initializeTable();
+        }
+    });
+</script>

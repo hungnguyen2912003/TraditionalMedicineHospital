@@ -6,7 +6,8 @@
 }
 
 <div class="overlay" id="loadingOverlay">
-    <span class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
+    <span
+        class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
 </div>
 
 <form id="myForm" method="post" enctype="multipart/form-data" asp-action="Edit">
@@ -31,14 +32,19 @@
                         <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Code" class="block text-sm font-medium text-gray-700">Mã đợt điều trị</label>
-                                    <input id="Code" type="text" name="Code" class="form-input w-full mt-1 p-2 border rounded" value="@Model.Code" readonly />
+                                    <label for="Code" class="block text-sm font-medium text-gray-700">Mã đợt điều
+                                        trị</label>
+                                    <input id="Code" type="text" name="Code"
+                                        class="form-input w-full mt-1 p-2 border rounded" value="@Model.Code"
+                                        readonly />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="PatientId" class="block text-sm font-medium text-gray-700">Đợt điều trị của bệnh nhân</label>
+                                    <label for="PatientId" class="block text-sm font-medium text-gray-700">Đợt điều trị
+                                        của bệnh nhân</label>
                                     <div class="select-wrapper">
-                                        <select id="PatientId" name="PatientId" class="form-input w-full mt-1 p-2 border rounded">
+                                        <select id="PatientId" name="PatientId"
+                                            class="form-input w-full mt-1 p-2 border rounded">
                                             <option value="">Chọn bệnh nhân</option>
                                             @foreach (var p in ViewBag.Patients)
                                             {
@@ -53,29 +59,44 @@
                                             }
                                         </select>
                                     </div>
-                                    @Html.ValidationMessageFor(model => model.PatientId, "", new { @class = "text-danger" })
+                                    @Html.ValidationMessageFor(model => model.PatientId, "", new { @class =
+                                    "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Diagnosis" class="block text-sm font-medium text-gray-700">Chuẩn đoán</label>
-                                    <input id="Diagnosis" type="text" name="Diagnosis" class="form-input w-full mt-1 p-2 border rounded" value="@Model.Diagnosis" placeholder="Nhập chuẩn đoán" />
-                                    @Html.ValidationMessageFor(model => model.Diagnosis, "", new { @class = "text-danger" })
+                                    <label for="Diagnosis" class="block text-sm font-medium text-gray-700">Chuẩn
+                                        đoán</label>
+                                    <input id="Diagnosis" type="text" name="Diagnosis"
+                                        class="form-input w-full mt-1 p-2 border rounded" value="@Model.Diagnosis"
+                                        placeholder="Nhập chuẩn đoán" />
+                                    @Html.ValidationMessageFor(model => model.Diagnosis, "", new { @class =
+                                                                        "text-danger" })
                                 </div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="StartDate" class="block text-sm font-medium text-gray-700">Ngày bắt đầu điều trị</label>
-                                    <input id="StartDate" type="text" name="StartDate" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập bắt đầu điều trị" @Model.StartDate />
-                                    @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
+                                    <label for="StartDate" class="block text-sm font-medium text-gray-700">Ngày bắt đầu
+                                        điều trị</label>
+                                    <input id="StartDate" type="text" name="StartDate"
+                                        class="form-input w-full mt-1 p-2 border rounded flatpickr"
+                                        placeholder="Nhập bắt đầu điều trị" @Model.StartDate />
+                                    @Html.ValidationMessageFor(model => model.StartDate, "", new { @class =
+                                                                        "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="EndDate" class="block text-sm font-medium text-gray-700">Ngày kết thúc điều trị</label>
-                                    <input id="EndDate" type="text" name="EndDate" class="form-input w-full mt-1 p-2 border rounded flatpickr" placeholder="Nhập kết thúc điều trị" @Model.EndDate />
-                                    @Html.ValidationMessageFor(model => model.EndDate, "", new { @class = "text-danger" })
+                                    <label for="EndDate" class="block text-sm font-medium text-gray-700">Ngày kết thúc
+                                        điều trị</label>
+                                    <input id="EndDate" type="text" name="EndDate"
+                                        class="form-input w-full mt-1 p-2 border rounded flatpickr"
+                                        placeholder="Nhập kết thúc điều trị" @Model.EndDate />
+                                    @Html.ValidationMessageFor(model => model.EndDate, "", new { @class = "text-danger"
+                                                                        })
                                 </div>
                             </div>
                             <div class="mt-4">
                                 <label for="Note" class="block text-sm font-medium text-gray-700">Ghi chú</label>
-                                <textarea id="Note" name="Note" class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" placeholder="Nhập ghi chú...">@Model.Note</textarea>
+                                <textarea id="Note" name="Note"
+                                    class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]"
+                                    placeholder="Nhập ghi chú...">@Model.Note</textarea>
                                 @Html.ValidationMessageFor(model => model.Note, "", new { @class = "text-danger" })
                             </div>
                         </div>
@@ -88,7 +109,7 @@
 
 
 <script>
-    $.validator.addMethod("customPattern", function(value, element, regex) {
+    $.validator.addMethod("customPattern", function (value, element, regex) {
         return this.optional(element) || regex.test(value);
     }, "Giá trị không hợp lệ.");
 
@@ -195,7 +216,7 @@
                     onkeyup: false
                 });
 
-                $('select.form-input').on('change', function() {
+                $('select.form-input').on('change', function () {
                     $(this).valid();
                 });
             },
@@ -217,7 +238,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/Staff/TreatmentRecords/';
+                        window.location.href = '/phieu-dieu-tri';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -237,26 +258,25 @@
                     const id = document.querySelector('input[name="Id"]').value;
                     const formData = new FormData(form);
                     formData.append('Id', id);
-                    fetch('/Staff/TreatmentRecords/Edit', {
+                    fetch('/phieu-dieu-tri/chinh-sua/' + id, {
                         method: 'POST',
                         body: formData
                     })
-                    .then(response => response.json())
-                    .then(this.handleResponse)
-                    .catch(error => {
-                        overlay.style.display = 'none';
-                        notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
-                    });
+                        .then(response => response.json())
+                        .then(this.handleResponse)
+                        .catch(error => {
+                            overlay.style.display = 'none';
+                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                        });
                 }
-                else{
+                else {
                     notyf.error("Vui lòng kiểm tra lại thông tin nhập.");
                 }
             },
 
             goBack() {
-                window.history.back();
+                window.location.href = '/phieu-dieu-tri';
             }
         }));
     });
 </script>
-

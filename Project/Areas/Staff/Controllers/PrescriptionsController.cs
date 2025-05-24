@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Project.Areas.Staff.Models.Entities;
 using Project.Areas.Staff.Models.ViewModels;
 using Project.Helpers;
 using Project.Repositories.Interfaces;
@@ -10,6 +11,7 @@ namespace Staff.Controllers
 {
     [Area("Staff")]
     [Authorize(Roles = "Bacsi, Yta")]
+    [Route("don-thuoc")]
     public class PrescriptionsController : Controller
     {
         private readonly IPrescriptionRepository _prescriptionRepository;
@@ -39,6 +41,7 @@ namespace Staff.Controllers
             _codeGenerator = codeGenerator;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var list = await _prescriptionRepository.GetAllAdvancedAsync();
@@ -47,6 +50,7 @@ namespace Staff.Controllers
             return View(viewModelList);
         }
 
+        [HttpGet("chi-tiet/{id}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var prescription = await _prescriptionRepository.GetByIdAdvancedAsync(id);
@@ -55,6 +59,46 @@ namespace Staff.Controllers
                 return NotFound();
             }
             return View(prescription);
+        }
+
+        [HttpPost("xoa")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete([FromForm] string selectedIds)
+        {
+            var ids = new List<Guid>();
+            foreach (var id in selectedIds.Split(','))
+            {
+                if (Guid.TryParse(id, out var parsedId))
+                {
+                    ids.Add(parsedId);
+                }
+            }
+
+            var delList = new List<Prescription>();
+            foreach (var id in ids)
+            {
+                var entity = await _prescriptionRepository.GetByIdAsync(id);
+                if (entity != null)
+                {
+                    await _prescriptionRepository.DeleteAsync(id);
+                    delList.Add(entity);
+                }
+            }
+
+            if (delList.Any())
+            {
+                var names = string.Join(", ", delList.Select(c => $"\"{c.Code}\""));
+                var message = delList.Count == 1
+                    ? $"Đã xóa đơn thuốc {names} thành công"
+                    : $"Đã xóa các đơn thuốc đã chọn thành công";
+                TempData["SuccessMessage"] = message;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy đơn thuốc nào để xóa.";
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

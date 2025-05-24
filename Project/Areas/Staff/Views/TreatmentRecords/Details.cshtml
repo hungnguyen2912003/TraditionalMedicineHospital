@@ -473,12 +473,8 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('details', () => ({
-
-            print() {
-                window.print();
-            },
             goBack() {
-                window.history.back();
+                window.location.href = "/phieu-dieu-tri";
             }
         }));
     });

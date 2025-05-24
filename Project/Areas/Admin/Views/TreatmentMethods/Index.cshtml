@@ -107,7 +107,7 @@
             initializeTable() {
                 try {
                     const tableData = this.filteredList.map(entity => [
-                        `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
+                        `<input type="checkbox" class="form-checkbox" value="${entity.id}" ${this.selectedRows.includes(entity.id.toString()) ? 'checked' : ''} />`,
                         entity.code,
                         entity.name,
                         `<div class="flex gap-4">

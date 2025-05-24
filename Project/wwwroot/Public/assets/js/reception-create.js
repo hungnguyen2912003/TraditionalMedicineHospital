@@ -291,7 +291,7 @@ document.addEventListener('alpine:init', () => {
 
             const self = this;
             this.dropzone = new Dropzone('#imageDropzone', {
-                url: '/Staff/Receptions/Create',
+                url: '/tiep-nhan-benh-nhan/tao-phieu',
                 autoProcessQueue: false,
                 maxFiles: 1,
                 acceptedFiles: 'image/*',
@@ -310,10 +310,15 @@ document.addEventListener('alpine:init', () => {
                     this.on('success', (file, response) => {
                         self.handleResponse(response);
                     });
-                    this.on('error', (file, errorMessage) => {
+                    this.on('error', function (file, errorMessage) {
                         const overlay = document.getElementById('loadingOverlay');
                         overlay.style.display = 'none';
                         notyf.error("Có lỗi xảy ra: " + errorMessage);
+                        this.removeFile(file); // Xóa file không hợp lệ khỏi dropzone
+                    });
+                    this.on('queuecomplete', function() {
+                        // Reset dropzone sau khi upload thành công
+                        this.removeAllFiles();
                     });
                 }
             });
@@ -1036,7 +1041,9 @@ document.addEventListener('alpine:init', () => {
                     }
                 },
                 errorPlacement: function (error, element) {
-                    if (element.is('select')) {
+                    if (element.attr('id') === 'AdvancePayment') {
+                        error.insertAfter(element.closest('.flex'));
+                    } else if (element.is('select')) {
                         const wrapper = element.closest('.select-wrapper');
                         if (wrapper.length) {
                             error.insertAfter(wrapper);
@@ -1107,28 +1114,33 @@ document.addEventListener('alpine:init', () => {
             const overlay = document.getElementById('loadingOverlay');
             overlay.style.display = 'flex';
             try {
-                const formData = new FormData(document.getElementById('receptionForm'));
-                // Gửi dữ liệu theo loại bệnh nhân
-                this.appendFormData(formData);
+                // Nếu có file trong dropzone, sử dụng dropzone để upload
+                if (this.dropzone && this.dropzone.files.length > 0) {
+                    this.dropzone.processQueue();
+                } else {
+                    // Nếu không có file, submit form bình thường
+                    const formData = new FormData(document.getElementById('receptionForm'));
+                    this.appendFormData(formData);
 
-                fetch('/Staff/Receptions/Create', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                    }
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
+                    fetch('/tiep-nhan-benh-nhan/tao-phieu', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                         }
-                        return response.json();
                     })
-                    .then(this.handleResponse)
-                    .catch(error => {
-                        overlay.style.display = 'none';
-                        notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error.message);
-                    });
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(this.handleResponse)
+                        .catch(error => {
+                            overlay.style.display = 'none';
+                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error.message);
+                        });
+                }
             } catch (error) {
                 overlay.style.display = 'none';
                 notyf.error("Có lỗi xảy ra: " + error.message);
@@ -1144,7 +1156,7 @@ document.addEventListener('alpine:init', () => {
                 overlay.style.display = 'flex';
                 notyf.success(response.message);
                 setTimeout(() => {
-                    window.location.href = '/Staff/';
+                    window.location.href = '/phieu-dieu-tri';
                 }, 2000);
             } else {
                 overlay.style.display = 'none';
@@ -1214,7 +1226,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         goBack() {
-            window.history.back();
+            window.location.href = '/nhan-vien';
         }
     }));
 

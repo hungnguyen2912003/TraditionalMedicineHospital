@@ -1,4 +1,6 @@
-﻿@model Project.Areas.Staff.Models.Entities.HealthInsurance
+﻿@using System.Globalization
+@using Project.Extensions
+@model Project.Areas.Staff.Models.Entities.HealthInsurance
 @{
     ViewData["Title"] = "Chi tiết thông tin thẻ BHYT";
     Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
@@ -83,11 +85,12 @@
                     <div>
                         <label for="ExpiryDate">Ngày hết hạn</label>
                         <input id="ExpiryDate" type="text" class="form-input"
-                            value="@Model.ExpiryDate.ToString("dd/MM/yyyy")" readonly>
+                            value="@Model.ExpiryDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly>
                     </div>
                     <div>
                         <label for="PlaceOfRegistration">Nơi đăng ký KCB BĐ</label>
-                        <input id="PlaceOfRegistration" type="text" value="@Model.PlaceOfRegistration" readonly
+                        <input id="PlaceOfRegistration" type="text"
+                            value="@EnumExtensions.GetDisplayName(Model.PlaceOfRegistration)" readonly
                             class="form-input" readonly>
                     </div>
                     <div>
@@ -102,7 +105,8 @@
                 <div class="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2">
                     <div>
                         <label for="createdDate">Ngày tạo</label>
-                        <input id="createdDate" type="text" value="@Model.CreatedDate.ToString("dd/MM/yyyy")" readonly
+                        <input id="createdDate" type="text"
+                            value="@Model.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly
                             class="form-input">
                     </div>
                     <div>
@@ -112,8 +116,8 @@
                     <div>
                         <label for="UpdatedDate">Ngày chỉnh sửa</label>
                         <input id="UpdatedDate" type="text"
-                            value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy") ?? "Không có")" readonly
-                            class="form-input">
+                            value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) ?? "Không có")"
+                            readonly class="form-input">
                     </div>
                     <div>
                         <label for="UpdatedBy">Nguời chỉnh sửa</label>

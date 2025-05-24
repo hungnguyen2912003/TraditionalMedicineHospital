@@ -49,6 +49,12 @@
                 defaults: new { area = "Staff", controller = "Home", action = "Index" }
             );
 
+            app.MapControllerRoute(
+                name: "benh-nhan",
+                pattern: "benh-nhan",
+                defaults: new { area = "BenhNhan", controller = "Home", action = "Index" }
+            );
+
             // Route chung cho các area
             app.MapControllerRoute(
                 name: "areas",
@@ -59,6 +65,12 @@
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}"
+            );
+
+            app.MapControllerRoute(
+                name: "thong-ke",
+                pattern: "thong-ke",
+                defaults: new { area = "Staff", controller = "Statistics", action = "Index" }
             );
 
             return app;

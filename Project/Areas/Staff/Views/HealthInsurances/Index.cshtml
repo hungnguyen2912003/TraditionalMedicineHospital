@@ -90,16 +90,11 @@
                             <select id="filterHealthInsurancePlace"
                                 class="form-input choices w-full mt-1 p-2 border rounded">
                                 <option value="">Chọn nơi đăng ký...</option>
-                                @foreach (var place in
-                                                                Enum.GetValues(typeof(Project.Models.Enums.HealthInsuranceRegistrationPlace)))
+                                @foreach (var place in ViewBag.HealthInsurancePlaceOptions)
                                 {
-                                    var displayAttr = place.GetType()
-                                    .GetField(place.ToString() ?? string.Empty)
-                                    ?.GetCustomAttributes(typeof(DisplayAttribute), false)
-                                    .FirstOrDefault() as DisplayAttribute;
-                                    var displayName = displayAttr?.Name ?? place.ToString();
-                                    <option value="@displayName">@displayName</option>
+                                    <option value="@place.Value">@place.Text</option>
                                 }
+
                             </select>
                         </div>
                         <div class="w-56">
@@ -174,10 +169,10 @@
             initializeTable() {
                 try {
                     const tableData = this.filteredList.map(entity => [
-                        `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
+                        `<input type="checkbox" class="form-checkbox" value="${entity.id}" ${this.selectedRows.includes(entity.id.toString()) ? 'checked' : ''} />`,
                         entity.number,
                         entity.patientName,
-                        entity.placeOfRegistration,
+                        getEnumDisplayName('HealthInsuranceRegistrationPlace', entity.placeOfRegistration),
                         entity.expiryDate ? new Date(entity.expiryDate).toLocaleDateString('vi-VN') : 'Không xác định',
                         entity.isRightRoute ?
                             '<svg x-tooltip="Đúng tuyến" class="w-5 h-5 mx-auto" width="24" height="24" fill="#000000" viewBox="0 0 14 14" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="green" d="M13 4.1974q0 .3097-.21677.5265L7.17806 10.329l-1.0529 1.0529q-.21677.2168-.52645.2168-.30968 0-.52645-.2168L4.01935 10.329 1.21677 7.5264Q1 7.3097 1 7t.21677-.5265l1.05291-1.0529q.21677-.2167.52645-.2167.30968 0 .52645.2167l2.27613 2.2839 5.07871-5.0864q.21677-.2168.52645-.2168.30968 0 .52645.2168l1.05291 1.0529Q13 3.8877 13 4.1974z"></path></g></svg>'
@@ -441,7 +436,7 @@
             const healthInsuranceLineValue = $('#filterHealthInsuranceLine').val();
             const healthInsuranceTimeValue = $('#filterHealthInsuranceTime').val();
 
-            if ((!categoryValue || categoryValue === "") &&
+            if ((!healthInsurancePlaceValue || healthInsurancePlaceValue === "") &&
                 (!healthInsuranceLineValue || healthInsuranceLineValue === "") &&
                 (!healthInsuranceTimeValue || healthInsuranceTimeValue === "")) {
                 // Reset về danh sách ban đầu
@@ -470,12 +465,12 @@
             let filtered = [...window.list.entityList];
 
             if (healthInsurancePlace) {
-                filtered = filtered.filter(e => e.placeOfRegistration === healthInsurancePlace);
+                filtered = filtered.filter(e => e.placeOfRegistration.toString() === healthInsurancePlace);
             }
             if (healthInsuranceLine) {
-                filtered = filtered.filter(e => e.line === healthInsuranceLine);
+                filtered = filtered.filter(e => e.isRightRoute == healthInsuranceLine);
             }
-            if (active !== "") {
+            if (healthInsuranceTime !== "") {
                 const today = new Date();
                 filtered = filtered.filter(e => {
                     const expiry = new Date(e.expiryDate);

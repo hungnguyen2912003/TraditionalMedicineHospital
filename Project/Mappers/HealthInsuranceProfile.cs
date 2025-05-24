@@ -15,6 +15,7 @@ namespace Project.Mappers
                 .ForMember(dest => dest.PatientName,
                     opt => opt.MapFrom(src => src.Patient != null ? src.Patient.Name : "Không xác định"))
                 .ForMember(dest => dest.IsRightRoute, opt => opt.MapFrom(src => src.IsRightRoute));
+
         }
     }
 }

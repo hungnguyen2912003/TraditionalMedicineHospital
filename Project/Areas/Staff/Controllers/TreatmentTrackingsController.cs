@@ -11,6 +11,7 @@ namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
     [Authorize(Roles = "Yta")]
+    [Route("theo-doi-dieu-tri")]
     public class TreatmentTrackingsController : Controller
     {
         private readonly ITreatmentTrackingRepository _treatmentTrackingRepository;
@@ -33,6 +34,7 @@ namespace Project.Areas.Staff.Controllers
             _employeeRepository = employeeRepository;
             _userRepository = userRepository;
         }
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var list = await _treatmentTrackingRepository.GetAllAdvancedAsync();

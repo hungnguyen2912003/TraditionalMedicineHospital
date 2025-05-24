@@ -11,7 +11,7 @@ namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
     [Authorize(Roles = "Admin, Bacsi, Yta")]
-    [Route("benh-nhan")]
+    [Route("quan-ly-benh-nhan")]
     public class PatientsController : Controller
     {
         private readonly IPatientRepository _patientRepository;
@@ -101,69 +101,6 @@ namespace Project.Areas.Staff.Controllers
             {
                 return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật bệnh nhân: " + ex.Message });
             }
-        }
-
-        [HttpPost("xoa")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-
-            var treatmentRecords = new List<TreatmentRecord>();
-            foreach (var id in ids)
-            {
-                var patient = await _patientRepository.GetByIdAsync(id);
-                if (patient == null) continue;
-
-                var patientTreatmentRecords = await _treatmentRecordRepository.GetByPatientIdAsync(id);
-                if (patientTreatmentRecords.Any())
-                {
-                    treatmentRecords.AddRange(patientTreatmentRecords);
-                }
-            }
-
-            if (treatmentRecords.Any())
-            {
-                var names = string.Join(", ", treatmentRecords.Select(c => $"\"{c.Patient.Name}\"").Distinct());
-                var message = treatmentRecords.Select(c => c.PatientId).Distinct().Count() == 1
-                    ? $"Không thể xóa bệnh nhân {names} vì vẫn còn lưu trữ hồ sơ khám bệnh."
-                    : $"Không thể xóa các bệnh nhân: {names} vì vẫn còn lưu trữ hồ sơ khám bệnh.";
-                TempData["ErrorMessage"] = message;
-                return RedirectToAction("Index");
-            }
-
-            var delList = new List<Patient>();
-            foreach (var id in ids)
-            {
-                var entity = await _patientRepository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    await _patientRepository.DeleteAsync(id);
-                    delList.Add(entity);
-                }
-            }
-
-            if (delList.Any())
-            {
-                var names = string.Join(", ", delList.Select(c => $"\"{c.Name}\""));
-                var message = delList.Count == 1
-                    ? $"Đã xóa bệnh nhân {names} thành công"
-                    : $"Đã xóa các bệnh nhân đã chọn thành công";
-                TempData["SuccessMessage"] = message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy bệnh nhân nào để xóa.";
-            }
-
-            return RedirectToAction("Index");
         }
     }
 }

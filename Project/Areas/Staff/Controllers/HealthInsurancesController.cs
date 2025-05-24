@@ -64,6 +64,7 @@ namespace Project.Areas.Staff.Controllers
             {
                 Code = await _codeGenerator.GenerateUniqueCodeAsync(_healthInsuranceRepository)
             };
+            await _viewBagHelper.BaseViewBag(ViewData);
             return View(model);
         }
 

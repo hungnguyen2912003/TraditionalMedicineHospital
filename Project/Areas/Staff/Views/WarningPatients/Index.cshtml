@@ -26,53 +26,17 @@
                     <div class="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
                         <div class="group relative">
                             <input type="text" placeholder="Tìm kiếm..." id="customSearchInput"
-                                   class="peer form-input ltr:pr-8 rtl:pl-8">
-                            <div class="absolute top-1/2 -translate-y-1/2 peer-focus:text-primary ltr:right-[11px] rtl:left-[11px]">
+                                class="peer form-input ltr:pr-8 rtl:pl-8">
+                            <div
+                                class="absolute top-1/2 -translate-y-1/2 peer-focus:text-primary ltr:right-[11px] rtl:left-[11px]">
                                 <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
-                                     xmlns="http://www.w3.org/2000/svg" class="h-4 w-4">
+                                    xmlns="http://www.w3.org/2000/svg" class="h-4 w-4">
                                     <circle cx="11.5" cy="11.5" r="9.5" stroke="currentColor" stroke-width="1.5"
-                                            opacity="0.5"></circle>
+                                        opacity="0.5"></circle>
                                     <path d="M18.5 18.5L22 22" stroke="currentColor" stroke-width="1.5"
-                                          stroke-linecap="round"></path>
+                                        stroke-linecap="round"></path>
                                 </svg>
                             </div>
-                        </div>
-                    </div>
-                    <div class="flex w-1/2 flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
-                        <div class="flex gap-3">
-                            <button type="button" class="btn btn-primary gap-2" @@click="print">
-                                <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
-                                     xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
-                                    <path d="M6 17.9827C4.44655 17.9359 3.51998 17.7626 2.87868 17.1213C2 16.2426 2 14.8284 2 12C2 9.17157 2 7.75736 2.87868 6.87868C3.75736 6 5.17157 6 8 6H16C18.8284 6 20.2426 6 21.1213 6.87868C22 7.75736 22 9.17157 22 12C22 14.8284 22 16.2426 21.1213 17.1213C20.48 17.7626 19.5535 17.9359 18 17.9827"
-                                          stroke="currentColor" stroke-width="1.5"></path>
-                                    <path opacity="0.5" d="M9 10H6" stroke="currentColor" stroke-width="1.5"
-                                          stroke-linecap="round"></path>
-                                    <path d="M19 14L5 14" stroke="currentColor" stroke-width="1.5"
-                                          stroke-linecap="round"></path>
-                                    <path d="M18 14V16C18 18.8284 18 20.2426 17.1213 21.1213C16.2426 22 14.8284 22 12 22C9.17157 22 7.75736 22 6.87868 21.1213C6 20.2426 6 18.8284 6 16V14"
-                                          stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                    <path opacity="0.5"
-                                          d="M17.9827 6C17.9359 4.44655 17.7626 3.51998 17.1213 2.87868C16.2427 2 14.8284 2 12 2C9.17158 2 7.75737 2 6.87869 2.87868C6.23739 3.51998 6.06414 4.44655 6.01733 6"
-                                          stroke="currentColor" stroke-width="1.5"></path>
-                                    <circle opacity="0.5" cx="17" cy="10" r="1" fill="currentColor"></circle>
-                                    <path opacity="0.5" d="M15 16.5H9" stroke="currentColor" stroke-width="1.5"
-                                          stroke-linecap="round"></path>
-                                    <path opacity="0.5" d="M13 19H9" stroke="currentColor" stroke-width="1.5"
-                                          stroke-linecap="round"></path>
-                                </svg>
-                                In
-                            </button>
-                            <button type="button" class="btn btn-success gap-2">
-                                <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
-                                     xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
-                                    <path opacity="0.5"
-                                          d="M17 9.00195C19.175 9.01406 20.3529 9.11051 21.1213 9.8789C22 10.7576 22 12.1718 22 15.0002V16.0002C22 18.8286 22 20.2429 21.1213 21.1215C20.2426 22.0002 18.8284 22.0002 16 22.0002H8C5.17157 22.0002 3.75736 22.0002 2.87868 21.1215C2 20.2429 2 18.8286 2 16.0002L2 15.0002C2 12.1718 2 10.7576 2.87868 9.87889C3.64706 9.11051 4.82497 9.01406 7 9.00195"
-                                          stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                    <path d="M12 2L12 15M12 15L9 11.5M12 15L15 11.5" stroke="currentColor"
-                                          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                </svg>
-                                Tải xuống
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -124,7 +88,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- FILTER BAR END -->                
+                <!-- FILTER BAR END -->
 
                 <div class="table-responsive">
                     <table id="myTable" class="table-striped table-hover"></table>
@@ -151,167 +115,120 @@
                 this.filteredList = [...this.entityList];
                 window.list = this;
                 this.initializeTable();
-
-                document.querySelector('#myTable thead').addEventListener('change', (e) => {
-                    if (e.target.type === 'checkbox') {
-                        this.selectedRows = [];
-                        const checkboxes = document.querySelectorAll('#myTable tbody input[type="checkbox"]');
-                        checkboxes.forEach(checkbox => {
-                            checkbox.checked = e.target.checked;
-                            if (e.target.checked) {
-                                if (!this.selectedRows.includes(checkbox.value)) {
-                                    this.selectedRows.push(checkbox.value);
-                                }
-                            }
-                        });
-                    }
-                });
-
-                document.querySelector('#myTable tbody').addEventListener('change', (e) => {
-                    if (e.target.type === 'checkbox') {
-                        const checkbox = e.target;
-                        const id = checkbox.value;
-                        if (checkbox.checked) {
-                            if (!this.selectedRows.includes(id)) {
-                                this.selectedRows.push(id);
-                            }
-                        } else {
-                            this.selectedRows = this.selectedRows.filter(rowId => rowId !== id);
-                        }
-                        const allCheckboxes = document.querySelectorAll('#myTable tbody input[type="checkbox"]');
-                        const allChecked = Array.from(allCheckboxes).every(chk => chk.checked);
-                        const mainCheckbox = document.querySelector('#myTable thead input[type="checkbox"]');
-                        mainCheckbox.checked = allChecked;
-                    }
-                });
-
-                document.querySelector('#myTable tbody').addEventListener('click', (e) => {
-                    const sendMailBtn = e.target.closest('.send-mail-btn');
-                    if (sendMailBtn) {
-                        const patientId = sendMailBtn.getAttribute('data-id');
-                        const patientEmail = sendMailBtn.getAttribute('data-email');
-                        this.sendMail(patientId, patientEmail);
-                    }
-                    const deleteBtn = e.target.closest('.delete-btn');
-                    if (deleteBtn) {
-                        const id = deleteBtn.getAttribute('data-id');
-                        this.moveSingleToTrash(id);
-                    }
-                });
             },
 
             initializeTable() {
-                const tableData = this.filteredList.map(entity => [
-                    `<input type="checkbox" class="form-checkbox" value="${entity.patientId}" />`,
-                    entity.patientName,
-                    entity.patientEmail || 'Không có email',
-                    entity.departmentName || '',
-                    entity.roomName || '',
-                    entity.employeeName || '',
-                    new Date(entity.firstAbsenceDate).toLocaleDateString('vi-VN'),
-                    `<input type='text' class='form-input' value='${entity.firstNote ? entity.firstNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}' readonly style='max-width:180px' title='${entity.firstNote ? entity.firstNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}'/>`,
-                    new Date(entity.secondAbsenceDate).toLocaleDateString('vi-VN'),
-                    `<input type='text' class='form-input' value='${entity.secondNote ? entity.secondNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}' readonly style='max-width:180px' title='${entity.secondNote ? entity.secondNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}'/>`
-                ]);
+                try {
+                    const tableData = this.filteredList.map(entity => [
+                        `<input type="checkbox" class="form-checkbox" value="${entity.patientId}" ${this.selectedRows.includes(entity.patientId.toString()) ? 'checked' : ''} />`,
+                        entity.patientName,
+                        entity.patientEmail || 'Không có email',
+                        entity.departmentName || '',
+                        entity.roomName || '',
+                        entity.employeeName || '',
+                        new Date(entity.firstAbsenceDate).toLocaleDateString('vi-VN'),
+                        `<input type='text' class='form-input' value='${entity.firstNote ? entity.firstNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}' readonly style='max-width:180px' title='${entity.firstNote ? entity.firstNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}'/>`,
+                        new Date(entity.secondAbsenceDate).toLocaleDateString('vi-VN'),
+                        `<input type='text' class='form-input' value='${entity.secondNote ? entity.secondNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}' readonly style='max-width:180px' title='${entity.secondNote ? entity.secondNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}'/>`
+                    ]);
 
-                this.datatable = new simpleDatatables.DataTable('#myTable', {
-                    data: {
-                        headings: [
-                            '<input type="checkbox" class="form-checkbox" />',
-                            'Tên bệnh nhân',
-                            'Email',
-                            'Khoa',
-                            'Phòng',
-                            'Nhân viên theo dõi',
-                            'Ngày vắng mặt lần 1',
-                            'Ghi chú lần 1',
-                            'Ngày vắng mặt lần 2',
-                            'Ghi chú lần 2'
+                    this.datatable = new simpleDatatables.DataTable('#myTable', {
+                        data: {
+                            headings: [
+                                '<input type="checkbox" class="form-checkbox" />',
+                                'Tên bệnh nhân',
+                                'Email',
+                                'Khoa',
+                                'Phòng',
+                                'Nhân viên theo dõi',
+                                'Ngày vắng mặt lần 1',
+                                'Ghi chú lần 1',
+                                'Ngày vắng mặt lần 2',
+                                'Ghi chú lần 2'
+                            ],
+                            data: tableData
+                        },
+                        perPage: 10,
+                        perPageSelect: [10, 20, 30, 50, 100],
+                        firstLast: true,
+                        searchable: false,
+                        firstText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                        lastText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M11 19L17 12L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M6.99976 19L12.9998 12L6.99976 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                        prevText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M15 5L9 12L15 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                        nextText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                        labels: {
+                            perPage: "<span class='ml-2'>{select}</span>",
+                            noRows: 'Không có dữ liệu'
+                        },
+                        layout: {
+                            top: '{search}',
+                            bottom: '{info}{select}{pager}'
+                        },
+                        columns: [
+                            {
+                                select: 0,
+                                sortable: false,
+                                render: (data, cell, row) => {
+                                    return data;
+                                }
+                            }
                         ],
-                        data: tableData
-                    },
-                    perPage: 10,
-                    perPageSelect: [10, 20, 30, 50, 100],
-                    firstLast: true,
-                    searchable: false,
-                    firstText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                    lastText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M11 19L17 12L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M6.99976 19L12.9998 12L6.99976 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                    prevText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M15 5L9 12L15 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                    nextText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                    labels: {
-                        perPage: "<span class='ml-2'>{select}</span>",
-                        noRows: 'Không có dữ liệu'
-                    },
-                    layout: {
-                        top: '{search}',
-                        bottom: '{info}{select}{pager}'
-                    },
-                    columns: [
-                        {
-                            select: 0,
-                            sortable: false,
-                            render: (data, cell, row) => {
-                                return data;
-                            }
-                        }
-                    ],
-                });
-            },
+                    });
 
-            moveToTrash() {
-                if (this.selectedRows.length === 0) {
-                    notyf.error('Vui lòng chọn ít nhất một bệnh nhân để đưa vào thùng rác.');
-                    return;
+                    // Gán lại sự kiện cho checkbox và delete-btn
+                    this.rebindCheckboxEvents();
+                    // Gán lại sự kiện khi chuyển trang
+                    this.datatable.on('datatable.page', () => {
+                        this.rebindCheckboxEvents();
+                    });
+                } catch (error) {
+                    console.error('Lỗi khởi tạo bảng:', error);
                 }
-
-                $.confirm({
-                    title: 'Bạn có chắc chắn?',
-                    content: 'Bạn có muốn đưa các bệnh nhân vào thùng rác không?',
-                    icon: 'fa fa-question-circle text-blue-500',
-                    theme: 'modern',
-                    type: 'blue',
-                    boxWidth: '400px',
-                    useBootstrap: false,
-                    buttons: {
-                        confirm: {
-                            text: 'Có, hãy thực hiện!',
-                            btnClass: 'btn-success',
-                            action: () => {
-                                document.getElementById('selectedIds').value = this.selectedRows.join(',');
-                                document.getElementById('indexForm').submit();
-                            }
-                        },
-                        cancel: {
-                            text: 'Hủy',
-                            btnClass: 'btn-secondary'
-                        }
-                    }
-                });
             },
 
-            moveSingleToTrash(id) {
-                $.confirm({
-                    title: 'Bạn có chắc chắn?',
-                    content: 'Bạn có muốn đưa bệnh nhân này vào thùng rác không?',
-                    icon: 'fa fa-question-circle text-blue-500',
-                    theme: 'modern',
-                    type: 'blue',
-                    boxWidth: '400px',
-                    useBootstrap: false,
-                    buttons: {
-                        confirm: {
-                            text: 'Có, hãy thực hiện!',
-                            btnClass: 'btn-success',
-                            action: () => {
-                                document.getElementById('selectedIds').value = id;
-                                document.getElementById('indexForm').submit();
-                            }
-                        },
-                        cancel: {
-                            text: 'Hủy',
-                            btnClass: 'btn-secondary'
+            rebindCheckboxEvents() {
+                // Gán lại sự kiện cho nút xóa
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.onclick = function () {
+                        const id = this.getAttribute('data-id');
+                        if (window.list && typeof window.list.delete === 'function') {
+                            window.list.delete(id);
                         }
-                    }
+                    };
+                });
+
+                // Gán lại sự kiện cho checkbox "chọn tất cả"
+                const checkAll = document.querySelector('#myTable thead input[type="checkbox"]');
+                const rowCheckboxes = document.querySelectorAll('#myTable tbody input[type="checkbox"]');
+                if (checkAll) {
+                    checkAll.onclick = function () {
+                        if (checkAll.checked) {
+                            // Chỉ chọn các bản ghi đang hiển thị (filteredList)
+                            window.list.selectedRows = window.list.filteredList.map(e => e.id.toString());
+                        } else {
+                            // Bỏ chọn tất cả các bản ghi đang hiển thị
+                            window.list.selectedRows = window.list.selectedRows.filter(id =>
+                                !window.list.filteredList.some(e => e.id.toString() === id)
+                            );
+                        }
+                        // Cập nhật lại trạng thái checkbox trên trang hiện tại
+                        rowCheckboxes.forEach(cb => {
+                            cb.checked = checkAll.checked;
+                        });
+                    };
+                }
+                // Gán lại sự kiện cho từng checkbox dòng
+                rowCheckboxes.forEach(cb => {
+                    cb.checked = window.list.selectedRows.includes(cb.value);
+                    cb.onclick = function () {
+                        const id = cb.value;
+                        if (cb.checked) {
+                            if (!window.list.selectedRows.includes(id)) window.list.selectedRows.push(id);
+                        } else {
+                            window.list.selectedRows = window.list.selectedRows.filter(x => x !== id);
+                            if (checkAll) checkAll.checked = false;
+                        }
+                    };
                 });
             },
 
@@ -339,20 +256,26 @@
     });
 
     document.getElementById('customSearchInput').addEventListener('input', function () {
-        const keyword = removeVietnameseTones(this.value.trim());
-        if (window.list) {
-            let filtered = window.list.entityList.filter(e =>
-                (e.patientName && removeVietnameseTones(e.patientName).includes(keyword)) ||
-                (e.patientEmail && removeVietnameseTones(e.patientEmail).includes(keyword)) ||
-                (e.firstNote && removeVietnameseTones(e.firstNote).includes(keyword)) ||
-                (e.secondNote && removeVietnameseTones(e.secondNote).includes(keyword)) ||
-                (e.departmentName && removeVietnameseTones(e.departmentName).includes(keyword)) ||
-                (e.roomName && removeVietnameseTones(e.roomName).includes(keyword)) ||
-                (e.employeeName && removeVietnameseTones(e.employeeName).includes(keyword))
-            );
-            window.list.filteredList = filtered;
-            if (window.list.datatable) window.list.datatable.destroy();
-            window.list.initializeTable();
+        const keyword = removeVietnameseTones(this.value.trim().toLowerCase());
+        if (!window.list) return;
+
+        try {
+            if (keyword === '') {
+                window.list.filteredList = [...window.list.entityList];
+            } else {
+                window.list.filteredList = window.list.entityList.filter(e =>
+                    (e.patientName && removeVietnameseTones(e.patientName).includes(keyword)) ||
+                    (e.patientEmail && removeVietnameseTones(e.patientEmail).includes(keyword)) ||
+                    (e.firstNote && removeVietnameseTones(e.firstNote).includes(keyword)) ||
+                    (e.secondNote && removeVietnameseTones(e.secondNote).includes(keyword)) ||
+                    (e.departmentName && removeVietnameseTones(e.departmentName).includes(keyword)) ||
+                    (e.roomName && removeVietnameseTones(e.roomName).includes(keyword)) ||
+                    (e.employeeName && removeVietnameseTones(e.employeeName).includes(keyword))
+                );
+            }
+            window.list.updateTable();
+        } catch (error) {
+            console.error('Lỗi xử lý tìm kiếm:', error);
         }
     });
 
@@ -459,4 +382,3 @@
         });
     </script>
 }
-

@@ -27,7 +27,7 @@ namespace Project.Areas.Staff.Models.ViewModels
         public List<Prescription> Prescriptions { get; set; } = new();
         public string? PatientHealthInsuranceNumber { get; set; }
         public DateTime? PatientHealthInsuranceExpiredDate { get; set; }
-        public string? PatientHealthInsurancePlaceOfRegistration { get; set; }
+        public HealthInsuranceRegistrationPlace? PatientHealthInsurancePlaceOfRegistration { get; set; }
         public bool? PatientHealthInsuranceIsRightRoute { get; set; }
         public List<TreatmentRecordDetail> TreatmentDetails { get; set; } = new();
     }

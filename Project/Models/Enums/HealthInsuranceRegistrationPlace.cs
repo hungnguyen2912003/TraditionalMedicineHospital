@@ -5,21 +5,21 @@ namespace Project.Models.Enums
     public enum HealthInsuranceRegistrationPlace
     {
         [Display(Name = "Bệnh viện Trung Ương")]
-        BenhVienTrungUong = 0,
+        BenhVienTrungUong = 1,
 
         [Display(Name = "Bệnh viện Đa khoa")]
-        BenhVienDaKhoa = 1,
+        BenhVienDaKhoa = 2,
 
         [Display(Name = "Bệnh viện Y học Cổ truyền")]
-        BenhVienYHCT = 2,
+        BenhVienYHCT = 3,
 
         [Display(Name = "Bệnh viện Quận/Huyện")]
-        BenhVienQuanHuyen = 3,
+        BenhVienQuanHuyen = 4,
 
         [Display(Name = "Phòng khám Đa khoa")]
-        PhongKhamDaKhoa = 4,
+        PhongKhamDaKhoa = 5,
 
         [Display(Name = "Trạm Y tế")]
-        TramYTe = 5
+        TramYTe = 6
     }
 }

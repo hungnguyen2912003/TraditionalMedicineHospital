@@ -152,14 +152,14 @@ namespace Project.Areas.Staff.Controllers
         {
             var patientData = await _patientRepository.GetAllAsync();
             var currentDate = DateTime.Now;
-            var startDate = period.ToLower() == "month" 
-                ? currentDate.AddMonths(-1) 
+            var startDate = period.ToLower() == "month"
+                ? currentDate.AddMonths(-1)
                 : currentDate.AddYears(-1);
 
             var stats = patientData
                 .Where(p => p.CreatedDate >= startDate && p.CreatedDate <= currentDate)
-                .GroupBy(p => period.ToLower() == "month" 
-                    ? p.CreatedDate.Date 
+                .GroupBy(p => period.ToLower() == "month"
+                    ? p.CreatedDate.Date
                     : new DateTime(p.CreatedDate.Year, p.CreatedDate.Month, 1))
                 .Select(g => new
                 {
@@ -176,18 +176,18 @@ namespace Project.Areas.Staff.Controllers
         public async Task<IActionResult> GetTreatmentCompletionStats(int year)
         {
             var treatmentRecords = await _treatmentRecordRepository.GetAllAsync();
-            
+
             var stats = Enumerable.Range(1, 12)
                 .Select(month => new
                 {
                     Month = month,
-                    CompletedCount = treatmentRecords.Count(t => 
-                        t.Status == TreatmentStatus.DaHoanThanh && 
-                        t.CreatedDate.Year == year && 
+                    CompletedCount = treatmentRecords.Count(t =>
+                        t.Status == TreatmentStatus.DaHoanThanh &&
+                        t.CreatedDate.Year == year &&
                         t.CreatedDate.Month == month),
-                    CancelledCount = treatmentRecords.Count(t => 
-                        t.Status == TreatmentStatus.DaHuyBo && 
-                        t.CreatedDate.Year == year && 
+                    CancelledCount = treatmentRecords.Count(t =>
+                        t.Status == TreatmentStatus.DaHuyBo &&
+                        t.CreatedDate.Year == year &&
                         t.CreatedDate.Month == month)
                 })
                 .ToList();
@@ -199,7 +199,7 @@ namespace Project.Areas.Staff.Controllers
         public async Task<IActionResult> GetFollowUpTreatmentStats(int year)
         {
             var treatmentRecords = await _treatmentRecordRepository.GetAllAsync();
-            
+
             var stats = treatmentRecords
                 .GroupBy(t => t.PatientId)
                 .Where(g => g.Count() > 1) // Lấy các bệnh nhân có nhiều hơn 1 đợt điều trị

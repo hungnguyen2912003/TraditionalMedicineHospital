@@ -395,20 +395,15 @@
                                                 name="Patient.HealthInsurancePlaceOfRegistration"
                                                 class="form-input w-full mt-1 p-2 border rounded choices">
                                                 <option value="">Chọn nơi đăng ký</option>
-                                                @foreach (var place in Enum.GetValues(typeof(Project.Models.Enums.HealthInsuranceRegistrationPlace)))
+                                                @foreach (var place in ViewBag.HealthInsurancePlaceOptions)
                                                 {
-                                                    var displayAttr = place.GetType()
-                                                        .GetField(place.ToString() ?? string.Empty)
-                                                        ?.GetCustomAttributes(typeof(DisplayAttribute), false)
-                                                        .FirstOrDefault() as DisplayAttribute;
-                                                    var displayName = displayAttr?.Name ?? place.ToString();
-                                                    if (displayName == Model.Patient.HealthInsurancePlaceOfRegistration)
+                                                    if (place.Value == (int)Model.Patient!.HealthInsurancePlaceOfRegistration!)
                                                     {
-                                                        <option value="@displayName" selected>@displayName</option>
+                                                        <option value="@place.Value" selected>@place.Text</option>
                                                     }
                                                     else
                                                     {
-                                                        <option value="@displayName">@displayName</option>
+                                                        <option value="@place.Value">@place.Text</option>
                                                     }
                                                 }
                                             </select>

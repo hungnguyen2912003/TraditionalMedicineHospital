@@ -1,4 +1,5 @@
 ﻿using Project.Models.Commons;
+using Project.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,7 +14,7 @@ namespace Project.Areas.Staff.Models.Entities
         public string Code { get; set; } = string.Empty;
         public string Number { get; set; } = string.Empty;
         public DateTime ExpiryDate { get; set; }
-        public string PlaceOfRegistration { get; set; } = string.Empty;
+        public HealthInsuranceRegistrationPlace PlaceOfRegistration { get; set; }
         public bool IsRightRoute { get; set; }
 
         //Foreign key

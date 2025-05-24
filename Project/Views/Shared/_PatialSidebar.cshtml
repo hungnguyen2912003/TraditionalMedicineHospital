@@ -213,7 +213,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="/benh-nhan" class="group">
+                            <a href="/quan-ly-benh-nhan" class="group">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20"
                                         viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -266,7 +266,7 @@
                         </li>
 
                         <li class="nav-item bacsi">
-                            <a href="/phieu-kham" class="group">
+                            <a href="/phieu-dieu-tri" class="group">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20"
                                         viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -279,7 +279,7 @@
                                     </svg>
                                     <span
                                         class="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Quản
-                                        lý đợt điều trị</span>
+                                        lý phiếu điều trị</span>
                                 </div>
                             </a>
                         </li>
@@ -306,7 +306,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="/thanh-toan" class="group">
+                            <a href="/phieu-thanh-toan" class="group">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20"
                                         viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -358,7 +358,7 @@
                 <li class="nav-item">
                     <ul>
                         <li class="nav-item bacsi">
-                            <a href="/tiep-nhan-benh-nhan" class="group">
+                            <a href="/tiep-nhan-benh-nhan/tao-phieu" class="group">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20"
                                         viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -381,7 +381,7 @@
                         </li>
 
                         <li class="nav-item yta">
-                            <a href="/theo-doi-benh-nhan" class="group">
+                            <a href="/theo-doi-dieu-tri" class="group">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" width="24"
                                         height="24" viewBox="0 0 24 24" fill="currentColor"
@@ -500,8 +500,8 @@
                     document.querySelectorAll('.yta').forEach(item => {
                         item.style.display = '';
                     });
-                    homeElement.href = '/staff';
-                    dashboardElement.href = '/staff';
+                    homeElement.href = '/nhan-vien';
+                    dashboardElement.href = '/nhan-vien';
                 } else if (data.role === 'Bacsi') {
                     // Ẩn các mục admin, chỉ hiện mục yta
                     document.querySelectorAll('.admin').forEach(item => {
@@ -513,8 +513,8 @@
                     document.querySelectorAll('.bacsi').forEach(item => {
                         item.style.display = '';
                     });
-                    homeElement.href = '/staff';
-                    dashboardElement.href = '/staff';
+                    homeElement.href = '/nhan-vien';
+                    dashboardElement.href = '/nhan-vien';
                 }
             }
         } catch (error) {

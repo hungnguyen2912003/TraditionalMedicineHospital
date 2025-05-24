@@ -11,6 +11,7 @@ namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
     [Authorize(Roles = "Admin, Bacsi")]
+    [Route("phieu-dieu-tri")]
     public class TreatmentRecordsController : Controller
     {
         private readonly ITreatmentRecordRepository _treatmentRecordRepository;
@@ -33,6 +34,7 @@ namespace Project.Areas.Staff.Controllers
             _viewBagHelper = viewBagHelper;
             _codeGenerator = codeGenerator;
         }
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var list = await _treatmentRecordRepository.GetAllAdvancedAsync();
@@ -74,6 +76,7 @@ namespace Project.Areas.Staff.Controllers
             return View(viewModelList);
         }
 
+        [HttpGet("chi-tiet/{id}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var treatmentRecord = await _treatmentRecordRepository.GetByIdAdvancedAsync(id);
@@ -84,40 +87,7 @@ namespace Project.Areas.Staff.Controllers
             return View(treatmentRecord);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Create()
-        {
-            await _viewBagHelper.BaseViewBag(ViewData);
-            var model = new TreatmentRecordDto
-            {
-                Code = await _codeGenerator.GenerateUniqueCodeAsync(_treatmentRecordRepository)
-            };
-            return View(model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromForm] TreatmentRecordDto inputDto)
-        {
-            try
-            {
-                var entity = _mapper.Map<TreatmentRecord>(inputDto);
-
-                entity.CreatedBy = "Admin";
-                entity.CreatedDate = DateTime.UtcNow;
-                entity.Status = Project.Models.Enums.TreatmentStatus.DangDieuTri;
-
-                await _treatmentRecordRepository.CreateAsync(entity);
-
-                return Json(new { success = true, message = "Thêm đợt điều trị thành công!" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Có lỗi xảy ra khi thêm đợt điều trị: " + ex.Message });
-            }
-        }
-
-        [HttpGet]
+        [HttpGet("chinh-sua/{id}")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var entity = await _treatmentRecordRepository.GetByIdAsync(id);
@@ -131,7 +101,7 @@ namespace Project.Areas.Staff.Controllers
             return View(dto);
         }
 
-        [HttpPost]
+        [HttpPost("chinh-sua/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([FromForm] TreatmentRecordDto inputDto, Guid Id)
         {
@@ -153,7 +123,7 @@ namespace Project.Areas.Staff.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("xoa")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
         {
@@ -191,7 +161,7 @@ namespace Project.Areas.Staff.Controllers
                 var codes = string.Join(", ", delList.Select(c => $"\"{c.Code}\""));
                 var message = delList.Count == 1
                     ? $"Đã xóa đợt điều trị {codes} thành công"
-                    : $"Đã xóa các đợt điều trị: {codes} thành công";
+                    : $"Đã xóa các đợt điều trị đã chọn thành công";
                 TempData["SuccessMessage"] = message;
             }
 
@@ -200,7 +170,7 @@ namespace Project.Areas.Staff.Controllers
                 var codes = string.Join(", ", cannotDeleteList.Select(c => $"\"{c}\""));
                 var message = cannotDeleteList.Count == 1
                     ? $"Không thể xóa đợt điều trị {codes} vì đang trong thời gian điều trị."
-                    : $"Không thể xóa các đợt điều trị: {codes} vì đang trong thời gian điều trị.";
+                    : $"Không thể xóa các đợt điều trị đã chọn vì đang trong thời gian điều trị.";
                 TempData["ErrorMessage"] = message;
             }
             else if (!delList.Any())

@@ -116,6 +116,7 @@ document.addEventListener('alpine:init', () => {
         TreatmentRecordDetails: window.treatmentRecordDetailsData || [],
         Assignments: window.assignmentsData || [],
         currentEmployeeId: window.currentEmployeeId || '',
+        treatmentRecordId: document.getElementById('treatmentRecordId')?.value || '',
 
         // Sử dụng hàm displayNote toàn cục thông qua wrapper
         displayNote(note, type, identifier) {
@@ -547,7 +548,7 @@ document.addEventListener('alpine:init', () => {
             });
 
             this.dropzone = new Dropzone('#imageDropzone', {
-                url: '/Staff/Receptions/Edit',
+                url: '/tiep-nhan-benh-nhan/chinh-sua-phieu/' + this.treatmentRecordId,
                 autoProcessQueue: false,
                 maxFiles: 1,
                 acceptedFiles: 'image/*',
@@ -600,9 +601,11 @@ document.addEventListener('alpine:init', () => {
                         self.handleResponse(response);
                     });
 
-                    this.on('error', (file, errorMessage) => {
-                        console.error('Dropzone error:', errorMessage);
+                    this.on('error', function (file, errorMessage) {
+                        const overlay = document.getElementById('loadingOverlay');
+                        overlay.style.display = 'none';
                         notyf.error("Có lỗi xảy ra: " + errorMessage);
+                        this.removeFile(file); // Xóa file không hợp lệ khỏi dropzone
                     });
                 }
             });
@@ -693,6 +696,7 @@ document.addEventListener('alpine:init', () => {
             formData.append('TreatmentRecord.StartDate', document.querySelector('[name="TreatmentRecord.StartDate"]')?.value || '');
             formData.append('TreatmentRecord.EndDate', document.querySelector('[name="TreatmentRecord.EndDate"]')?.value || '');
             formData.append('TreatmentRecord.Note', document.querySelector('[name="TreatmentRecord.Note"]')?.value || '');
+            formData.append('TreatmentRecord.AdvancePayment', document.querySelector('[name="TreatmentRecord.AdvancePayment"]')?.value || '');
 
             // Patient information
             formData.append('Patient.Code', document.querySelector('[name="Patient.Code"]')?.value || document.getElementById('patientCode')?.value || '');
@@ -763,7 +767,7 @@ document.addEventListener('alpine:init', () => {
             if (response.success) {
                 notyf.success(response.message);
                 setTimeout(() => {
-                    window.location.href = '/Staff/TreatmentRecords';
+                    window.location.href = '/phieu-dieu-tri';
                 }, 1500);
             } else {
                 this.overlay.style.display = 'none';
@@ -1214,7 +1218,7 @@ document.addEventListener('alpine:init', () => {
                         return;
                     }
 
-                    fetch('/Staff/Receptions/Edit', {
+                    fetch('/tiep-nhan-benh-nhan/chinh-sua-phieu/' + this.treatmentRecordId, {
                         method: 'POST',
                         body: formData
                     })

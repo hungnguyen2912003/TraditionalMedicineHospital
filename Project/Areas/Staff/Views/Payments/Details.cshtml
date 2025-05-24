@@ -1,3 +1,6 @@
+@using System.Globalization
+@using Project.Extensions
+@using Project.Models.Enums
 @model Project.Areas.Staff.Models.ViewModels.PaymentViewModel
 @{
     ViewData["Title"] = "Chi tiết phiếu thanh toán";
@@ -6,7 +9,7 @@
 
 <ul class="flex space-x-2 rtl:space-x-reverse">
     <li>
-        <a href="javascript:;" class="text-primary hover:underline">Phiếu thanh toán</a>
+        <a href="javascript:;" class="text-primary hover:underline">Danh mục phiếu thanh toán</a>
     </li>
     <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
         <span>Xem chi tiết</span>
@@ -18,7 +21,7 @@
         <div>
             <button type="button"
                 class="btn btn-secondary w-full py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600"
-                @@click = "goBack()" >
+                @@click="goBack()">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
                     class="h-5 w-5">
                     <path
@@ -27,59 +30,6 @@
                 </svg>
                 Trở về
             </button>
-        </div>
-        <div class="flex gap-2 lg:justify-end">
-            <button type="button" class="btn btn-primary gap-2" @@click="print">
-                <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5">
-                    <path
-                        d="M6 17.9827C4.44655 17.9359 3.51998 17.7626 2.87868 17.1213C2 16.2426 2 14.8284 2 12C2 9.17157 2 7.75736 2.87868 6.87868C3.75736 6 5.17157 6 8 6H16C18.8284 6 20.2426 6 21.1213 6.87868C22 7.75736 22 9.17157 22 12C22 14.8284 22 16.2426 21.1213 17.1213C20.48 17.7626 19.5535 17.9359 18 17.9827"
-                        stroke="currentColor" stroke-width="1.5"></path>
-                    <path opacity="0.5" d="M9 10H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-                    </path>
-                    <path d="M19 14L5 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                    <path
-                        d="M18 14V16C18 18.8284 18 20.2426 17.1213 21.1213C16.2426 22 14.8284 22 12 22C9.17157 22 7.75736 22 6.87868 21.1213C6 20.2426 6 18.8284 6 16V14"
-                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                    <path opacity="0.5"
-                        d="M17.9827 6C17.9359 4.44655 17.7626 3.51998 17.1213 2.87868C16.2427 2 14.8284 2 12 2C9.17158 2 7.75737 2 6.87869 2.87868C6.23739 3.51998 6.06414 4.44655 6.01733 6"
-                        stroke="currentColor" stroke-width="1.5"></path>
-                    <circle opacity="0.5" cx="17" cy="10" r="1" fill="currentColor"></circle>
-                    <path opacity="0.5" d="M15 16.5H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-                    </path>
-                    <path opacity="0.5" d="M13 19H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-                    </path>
-                </svg>
-                In
-            </button>
-
-            <button type="button" class="btn btn-success gap-2">
-                <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5">
-                    <path opacity="0.5"
-                        d="M17 9.00195C19.175 9.01406 20.3529 9.11051 21.1213 9.8789C22 10.7576 22 12.1718 22 15.0002V16.0002C22 18.8286 22 20.2429 21.1213 21.1215C20.2426 22.0002 18.8284 22.0002 16 22.0002H8C5.17157 22.0002 3.75736 22.0002 2.87868 21.1215C2 20.2429 2 18.8286 2 16.0002L2 15.0002C2 12.1718 2 10.7576 2.87868 9.87889C3.64706 9.11051 4.82497 9.01406 7 9.00195"
-                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                    <path d="M12 2L12 15M12 15L9 11.5M12 15L15 11.5" stroke="currentColor" stroke-width="1.5"
-                        stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-                Tải xuống
-            </button>
-
-            <a href="/Staff/Payments/Edit/@Model.Id" class="btn btn-warning gap-2">
-                <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5">
-                    <path opacity="0.5"
-                        d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5"
-                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                    <path
-                        d="M17.3009 2.80624L16.652 3.45506L10.6872 9.41993C10.2832 9.82394 10.0812 10.0259 9.90743 10.2487C9.70249 10.5114 9.52679 10.7957 9.38344 11.0965C9.26191 11.3515 9.17157 11.6225 8.99089 12.1646L8.41242 13.9L8.03811 15.0229C7.9492 15.2897 8.01862 15.5837 8.21744 15.7826C8.41626 15.9814 8.71035 16.0508 8.97709 15.9619L10.1 15.5876L11.8354 15.0091C12.3775 14.8284 12.6485 14.7381 12.9035 14.6166C13.2043 14.4732 13.4886 14.2975 13.7513 14.0926C13.9741 13.9188 14.1761 13.7168 14.5801 13.3128L20.5449 7.34795L21.1938 6.69914C22.2687 5.62415 22.2687 3.88124 21.1938 2.80624C20.1188 1.73125 18.3759 1.73125 17.3009 2.80624Z"
-                        stroke="currentColor" stroke-width="1.5"></path>
-                    <path opacity="0.5"
-                        d="M16.6522 3.45508C16.6522 3.45508 16.7333 4.83381 17.9499 6.05034C19.1664 7.26687 20.5451 7.34797 20.5451 7.34797M10.1002 15.5876L8.4126 13.9"
-                        stroke="currentColor" stroke-width="1.5"></path>
-                </svg>
-                Chỉnh sửa
-            </a>
         </div>
     </div>
     <div class="panel">
@@ -102,7 +52,9 @@
                     </div>
                     <div>
                         <label>Ngày lập phiếu thanh toán</label>
-                        <input type="text" value="@Model.PaymentDate.ToString("dd/MM/yyyy")" readonly class="form-input">
+                        <input type="text"
+                            value="@Model.PaymentDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly
+                            class="form-input">
                     </div>
                 </div>
             </div>
@@ -110,25 +62,126 @@
                 <div class="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-4">
                     <div>
                         <label>Số thẻ BHYT</label>
-                        <input type="text" value="@Model.PatientHealthInsuranceNumber" readonly class="form-input">
+                        <input type="text" value="@(Model.PatientHealthInsuranceNumber ?? "Không có")" readonly
+                            class="form-input">
                     </div>
                     <div>
                         <label>Ngày hết hạn</label>
-                        <input type="text" value="@Model.PatientHealthInsuranceExpiredDate?.ToString("dd/MM/yyyy")" readonly class="form-input">
+                        <input type="text"
+                            value="@(Model.PatientHealthInsuranceExpiredDate?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) ?? "Không có")"
+                            readonly class="form-input">
                     </div>
                     <div>
                         <label>Nơi đăng ký</label>
-                        <input type="text" value="@Model.PatientHealthInsurancePlaceOfRegistration" readonly class="form-input">
+                        <input type="text"
+                            value="@(EnumExtensions.GetDisplayName(Model.PatientHealthInsurancePlaceOfRegistration!) ?? "Không có")"
+                            readonly class="form-input">
                     </div>
                     <div>
                         <label>Tình trạng tuyến thẻ</label>
-                        <input type="text" value="@(Model.PatientHealthInsuranceIsRightRoute == true ? "Đúng tuyến" : "Không đúng tuyến")" readonly class="form-input">
+                        <input type="text"
+                            value="@(Model.PatientHealthInsuranceIsRightRoute == null 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ? "Không có" 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    : (Model.PatientHealthInsuranceIsRightRoute == true ? "Đúng tuyến" : "Không đúng tuyến"))"
+                            readonly class="form-input">
                     </div>
                 </div>
             </div>
             <div class="mt-5">
                 <label>Ghi chú</label>
-                <textarea class="form-textarea w-full mt-1 p-2 border rounded min-h-[80px]" style="resize: none;" readonly>@(string.IsNullOrWhiteSpace(Model.Note) ? "Không có ghi chú" : Model.Note)</textarea>
+                <textarea class="form-textarea w-full mt-1 p-2 border rounded min-h-[80px]" style="resize: none;"
+                    readonly>@(string.IsNullOrWhiteSpace(Model.Note) ? "Không có ghi chú" : Model.Note)</textarea>
+            </div>
+            <div class="mt-5">
+                <h6 class="mb-3 text-lg font-bold">Danh sách các phương pháp điều trị được chỉ định trong phiếu</h6>
+                <div style="max-height: 400px; overflow-y: auto; width: 100%;">
+                    <table class="table table-bordered w-full">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; font-weight: bold; white-space: nowrap;">STT</th>
+                                <th style="text-align: center; font-weight: bold; white-space: nowrap;">Khoa</th>
+                                <th style="text-align: center; font-weight: bold; white-space: nowrap;">Phòng</th>
+                                <th style="text-align: center; font-weight: bold; white-space: nowrap;">Phương pháp điều trị</th>
+                                <th style="text-align: center; font-weight: bold; white-space: nowrap;">Chi phí điều trị</th>
+                                <th style="text-align: center; font-weight: bold; white-space: nowrap;">Số lần điều trị</th>
+                                <th style="text-align: center; font-weight: bold; white-space: nowrap;">Tổng tiền</th>
+                                <th style="text-align: center; font-weight: bold; white-space: nowrap;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var stt = 1;
+                                decimal grandTotal = 0;
+                            }
+                            @foreach (var detail in Model.TreatmentDetails)
+                            {
+                                var cost = detail.Room?.TreatmentMethod?.Cost ?? 0;
+                                var count = detail.TreatmentTrackings?.Count(t => t.Status == TrackingStatus.CoDieuTri) ?? 0;
+                                var total = cost * count;
+                                grandTotal += total;
+                                <tr>
+                                    <td style="text-align: center;">@stt</td>
+                                    <td>@detail.Room?.Department?.Name</td>
+                                    <td>@detail.Room?.Name</td>
+                                    <td>@detail.Room?.TreatmentMethod?.Name</td>
+                                    <td>@cost.ToString("N0") VNĐ/1 lần</td>
+                                    <td>@count lần</td>
+                                    <td>@total.ToString("N0") VNĐ</td>
+                                    <td class="flex justify-center items-center">
+                                        <button type="button" class="btn btn-info btn-sm" onclick="showLogModal('@detail.Id')">Xem nhật ký</button>
+                                    </td>
+                                </tr>
+                                stt++;
+                            }
+                            <tr>
+                                <td colspan="6" style="text-align: right; font-weight: bold;">Tổng tiền sử dụng phương pháp điều trị</td>
+                                <td colspan="2" style="font-weight: bold;">@grandTotal.ToString("N0") VNĐ</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="mt-5">
+                <h6 class="mb-3 text-lg font-bold">Danh sách đơn thuốc được kê tại phiếu</h6>
+                <div style="max-height: 400px; overflow-y: auto; width: 100%;">
+                    <table class="table table-bordered w-full">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center;font-weight:bold;">STT</th>
+                                <th style="text-align:center;font-weight:bold;">Mã đơn thuốc</th>
+                                <th style="text-align:center;font-weight:bold;">Ngày tạo</th>
+                                <th style="text-align:center;font-weight:bold;">Tổng tiền</th>
+                                <th style="text-align:center;font-weight:bold;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var prescriptionStt = 1;
+                            }
+                            @foreach (var prescription in Model.Prescriptions)
+                            {
+                                <tr>
+                                    <td style="text-align:center;">@prescriptionStt</td>
+                                    <td>@prescription.Code</td>
+                                    <td>@prescription.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
+                                    <td>@prescription.TotalCost.ToString("N0") VNĐ</td>
+                                    <td class="flex justify-center items-center">
+                                        <button type="button" class="btn btn-info btn-sm" onclick="showPrescriptionDetail('@prescription.Id', '@prescription.Code')">Xem chi tiết</button>
+                                    </td>
+                                </tr>
+                                prescriptionStt++;
+                            }
+                            @{
+                                decimal prescriptionGrandTotal = Model.Prescriptions.Sum(p => p.TotalCost);
+                            }
+                            <tr>
+                                <td colspan="3" style="text-align: right; font-weight: bold;">Tổng tiền đơn thuốc</td>
+                                <td colspan="2" style="font-weight: bold;">@prescriptionGrandTotal.ToString("N0") VNĐ</td>
+                            </tr>                            
+                        </tbody>
+                    </table>                    
+                </div>
             </div>
             <div class="mt-5">
                 <h6 class="mb-3 text-lg font-bold">Chi tiết các khoản chi phí</h6>
@@ -162,16 +215,18 @@
                         {
                             <tr>
                                 <td><b>Số tiền tạm ứng còn dư</b></td>
-                                <td><b>@((Model.AdvancePayment - (Model.TotalCost - Model.InsuranceAmount)).ToString("N0")) VNĐ</b></td>
+                                <td><b>@((Model.AdvancePayment - (Model.TotalCost - Model.InsuranceAmount)).ToString("N0"))
+                                        VNĐ</b></td>
                             </tr>
                         }
                         else if (Model.AdvancePayment - (Model.TotalCost - Model.InsuranceAmount) < 0)
                         {
                             <tr>
                                 <td><b>Số tiền còn thiếu</b></td>
-                                <td><b>@Math.Abs(Model.AdvancePayment - (Model.TotalCost - Model.InsuranceAmount)).ToString("N0") VNĐ</b></td>
-                            </tr>
-                        }
+                                <td><b>@Math.Abs(Model.AdvancePayment - (Model.TotalCost -
+                                                                            Model.InsuranceAmount)).ToString("N0") VNĐ</b></td>
+                        </tr>
+                                                }
                     </tbody>
                 </table>
             </div>
@@ -179,7 +234,9 @@
                 <div class="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2">
                     <div>
                         <label>Ngày tạo</label>
-                        <input type="text" value="@Model.CreatedDate.ToString("dd/MM/yyyy")" readonly class="form-input">
+                        <input type="text"
+                            value="@Model.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly
+                            class="form-input">
                     </div>
                     <div>
                         <label>Nguời tạo</label>
@@ -187,7 +244,9 @@
                     </div>
                     <div>
                         <label>Ngày chỉnh sửa</label>
-                        <input type="text" value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy") ?? "Không có")" readonly class="form-input">
+                        <input type="text"
+                            value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) ?? "Không có")"
+                            readonly class="form-input">
                     </div>
                     <div>
                         <label>Nguời chỉnh sửa</label>
@@ -200,16 +259,219 @@
     </div>
 </div>
 
+<!-- Modal nhật ký điều trị -->
+<div id="logModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate">
+        <h2 class="text-2xl font-bold text-primary text-center mb-4">Nhật ký điều trị</h2>
+        <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl font-bold" onclick="closeLogModal()">
+            <i class="fa-solid fa-xmark p-2"></i>
+        </button>
+        <div id="logModalContent"></div>
+    </div>
+</div>
+
+<!-- Modal chi tiết đơn thuốc -->
+<div id="prescriptionModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6 relative modal-content-animate">
+        <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl font-bold" onclick="closePrescriptionModal()">
+            <i class="fa-solid fa-xmark p-2"></i>
+        </button>
+        <div id="prescriptionModalContent"></div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('details', () => ({
 
-            print() {
-                window.print();
-            },
             goBack() {
-                window.history.back();
+                window.location.href = '/phieu-thanh-toan/';
             }
         }));
     });
+
+    function formatDateVN(dateStr) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+            const [y, m, d] = dateStr.split('-');
+            return `${d}/${m}/${y}`;
+        }
+        if (/^\d{2} \d{2} \d{4}$/.test(dateStr)) {
+            const [d, m, y] = dateStr.split(' ');
+            return `${d}/${m}/${y}`;
+        }
+        return dateStr;
+    }
+
+    function showLogModal(detailId) {
+        fetch(`/phieu-thanh-toan/get-treatment-tracking?detailId=${detailId}`)
+            .then(res => res.json())
+            .then(data => {
+                function getStatusBadge(status) {
+                    if (status == 1)
+                        return '<span class="badge badge-success" style="background:#22c55e;color:white;">Có điều trị</span>';
+                    if (status == 2)
+                        return '<span class="badge badge-warning" style="background:#facc15;color:#92400e;">Xin phép</span>';
+                    if (status == 3)
+                        return '<span class="badge badge-danger" style="background:#ef4444;color:white;">Không điều trị</span>';
+                    return '<span class="badge badge-secondary">Không xác định</span>';
+                }
+                let html = `
+                    <div class=\"flex justify-center items-center gap-x-12 mb-4\">
+                        <div><b>Phương pháp điều trị:</b> ${data.methodName}</div>
+                        <div><b>Phòng:</b> ${data.roomName}</div>
+                    </div>
+                    <div style=\"max-height:400px;overflow-y:auto;\">
+                        <table class=\"min-w-full table-auto border\">
+                            <thead>
+                                <tr>
+                                    <th style=\"font-weight: bold; text-align: center;\">STT</th>
+                                    <th style=\"font-weight: bold; text-align: center;\">Ngày điều trị</th>
+                                    <th style=\"font-weight: bold; text-align: center;\">Trạng thái điều trị</th>
+                                    <th style=\"font-weight: bold; text-align: center;\">Nhân viên thực hiện</th>
+                                    <th style=\"font-weight: bold; text-align: center;\">Ghi chú</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${
+                                    data.logs.length === 0
+                                    ? `<tr><td colspan=\"5\" style=\"text-align:center; color:#888;\">Chưa có nhật ký điều trị nào</td></tr>`
+                                    : data.logs.map((log, idx) => `
+                                        <tr>
+                                            <td>${idx + 1}</td>
+                                            <td>${formatDateVN(log.date)}</td>
+                                            <td>${getStatusBadge(log.status)}</td>
+                                            <td>${log.staff}</td>
+                                            <td>
+                                                <input type=\"text\" class=\"form-input\" style=\"width:180px;max-width:100%;font-size:14px;\" readonly 
+                                                    value=\"${log.note ? log.note : 'Chưa thêm ghi chú'}\" />
+                                            </td>
+                                        </tr>
+                                    `).join('')
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                document.getElementById('logModalContent').innerHTML = html;
+                const modal = document.getElementById('logModal');
+                modal.classList.remove('hidden', 'closing');
+            });
+    }
+
+    function closeLogModal() {
+        const modal = document.getElementById('logModal');
+        modal.classList.add('closing');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('closing');
+        }, 200);
+    }
+
+    function showPrescriptionDetail(prescriptionId, prescriptionCode) {
+        fetch(`/phieu-thanh-toan/get-prescription-detail?prescriptionId=${prescriptionId}`)
+            .then(res => res.json())
+            .then(data => {
+                let html = `
+                    <h2 class="text-2xl font-bold text-primary text-center mb-4">
+                        Chi tiết đơn thuốc: <span style="color:#2563eb">${prescriptionCode}</span>
+                    </h2>
+                    <div style="max-height:400px;overflow-y:auto;">
+                        <table class="min-w-full table-auto border">
+                            <thead>
+                                <tr>
+                                    <th style="font-weight: bold; text-align: center;">STT</th>
+                                    <th style="font-weight: bold; text-align: center;">Tên thuốc</th>
+                                    <th style="font-weight: bold; text-align: center;">Số lượng</th>
+                                    <th style="font-weight: bold; text-align: center;">Đơn giá</th>
+                                    <th style="font-weight: bold; text-align: center;">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${
+                                    data.length === 0
+                                    ? `<tr><td colspan="5" style="text-align:center; color:#888;">Không có thuốc nào</td></tr>`
+                                    : (() => {
+                                        let rows = data.map((item, idx) => `
+                                            <tr>
+                                                <td>${idx + 1}</td>
+                                                <td>${item.medicineName}</td>
+                                                <td>${item.quantity}</td>
+                                                <td>${item.price.toLocaleString()} VNĐ</td>
+                                                <td>${item.total.toLocaleString()} VNĐ</td>
+                                            </tr>
+                                        `).join('');
+                                        let total = data.reduce((sum, item) => sum + item.total, 0);
+                                        rows += `
+                                            <tr>
+                                                <td colspan="4" style="text-align:right;font-weight:bold;">Tổng tiền đơn thuốc</td>
+                                                <td style="font-weight:bold;">${total.toLocaleString()} VNĐ</td>
+                                            </tr>
+                                        `;
+                                        return rows;
+                                    })()
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                document.getElementById('prescriptionModalContent').innerHTML = html;
+                document.getElementById('prescriptionModal').classList.remove('hidden', 'closing');
+            });
+    }
+
+    function closePrescriptionModal() {
+        const modal = document.getElementById('prescriptionModal');
+        modal.classList.add('closing');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('closing');
+        }, 200);
+    }
 </script>
+
+<style>
+    .modal-content-animate {
+        animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #logModal.closing .modal-content-animate {
+        animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #prescriptionModal.closing .modal-content-animate {
+        animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @@keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    @@keyframes modalFadeOut {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    }
+    #logModal {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+    #prescriptionModal {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+    .bg-modal-blur {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }    
+</style>

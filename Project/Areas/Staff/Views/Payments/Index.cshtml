@@ -1,3 +1,4 @@
+@using System.Globalization
 @model IEnumerable<Project.Areas.Staff.Models.ViewModels.PaymentViewModel>
 
 @{
@@ -10,13 +11,12 @@
         class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
 </div>
 
-<form id="indexForm" method="post" asp-action="MoveToTrash">
-    @Html.AntiForgeryToken()
+<form id="myForm" method="post">
     <input type="hidden" name="selectedIds" id="selectedIds" />
 
     <ul class="flex space-x-2 rtl:space-x-reverse">
         <li>
-            <a href="javascript:;" class="text-primary hover:underline">Phiếu thanh toán</a>
+            <a href="javascript:;" class="text-primary hover:underline">Danh mục phiếu thanh toán</a>
         </li>
         <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
             <span>Danh sách</span>
@@ -32,75 +32,54 @@
                     <div class="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
                         <div>
                             <a href="javascript:;" id="btnAddPayment" class="btn btn-primary"
-                                @@click = "openPaymentModal" >
+                                @@click="openPaymentModal">
                                 <svg width="24" height="24" class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24"
                                     fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                                <g id="SVGRepo_iconCarrier">
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                    <g id="SVGRepo_iconCarrier">
                                         <g id="Edit / Add_Plus_Circle">
                                             <path id="Vector"
                                                 d="M8 12H12M12 12H16M12 12V16M12 12V8M12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21Z"
-                                        stroke="#ffffff" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
+                                                stroke="#ffffff" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"></path>
                                         </g>
-                                </g>
-                            </svg>
+                                    </g>
+                                </svg>
                                 Thêm phiếu thanh toán
                             </a>
                         </div>
-                        <div class="group relative">
-                            <input type="text" placeholder="Tìm kiếm..." id="customSearchInput"
-                                class="peer form-input ltr:pr-8 rtl:pl-8">
-                            <div
-                                class="absolute top-1/2 -translate-y-1/2 peer-focus:text-primary ltr:right-[11px] rtl:left-[11px]">
-                                <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg" class="h-4 w-4">
-                                    <circle cx="11.5" cy="11.5" r="9.5" stroke="currentColor" stroke-width="1.5"
-                                        opacity="0.5"></circle>
-                                    <path d="M18.5 18.5L22 22" stroke="currentColor" stroke-width="1.5"
-                                        stroke-linecap="round"></path>
-                                </svg>
-                            </div>
-                        </div>
+                        <button type="button" x-on:click="deleteSelected" class="btn btn-danger">
+                            <svg class="h-5 w-5 ltr:mr-2 rtl:ml-2" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <path
+                                        d="M12 10V17M8 10V17M19 9H22M19 14H22M19 19H21M16 6V16.2C16 17.8802 16 18.7202 15.673 19.362C15.3854 19.9265 14.9265 20.3854 14.362 20.673C13.7202 21 12.8802 21 11.2 21H8.8C7.11984 21 6.27976 21 5.63803 20.673C5.07354 20.3854 4.6146 19.9265 4.32698 19.362C4 18.7202 4 17.8802 4 16.2V6M2 6H18M14 6L13.7294 5.18807C13.4671 4.40125 13.3359 4.00784 13.0927 3.71698C12.8779 3.46013 12.6021 3.26132 12.2905 3.13878C11.9376 3 11.523 3 10.6936 3H9.30643C8.47705 3 8.06236 3 7.70951 3.13878C7.39792 3.26132  7.12208 3.46013 6.90729 3.71698C6.66405 4.00784 6.53292 4.40125 6.27064 5.18807L6 6"
+                                        stroke="#ffffff" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round"></path>
+                                </g>
+                            </svg>
+                            Xóa nhanh
+                        </button>
                     </div>
                     <div class="flex w-1/2 flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
                         <div class="flex gap-3">
-                            <button type="button" class="btn btn-primary gap-2" @@click="print">
-                                <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
-                                    <path
-                                        d="M6 17.9827C4.44655 17.9359 3.51998 17.7626 2.87868 17.1213C2 16.2426 2 14.8284 2 12C2 9.17157 2 7.75736 2.87868 6.87868C3.75736 6 5.17157 6 8 6H16C18.8284 6 20.2426 6 21.1213 6.87868C22 7.75736 22 9.17157 22 12C22 14.8284 22 16.2426 21.1213 17.1213C20.48 17.7626 19.5535 17.9359 18 17.9827"
-                                        stroke="currentColor" stroke-width="1.5"></path>
-                                    <path opacity="0.5" d="M9 10H6" stroke="currentColor" stroke-width="1.5"
-                                        stroke-linecap="round"></path>
-                                    <path d="M19 14L5 14" stroke="currentColor" stroke-width="1.5"
-                                        stroke-linecap="round"></path>
-                                    <path
-                                        d="M18 14V16C18 18.8284 18 20.2426 17.1213 21.1213C16.2426 22 14.8284 22 12 22C9.17157 22 7.75736 22 6.87868 21.1213C6 20.2426 6 18.8284 6 16V14"
-                                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                    <path opacity="0.5"
-                                        d="M17.9827 6C17.9359 4.44655 17.7626 3.51998 17.1213 2.87868C16.2427 2 14.8284 2 12 2C9.17158 2 7.75737 2 6.87869 2.87868C6.23739 3.51998 6.06414 4.44655 6.01733 6"
-                                        stroke="currentColor" stroke-width="1.5"></path>
-                                    <circle opacity="0.5" cx="17" cy="10" r="1" fill="currentColor"></circle>
-                                    <path opacity="0.5" d="M15 16.5H9" stroke="currentColor" stroke-width="1.5"
-                                        stroke-linecap="round"></path>
-                                    <path opacity="0.5" d="M13 19H9" stroke="currentColor" stroke-width="1.5"
-                                        stroke-linecap="round"></path>
-                                </svg>
-                                In
-                            </button>
-                            <button type="button" class="btn btn-success gap-2">
-                                <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
-                                    <path opacity="0.5"
-                                        d="M17 9.00195C19.175 9.01406 20.3529 9.11051 21.1213 9.8789C22 10.7576 22 12.1718 22 15.0002V16.0002C22 18.8286 22 20.2429 21.1213 21.1215C20.2426 22.0002 18.8284 22.0002 16 22.0002H8C5.17157 22.0002 3.75736 22.0002 2.87868 21.1215C2 20.2429 2 18.8286 2 16.0002L2 15.0002C2 12.1718 2 10.7576 2.87868 9.87889C3.64706 9.11051 4.82497 9.01406 7 9.00195"
-                                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                    <path d="M12 2L12 15M12 15L9 11.5M12 15L15 11.5" stroke="currentColor"
-                                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                </svg>
-                                Tải xuống
-                            </button>
+                            <div class="group relative">
+                                <input type="text" placeholder="Tìm kiếm..." id="customSearchInput"
+                                    class="peer form-input ltr:pr-8 rtl:pl-8">
+                                <div
+                                    class="absolute top-1/2 -translate-y-1/2 peer-focus:text-primary ltr:right-[11px] rtl:left-[11px]">
+                                    <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" class="h-4 w-4">
+                                        <circle cx="11.5" cy="11.5" r="9.5" stroke="currentColor" stroke-width="1.5"
+                                            opacity="0.5"></circle>
+                                        <path d="M18.5 18.5L22 22" stroke="currentColor" stroke-width="1.5"
+                                            stroke-linecap="round"></path>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -113,13 +92,15 @@
 </form>
 
 <div id="paymentModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-7xl p-6 relative modal-content-animate">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-7xl p-6 relative modal-content-animate"
+        style="max-width:1400px;width:90vw;">
         <div class="text-2xl font-bold text-primary text-center mb-4">Thêm phiếu thanh toán</div>
         <div id="paymentModalBody">
             <div class="mb-4 flex gap-4">
                 <div class="w-1/2">
                     <label for="paymentRecordCode" class="block font-semibold mb-1">Mã phiếu thanh toán</label>
-                    <input type="text" id="paymentRecordCode" class="form-input w-full" value="@ViewBag.PaymentCode" readonly>
+                    <input type="text" id="paymentRecordCode" class="form-input w-full" value="@ViewBag.PaymentCode"
+                        readonly>
                 </div>
                 <div class="w-1/2">
                     <label for="paymentPatientId" class="block font-semibold mb-1">Chọn bệnh nhân</label>
@@ -134,19 +115,45 @@
                 <div class="w-1/2">
                     <label for="paymentTreatmentRecordId" class="block font-semibold mb-1">Mã phiếu điều trị</label>
                     <select id="paymentTreatmentRecordId" class="form-input w-full cursor-not-allowed" disabled>
-                        <option value="">Chọn phiếu điều trị</option>
+
                     </select>
                 </div>
                 <div class="w-1/2">
                     <label for="paymentCreatedDate" class="block font-semibold mb-1">Ngày lập phiếu thanh toán</label>
-                    <input type="text" id="paymentCreatedDate" class="form-input w-full flatpickr" value="@DateTime.Now.ToString("dd/MM/yyyy")" readonly>
+                    <input type="text" id="paymentCreatedDate" class="form-input w-full flatpickr"
+                        value="@DateTime.Now.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly>
+                </div>
+            </div>
+            <!-- Thông tin thẻ BHYT -->
+            <div id="healthInsuranceInfo" class="mb-4 flex gap-4" style="display:none;">
+                <div class="w-1/4">
+                    <label class="block font-semibold mb-1">Số thẻ BHYT</label>
+                    <input type="text" id="hiNumber" class="form-input w-full" readonly>
+                </div>
+                <div class="w-1/4">
+                    <label class="block font-semibold mb-1">Ngày hết hạn</label>
+                    <input type="text" id="hiExpiry" class="form-input w-full" readonly>
+                </div>
+                <div class="w-1/4">
+                    <label class="block font-semibold mb-1">Nơi đăng ký</label>
+                    <input type="text" id="hiPlace" class="form-input w-full" readonly>
+                </div>
+                <div class="w-1/4">
+                    <label class="block font-semibold mb-1">Tuyến KCB</label>
+                    <input type="text" id="hiRoute" class="form-input w-full" readonly>
                 </div>
             </div>
             <div class="mb-4">
                 <label for="prescriptionNote" class="block font-semibold mb-1">Ghi chú</label>
-                <textarea id="prescriptionNote" class="form-input w-full" placeholder="Nhập ghi chú..." style="resize: none; min-height: 60px; max-height: 120px; height: 80px;"></textarea>
+                <textarea id="prescriptionNote" class="form-input w-full" placeholder="Nhập ghi chú..."
+                    style="resize: none; min-height: 60px; max-height: 120px; height: 80px;"></textarea>
             </div>
-            <div id="treatmentRecordCosts" class="mb-4 flex gap-4" style="display:none; flex-wrap: nowrap; align-items: flex-end;">
+            <!-- Bảng phương pháp điều trị (ẩn/hiện động) -->
+            <div id="createTreatmentDetailsTable" class="mb-4" style="display:none;"></div>
+            <!-- Bảng đơn thuốc (ẩn/hiện động) -->
+            <div id="createPrescriptionsTable" class="mb-4" style="display:none;"></div>
+            <div id="treatmentRecordCosts" class="mb-4 flex gap-4"
+                style="display:none; flex-wrap: nowrap; align-items: flex-end;">
                 <div class="w-1/4 flex flex-col h-full">
                     <label class="block font-semibold mb-1">Tổng tiền sử dụng phương pháp điều trị</label>
                     <input type="text" id="totalTreatmentMethodCost" class="form-input w-full" readonly>
@@ -160,7 +167,7 @@
                 <div class="w-1/4 flex flex-col h-full">
                     <label class="block font-semibold mb-1">Số tiền giảm từ BHYT</label>
                     <input type="text" id="insuranceAmount" class="form-input w-full" readonly>
-                    <div id="insuranceStatusText" class="text-sm mt-1" style="min-height:24px"></div>
+                    <div style="min-height:24px"></div>
                 </div>
                 <div class="w-1/4 flex flex-col h-full">
                     <label class="block font-semibold mb-1">Tạm ứng</label>
@@ -171,7 +178,8 @@
             <div id="finalCostContainer" class="mb-4 flex justify-center" style="display:none;">
                 <div class="w-1/3">
                     <label class="block font-semibold mb-1 text-center">Tổng số tiền cần trả cho bệnh viện</label>
-                    <input type="text" id="finalCost" class="form-input w-full text-center text-lg font-bold" readonly style="font-size: 1.25rem;">
+                    <input type="text" id="finalCost" class="form-input w-full text-center text-lg font-bold" readonly
+                        style="font-size: 1.25rem;">
                     <div id="advanceRefundText" class="text-sm mt-1 text-green-600 text-center"></div>
                 </div>
             </div>
@@ -196,23 +204,25 @@
                 <div class="w-1/2">
                     <label for="updatePaymentCode" class="block font-semibold mb-1">Mã phiếu điều trị</label>
                     <input type="text" id="updatePaymentCode" class="form-input w-full" readonly>
-                    </div>
+                </div>
                 <div class="w-1/2">
                     <label for="updatePaymentPatientName" class="block font-semibold mb-1">Tên bệnh nhân</label>
                     <input type="text" id="updatePaymentPatientName" class="form-input w-full" readonly>
-                        </div>
+                </div>
                 <div class="w-1/2">
                     <label for="updatePaymentDate" class="block font-semibold mb-1">Ngày lập phiếu thanh toán</label>
                     <input type="text" id="updatePaymentDate" class="form-input w-full" readonly>
-                        </div>
-                    </div>
+                </div>
+            </div>
             <div class="mb-4">
                 <label for="updatePaymentNote" class="block font-semibold mb-1">Ghi chú</label>
-                <textarea id="updatePaymentNote" class="form-input w-full" placeholder="Nhập ghi chú..." style="resize: none; min-height: 60px; max-height: 120px; height: 80px;"></textarea>
+                <textarea id="updatePaymentNote" class="form-input w-full" placeholder="Nhập ghi chú..."
+                    style="resize: none; min-height: 60px; max-height: 120px; height: 80px;"></textarea>
             </div>
             <div class="mb-4 flex justify-center">
                 <div class="w-1/3 min-w-[260px] flex flex-col items-center">
-                    <label for="updatePaymentStatus" class="block font-semibold mb-1 text-center">Trạng thái phiếu thanh toán</label>
+                    <label for="updatePaymentStatus" class="block font-semibold mb-1 text-center">Trạng thái phiếu thanh
+                        toán</label>
                     <select id="updatePaymentStatus" class="form-input w-full text-center">
                         <option value="1">Chưa thanh toán</option>
                         <option value="2">Đã thanh toán</option>
@@ -245,126 +255,156 @@
                 this.filteredList = [...this.entityList];
                 window.list = this;
                 this.initializeTable();
-                document.querySelector('#myTable thead').addEventListener('change', (e) => {
-                    if (e.target.type === 'checkbox') {
-                        this.selectedRows = [];
-                        const checkboxes = document.querySelectorAll('#myTable tbody input[type="checkbox"]');
-                        checkboxes.forEach(checkbox => {
-                            checkbox.checked = e.target.checked;
-                            if (e.target.checked) {
-                                if (!this.selectedRows.includes(checkbox.value)) {
-                                    this.selectedRows.push(checkbox.value);
-                                }
-                            }
-                        });
-                    }
-                });
-
-                document.querySelector('#myTable tbody').addEventListener('change', (e) => {
-                    if (e.target.type === 'checkbox') {
-                        const checkbox = e.target;
-                        const id = checkbox.value;
-                        if (checkbox.checked) {
-                            if (!this.selectedRows.includes(id)) {
-                                this.selectedRows.push(id);
-                            }
-                        } else {
-                            this.selectedRows = this.selectedRows.filter(rowId => rowId !== id);
-                        }
-                        const allCheckboxes = document.querySelectorAll('#myTable tbody input[type="checkbox"]');
-                        const allChecked = Array.from(allCheckboxes).every(chk => chk.checked);
-                        const mainCheckbox = document.querySelector('#myTable thead input[type="checkbox"]');
-                        mainCheckbox.checked = allChecked;
-                    }
-                });
-
-                document.querySelector('#myTable tbody').addEventListener('click', (e) => {
-
-                });
-            },           
+            },
 
             initializeTable() {
-                const tableData = this.filteredList.map(entity => [
-                    `<input type="checkbox" class="form-checkbox" value="${entity.id}" />`,
-                    entity.code,
-                    entity.treatmentRecordCode,
-                    entity.patientName,
-                    entity.totalCost.toLocaleString() + ' VNĐ',
-                    getPaymentStatusBadge(entity.status),
-                    `<div class="flex gap-4">
-                        <a href="javascript:;" class="hover:text-info edit-payment-btn" x-tooltip="Chỉnh sửa" data-id="${entity.id}">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5">
-                                <path opacity="0.5" d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                <path d="M17.3009 2.80624L16.652 3.45506L10.6872 9.41993C10.2832 9.82394 10.0812 10.0259 9.90743 10.2487C9.70249 10.5114 9.52679 10.7957 9.38344 11.0965C9.26191 11.3515 9.17157 11.6225 8.99089 12.1646L8.41242 13.9L8.03811 15.0229C7.9492 15.2897 8.01862 15.5837 8.21744 15.7826C8.41626 15.9814 8.71035 16.0508 8.97709 15.9619L10.1 15.5876L11.8354 15.0091C12.3775 14.8284 12.6485 14.7381 12.9035 14.6166C13.2043 14.4732 13.4886 14.2975 13.7513 14.0926C13.9741 13.9188 14.1761 13.7168 14.5801 13.3128L20.5449 7.34795L21.1938 6.69914C22.2687 5.62415 22.2687 3.88124 21.1938 2.80624C20.1188 1.73125 18.3759 1.73125 17.3009 2.80624Z" stroke="currentColor" stroke-width="1.5"></path>
-                                <path opacity="0.5" d="M16.6522 3.45508C16.6522 3.45508 16.7333 4.83381 17.9499 6.05034C19.1664 7.26687 20.5451 7.34797 20.5451 7.34797M10.1002 15.5876L8.4126 13.9" stroke="currentColor" stroke-width="1.5"></path>
-                            </svg>
-                        </a>
-                        <a href="/Staff/Payments/Details/${entity.id}" class="hover:text-primary" x-tooltip="Xem chi tiết">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-                                <path opacity="0.5" d="M3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C4.97196 6.49956 7.81811 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957Z" stroke="currentColor" stroke-width="1.5"></path>
-                                <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" stroke-width="1.5"></path>
-                            </svg>
-                        </a>
-                    </div>`
-                ]);
+                try {
+                    const tableData = this.filteredList.map(entity => [
+                        `<input type="checkbox" class="form-checkbox" value="${entity.id}" ${this.selectedRows.includes(entity.id.toString()) ? 'checked' : ''} />`,
+                        entity.code,
+                        entity.treatmentRecordCode,
+                        entity.patientName,
+                        entity.totalCost.toLocaleString() + ' VNĐ',
+                        getPaymentStatusBadge(entity.status),
+                        `<div class="flex gap-4">
+                            <a href="javascript:;" class="hover:text-info edit-payment-btn" x-tooltip="Chỉnh sửa" data-id="${entity.id}">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5">
+                                    <path opacity="0.5" d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M17.3009 2.80624L16.652 3.45506L10.6872 9.41993C10.2832 9.82394 10.0812 10.0259 9.90743 10.2487C9.70249 10.5114 9.52679 10.7957 9.38344 11.0965C9.26191 11.3515 9.17157 11.6225 8.99089 12.1646L8.41242 13.9L8.03811 15.0229C7.9492 15.2897 8.01862 15.5837 8.21744 15.7826C8.41626 15.9814 8.71035 16.0508 8.97709 15.9619L10.1 15.5876L11.8354 15.0091C12.3775 14.8284 12.6485 14.7381 12.9035 14.6166C13.2043 14.4732 13.4886 14.2975 13.7513 14.0926C13.9741 13.9188 14.1761 13.7168 14.5801 13.3128L20.5449 7.34795L21.1938 6.69914C22.2687 5.62415 22.2687 3.88124 21.1938 2.80624C20.1188 1.73125 18.3759 1.73125 17.3009 2.80624Z" stroke="currentColor" stroke-width="1.5"></path>
+                                    <path opacity="0.5" d="M16.6522 3.45508C16.6522 3.45508 16.7333 4.83381 17.9499 6.05034C19.1664 7.26687 20.5451 7.34797 20.5451 7.34797M10.1002 15.5876L8.4126 13.9" stroke="currentColor" stroke-width="1.5"></path>
+                                </svg>
+                            </a>
+                            <a href="/phieu-thanh-toan/chi-tiet/${entity.id}" class="hover:text-primary" x-tooltip="Xem chi tiết">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
+                                    <path opacity="0.5" d="M3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C4.97196 6.49956 7.81811 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957Z" stroke="currentColor" stroke-width="1.5"></path>
+                                    <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" stroke-width="1.5"></path>
+                                </svg>
+                            </a>
+                            <button type="button" class="hover:text-danger delete-btn" data-id="${entity.id}" x-tooltip="Đưa vào thùng rác">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
+                                    <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path opacity="0.5" d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path opacity="0.5" d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path opacity="0.5" d="M6.5 6C6.55588 6 6.58382 6 6.60915 5.99936C7.43259 5.97849 8.15902 5.45491 8.43922 4.68032C8.44784 4.65649 8.45667 4.62999 8.47434 4.57697L8.57143 4.28571C8.65431 4.03708 8.69575 3.91276 8.75071 3.8072C8.97001 3.38607 9.37574 3.09364 9.84461 3.01877C9.96213 3 10.0932 3 10.3553 3H13.6447C13.9068 3 14.0379 3 14.1554 3.01877C14.6243 3.09364 15.03 3.38607 15.2493 3.8072C15.3043 3.91276 15.3457 4.03708 15.4286 4.28571L15.5257 4.57697C15.5433 4.62992 15.5522 4.65651 15.5608 4.68032C15.841 5.45491 16.5674 5.97849 17.3909 5.99936C17.4162 6 17.4441 6 17.5 6" stroke="currentColor" stroke-width="1.5"></path>
+                                </svg>
+                            </button>                            
+                        </div>`
+                    ]);
 
-                this.datatable = new simpleDatatables.DataTable('#myTable', {
-                    data: {
-                        headings: [
-                            '<input type="checkbox" class="form-checkbox" />',
-                            'Mã thanh toán',
-                            'Mã phiếu điều trị',
-                            'Tên bệnh nhân',
-                            'Tổng chi phí',
-                            'Trạng thái',
-                            'Thao tác'
-                        ],
-                        data: tableData
-                    },
-                    perPage: 10,
-                    perPageSelect: [10, 20, 30, 50, 100],
-                    firstLast: true,
-                    searchable: false,
-                    firstText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                    lastText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M11 19L17 12L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M6.99976 19L12.9998 12L6.99976 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                    prevText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M15 5L9 12L15 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                    nextText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                    labels: {
-                        perPage: "<span class='ml-2'>{select}</span>",
-                        noRows: 'Không có dữ liệu'
-                    },
-                    layout: {
-                        top: '{search}',
-                        bottom: '{info}{select}{pager}'
-                    },
-                    columns: [
-                        {
-                            select: 0,
-                            sortable: false,
-                            render: (data, cell, row) => {
-                                return data;
-                            }
+                    this.datatable = new simpleDatatables.DataTable('#myTable', {
+                        data: {
+                            headings: [
+                                '<input type="checkbox" class="form-checkbox" />',
+                                'Mã thanh toán',
+                                'Mã phiếu điều trị',
+                                'Tên bệnh nhân',
+                                'Tổng chi phí',
+                                'Trạng thái',
+                                'Thao tác'
+                            ],
+                            data: tableData
                         },
-                        {
-                            select: 6,
-                            sortable: false,
-                            render: (data, cell, row) => {
-                                return data;
+                        perPage: 10,
+                        perPageSelect: [10, 20, 30, 50, 100],
+                        firstLast: true,
+                        searchable: false,
+                        firstText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                        lastText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M11 19L17 12L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M6.99976 19L12.9998 12L6.99976 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                        prevText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M15 5L9 12L15 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                        nextText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                        labels: {
+                            perPage: "<span class='ml-2'>{select}</span>",
+                            noRows: 'Không có dữ liệu'
+                        },
+                        layout: {
+                            top: '{search}',
+                            bottom: '{info}{select}{pager}'
+                        },
+                        columns: [
+                            {
+                                select: 0,
+                                sortable: false,
+                                render: (data, cell, row) => {
+                                    return data;
+                                }
+                            },
+                            {
+                                select: 6,
+                                sortable: false,
+                                render: (data, cell, row) => {
+                                    return data;
+                                }
                             }
+                        ],
+                    });
+
+                    // Gán lại sự kiện cho checkbox và delete-btn
+                    this.rebindCheckboxEvents();
+                    // Gán lại sự kiện khi chuyển trang
+                    this.datatable.on('datatable.page', () => {
+                        this.rebindCheckboxEvents();
+                    });
+                } catch (error) {
+                    console.error('Lỗi khởi tạo bảng:', error);
+                }
+            },
+
+            rebindCheckboxEvents() {
+                // Gán lại sự kiện cho nút xóa
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.onclick = function () {
+                        const id = this.getAttribute('data-id');
+                        if (window.list && typeof window.list.delete === 'function') {
+                            window.list.delete(id);
                         }
-                    ],
+                    };
+                });
+
+                // Gán lại sự kiện cho checkbox "chọn tất cả"
+                const checkAll = document.querySelector('#myTable thead input[type="checkbox"]');
+                const rowCheckboxes = document.querySelectorAll('#myTable tbody input[type="checkbox"]');
+                if (checkAll) {
+                    checkAll.onclick = function () {
+                        if (checkAll.checked) {
+                            // Chỉ chọn các bản ghi đang hiển thị (filteredList)
+                            window.list.selectedRows = window.list.filteredList.map(e => e.id.toString());
+                        } else {
+                            // Bỏ chọn tất cả các bản ghi đang hiển thị
+                            window.list.selectedRows = window.list.selectedRows.filter(id =>
+                                !window.list.filteredList.some(e => e.id.toString() === id)
+                            );
+                        }
+                        // Cập nhật lại trạng thái checkbox trên trang hiện tại
+                        rowCheckboxes.forEach(cb => {
+                            cb.checked = checkAll.checked;
+                        });
+                    };
+                }
+                // Gán lại sự kiện cho từng checkbox dòng
+                rowCheckboxes.forEach(cb => {
+                    cb.checked = window.list.selectedRows.includes(cb.value);
+                    cb.onclick = function () {
+                        const id = cb.value;
+                        if (cb.checked) {
+                            if (!window.list.selectedRows.includes(id)) window.list.selectedRows.push(id);
+                        } else {
+                            window.list.selectedRows = window.list.selectedRows.filter(x => x !== id);
+                            if (checkAll) checkAll.checked = false;
+                        }
+                    };
                 });
             },
 
-            moveToTrash() {
+            deleteSelected() {
                 if (this.selectedRows.length === 0) {
-                    notyf.error('Vui lòng chọn ít nhất một phiếu thanh toán để đưa vào thùng rác.');
+                    notyf.error('Vui lòng chọn ít nhất một phiếu thanh toán để xóa.');
                     return;
                 }
 
                 $.confirm({
                     title: 'Bạn có chắc chắn?',
-                    content: 'Bạn có muốn đưa các phiếu thanh toán vào thùng rác không?',
+                    content: 'Bạn có muốn xóa các phiếu thanh toán đã chọn không?',
                     icon: 'fa fa-question-circle text-blue-500',
                     theme: 'modern',
                     type: 'blue',
@@ -376,7 +416,8 @@
                             btnClass: 'btn-success',
                             action: () => {
                                 document.getElementById('selectedIds').value = this.selectedRows.join(',');
-                                document.getElementById('indexForm').submit();
+                                document.getElementById('myForm').action = '/phieu-thanh-toan/xoa';
+                                document.getElementById('myForm').submit();
                             }
                         },
                         cancel: {
@@ -387,27 +428,68 @@
                 });
             },
 
+            delete(id) {
+                $.confirm({
+                    title: 'Bạn có chắc chắn?',
+                    content: 'Bạn có muốn xóa phiếu thanh toán này không?',
+                    icon: 'fa fa-question-circle text-blue-500',
+                    theme: 'modern',
+                    type: 'blue',
+                    boxWidth: '400px',
+                    useBootstrap: false,
+                    buttons: {
+                        confirm: {
+                            text: 'Có, hãy thực hiện!',
+                            btnClass: 'btn-success',
+                            action: () => {
+                                document.getElementById('selectedIds').value = id;
+                                document.getElementById('myForm').action = '/phieu-thanh-toan/xoa';
+                                document.getElementById('myForm').submit();
+                            }
+                        },
+                        cancel: {
+                            text: 'Hủy',
+                            btnClass: 'btn-secondary'
+                        }
+                    }
+                });
+            },
+
+            updateTable() {
+                if (this.datatable) {
+                    this.datatable.destroy();
+                    this.datatable = null;
+                }
+                this.initializeTable();
+            },
+
 
             openPaymentModal() {
                 $('#paymentModal').removeClass('hidden closing');
                 $('.modal-content-animate', '#paymentModal').removeClass('animate__fadeOut');
                 resetPaymentModal();
             },
-        
+
         }));
     });
 
     document.getElementById('customSearchInput').addEventListener('input', function () {
-        const keyword = removeVietnameseTones(this.value.trim());
-        if (window.list) {
-            let filtered = window.list.entityList.filter(e =>
-                (e.patientName && removeVietnameseTones(e.patientName).includes(keyword)) ||
-                (e.code && removeVietnameseTones(e.code).includes(keyword)) ||
-                (e.treatmentRecordCode && removeVietnameseTones(e.treatmentRecordCode).includes(keyword))
-            );
-            window.list.filteredList = filtered;
-            if (window.list.datatable) window.list.datatable.destroy();
-            window.list.initializeTable();
+        const keyword = removeVietnameseTones(this.value.trim().toLowerCase());
+        if (!window.list) return;
+
+        try {
+            if (keyword === '') {
+                window.list.filteredList = [...window.list.entityList];
+            } else {
+                window.list.filteredList = window.list.entityList.filter(e =>
+                    (e.patientName && removeVietnameseTones(e.patientName).includes(keyword)) ||
+                    (e.code && removeVietnameseTones(e.code).includes(keyword)) ||
+                    (e.treatmentRecordCode && removeVietnameseTones(e.treatmentRecordCode).includes(keyword))
+                );
+            }
+            window.list.updateTable();
+        } catch (error) {
+            console.error('Lỗi xử lý tìm kiếm:', error);
         }
     });
 
@@ -424,36 +506,74 @@
     const allTreatmentRecords = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.TreatmentRecordsCanPayment));
     const allPatients = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Patients));
 
+    // Khởi tạo Choices cho 2 select
+    let patientChoices, treatmentRecordChoices;
+    document.addEventListener('DOMContentLoaded', function () {
+        patientChoices = new Choices('#paymentPatientId', {
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+        treatmentRecordChoices = new Choices('#paymentTreatmentRecordId', {
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+    });
+
     // Khi chọn bệnh nhân, lọc lại dropdown phiếu điều trị
     document.getElementById('paymentPatientId').addEventListener('change', function () {
         const patientId = this.value;
-        const trSelect = document.getElementById('paymentTreatmentRecordId');
         if (!patientId) {
-            trSelect.disabled = true;
-            trSelect.classList.add('cursor-not-allowed');
+            treatmentRecordChoices.clearChoices();
+            treatmentRecordChoices.setChoices([
+                { value: '', label: 'Chọn mã phiếu điều trị', selected: true, disabled: false }
+            ], 'value', 'label', false);
+            treatmentRecordChoices.disable();
+            // Ẩn/clear input và bảng khi chọn lại mặc định
+            document.getElementById('treatmentRecordCosts').style.display = 'none';
+            document.getElementById('finalCostContainer').style.display = 'none';
+            document.getElementById('totalTreatmentMethodCost').value = '';
+            document.getElementById('totalPrescriptionCost').value = '';
+            document.getElementById('insuranceAmount').value = '';
+            document.getElementById('advancePayment').value = '';
+            document.getElementById('finalCost').value = '';
+            document.getElementById('advanceRefundText').innerText = '';
+            document.getElementById('createTreatmentDetailsTable').innerHTML = '';
+            document.getElementById('createTreatmentDetailsTable').style.display = 'none';
+            document.getElementById('createPrescriptionsTable').innerHTML = '';
+            document.getElementById('createPrescriptionsTable').style.display = 'none';
             return;
         }
         // Lọc các phiếu điều trị của bệnh nhân này và status 2,3
         const filtered = allTreatmentRecords.filter(tr => tr.patientId === patientId && (tr.status === 2 || tr.status === 3));
-        filtered.forEach(tr => {
-            const opt = document.createElement('option');
+        const choices = filtered.map(tr => {
             const start = new Date(tr.startDate);
             const end = new Date(tr.endDate);
             const pad2 = n => n < 10 ? '0' + n : n;
             const startStr = pad2(start.getDate()) + '/' + pad2(start.getMonth() + 1) + '/' + start.getFullYear();
             const endStr = pad2(end.getDate()) + '/' + pad2(end.getMonth() + 1) + '/' + end.getFullYear();
-            opt.value = tr.id;
-            opt.textContent = `${tr.code} - ${startStr} - ${endStr}`;
-            trSelect.appendChild(opt);
+            return {
+                value: tr.id,
+                label: `${tr.code} - ${startStr} - ${endStr}`
+            };
         });
-        trSelect.disabled = false;
-        trSelect.classList.remove('cursor-not-allowed');
+        treatmentRecordChoices.clearChoices();
+        if (choices.length > 0) {
+            treatmentRecordChoices.setChoices(choices, 'value', 'label', false);
+            treatmentRecordChoices.enable();
+        } else {
+            treatmentRecordChoices.setChoices([
+                { value: '', label: 'Chọn mã phiếu điều trị', selected: true, disabled: false }
+            ], 'value', 'label', false);
+            treatmentRecordChoices.disable();
+        }
     });
 
-    // Khi chọn phiếu điều trị, nếu muốn có thể fill lại tên bệnh nhân (nếu cần)
+    // Khi Chọn mã phiếu điều trị, nếu muốn có thể fill lại tên bệnh nhân (nếu cần)
     document.getElementById('paymentTreatmentRecordId').addEventListener('change', async function () {
         const trId = this.value;
-        // Ẩn/clear input nếu chưa chọn
+        // Ẩn/clear input và bảng nếu chưa chọn hoặc chọn lại mặc định
         if (!trId) {
             document.getElementById('treatmentRecordCosts').style.display = 'none';
             document.getElementById('finalCostContainer').style.display = 'none';
@@ -462,10 +582,37 @@
             document.getElementById('insuranceAmount').value = '';
             document.getElementById('advancePayment').value = '';
             document.getElementById('finalCost').value = '';
-            document.getElementById('insuranceStatusText').innerText = '';
             document.getElementById('advanceRefundText').innerText = '';
+            document.getElementById('createTreatmentDetailsTable').innerHTML = '';
+            document.getElementById('createTreatmentDetailsTable').style.display = 'none';
+            document.getElementById('createPrescriptionsTable').innerHTML = '';
+            document.getElementById('createPrescriptionsTable').style.display = 'none';
+            document.getElementById('healthInsuranceInfo').style.display = 'none';
+            document.getElementById('hiNumber').value = '';
+            document.getElementById('hiExpiry').value = '';
+            document.getElementById('hiPlace').value = '';
+            document.getElementById('hiRoute').value = '';
             return;
         }
+
+        // Hiển thị overlay spin
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.style.display = 'flex';
+
+        // Lấy thông tin thẻ BHYT từ allTreatmentRecords nếu có
+        let hiNumber = 'Không có', hiExpiry = 'Không có', hiPlace = 'Không có', hiRoute = 'Không có';
+        const tr = allTreatmentRecords.find(x => x.id === trId);
+        if (tr && tr.patientHealthInsuranceNumber) {
+            hiNumber = tr.patientHealthInsuranceNumber || 'Không có';
+            hiExpiry = tr.patientHealthInsuranceExpiredDate || 'Không có';
+            hiPlace = tr.patientHealthInsurancePlaceOfRegistration || 'Không có';
+            hiRoute = (tr.patientHealthInsuranceIsRightRoute === true) ? 'Đúng tuyến' : (tr.patientHealthInsuranceIsRightRoute === false ? 'Không đúng tuyến' : 'Không có');
+        }
+        document.getElementById('healthInsuranceInfo').style.display = 'flex';
+        document.getElementById('hiNumber').value = hiNumber;
+        document.getElementById('hiExpiry').value = hiExpiry;
+        document.getElementById('hiPlace').value = hiPlace;
+        document.getElementById('hiRoute').value = hiRoute;
 
         // Gọi API lấy chi phí
         try {
@@ -482,28 +629,6 @@
             document.getElementById('advancePayment').value = (data.advancePayment || 0).toLocaleString('vi-VN') + ' VNĐ';
             document.getElementById('finalCost').value = (data.finalCost || 0).toLocaleString('vi-VN') + ' VNĐ';
 
-            // Lấy thông tin phiếu điều trị để xác định trạng thái bảo hiểm
-            const tr = allTreatmentRecords.find(x => x.id === trId);
-            let insuranceStatusText = '';
-            let insuranceStatusClass = '';
-            if (tr && typeof tr.insuranceAmount !== 'undefined') {
-                if (data.insuranceAmount > 0) {
-                    if (data.insuranceAmount / ((data.totalTreatmentMethodCost || 0) + (data.totalPrescriptionCost || 0)) > 0.7) {
-                        insuranceStatusText = 'Bệnh nhân có thẻ bảo hiểm và đúng tuyến';
-                        insuranceStatusClass = 'text-success';
-                    } else {
-                        insuranceStatusText = 'Bệnh nhân có thẻ bảo hiểm và không đúng tuyến';
-                        insuranceStatusClass = 'text-warning';
-                    }
-                } else {
-                    insuranceStatusText = 'Bệnh nhân không có thẻ bảo hiểm';
-                    insuranceStatusClass = 'text-danger';
-                }
-            }
-            const insuranceStatusDiv = document.getElementById('insuranceStatusText');
-            insuranceStatusDiv.innerText = insuranceStatusText;
-            insuranceStatusDiv.className = `text-sm mt-1 ${insuranceStatusClass}`;
-
             // Hiển thị số tiền tạm ứng còn dư nếu có
             const actualPatientPay = (typeof data.actualPatientPay !== 'undefined') ? data.actualPatientPay : ((data.totalTreatmentMethodCost || 0) + (data.totalPrescriptionCost || 0) - (data.insuranceAmount || 0));
             const advanceRefund = data.advancePayment - actualPatientPay;
@@ -512,6 +637,44 @@
             } else {
                 document.getElementById('advanceRefundText').innerText = '';
             }
+
+            // Sau khi fill chi phí, gọi API lấy chi tiết phương pháp điều trị và đơn thuốc
+            try {
+                // 1. Lấy TreatmentDetails
+                const res1 = await fetch(`/api/PaymentHandles/GetTreatmentDetails/${trId}`);
+                const treatmentDetails = res1.ok ? await res1.json() : [];
+                let html1 = `<h6 class='mb-2 text-lg font-bold'>Danh sách phương pháp điều trị</h6><div style='max-height:300px;overflow-y:auto;width:100%;'><table class='table table-bordered w-full'><thead><tr><th style='text-align:center;font-weight:bold;'>STT</th><th style='text-align:center;font-weight:bold;'>Khoa</th><th style='text-align:center;font-weight:bold;'>Phòng</th><th style='text-align:center;font-weight:bold;'>Phương pháp điều trị</th><th style='text-align:center;font-weight:bold;'>Chi phí điều trị</th><th style='text-align:center;font-weight:bold;'>Số lần điều trị</th><th style='text-align:center;font-weight:bold;'>Tổng tiền</th></tr></thead><tbody>`;
+                let grandTotal = 0;
+                treatmentDetails.forEach((d, i) => {
+                    const cost = d.cost || 0;
+                    const count = d.count || 0;
+                    const total = cost * count;
+                    grandTotal += total;
+                    html1 += `<tr><td style='text-align:center;'>${i + 1}</td><td>${d.departmentName || ''}</td><td>${d.roomName || ''}</td><td>${d.methodName || ''}</td><td>${cost.toLocaleString()} VNĐ/1 lần</td><td>${count} lần</td><td>${total.toLocaleString()} VNĐ</td></tr>`;
+                });
+                html1 += `<tr><td colspan='6' style='text-align:right;font-weight:bold;'>Tổng tiền sử dụng phương pháp điều trị</td><td style='font-weight:bold;'>${grandTotal.toLocaleString()} VNĐ</td></tr>`;
+                html1 += `</tbody></table></div>`;
+                document.getElementById('createTreatmentDetailsTable').innerHTML = html1;
+                document.getElementById('createTreatmentDetailsTable').style.display = 'block';
+                // 2. Lấy Prescriptions
+                const res2 = await fetch(`/api/PaymentHandles/GetPrescriptions/${trId}`);
+                const prescriptions = res2.ok ? await res2.json() : [];
+                let html2 = `<h6 class='mb-2 text-lg font-bold'>Danh sách đơn thuốc</h6><div style='max-height:300px;overflow-y:auto;width:100%;'><table class='table table-bordered w-full'><thead><tr><th style='text-align:center;font-weight:bold;'>STT</th><th style='text-align:center;font-weight:bold;'>Mã đơn thuốc</th><th style='text-align:center;font-weight:bold;'>Ngày tạo</th><th style='text-align:center;font-weight:bold;'>Tổng tiền</th></tr></thead><tbody>`;
+                let prescriptionGrandTotal = 0;
+                prescriptions.forEach((p, i) => {
+                    prescriptionGrandTotal += p.totalCost || 0;
+                    html2 += `<tr><td style='text-align:center;'>${i + 1}</td><td>${p.code || ''}</td><td>${p.createdDate || ''}</td><td>${(p.totalCost || 0).toLocaleString()} VNĐ</td></tr>`;
+                });
+                html2 += `<tr><td colspan='3' style='text-align:right;font-weight:bold;'>Tổng tiền đơn thuốc</td><td style='font-weight:bold;'>${prescriptionGrandTotal.toLocaleString()} VNĐ</td></tr>`;
+                html2 += `</tbody></table></div>`;
+                document.getElementById('createPrescriptionsTable').innerHTML = html2;
+                document.getElementById('createPrescriptionsTable').style.display = 'block';
+            } catch (err) {
+                document.getElementById('createTreatmentDetailsTable').style.display = 'none';
+                document.getElementById('createPrescriptionsTable').style.display = 'none';
+            }
+            // Ẩn overlay spin sau khi xong tất cả
+            overlay.style.display = 'none';
         } catch (err) {
             document.getElementById('treatmentRecordCosts').style.display = 'none';
             document.getElementById('finalCostContainer').style.display = 'none';
@@ -520,32 +683,56 @@
             document.getElementById('insuranceAmount').value = '';
             document.getElementById('advancePayment').value = '';
             document.getElementById('finalCost').value = '';
-            document.getElementById('insuranceStatusText').innerText = '';
             document.getElementById('advanceRefundText').innerText = '';
+            document.getElementById('createTreatmentDetailsTable').innerHTML = '';
+            document.getElementById('createTreatmentDetailsTable').style.display = 'none';
+            document.getElementById('createPrescriptionsTable').innerHTML = '';
+            document.getElementById('createPrescriptionsTable').style.display = 'none';
+            document.getElementById('healthInsuranceInfo').style.display = 'none';
+            document.getElementById('hiNumber').value = '';
+            document.getElementById('hiExpiry').value = '';
+            document.getElementById('hiPlace').value = '';
+            document.getElementById('hiRoute').value = '';
+            // Ẩn overlay spin khi lỗi
+            overlay.style.display = 'none';
             alert('Lỗi lấy chi phí: ' + err.message);
         }
     });
 
-    // Khi mở modal, reset toàn bộ dữ liệu nhập cũ
+    // Sửa hàm resetPaymentModal để reset Choices.js
     function resetPaymentModal() {
-        document.getElementById('paymentPatientId').value = '';
-        const trSelect = document.getElementById('paymentTreatmentRecordId');
-        trSelect.innerHTML = '<option value="">Chọn phiếu điều trị</option>';
-        trSelect.disabled = true;
-        trSelect.classList.add('cursor-not-allowed');
+        if (patientChoices) patientChoices.setChoiceByValue('');
+        if (treatmentRecordChoices) {
+            treatmentRecordChoices.clearChoices();
+            treatmentRecordChoices.setChoices([
+                { value: '', label: 'Chọn mã phiếu điều trị', selected: true, disabled: false }
+            ], 'value', 'label', false);
+            treatmentRecordChoices.disable();
+        }
         document.getElementById('prescriptionNote').value = '';
+        // Ẩn và clear các bảng động
+        document.getElementById('createTreatmentDetailsTable').innerHTML = '';
+        document.getElementById('createTreatmentDetailsTable').style.display = 'none';
+        document.getElementById('createPrescriptionsTable').innerHTML = '';
+        document.getElementById('createPrescriptionsTable').style.display = 'none';
+        // Ẩn và clear các input chi phí
         document.getElementById('treatmentRecordCosts').style.display = 'none';
         document.getElementById('finalCostContainer').style.display = 'none';
-        // Nếu có các input khác cần reset, thêm vào đây
+        document.getElementById('totalTreatmentMethodCost').value = '';
+        document.getElementById('totalPrescriptionCost').value = '';
+        document.getElementById('insuranceAmount').value = '';
+        document.getElementById('advancePayment').value = '';
+        document.getElementById('finalCost').value = '';
+        document.getElementById('advanceRefundText').innerText = '';
     }
 
     // Gọi reset khi mở modal
-    document.getElementById('btnAddPayment').addEventListener('click', function() {
+    document.getElementById('btnAddPayment').addEventListener('click', function () {
         resetPaymentModal();
     });
 
     // Validate và submit AJAX khi nhấn nút Lưu
-    document.querySelector('.btn-save').addEventListener('click', async function(e) {
+    document.querySelector('.btn-save').addEventListener('click', async function (e) {
         const patientId = document.getElementById('paymentPatientId').value;
         const treatmentRecordId = document.getElementById('paymentTreatmentRecordId').value;
         if (!patientId) {
@@ -554,16 +741,18 @@
             return false;
         }
         if (!treatmentRecordId) {
-            notyf.error('Vui lòng chọn phiếu điều trị!');
+            notyf.error('Vui lòng Chọn mã phiếu điều trị!');
             e.preventDefault();
             return false;
         }
         // Lấy dữ liệu từ các input
         const code = document.getElementById('paymentRecordCode').value;
         const paymentDateStr = document.getElementById('paymentCreatedDate').value;
-        // Chuyển ngày dd/MM/yyyy về yyyy-MM-dd
-        const [day, month, year] = paymentDateStr.split('/');
-        const paymentDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        let paymentDate = paymentDateStr;
+        if (paymentDateStr && paymentDateStr.includes('/')) {
+            const [day, month, year] = paymentDateStr.split('/');
+            paymentDate = `${year}-${month}-${day}`;
+        }
         const note = document.getElementById('prescriptionNote').value;
         // Lấy số, loại bỏ VNĐ và dấu phẩy
         function parseMoney(val) {
@@ -574,6 +763,9 @@
         const insuranceAmount = parseMoney(document.getElementById('insuranceAmount').value);
         const totalCost = parseMoney(document.getElementById('finalCost').value);
         const overlay = document.getElementById('loadingOverlay');
+
+        // Log dữ liệu nhập ra console
+        console.log({ code, paymentDate, note, treatmentRecordId });
 
         overlay.style.display = 'flex';
         // Gửi AJAX
@@ -633,7 +825,7 @@
     let currentEditPaymentId = null;
 
     // Sự kiện click nút edit
-    $(document).on('click', '.edit-payment-btn', function() {
+    $(document).on('click', '.edit-payment-btn', function () {
         const paymentId = $(this).data('id');
         currentEditPaymentId = paymentId;
         // Lấy trạng thái hiện tại từ entityList
@@ -650,7 +842,7 @@
             $('#updatePaymentPatientName').val(payment.patientName);
             if (payment.paymentDate) {
                 const d = new Date(payment.paymentDate);
-                const dateStr = d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear();
+                const dateStr = d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth() + 1).toString().padStart(2, '0') + '/' + d.getFullYear();
                 $('#updatePaymentDate').val(dateStr);
             } else {
                 $('#updatePaymentDate').val('');
@@ -660,14 +852,14 @@
         $('#paymentUpdateModal').removeClass('hidden closing');
     });
 
-    $('#closePaymentUpdateModal').on('click', function() {
+    $('#closePaymentUpdateModal').on('click', function () {
         $('#paymentUpdateModal').addClass('closing');
-        setTimeout(function() {
+        setTimeout(function () {
             $('#paymentUpdateModal').addClass('hidden').removeClass('closing');
         }, 200);
     });
 
-    $('#btnUpdatePaymentStatus').on('click', function() {
+    $('#btnUpdatePaymentStatus').on('click', function () {
         if (!currentEditPaymentId) return;
         const status = Number($('#updatePaymentStatus').val());
         $.ajax({
@@ -675,12 +867,12 @@
             method: 'PUT',
             contentType: 'application/json',
             data: JSON.stringify({ id: currentEditPaymentId, status: status }),
-            success: function(res) {
+            success: function (res) {
                 notyf.success(res.message || 'Cập nhật trạng thái thành công!');
                 $('#closePaymentUpdateModal').click();
                 setTimeout(() => window.location.reload(), 800);
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 let msg = 'Cập nhật thất bại!';
                 if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
                 notyf.error(msg);
@@ -692,9 +884,9 @@
 @if (TempData["SuccessMessage"] != null)
 {
     <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                notyf.success('@Html.Raw(TempData["SuccessMessage"])');
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            notyf.success('@Html.Raw(TempData["SuccessMessage"])');
+        });
     </script>
 }
 @if (TempData["ErrorMessage"] != null)
@@ -710,47 +902,64 @@
     .modal-content-animate {
         animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
     #paymentModal.closing .modal-content-animate {
         animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
     #paymentUpdateModal.closing .modal-content-animate {
         animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
     @@keyframes modalFadeIn {
         from {
             opacity: 0;
             transform: scale(0.95);
         }
+
         to {
             opacity: 1;
             transform: scale(1);
         }
     }
+
     @@keyframes modalFadeOut {
         from {
             opacity: 1;
             transform: scale(1);
         }
+
         to {
             opacity: 0;
             transform: scale(0.95);
         }
     }
+
     #paymentModal {
         background: rgba(30, 41, 59, 0.2);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
     }
+
+    #paymentModal .modal-content-animate {
+        max-width: 1400px;
+        width: 90vw;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
     #paymentUpdateModal {
         background: rgba(30, 41, 59, 0.2);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
     }
+
     .bg-modal-blur {
         background: rgba(30, 41, 59, 0.2);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
     }
+
     .cursor-not-allowed {
         cursor: not-allowed !important;
     }

@@ -9,6 +9,7 @@ using Project.Services.Features;
 namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
+    [Route("canh-bao-benh-nhan")]
     public class WarningPatientsController : Controller
     {
         private readonly ITreatmentTrackingRepository _treatmentTrackingRepository;
@@ -36,7 +37,7 @@ namespace Project.Areas.Staff.Controllers
             _emailService = emailService;
         }
 
-
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             // Lấy tất cả tracking
@@ -63,7 +64,8 @@ namespace Project.Areas.Staff.Controllers
             // Nhóm các tracking theo bệnh nhân và từng đợt điều trị
             var patientGroups = allTrackings
                 .Where(t => t.TreatmentRecordDetail?.TreatmentRecord?.Patient != null)
-                .GroupBy(t => new {
+                .GroupBy(t => new
+                {
                     PatientId = t.TreatmentRecordDetail!.TreatmentRecord!.Patient!.Id,
                     TreatmentRecordDetailId = t.TreatmentRecordDetailId
                 })

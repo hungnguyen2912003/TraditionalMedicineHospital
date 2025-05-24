@@ -1,4 +1,5 @@
-﻿@model Project.Areas.Staff.Models.DTOs.PatientDto
+﻿@using System.Globalization
+@model Project.Areas.Staff.Models.DTOs.PatientDto
 
 @{
     ViewData["Title"] = "Chỉnh sửa thông tin bệnh nhân";
@@ -78,7 +79,7 @@
                                     <input id="DateOfBirth" type="text" name="DateOfBirth"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                         placeholder="Nhập ngày sinh"
-                                        value="@Model.DateOfBirth.ToString("dd/MM/yyyy")" />
+                                        value="@Model.DateOfBirth.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" />
                                     @Html.ValidationMessageFor(model => model.DateOfBirth, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -87,7 +88,8 @@
                                         công dân</label>
                                     <input id="IdentityNumber" type="text" name="IdentityNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập căn cước công dân" value="@Model.IdentityNumber" />
+                                        placeholder="Nhập căn cước công dân" value="@Model.IdentityNumber"
+                                        maxlength="12" />
                                     @Html.ValidationMessageFor(model => model.IdentityNumber, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -108,7 +110,7 @@
                                         thoại</label>
                                     <input id="PhoneNumber" type="text" name="PhoneNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập số điện thoại" value="@Model.PhoneNumber" />
+                                        placeholder="Nhập số điện thoại" value="@Model.PhoneNumber" maxlength="11" />
                                     @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -261,7 +263,7 @@
             setupDropzone() {
                 const self = this;
                 this.dropzone = new Dropzone('#imageDropzone', {
-                    url: '/benh-nhan/chinh-sua/' + id,
+                    url: '/quan-ly-benh-nhan/chinh-sua/' + this.id,
                     autoProcessQueue: false,
                     maxFiles: 1,
                     acceptedFiles: 'image/*',
@@ -392,8 +394,8 @@
                         },
                         PhoneNumber: {
                             required: true,
-                            minlength: 10,
-                            maxlength: 15,
+                            minlength: 9,
+                            maxlength: 11,
                             customPattern: /^[0-9]*$/,
                             remote: {
                                 url: "/api/validation/patient/check",
@@ -522,7 +524,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/benh-nhan';
+                        window.location.href = '/quan-ly-benh-nhan';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -546,7 +548,7 @@
                     } else {
                         const formData = new FormData(form);
                         formData.append('Id', id);
-                        fetch('/benh-nhan/chinh-sua/' + id, {
+                        fetch('/quan-ly-benh-nhan/chinh-sua/' + id, {
                             method: 'POST',
                             body: formData
                         })
@@ -564,7 +566,7 @@
             },
 
             goBack() {
-                window.location.href = '/benh-nhan';
+                window.location.href = '/quan-ly-benh-nhan';
             }
         }));
     });
