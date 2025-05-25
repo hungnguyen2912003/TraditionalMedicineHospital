@@ -68,7 +68,6 @@ namespace Project.Areas.Staff.Controllers.api
                     CreatedDate = DateTime.UtcNow,
                 };
 
-                decimal totalCost = 0;
                 var details = new List<PrescriptionDetail>();
                 foreach (var d in request.Details)
                 {
@@ -81,11 +80,8 @@ namespace Project.Areas.Staff.Controllers.api
                         CreatedBy = employee.Code,
                         CreatedDate = DateTime.UtcNow,
                     };
-                    // Tính tổng tiền
-                    totalCost += d.UnitPrice * d.Quantity;
                     details.Add(detail);
                 }
-                prescription.TotalCost = totalCost;
 
                 // Lưu vào DB
                 await _prescriptionRepository.CreateAsync(prescription);
@@ -174,14 +170,6 @@ namespace Project.Areas.Staff.Controllers.api
                     }
                 }
 
-                // Sau khi đã xử lý thêm/xóa/sửa PrescriptionDetail
-                decimal totalCost = 0;
-                var updatedDetails = await _prescriptionDetailRepository.GetByPrescriptionIdAsync(prescription.Id);
-                foreach (var d in updatedDetails)
-                {
-                    totalCost += (d.Medicine?.Price ?? 0) * d.Quantity;
-                }
-                prescription.TotalCost = totalCost;
                 await _prescriptionRepository.UpdateAsync(prescription);
 
                 return Ok(new { success = true, message = "Cập nhật đơn thuốc thành công!", prescriptionId = prescription.Id });
@@ -207,8 +195,12 @@ namespace Project.Areas.Staff.Controllers.api
                     medicineId = d.MedicineId,
                     medicineName = d.Medicine?.Name,
                     quantity = d.Quantity,
-                    unitPrice = d.Medicine?.Price ?? 0
+                    unitPrice = d.Medicine?.Price ?? 0,
+                    totalPrice = (d.Medicine?.Price ?? 0) * d.Quantity
                 }).ToList();
+
+                // Tính tổng tiền
+                var totalCost = details?.Sum(d => d.totalPrice) ?? 0;
 
                 // Trả về thông tin đơn thuốc và chi tiết
                 return Ok(new
@@ -220,6 +212,7 @@ namespace Project.Areas.Staff.Controllers.api
                     treatmentRecordId = prescription.TreatmentRecordId,
                     treatmentRecordCode = prescription.TreatmentRecord?.Code,
                     patientName = prescription.TreatmentRecord?.Patient?.Name,
+                    totalCost = totalCost,
                     details = details
                 });
             }

@@ -54,7 +54,8 @@ namespace Project.Areas.Staff.Controllers
             var viewModels = payments.Select(p =>
             {
                 var tr = p.TreatmentRecord;
-                var totalPrescriptionCost = tr.Prescriptions?.Sum(pre => pre.TotalCost) ?? 0;
+                var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
+                    pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
 
                 decimal totalTreatmentMethodCost = 0;
                 foreach (var detail in tr.TreatmentRecordDetails ?? new List<TreatmentRecordDetail>())
@@ -138,7 +139,8 @@ namespace Project.Areas.Staff.Controllers
             }
 
             var tr = payment.TreatmentRecord;
-            var totalPrescriptionCost = tr.Prescriptions?.Sum(pre => pre.TotalCost) ?? 0;
+            var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
+                pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
 
             decimal totalTreatmentMethodCost = 0;
             foreach (var detail in tr.TreatmentRecordDetails ?? new List<TreatmentRecordDetail>())

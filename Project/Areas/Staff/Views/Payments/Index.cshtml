@@ -524,25 +524,31 @@
     // Khi chọn bệnh nhân, lọc lại dropdown phiếu điều trị
     document.getElementById('paymentPatientId').addEventListener('change', function () {
         const patientId = this.value;
+        // Luôn CLEAR/ẨN các bảng/input/thông tin bảo hiểm y tế trước
+        document.getElementById('treatmentRecordCosts').style.display = 'none';
+        document.getElementById('finalCostContainer').style.display = 'none';
+        document.getElementById('totalTreatmentMethodCost').value = '';
+        document.getElementById('totalPrescriptionCost').value = '';
+        document.getElementById('insuranceAmount').value = '';
+        document.getElementById('advancePayment').value = '';
+        document.getElementById('finalCost').value = '';
+        document.getElementById('advanceRefundText').innerText = '';
+        document.getElementById('createTreatmentDetailsTable').innerHTML = '';
+        document.getElementById('createTreatmentDetailsTable').style.display = 'none';
+        document.getElementById('createPrescriptionsTable').innerHTML = '';
+        document.getElementById('createPrescriptionsTable').style.display = 'none';
+        document.getElementById('healthInsuranceInfo').style.display = 'none';
+        document.getElementById('hiNumber').value = '';
+        document.getElementById('hiExpiry').value = '';
+        document.getElementById('hiPlace').value = '';
+        document.getElementById('hiRoute').value = '';
+
         if (!patientId) {
             treatmentRecordChoices.clearChoices();
             treatmentRecordChoices.setChoices([
                 { value: '', label: 'Chọn mã phiếu điều trị', selected: true, disabled: false }
             ], 'value', 'label', false);
             treatmentRecordChoices.disable();
-            // Ẩn/clear input và bảng khi chọn lại mặc định
-            document.getElementById('treatmentRecordCosts').style.display = 'none';
-            document.getElementById('finalCostContainer').style.display = 'none';
-            document.getElementById('totalTreatmentMethodCost').value = '';
-            document.getElementById('totalPrescriptionCost').value = '';
-            document.getElementById('insuranceAmount').value = '';
-            document.getElementById('advancePayment').value = '';
-            document.getElementById('finalCost').value = '';
-            document.getElementById('advanceRefundText').innerText = '';
-            document.getElementById('createTreatmentDetailsTable').innerHTML = '';
-            document.getElementById('createTreatmentDetailsTable').style.display = 'none';
-            document.getElementById('createPrescriptionsTable').innerHTML = '';
-            document.getElementById('createPrescriptionsTable').style.display = 'none';
             return;
         }
         // Lọc các phiếu điều trị của bệnh nhân này và status 2,3
@@ -724,6 +730,12 @@
         document.getElementById('advancePayment').value = '';
         document.getElementById('finalCost').value = '';
         document.getElementById('advanceRefundText').innerText = '';
+        // Ẩn và clear thông tin bảo hiểm y tế khi reset modal
+        document.getElementById('healthInsuranceInfo').style.display = 'none';
+        document.getElementById('hiNumber').value = '';
+        document.getElementById('hiExpiry').value = '';
+        document.getElementById('hiPlace').value = '';
+        document.getElementById('hiRoute').value = '';
     }
 
     // Gọi reset khi mở modal

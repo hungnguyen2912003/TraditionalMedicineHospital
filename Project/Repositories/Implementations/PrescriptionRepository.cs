@@ -31,5 +31,15 @@ namespace Repositories.Implementations
                     .ThenInclude(t => t!.Patient)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
+
+        public async Task<IEnumerable<Prescription>> GetByTreatmentRecordIdAsync(Guid treatmentRecordId)
+        {
+            return await _context.prescriptions
+                .Include(p => p.PrescriptionDetails)
+                    .ThenInclude(d => d.Medicine)
+                .Include(p => p.TreatmentRecord)
+                .Where(p => p.TreatmentRecordId == treatmentRecordId)
+                .ToListAsync();
+        }
     }
 }

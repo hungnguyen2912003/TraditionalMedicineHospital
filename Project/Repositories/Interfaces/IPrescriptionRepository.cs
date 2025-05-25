@@ -7,5 +7,6 @@ namespace Repositories.Interfaces
     {
         Task<IEnumerable<Prescription>> GetAllAdvancedAsync();
         Task<Prescription?> GetByIdAdvancedAsync(Guid id);
+        Task<IEnumerable<Prescription>> GetByTreatmentRecordIdAsync(Guid treatmentRecordId);
     }
 }

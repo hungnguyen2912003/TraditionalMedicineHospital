@@ -45,8 +45,25 @@ namespace Staff.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _prescriptionRepository.GetAllAdvancedAsync();
-            var viewModelList = _mapper.Map<List<PrescriptionViewModel>>(list);
-            viewModelList = viewModelList.OrderBy(x => x.PrescriptionDate).ToList();
+            var viewModelList = list.Select(p => new PrescriptionViewModel
+            {
+                Id = p.Id,
+                Code = p.Code,
+                PrescriptionDate = p.PrescriptionDate,
+                Note = p.Note,
+                TreatmentRecordId = p.TreatmentRecordId,
+                TreatmentRecordCode = p.TreatmentRecord?.Code ?? string.Empty,
+                PatientName = p.TreatmentRecord?.Patient?.Name ?? string.Empty,
+                EmployeeId = p.EmployeeId,
+                EmployeeName = p.Employee?.Name ?? string.Empty,
+                PrescriptionDetails = p.PrescriptionDetails?.Select(d => new PrescriptionDetailViewModel
+                {
+                    MedicineId = d.MedicineId,
+                    MedicineName = d.Medicine?.Name ?? string.Empty,
+                    Quantity = d.Quantity,
+                    Price = d.Medicine?.Price
+                }).ToList() ?? new List<PrescriptionDetailViewModel>()
+            }).OrderBy(x => x.PrescriptionDate).ToList();
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }
@@ -59,7 +76,30 @@ namespace Staff.Controllers
             {
                 return NotFound();
             }
-            return View(prescription);
+            var viewModel = new PrescriptionViewModel
+            {
+                Id = prescription.Id,
+                Code = prescription.Code,
+                PrescriptionDate = prescription.PrescriptionDate,
+                Note = prescription.Note,
+                TreatmentRecordId = prescription.TreatmentRecordId,
+                TreatmentRecordCode = prescription.TreatmentRecord?.Code ?? string.Empty,
+                PatientName = prescription.TreatmentRecord?.Patient?.Name ?? string.Empty,
+                EmployeeId = prescription.EmployeeId,
+                EmployeeName = prescription.Employee?.Name ?? string.Empty,
+                CreatedDate = prescription.CreatedDate,
+                CreatedBy = prescription.CreatedBy,
+                UpdatedDate = prescription.UpdatedDate,
+                UpdatedBy = prescription.UpdatedBy,
+                PrescriptionDetails = prescription.PrescriptionDetails?.Select(d => new PrescriptionDetailViewModel
+                {
+                    MedicineId = d.MedicineId,
+                    MedicineName = d.Medicine?.Name ?? string.Empty,
+                    Quantity = d.Quantity,
+                    Price = d.Medicine?.Price
+                }).ToList() ?? new List<PrescriptionDetailViewModel>()
+            };
+            return View(viewModel);
         }
 
         [HttpPost("xoa")]

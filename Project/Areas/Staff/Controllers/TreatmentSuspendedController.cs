@@ -3,10 +3,12 @@ using Project.Repositories.Interfaces;
 using Project.Areas.Staff.Models.ViewModels;
 using Project.Models.Enums;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Project.Areas.Staff.Controllers
 {
     [Area("Staff")]
+    [Authorize(Roles = "Admin, Bacsi, Yta")]
     [Route("dinh-chi-dieu-tri")]
     public class TreatmentSuspendedController : Controller
     {

@@ -1,5 +1,5 @@
 @using System.Globalization
-@model Project.Areas.Staff.Models.Entities.Prescription
+@model Project.Areas.Staff.Models.ViewModels.PrescriptionViewModel
 @{
     ViewData["Title"] = "Chi tiết đơn thuốc";
     Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
@@ -42,13 +42,13 @@
                     </div>
                     <div>
                         <label for="TreatmentRecordCode">Mã phiếu điều trị</label>
-                        <input id="TreatmentRecordCode" type="text" value="@Model.TreatmentRecord?.Code" readonly
+                        <input id="TreatmentRecordCode" type="text" value="@Model.TreatmentRecordCode" readonly
                             class="form-input" readonly>
                     </div>
                     <div>
                         <label for="PatientName">Tên bệnh nhân</label>
-                        <input id="PatientName" type="text" value="@Model.TreatmentRecord?.Patient?.Name" readonly
-                            class="form-input" readonly>
+                        <input id="PatientName" type="text" value="@Model.PatientName" readonly class="form-input"
+                            readonly>
                     </div>
                     <div>
                         <label for="PrescriptionDate">Ngày lập đơn</label>
@@ -82,16 +82,13 @@
                                 foreach (var item in Model.PrescriptionDetails)
                                 {
                                     <tr>
-                                        <td>@item.Medicine?.Name</td>
+                                        <td>@item.MedicineName</td>
                                         <td>@item.Quantity</td>
-                                        <td>@(item.Medicine != null ? item.Medicine.Price.ToString("N0",
-                                                                                CultureInfo.InvariantCulture) + " VNĐ" : "Không rõ")
-                                                                                                                                </td>
-                                                                                                                                <td>@((item.Medicine != null ? item.Medicine.Price * item.Quantity : 0).ToString("N0",
-                                                                                CultureInfo.InvariantCulture))
-                                    VNĐ</td>
-                            </tr>
-                                                        }
+                                        <td>@((item.Price ?? 0).ToString("N0", CultureInfo.InvariantCulture)) VNĐ</td>
+                                        <td>@(((item.Price ?? 0) * item.Quantity).ToString("N0", CultureInfo.InvariantCulture))
+                                            VNĐ</td>
+                                    </tr>
+                                }
                             }
                             else
                             {
@@ -103,7 +100,7 @@
                         <tfoot>
                             <tr style="height: 50px;">
                                 <td colspan="3" style="text-align: right; font-weight: bold;">Tổng cộng</td>
-                                <td style="font-weight: bold;">@Model.TotalCost.ToString("N0",
+                                <td style="font-weight: bold;">@Model.TotalPrice.ToString("N0",
                                                                         CultureInfo.InvariantCulture) VNĐ</td>
                             </tr>
                         </tfoot>
