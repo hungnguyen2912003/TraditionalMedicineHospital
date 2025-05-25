@@ -6,5 +6,6 @@ namespace Project.Repositories.Interfaces
     {
         Task<IEnumerable<Payment>> GetAllAdvancedAsync();
         Task<Payment?> GetByIdAdvancedAsync(Guid id);
+        Task<Payment?> GetByTreatmentRecordIdAsync(Guid treatmentRecordId);
     }
 }

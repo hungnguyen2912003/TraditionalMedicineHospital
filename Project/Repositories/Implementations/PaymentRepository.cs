@@ -54,5 +54,29 @@ namespace Project.Repositories.Implementations
                             .ThenInclude(r => r.Department)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
+
+        public async Task<Payment?> GetByTreatmentRecordIdAsync(Guid treatmentRecordId)
+        {
+            return await _context.payments
+                .Include(tr => tr.TreatmentRecord)
+                    .ThenInclude(p => p.Patient)
+                        .ThenInclude(hi => hi.HealthInsurance)
+                .Include(tr => tr.TreatmentRecord)
+                    .ThenInclude(pre => pre.Prescriptions)
+                        .ThenInclude(preDetail => preDetail.PrescriptionDetails)
+                            .ThenInclude(m => m.Medicine)
+                .Include(tr => tr.TreatmentRecord)
+                    .ThenInclude(tr => tr.TreatmentRecordDetails)
+                        .ThenInclude(r => r.Room)
+                            .ThenInclude(tm => tm.TreatmentMethod)
+                .Include(tr => tr.TreatmentRecord)
+                    .ThenInclude(tr => tr.TreatmentRecordDetails)
+                        .ThenInclude(r => r.TreatmentTrackings)
+                .Include(tr => tr.TreatmentRecord)
+                    .ThenInclude(tr => tr.TreatmentRecordDetails)
+                        .ThenInclude(r => r.Room)
+                            .ThenInclude(r => r.Department)
+                .FirstOrDefaultAsync(x => x.TreatmentRecordId == treatmentRecordId);
+        }
     }
 }

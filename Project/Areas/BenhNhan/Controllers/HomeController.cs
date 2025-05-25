@@ -6,6 +6,9 @@ using Project.Repositories.Interfaces;
 using Project.Services.Features;
 using Project.Areas.BenhNhan.Models.ViewModels;
 using Project.Models.Enums;
+using System.Globalization;
+using Repositories.Interfaces;
+using Project.Areas.Staff.Models.Entities;
 
 namespace Project.Areas.BenhNhan.Controllers
 {
@@ -18,11 +21,13 @@ namespace Project.Areas.BenhNhan.Controllers
         private readonly ITreatmentRecordRepository _treatmentRecordRepository;
         private readonly ITreatmentTrackingRepository _treatmentTrackingRepository;
         private readonly ITreatmentRecordDetailRepository _treatmentRecordDetailRepository;
+        private readonly IPrescriptionRepository _prescriptionRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
         private readonly JwtManager _jwtManager;
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly IPaymentRepository _paymentRepository;
 
         public HomeController
         (
@@ -33,9 +38,11 @@ namespace Project.Areas.BenhNhan.Controllers
             ITreatmentRecordRepository treatmentRecordRepository,
             ITreatmentTrackingRepository treatmentTrackingRepository,
             ITreatmentRecordDetailRepository treatmentRecordDetailRepository,
+            IPrescriptionRepository prescriptionRepository,
             IUserRepository userRepository,
             JwtManager jwtManager,
-            IEmployeeRepository employeeRepository
+            IEmployeeRepository employeeRepository,
+            IPaymentRepository paymentRepository
         )
         {
             _healthInsuranceRepository = healthInsuranceRepository;
@@ -45,9 +52,11 @@ namespace Project.Areas.BenhNhan.Controllers
             _treatmentRecordRepository = treatmentRecordRepository;
             _treatmentTrackingRepository = treatmentTrackingRepository;
             _treatmentRecordDetailRepository = treatmentRecordDetailRepository;
+            _prescriptionRepository = prescriptionRepository;
             _userRepository = userRepository;
             _jwtManager = jwtManager;
             _employeeRepository = employeeRepository;
+            _paymentRepository = paymentRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -81,6 +90,7 @@ namespace Project.Areas.BenhNhan.Controllers
             var viewModels = new List<PatientViewModel>();
             if (latestRecord != null)
             {
+                ViewBag.TreatmentRecordId = latestRecord.Id;
                 var details = await _treatmentRecordDetailRepository.GetByTreatmentRecordIdAsync(latestRecord.Id);
                 foreach (var detail in details)
                 {
@@ -114,14 +124,34 @@ namespace Project.Areas.BenhNhan.Controllers
                     viewModels.Add(viewModel);
                 }
                 ViewBag.TreatmentRecordCode = latestRecord.Code;
-                ViewBag.StartDate = latestRecord.StartDate;
-                ViewBag.EndDate = latestRecord.EndDate;
+                ViewBag.StartDate = latestRecord.StartDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+                ViewBag.EndDate = latestRecord.EndDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
                 if (latestRecord.Status == TreatmentStatus.DangDieuTri)
                     ViewBag.Status = "Đang điều trị";
                 else if (latestRecord.Status == TreatmentStatus.DaHoanThanh)
-                    ViewBag.Status = "Đã hoàn tất";
+                    ViewBag.Status = "Đã hoàn thành";
                 else if (latestRecord.Status == TreatmentStatus.DaHuyBo)
-                    ViewBag.Status = "Đã hủy";
+                    ViewBag.Status = "Đã hủy bỏ";
+
+                // Lấy danh sách đơn thuốc của TreatmentRecord
+                var prescriptions = await _prescriptionRepository.GetByTreatmentRecordIdAsync(latestRecord.Id);
+                ViewBag.Prescriptions = prescriptions;
+
+                // Lấy danh sách mã bác sĩ từ CreatedBy
+                var doctorCodes = prescriptions
+                    .Where(p => !string.IsNullOrEmpty(p.CreatedBy))
+                    .Select(p => p.CreatedBy)
+                    .Distinct()
+                    .ToList();
+
+                // Lấy thông tin bác sĩ từ repository
+                var doctorList = new Dictionary<string, string>();
+                if (doctorCodes.Any())
+                {
+                    var employees = await _employeeRepository.GetByCodesAsync(doctorCodes);
+                    doctorList = employees.ToDictionary(e => e.Code, e => e.Name);
+                }
+                ViewBag.DoctorList = doctorList;
             }
 
             List<string> doctorNames = new List<string>();
@@ -175,6 +205,96 @@ namespace Project.Areas.BenhNhan.Controllers
                 })
             };
             return Json(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPrescriptionDetail(Guid prescriptionId)
+        {
+            var prescription = await _prescriptionRepository.GetByIdAdvancedAsync(prescriptionId);
+            if (prescription == null) return NotFound();
+
+            var details = prescription.PrescriptionDetails.Select(d => new
+            {
+                medicineName = d.Medicine?.Name ?? "",
+                quantity = d.Quantity,
+                price = d.Medicine != null ? d.Medicine.Price : 0,
+                total = (d.Medicine != null ? d.Medicine.Price : 0) * d.Quantity
+            }).ToList();
+
+            return Json(details);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPaymentDetail(Guid treatmentRecordId)
+        {
+            // Lấy phiếu thanh toán mới nhất của treatmentRecordId (hoặc theo logic của bạn)
+            var payment = await _paymentRepository.GetByTreatmentRecordIdAsync(treatmentRecordId);
+            if (payment == null) return NotFound();
+
+            // Map sang ViewModel hoặc trả về dữ liệu cần thiết (giống như Payments/Details)
+            var tr = payment.TreatmentRecord;
+            var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
+                pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
+
+            decimal totalTreatmentMethodCost = 0;
+            var treatmentDetails = new List<object>();
+            foreach (var detail in tr.TreatmentRecordDetails ?? new List<TreatmentRecordDetail>())
+            {
+                var room = detail.Room;
+                var method = room?.TreatmentMethod;
+                if (method == null) continue;
+                int count = detail.TreatmentTrackings?.Count(t => t.Status == TrackingStatus.CoDieuTri) ?? 0;
+                var total = method.Cost * count;
+                totalTreatmentMethodCost += total;
+                treatmentDetails.Add(new
+                {
+                    departmentName = room?.Department?.Name,
+                    roomName = room?.Name,
+                    methodName = method.Name,
+                    cost = method.Cost,
+                    count = count,
+                    total = total
+                });
+            }
+
+            decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
+            decimal insuranceAmount = 0;
+            var hi = tr.Patient?.HealthInsurance;
+            if (hi != null)
+            {
+                if (hi.IsRightRoute)
+                    insuranceAmount = totalCostBeforeInsurance * 0.8m;
+                else
+                    insuranceAmount = totalCostBeforeInsurance * 0.6m;
+            }
+
+            decimal finalCost = totalCostBeforeInsurance - insuranceAmount - tr.AdvancePayment;
+            if (finalCost < 0) finalCost = 0;
+
+            var prescriptions = tr.Prescriptions?.Select(p => new
+            {
+                code = p.Code,
+                prescriptionDate = p.PrescriptionDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                totalCost = p.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0
+            }).ToList();
+
+            return Json(new
+            {
+                code = payment.Code,
+                paymentDate = payment.PaymentDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                createdBy = payment.CreatedBy,
+                status = payment.Status,
+                statusText = payment.Status == PaymentStatus.DaThanhToan ? "Đã thanh toán" : "Chưa thanh toán",
+                treatmentDetails,
+                totalTreatmentMethodCost,
+                prescriptions,
+                totalPrescriptionCost,
+                insuranceAmount,
+                advancePayment = tr.AdvancePayment,
+                totalCostBeforeInsurance,
+                finalCost,
+                advanceRefund = tr.AdvancePayment - (totalCostBeforeInsurance - insuranceAmount)
+            });
         }
     }
 }
