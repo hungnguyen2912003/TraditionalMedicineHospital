@@ -231,6 +231,14 @@ namespace Project.Areas.BenhNhan.Controllers
             var payment = await _paymentRepository.GetByTreatmentRecordIdAsync(treatmentRecordId);
             if (payment == null) return NotFound();
 
+            // Tra mã người lập phiếu sang tên bác sĩ
+            string createdByName = payment.CreatedBy;
+            if (!string.IsNullOrEmpty(payment.CreatedBy))
+            {
+                var emp = await _employeeRepository.GetByCodeAsync(payment.CreatedBy);
+                if (emp != null) createdByName = emp.Name;
+            }
+
             // Map sang ViewModel hoặc trả về dữ liệu cần thiết (giống như Payments/Details)
             var tr = payment.TreatmentRecord;
             var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
@@ -283,6 +291,7 @@ namespace Project.Areas.BenhNhan.Controllers
                 code = payment.Code,
                 paymentDate = payment.PaymentDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
                 createdBy = payment.CreatedBy,
+                createdByName = createdByName,
                 status = payment.Status,
                 statusText = payment.Status == PaymentStatus.DaThanhToan ? "Đã thanh toán" : "Chưa thanh toán",
                 treatmentDetails,

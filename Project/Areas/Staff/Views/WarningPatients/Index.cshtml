@@ -126,9 +126,7 @@
                         entity.roomName || '',
                         entity.employeeName || '',
                         new Date(entity.firstAbsenceDate).toLocaleDateString('vi-VN'),
-                        `<input type='text' class='form-input' value='${entity.firstNote ? entity.firstNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}' readonly style='max-width:180px' title='${entity.firstNote ? entity.firstNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}'/>`,
-                        new Date(entity.secondAbsenceDate).toLocaleDateString('vi-VN'),
-                        `<input type='text' class='form-input' value='${entity.secondNote ? entity.secondNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}' readonly style='max-width:180px' title='${entity.secondNote ? entity.secondNote.replace(/'/g, "&#39;") : 'Không có ghi chú'}'/>`
+                        new Date(entity.secondAbsenceDate).toLocaleDateString('vi-VN')
                     ]);
 
                     this.datatable = new simpleDatatables.DataTable('#myTable', {
@@ -140,9 +138,7 @@
                                 'Phòng',
                                 'Nhân viên theo dõi',
                                 'Ngày vắng mặt lần 1',
-                                'Ghi chú lần 1',
-                                'Ngày vắng mặt lần 2',
-                                'Ghi chú lần 2'
+                                'Ngày vắng mặt lần 2'
                             ],
                             data: tableData
                         },
