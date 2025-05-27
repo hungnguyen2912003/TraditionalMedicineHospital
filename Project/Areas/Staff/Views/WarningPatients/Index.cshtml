@@ -122,7 +122,7 @@
                     const tableData = this.filteredList.map((entity, index) => [
                         index + 1,
                         entity.patientName,
-                        entity.departmentName || '',
+                        entity.depName || '',
                         entity.roomName || '',
                         entity.employeeName || '',
                         new Date(entity.firstAbsenceDate).toLocaleDateString('vi-VN'),
@@ -193,7 +193,7 @@
             } else {
                 window.list.filteredList = window.list.entityList.filter(e =>
                     (e.patientName && removeVietnameseTones(e.patientName).includes(keyword)) ||
-                    (e.departmentName && removeVietnameseTones(e.departmentName).includes(keyword)) ||
+                    (e.depName && removeVietnameseTones(e.depName).includes(keyword)) ||
                     (e.roomName && removeVietnameseTones(e.roomName).includes(keyword)) ||
                     (e.employeeName && removeVietnameseTones(e.employeeName).includes(keyword)) ||
                     (e.firstAbsenceDate && removeVietnameseTones(e.firstAbsenceDate).includes(keyword)) ||

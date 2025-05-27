@@ -19,6 +19,7 @@ namespace Project.Repositories.Implementations
                         .ThenInclude(p => p.Patient)
                 .Include(t => t.TreatmentRecordDetail!)
                     .ThenInclude(r => r.Room)
+                        .ThenInclude(d => d.Department)
                 .OrderBy(t => t.TrackingDate)
                 .ToListAsync();
         }

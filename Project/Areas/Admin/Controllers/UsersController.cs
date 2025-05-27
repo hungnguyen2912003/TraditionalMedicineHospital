@@ -9,6 +9,7 @@ namespace Project.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Admin")]
+    [Route("nguoi-dung")]
     public class UsersController : Controller
     {
         private readonly IUserRepository _userRepository;
@@ -22,6 +23,7 @@ namespace Project.Areas.Admin.Controllers
             _viewBagHelper = viewBagHelper;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var users = await _userRepository.GetAllAdvancedAsync();
@@ -31,13 +33,16 @@ namespace Project.Areas.Admin.Controllers
                 Username = u.Username,
                 Role = u.Role,
                 EmployeeName = u.Employee != null ? u.Employee.Name : null,
+                PatientName = u.Patient != null ? u.Patient.Name : null,
                 CreatedBy = u.CreatedBy,
                 CreatedDate = u.CreatedDate
             }).ToList();
+            viewModel = viewModel.OrderBy(u => u.Role).ThenBy(u => u.Username).ToList();
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModel);
         }
 
+        [HttpGet("chi-tiet/{id}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var user = (await _userRepository.GetAllAdvancedAsync()).FirstOrDefault(u => u.Id == id);
@@ -51,6 +56,7 @@ namespace Project.Areas.Admin.Controllers
                 Username = user.Username,
                 Role = user.Role,
                 EmployeeName = user.Employee != null ? user.Employee.Name : null,
+                PatientName = user.Patient != null ? user.Patient.Name : null,
                 CreatedBy = user.CreatedBy,
                 CreatedDate = user.CreatedDate
             };

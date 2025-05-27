@@ -120,7 +120,7 @@ namespace Project.Areas.Staff.Controllers
             if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
             {
                 start = DateTime.Parse(startDate);
-                end = DateTime.Parse(endDate);
+                end = DateTime.Parse(endDate).Date.AddDays(1).AddTicks(-1);
             }
             else
             {
@@ -180,11 +180,19 @@ namespace Project.Areas.Staff.Controllers
         public async Task<IActionResult> GetTreatmentCompletionStats(string? startDate = null, string? endDate = null, string groupBy = "day")
         {
             var treatmentRecords = await _treatmentRecordRepository.GetAllAsync();
+            // Chỉ lấy các record có trạng thái 2 hoặc 3 và có SuspendedDate
+            treatmentRecords = treatmentRecords
+                .Where(t => (t.Status == TreatmentStatus.DaHoanThanh || t.Status == TreatmentStatus.DaHuyBo) && t.SuspendedDate != null)
+                .ToList();
+
             DateTime start, end;
             if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
             {
                 start = DateTime.Parse(startDate);
                 end = DateTime.Parse(endDate);
+                treatmentRecords = treatmentRecords
+                    .Where(t => t.SuspendedDate >= start && t.SuspendedDate <= end)
+                    .ToList();
             }
             else
             {
@@ -192,15 +200,15 @@ namespace Project.Areas.Staff.Controllers
                 {
                     return Json(new List<object>());
                 }
-                start = treatmentRecords.Min(t => t.CreatedDate);
-                end = treatmentRecords.Max(t => t.CreatedDate);
+                start = treatmentRecords.Min(t => t.SuspendedDate!.Value);
+                end = treatmentRecords.Max(t => t.SuspendedDate!.Value);
             }
+
             var stats = new List<object>();
             if (groupBy == "day")
             {
                 stats = treatmentRecords
-                    .Where(t => t.CreatedDate >= start && t.CreatedDate <= end)
-                    .GroupBy(t => t.CreatedDate.Date)
+                    .GroupBy(t => t.SuspendedDate!.Value.Date)
                     .Select(g => new
                     {
                         date = g.Key.ToString("yyyy-MM-dd"),
@@ -213,8 +221,7 @@ namespace Project.Areas.Staff.Controllers
             else if (groupBy == "month")
             {
                 stats = treatmentRecords
-                    .Where(t => t.CreatedDate >= start && t.CreatedDate <= end)
-                    .GroupBy(t => new { t.CreatedDate.Year, t.CreatedDate.Month })
+                    .GroupBy(t => new { t.SuspendedDate!.Value.Year, t.SuspendedDate.Value.Month })
                     .Select(g => new
                     {
                         date = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("yyyy-MM"),
@@ -227,8 +234,7 @@ namespace Project.Areas.Staff.Controllers
             else if (groupBy == "year")
             {
                 stats = treatmentRecords
-                    .Where(t => t.CreatedDate >= start && t.CreatedDate <= end)
-                    .GroupBy(t => t.CreatedDate.Year)
+                    .GroupBy(t => t.SuspendedDate!.Value.Year)
                     .Select(g => new
                     {
                         date = g.Key.ToString(),

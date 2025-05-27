@@ -66,6 +66,28 @@
         </a>
     </div>
 
+    <div class="mb-5 flex items-center font-bold">
+        <span class="text-lg">Danh sách cụ thể</span>
+    </div>
+
+    <div class="mb-6 grid grid-cols-1 gap-6 text-white sm:grid-cols-2 xl:grid-cols-4">
+        <!-- WarningPatients -->
+        <a asp-area="Staff" asp-controller="WarningPatients" asp-action="Index" class="group">
+            <div class="panel bg-gradient-to-r from-cyan-500 to-fuchsia-400">
+                <div class="mt-5 flex items-center">
+                    <div class="text-2xl font-bold ltr:mr-3 rtl:ml-3">Danh sách lịch sử cảnh báo</div>
+                </div>
+            </div>
+        </a>
+        <a asp-area="Staff" asp-controller="TreatmentSuspended" asp-action="Index" class="group">
+            <div class="panel bg-gradient-to-r from-cyan-500 to-fuchsia-400">
+                <div class="mt-5 flex items-center">
+                    <div class="text-2xl font-bold ltr:mr-3 rtl:ml-3">Danh sách phiếu đình chỉ điều trị</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
 
     <div class="panel h-full pb-0 sm:col-span-2 xl:col-span-1">
         <h5 class="mb-5 text-lg font-semibold dark:text-white-light font-bold">Một số quy định đối với nhân viên làm việc tại Bệnh viện Y học cổ truyền Nha Trang</h5>

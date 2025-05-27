@@ -97,8 +97,16 @@ namespace Project.Areas.Staff.Controllers
                 };
             });
 
-            // Lấy danh sách bệnh nhân
-            var patients = (await _treatmentRecordRepository.GetAllAdvancedAsync())
+            // Lấy danh sách các TreatmentRecord đã lập phiếu thanh toán
+            var paidTreatmentRecordIds = payments.Select(p => p.TreatmentRecordId).ToList();
+
+            // Lấy các TreatmentRecord có status 2 hoặc 3, chưa lập phiếu thanh toán
+            var availableTreatmentRecords = (await _treatmentRecordRepository.GetAllAdvancedAsync())
+                .Where(tr => (tr.Status == TreatmentStatus.DaHoanThanh || tr.Status == TreatmentStatus.DaHuyBo) && !paidTreatmentRecordIds.Contains(tr.Id))
+                .ToList();
+
+            // Lấy danh sách bệnh nhân từ các TreatmentRecord này (không trùng lặp)
+            var patients = availableTreatmentRecords
                 .Select(tr => tr.Patient)
                 .Distinct()
                 .Select(p => new
@@ -106,6 +114,7 @@ namespace Project.Areas.Staff.Controllers
                     id = p.Id,
                     name = p.Name
                 }).ToList();
+
             ViewBag.Patients = patients;
 
             // Lấy toàn bộ TreatmentRecord (Id, Code, PatientId, Status, StartDate, EndDate)
@@ -126,7 +135,6 @@ namespace Project.Areas.Staff.Controllers
             ViewBag.TreatmentRecordsCanPayment = treatmentRecords;
 
             // Thêm danh sách các TreatmentRecordId đã lập phiếu thanh toán
-            var paidTreatmentRecordIds = payments.Select(p => p.TreatmentRecordId).ToList();
             ViewBag.PaidTreatmentRecordIds = paidTreatmentRecordIds;
 
             ViewBag.PaymentCode = await _codeGenerator.GenerateUniqueCodeAsync(_paymentRepository);

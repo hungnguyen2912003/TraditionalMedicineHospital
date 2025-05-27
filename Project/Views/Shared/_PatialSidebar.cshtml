@@ -212,7 +212,7 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
+                        <li class="nav-item bacsi">
                             <a href="/quan-ly-benh-nhan" class="group">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20"
@@ -233,7 +233,7 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
+                        <li class="nav-item bacsi">
                             <a href="/bao-hiem-y-te" class="group">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20"
@@ -305,7 +305,7 @@
                                 </div>
                             </a>
                         </li>
-                        <li class="nav-item admin bacsi">
+                        <li class="nav-item bacsi">
                             <a href="/phieu-thanh-toan" class="group">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20"
@@ -325,7 +325,7 @@
                                 </div>
                             </a>
                         </li>
-                        <li class="nav-item admin bacsi">
+                        <li class="nav-item bacsi">
                             <a href="/thong-ke" class="group">
                                 <div class="flex items-center">
                                     <svg class="shrink-0 group-hover:!text-primary" width="20" height="20"
@@ -347,7 +347,7 @@
                 </li>
 
                 <h2
-                    class="-mx-4 mb-1 flex items-center bg-white-light/30 py-3 px-7 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                    class="-mx-4 mb-1 flex items-center bg-white-light/30 py-3 px-7 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08] bacsi yta">
                     <svg class="hidden h-5 w-4 flex-none" viewbox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
                         fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -514,42 +514,32 @@
             const data = await response.json();
             const homeElement = document.getElementById('home');
             const dashboardElement = document.getElementById('dashboard');
+
             if (data.success) {
+                // Initially hide all role-specific items
+                document.querySelectorAll('.admin, .bacsi, .yta').forEach(item => {
+                    item.style.display = 'none';
+                });
+
+                // Show items based on the user's role
                 if (data.role === 'Admin') {
                     homeElement.href = '/admin';
                     dashboardElement.href = '/admin';
-                    document.querySelectorAll('.bacsi').forEach(item => {
-                        item.style.display = 'none';
+                    document.querySelectorAll('.admin').forEach(item => {
+                        item.style.display = '';
                     });
-                    document.querySelectorAll('.yta').forEach(item => {
-                        item.style.display = 'none';
+                } else if (data.role === 'Bacsi') {
+                    homeElement.href = '/nhan-vien';
+                    dashboardElement.href = '/nhan-vien';
+                    document.querySelectorAll('.bacsi').forEach(item => {
+                        item.style.display = '';
                     });
                 } else if (data.role === 'Yta') {
-                    // Ẩn các mục admin, chỉ hiện mục yta
-                    document.querySelectorAll('.admin').forEach(item => {
-                        item.style.display = 'none';
-                    });
-                    document.querySelectorAll('.bacsi').forEach(item => {
-                        item.style.display = 'none';
-                    });
+                    homeElement.href = '/nhan-vien';
+                    dashboardElement.href = '/nhan-vien';
                     document.querySelectorAll('.yta').forEach(item => {
                         item.style.display = '';
                     });
-                    homeElement.href = '/nhan-vien';
-                    dashboardElement.href = '/nhan-vien';
-                } else if (data.role === 'Bacsi') {
-                    // Ẩn các mục admin, chỉ hiện mục yta
-                    document.querySelectorAll('.admin').forEach(item => {
-                        item.style.display = 'none';
-                    });
-                    document.querySelectorAll('.yta').forEach(item => {
-                        item.style.display = 'none';
-                    });
-                    document.querySelectorAll('.bacsi').forEach(item => {
-                        item.style.display = '';
-                    });
-                    homeElement.href = '/nhan-vien';
-                    dashboardElement.href = '/nhan-vien';
                 }
             }
         } catch (error) {

@@ -115,9 +115,7 @@ namespace Project.Areas.Staff.Controllers
                             PatientEmail = p.PatientEmail,
                             FirstAbsenceDate = prev.TrackingDate,
                             SecondAbsenceDate = curr.TrackingDate,
-                            FirstNote = prev.Note,
-                            SecondNote = curr.Note,
-                            DepartmentName = prev.TreatmentRecordDetail?.Room?.Department?.Name ?? "",
+                            DepName = prev.TreatmentRecordDetail?.Room?.Department?.Name ?? "",
                             RoomName = prev.TreatmentRecordDetail?.Room?.Name ?? "",
                             EmployeeName = (prev.EmployeeId.HasValue && employeeDict.ContainsKey(prev.EmployeeId.Value)) ? employeeDict[prev.EmployeeId.Value] : ""
                         });

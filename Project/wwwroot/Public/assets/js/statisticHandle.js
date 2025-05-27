@@ -188,7 +188,8 @@ async function loadPatientAdmissionStats(startDate, endDate, groupBy) {
         if (!startDate || !endDate) {
             ({ start: startDate, end: endDate } = getDateRange());
         }
-        const response = await fetch(`/Staff/Statistics/GetPatientAdmissionStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&groupBy=${groupBy}`);
+        const formatDate = d => d.toISOString().slice(0, 10); // yyyy-MM-dd
+        const response = await fetch(`/Staff/Statistics/GetPatientAdmissionStats?startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}&groupBy=${groupBy}`);
         const data = await response.json();
 
         // Tạo mảng các mốc thời gian đầy đủ
