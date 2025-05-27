@@ -10,18 +10,22 @@
     <Compile Remove="Areas\Admin\Data\**" />
     <Compile Remove="Areas\Admin\Models\Enums\**" />
     <Compile Remove="Areas\Admin\Views\Shared\**" />
+    <Compile Remove="Areas\BenhNhan\Data\**" />
     <Compile Remove="Areas\Staff\Data\**" />
     <Content Remove="Areas\Admin\Data\**" />
     <Content Remove="Areas\Admin\Models\Enums\**" />
     <Content Remove="Areas\Admin\Views\Shared\**" />
+    <Content Remove="Areas\BenhNhan\Data\**" />
     <Content Remove="Areas\Staff\Data\**" />
     <EmbeddedResource Remove="Areas\Admin\Data\**" />
     <EmbeddedResource Remove="Areas\Admin\Models\Enums\**" />
     <EmbeddedResource Remove="Areas\Admin\Views\Shared\**" />
+    <EmbeddedResource Remove="Areas\BenhNhan\Data\**" />
     <EmbeddedResource Remove="Areas\Staff\Data\**" />
     <None Remove="Areas\Admin\Data\**" />
     <None Remove="Areas\Admin\Models\Enums\**" />
     <None Remove="Areas\Admin\Views\Shared\**" />
+    <None Remove="Areas\BenhNhan\Data\**" />
     <None Remove="Areas\Staff\Data\**" />
   </ItemGroup>
 
@@ -47,7 +51,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\BenhNhan\Data\" />
     <Folder Include="Areas\BenhNhan\Models\" />
     <Folder Include="wwwroot\Images\Patients\" />
   </ItemGroup>

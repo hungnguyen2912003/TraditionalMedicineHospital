@@ -397,9 +397,9 @@
                                                 <option value="">Chọn nơi đăng ký</option>
                                                 @foreach (var place in ViewBag.HealthInsurancePlaceOptions)
                                                 {
-                                                    if (place.Value == (int)Model.Patient!.HealthInsurancePlaceOfRegistration!)
+                                                    if (Model.Patient.HealthInsurancePlaceOfRegistration != null && place.Value == (int)Model.Patient.HealthInsurancePlaceOfRegistration)
                                                     {
-                                                        <option value="@place.Value" selected>@place.Text</option>
+                                                        <option value="@place.Value" selected="selected">@place.Text</option>
                                                     }
                                                     else
                                                     {

@@ -264,7 +264,7 @@
                         entity.code,
                         entity.treatmentRecordCode,
                         entity.patientName,
-                        entity.totalCost.toLocaleString() + ' VNĐ',
+                        (entity.totalCost - entity.insuranceAmount || 0).toLocaleString() + ' VNĐ',
                         getPaymentStatusBadge(entity.status),
                         `<div class="flex gap-4">
                             <a href="javascript:;" class="hover:text-info edit-payment-btn" x-tooltip="Chỉnh sửa" data-id="${entity.id}">
@@ -505,6 +505,8 @@
     // Dữ liệu TreatmentRecords từ ViewBag (dạng JS array)
     const allTreatmentRecords = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.TreatmentRecordsCanPayment));
     const allPatients = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Patients));
+    // Danh sách các TreatmentRecordId đã lập phiếu thanh toán (Guid)
+    const paidTreatmentRecordIds = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.PaidTreatmentRecordIds));
 
     // Khởi tạo Choices cho 2 select
     let patientChoices, treatmentRecordChoices;
@@ -551,8 +553,12 @@
             treatmentRecordChoices.disable();
             return;
         }
-        // Lọc các phiếu điều trị của bệnh nhân này và status 2,3
-        const filtered = allTreatmentRecords.filter(tr => tr.patientId === patientId && (tr.status === 2 || tr.status === 3));
+        // Lọc các phiếu điều trị của bệnh nhân này và status 2,3, đồng thời chưa lập phiếu thanh toán
+        const filtered = allTreatmentRecords.filter(tr =>
+            tr.patientId === patientId &&
+            (tr.status === 2 || tr.status === 3) &&
+            !paidTreatmentRecordIds.includes(tr.id)
+        );
         const choices = filtered.map(tr => {
             const start = new Date(tr.startDate);
             const end = new Date(tr.endDate);

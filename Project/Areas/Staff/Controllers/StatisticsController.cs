@@ -46,57 +46,22 @@ namespace Project.Areas.Staff.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPatientStats(DateTime startDate, DateTime endDate)
-        {
-            var patientData = await _patientRepository.GetAllAsync();
-
-            var stats = patientData
-                .Where(p => p.CreatedDate >= startDate && p.CreatedDate <= endDate)
-                .GroupBy(p => p.CreatedDate.Date)
-                .Select(g => new PatientStats
-                {
-                    TotalPatients = g.Count(),
-                    WarningPatients = 0,
-                    Date = g.Key
-                })
-                .ToList();
-
-            return Json(stats);
-        }
-
-        // [HttpGet]
-        // public async Task<IActionResult> GetFinancialStats(DateTime startDate, DateTime endDate)
-        // {
-        //     var paymentData = await _paymentRepository.GetAllAsync();
-        //     var detailData = await _treatmentRecordDetailRepository.GetAllAsync();
-
-        //     var stats = paymentData
-        //         .Where(p => p.CreatedDate >= startDate && p.CreatedDate <= endDate)
-        //         .Join(detailData,
-        //             payment => payment.TreatmentRecordDetailId,
-        //             detail => detail.Id,
-        //             (payment, detail) => new { 
-        //                 Date = payment.CreatedDate.Date,
-        //                 Amount = detail.Price * detail.Quantity
-        //             })
-        //         .GroupBy(x => x.Date)
-        //         .Select(g => new FinancialStats
-        //         {
-        //             TotalIncome = g.Sum(x => x.Amount),
-        //             Date = g.Key
-        //         })
-        //         .OrderBy(x => x.Date)
-        //         .ToList();
-
-        //     return Json(stats);
-        // }
-
-        [HttpGet]
-        public async Task<IActionResult> GetTreatmentStatsByDepartment(string departmentCode)
+        public async Task<IActionResult> GetTreatmentStatsByDepartment(
+            string departmentCode,
+            string? startDate = null,
+            string? endDate = null)
         {
             var detailData = await _treatmentRecordDetailRepository.GetAllAsync();
             var roomData = await _roomRepository.GetAllAdvancedAsync();
             var methodData = await _treatmentMethodRepository.GetAllAsync();
+
+            // Nếu không truyền ngày thì lấy toàn bộ
+            if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+            {
+                DateTime start = DateTime.Parse(startDate);
+                DateTime end = DateTime.Parse(endDate);
+                detailData = detailData.Where(d => d.CreatedDate >= start && d.CreatedDate <= end).ToList();
+            }
 
             var stats = detailData
                 .Join(roomData,
@@ -148,90 +113,522 @@ namespace Project.Areas.Staff.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPatientAdmissionStats(string period = "month")
+        public async Task<IActionResult> GetPatientAdmissionStats(string? startDate = null, string? endDate = null, string groupBy = "day")
         {
             var patientData = await _patientRepository.GetAllAsync();
-            var currentDate = DateTime.Now;
-            var startDate = period.ToLower() == "month"
-                ? currentDate.AddMonths(-1)
-                : currentDate.AddYears(-1);
-
-            var stats = patientData
-                .Where(p => p.CreatedDate >= startDate && p.CreatedDate <= currentDate)
-                .GroupBy(p => period.ToLower() == "month"
-                    ? p.CreatedDate.Date
-                    : new DateTime(p.CreatedDate.Year, p.CreatedDate.Month, 1))
-                .Select(g => new
+            DateTime start, end;
+            if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+            {
+                start = DateTime.Parse(startDate);
+                end = DateTime.Parse(endDate);
+            }
+            else
+            {
+                // Nếu không truyền thì lấy toàn bộ
+                if (!patientData.Any())
                 {
-                    Date = g.Key,
-                    PatientCount = g.Count()
-                })
-                .OrderBy(x => x.Date)
-                .ToList();
+                    return Json(new List<object>());
+                }
+                start = patientData.Min(p => p.CreatedDate);
+                end = patientData.Max(p => p.CreatedDate);
+            }
 
-            return Json(stats);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetTreatmentCompletionStats(int year)
-        {
-            var treatmentRecords = await _treatmentRecordRepository.GetAllAsync();
-
-            var stats = Enumerable.Range(1, 12)
-                .Select(month => new
-                {
-                    Month = month,
-                    CompletedCount = treatmentRecords.Count(t =>
-                        t.Status == TreatmentStatus.DaHoanThanh &&
-                        t.CreatedDate.Year == year &&
-                        t.CreatedDate.Month == month),
-                    CancelledCount = treatmentRecords.Count(t =>
-                        t.Status == TreatmentStatus.DaHuyBo &&
-                        t.CreatedDate.Year == year &&
-                        t.CreatedDate.Month == month)
-                })
-                .ToList();
-
-            return Json(stats);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetFollowUpTreatmentStats(int year)
-        {
-            var treatmentRecords = await _treatmentRecordRepository.GetAllAsync();
-
-            var stats = treatmentRecords
-                .GroupBy(t => t.PatientId)
-                .Where(g => g.Count() > 1) // Lấy các bệnh nhân có nhiều hơn 1 đợt điều trị
-                .SelectMany(g => g
-                    .Where(t => t.Status == TreatmentStatus.DaHoanThanh) // Chỉ tính các đợt đã hoàn thành
-                    .OrderBy(t => t.CreatedDate)
-                    .Skip(1) // Bỏ qua đợt điều trị đầu tiên
-                    .Where(t => t.CreatedDate.Year == year)) // Lọc theo năm
-                    .GroupBy(t => t.CreatedDate.Month)
+            var stats = new List<object>();
+            if (groupBy == "day")
+            {
+                stats = patientData
+                    .Where(p => p.CreatedDate >= start && p.CreatedDate <= end)
+                    .GroupBy(p => p.CreatedDate.Date)
                     .Select(g => new
                     {
-                        Month = g.Key,
-                        FollowUpCount = g.Count()
+                        date = g.Key.ToString("yyyy-MM-dd"),
+                        patientCount = g.Count()
                     })
-                    .OrderBy(x => x.Month)
-                    .ToList();
-
-            // Đảm bảo có đủ 12 tháng với số lượng 0 nếu không có dữ liệu
-            var fullStats = Enumerable.Range(1, 12)
-                .GroupJoin(
-                    stats,
-                    month => month,
-                    stat => stat.Month,
-                    (month, statGroup) => new
+                    .OrderBy(x => x.date)
+                    .ToList<object>();
+            }
+            else if (groupBy == "month")
+            {
+                stats = patientData
+                    .Where(p => p.CreatedDate >= start && p.CreatedDate <= end)
+                    .GroupBy(p => new { p.CreatedDate.Year, p.CreatedDate.Month })
+                    .Select(g => new
                     {
-                        Month = month,
-                        FollowUpCount = statGroup.FirstOrDefault()?.FollowUpCount ?? 0
-                    }
-                )
-                .ToList();
+                        date = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("yyyy-MM"),
+                        patientCount = g.Count()
+                    })
+                    .OrderBy(x => x.date)
+                    .ToList<object>();
+            }
+            else if (groupBy == "year")
+            {
+                stats = patientData
+                    .Where(p => p.CreatedDate >= start && p.CreatedDate <= end)
+                    .GroupBy(p => p.CreatedDate.Year)
+                    .Select(g => new
+                    {
+                        date = g.Key.ToString(),
+                        patientCount = g.Count()
+                    })
+                    .OrderBy(x => x.date)
+                    .ToList<object>();
+            }
+            return Json(stats);
+        }
 
-            return Json(fullStats);
+        [HttpGet]
+        public async Task<IActionResult> GetTreatmentCompletionStats(string? startDate = null, string? endDate = null, string groupBy = "day")
+        {
+            var treatmentRecords = await _treatmentRecordRepository.GetAllAsync();
+            DateTime start, end;
+            if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+            {
+                start = DateTime.Parse(startDate);
+                end = DateTime.Parse(endDate);
+            }
+            else
+            {
+                if (!treatmentRecords.Any())
+                {
+                    return Json(new List<object>());
+                }
+                start = treatmentRecords.Min(t => t.CreatedDate);
+                end = treatmentRecords.Max(t => t.CreatedDate);
+            }
+            var stats = new List<object>();
+            if (groupBy == "day")
+            {
+                stats = treatmentRecords
+                    .Where(t => t.CreatedDate >= start && t.CreatedDate <= end)
+                    .GroupBy(t => t.CreatedDate.Date)
+                    .Select(g => new
+                    {
+                        date = g.Key.ToString("yyyy-MM-dd"),
+                        completedCount = g.Count(t => t.Status == TreatmentStatus.DaHoanThanh),
+                        cancelledCount = g.Count(t => t.Status == TreatmentStatus.DaHuyBo)
+                    })
+                    .OrderBy(x => x.date)
+                    .ToList<object>();
+            }
+            else if (groupBy == "month")
+            {
+                stats = treatmentRecords
+                    .Where(t => t.CreatedDate >= start && t.CreatedDate <= end)
+                    .GroupBy(t => new { t.CreatedDate.Year, t.CreatedDate.Month })
+                    .Select(g => new
+                    {
+                        date = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("yyyy-MM"),
+                        completedCount = g.Count(t => t.Status == TreatmentStatus.DaHoanThanh),
+                        cancelledCount = g.Count(t => t.Status == TreatmentStatus.DaHuyBo)
+                    })
+                    .OrderBy(x => x.date)
+                    .ToList<object>();
+            }
+            else if (groupBy == "year")
+            {
+                stats = treatmentRecords
+                    .Where(t => t.CreatedDate >= start && t.CreatedDate <= end)
+                    .GroupBy(t => t.CreatedDate.Year)
+                    .Select(g => new
+                    {
+                        date = g.Key.ToString(),
+                        completedCount = g.Count(t => t.Status == TreatmentStatus.DaHoanThanh),
+                        cancelledCount = g.Count(t => t.Status == TreatmentStatus.DaHuyBo)
+                    })
+                    .OrderBy(x => x.date)
+                    .ToList<object>();
+            }
+            return Json(stats);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSuspendedReasonStats(string? startDate = null, string? endDate = null, string groupBy = "day")
+        {
+            var treatmentRecords = await _treatmentRecordRepository.GetAllAsync();
+            DateTime start, end;
+            if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+            {
+                start = DateTime.Parse(startDate);
+                end = DateTime.Parse(endDate);
+                treatmentRecords = treatmentRecords.Where(t => t.SuspendedDate >= start && t.SuspendedDate <= end).ToList();
+            }
+            var result = new List<object>();
+            // 3 loại lý do
+            string reason1 = "Vi phạm quy định: Tự ý bỏ điều trị từ 3 ngày trong 1 đợt điều trị";
+            string reason2 = "Bệnh nhân mong muốn xuất viện sớm";
+            string reason3 = "Kết thúc đợt điều trị và xuất viện";
+            int count1 = treatmentRecords.Count(x => x.SuspendedReason != null && x.SuspendedReason.ToLower().Contains("vi phạm quy định"));
+            int count2 = treatmentRecords.Count(x => x.SuspendedReason != null && x.SuspendedReason.ToLower().Contains("bệnh nhân mong muốn xuất viện sớm"));
+            int count3 = treatmentRecords.Count(x => x.SuspendedReason != null && x.SuspendedReason.ToLower().Contains("kết thúc đợt điều trị"));
+            if (count1 > 0) result.Add(new { reason = reason1, count = count1 });
+            if (count2 > 0) result.Add(new { reason = reason2, count = count2 });
+            if (count3 > 0) result.Add(new { reason = reason3, count = count3 });
+            return Json(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPatientTypeStats(string? startDate = null, string? endDate = null, string groupBy = "day")
+        {
+            var allPatients = await _patientRepository.GetAllAsync();
+            var allTreatmentRecords = await _treatmentRecordRepository.GetAllAsync();
+
+            var patientIdToRecordCount = allTreatmentRecords
+                .GroupBy(tr => tr.PatientId)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            int newCount = 0, oldCount = 0;
+            foreach (var patient in allPatients)
+            {
+                int recordCount = patientIdToRecordCount.ContainsKey(patient.Id) ? patientIdToRecordCount[patient.Id] : 0;
+                if (recordCount == 1)
+                    newCount++;
+                else if (recordCount >= 2)
+                    oldCount++;
+            }
+            var total = newCount + oldCount;
+
+            var stats = new List<object>();
+            if (groupBy == "day")
+            {
+                stats.Add(new { date = DateTime.Now.ToString("yyyy-MM-dd"), newCount, oldCount });
+            }
+            else if (groupBy == "month")
+            {
+                stats.Add(new { date = DateTime.Now.ToString("yyyy-MM"), newCount, oldCount });
+            }
+            else if (groupBy == "year")
+            {
+                stats.Add(new { date = DateTime.Now.ToString("yyyy"), newCount, oldCount });
+            }
+            return Json(stats);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetRevenueStats(string? startDate = null, string? endDate = null, string groupBy = "day")
+        {
+            var payments = (await _paymentRepository.GetAllAdvancedAsync())
+                .Where(p => p.Status == PaymentStatus.DaThanhToan)
+                .ToList();
+            DateTime start, end;
+            if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+            {
+                start = DateTime.Parse(startDate);
+                end = DateTime.Parse(endDate);
+                payments = payments.Where(p => p.PaymentDate >= start && p.PaymentDate <= end).ToList();
+            }
+            else if (payments.Any())
+            {
+                start = payments.Min(p => p.PaymentDate);
+                end = payments.Max(p => p.PaymentDate);
+            }
+            else
+            {
+                return Json(new List<object>());
+            }
+
+            var revenueList = new List<object>();
+            if (groupBy == "day")
+            {
+                var grouped = payments.GroupBy(p => p.PaymentDate.Date).OrderBy(g => g.Key);
+                foreach (var g in grouped)
+                {
+                    decimal total = 0;
+                    foreach (var p in g)
+                    {
+                        var tr = p.TreatmentRecord;
+                        var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
+                            pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
+                        decimal totalTreatmentMethodCost = 0;
+                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
+                        {
+                            var room = detail.Room;
+                            var method = room?.TreatmentMethod;
+                            if (method == null) continue;
+                            int count = detail.TreatmentTrackings?.Count(t => t.Status == Project.Models.Enums.TrackingStatus.CoDieuTri) ?? 0;
+                            totalTreatmentMethodCost += method.Cost * count;
+                        }
+                        decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
+                        decimal insuranceAmount = 0;
+                        var hi = tr.Patient?.HealthInsurance;
+                        if (hi != null)
+                        {
+                            if (hi.IsRightRoute)
+                                insuranceAmount = totalCostBeforeInsurance * 0.8m;
+                            else
+                                insuranceAmount = totalCostBeforeInsurance * 0.6m;
+                        }
+                        decimal revenue = totalCostBeforeInsurance - insuranceAmount;
+                        if (revenue < 0) revenue = 0;
+                        total += revenue;
+                    }
+                    revenueList.Add(new { date = g.Key.ToString("yyyy-MM-dd"), revenue = total });
+                }
+            }
+            else if (groupBy == "month")
+            {
+                var grouped = payments.GroupBy(p => new { p.PaymentDate.Year, p.PaymentDate.Month })
+                    .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month);
+                foreach (var g in grouped)
+                {
+                    decimal total = 0;
+                    foreach (var p in g)
+                    {
+                        var tr = p.TreatmentRecord;
+                        var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
+                            pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
+                        decimal totalTreatmentMethodCost = 0;
+                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
+                        {
+                            var room = detail.Room;
+                            var method = room?.TreatmentMethod;
+                            if (method == null) continue;
+                            int count = detail.TreatmentTrackings?.Count(t => t.Status == Project.Models.Enums.TrackingStatus.CoDieuTri) ?? 0;
+                            totalTreatmentMethodCost += method.Cost * count;
+                        }
+                        decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
+                        decimal insuranceAmount = 0;
+                        var hi = tr.Patient?.HealthInsurance;
+                        if (hi != null)
+                        {
+                            if (hi.IsRightRoute)
+                                insuranceAmount = totalCostBeforeInsurance * 0.8m;
+                            else
+                                insuranceAmount = totalCostBeforeInsurance * 0.6m;
+                        }
+                        decimal revenue = totalCostBeforeInsurance - insuranceAmount;
+                        if (revenue < 0) revenue = 0;
+                        total += revenue;
+                    }
+                    revenueList.Add(new { date = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("yyyy-MM"), revenue = total });
+                }
+            }
+            else if (groupBy == "year")
+            {
+                var grouped = payments.GroupBy(p => p.PaymentDate.Year).OrderBy(g => g.Key);
+                foreach (var g in grouped)
+                {
+                    decimal total = 0;
+                    foreach (var p in g)
+                    {
+                        var tr = p.TreatmentRecord;
+                        var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
+                            pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
+                        decimal totalTreatmentMethodCost = 0;
+                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
+                        {
+                            var room = detail.Room;
+                            var method = room?.TreatmentMethod;
+                            if (method == null) continue;
+                            int count = detail.TreatmentTrackings?.Count(t => t.Status == Project.Models.Enums.TrackingStatus.CoDieuTri) ?? 0;
+                            totalTreatmentMethodCost += method.Cost * count;
+                        }
+                        decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
+                        decimal insuranceAmount = 0;
+                        var hi = tr.Patient?.HealthInsurance;
+                        if (hi != null)
+                        {
+                            if (hi.IsRightRoute)
+                                insuranceAmount = totalCostBeforeInsurance * 0.8m;
+                            else
+                                insuranceAmount = totalCostBeforeInsurance * 0.6m;
+                        }
+                        decimal revenue = totalCostBeforeInsurance - insuranceAmount;
+                        if (revenue < 0) revenue = 0;
+                        total += revenue;
+                    }
+                    revenueList.Add(new { date = g.Key.ToString(), revenue = total });
+                }
+            }
+            return Json(revenueList);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUnpaidPaymentCountStats(string? startDate = null, string? endDate = null, string groupBy = "day")
+        {
+            var payments = (await _paymentRepository.GetAllAdvancedAsync())
+                .Where(p => p.Status == PaymentStatus.ChuaThanhToan)
+                .ToList();
+            DateTime start, end;
+            if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+            {
+                start = DateTime.Parse(startDate);
+                end = DateTime.Parse(endDate);
+                payments = payments.Where(p => p.PaymentDate >= start && p.PaymentDate <= end).ToList();
+            }
+            else if (payments.Any())
+            {
+                start = payments.Min(p => p.PaymentDate);
+                end = payments.Max(p => p.PaymentDate);
+            }
+            else
+            {
+                return Json(new List<object>());
+            }
+            var result = new List<object>();
+            if (groupBy == "day")
+            {
+                var grouped = payments.GroupBy(p => p.PaymentDate.Date).OrderBy(g => g.Key);
+                foreach (var g in grouped)
+                {
+                    result.Add(new { date = g.Key.ToString("yyyy-MM-dd"), count = g.Count() });
+                }
+            }
+            else if (groupBy == "month")
+            {
+                var grouped = payments.GroupBy(p => new { p.PaymentDate.Year, p.PaymentDate.Month })
+                    .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month);
+                foreach (var g in grouped)
+                {
+                    result.Add(new { date = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("yyyy-MM"), count = g.Count() });
+                }
+            }
+            else if (groupBy == "year")
+            {
+                var grouped = payments.GroupBy(p => p.PaymentDate.Year).OrderBy(g => g.Key);
+                foreach (var g in grouped)
+                {
+                    result.Add(new { date = g.Key.ToString(), count = g.Count() });
+                }
+            }
+            return Json(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUnpaidPaymentAmountStats(string? startDate = null, string? endDate = null, string groupBy = "day")
+        {
+            var payments = (await _paymentRepository.GetAllAdvancedAsync())
+                .Where(p => p.Status == PaymentStatus.ChuaThanhToan)
+                .ToList();
+            DateTime start, end;
+            if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+            {
+                start = DateTime.Parse(startDate);
+                end = DateTime.Parse(endDate);
+                payments = payments.Where(p => p.PaymentDate >= start && p.PaymentDate <= end).ToList();
+            }
+            else if (payments.Any())
+            {
+                start = payments.Min(p => p.PaymentDate);
+                end = payments.Max(p => p.PaymentDate);
+            }
+            else
+            {
+                return Json(new List<object>());
+            }
+            var result = new List<object>();
+            if (groupBy == "day")
+            {
+                var grouped = payments.GroupBy(p => p.PaymentDate.Date).OrderBy(g => g.Key);
+                foreach (var g in grouped)
+                {
+                    decimal total = 0;
+                    foreach (var p in g)
+                    {
+                        var tr = p.TreatmentRecord;
+                        var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
+                            pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
+                        decimal totalTreatmentMethodCost = 0;
+                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
+                        {
+                            var room = detail.Room;
+                            var method = room?.TreatmentMethod;
+                            if (method == null) continue;
+                            int count = detail.TreatmentTrackings?.Count(t => t.Status == Project.Models.Enums.TrackingStatus.CoDieuTri) ?? 0;
+                            totalTreatmentMethodCost += method.Cost * count;
+                        }
+                        decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
+                        decimal insuranceAmount = 0;
+                        var hi = tr.Patient?.HealthInsurance;
+                        if (hi != null)
+                        {
+                            if (hi.IsRightRoute)
+                                insuranceAmount = totalCostBeforeInsurance * 0.8m;
+                            else
+                                insuranceAmount = totalCostBeforeInsurance * 0.6m;
+                        }
+                        decimal revenue = totalCostBeforeInsurance - insuranceAmount;
+                        if (revenue < 0) revenue = 0;
+                        total += revenue;
+                    }
+                    result.Add(new { date = g.Key.ToString("yyyy-MM-dd"), amount = total });
+                }
+            }
+            else if (groupBy == "month")
+            {
+                var grouped = payments.GroupBy(p => new { p.PaymentDate.Year, p.PaymentDate.Month })
+                    .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month);
+                foreach (var g in grouped)
+                {
+                    decimal total = 0;
+                    foreach (var p in g)
+                    {
+                        var tr = p.TreatmentRecord;
+                        var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
+                            pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
+                        decimal totalTreatmentMethodCost = 0;
+                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
+                        {
+                            var room = detail.Room;
+                            var method = room?.TreatmentMethod;
+                            if (method == null) continue;
+                            int count = detail.TreatmentTrackings?.Count(t => t.Status == Project.Models.Enums.TrackingStatus.CoDieuTri) ?? 0;
+                            totalTreatmentMethodCost += method.Cost * count;
+                        }
+                        decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
+                        decimal insuranceAmount = 0;
+                        var hi = tr.Patient?.HealthInsurance;
+                        if (hi != null)
+                        {
+                            if (hi.IsRightRoute)
+                                insuranceAmount = totalCostBeforeInsurance * 0.8m;
+                            else
+                                insuranceAmount = totalCostBeforeInsurance * 0.6m;
+                        }
+                        decimal revenue = totalCostBeforeInsurance - insuranceAmount;
+                        if (revenue < 0) revenue = 0;
+                        total += revenue;
+                    }
+                    result.Add(new { date = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("yyyy-MM"), amount = total });
+                }
+            }
+            else if (groupBy == "year")
+            {
+                var grouped = payments.GroupBy(p => p.PaymentDate.Year).OrderBy(g => g.Key);
+                foreach (var g in grouped)
+                {
+                    decimal total = 0;
+                    foreach (var p in g)
+                    {
+                        var tr = p.TreatmentRecord;
+                        var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
+                            pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
+                        decimal totalTreatmentMethodCost = 0;
+                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
+                        {
+                            var room = detail.Room;
+                            var method = room?.TreatmentMethod;
+                            if (method == null) continue;
+                            int count = detail.TreatmentTrackings?.Count(t => t.Status == Project.Models.Enums.TrackingStatus.CoDieuTri) ?? 0;
+                            totalTreatmentMethodCost += method.Cost * count;
+                        }
+                        decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
+                        decimal insuranceAmount = 0;
+                        var hi = tr.Patient?.HealthInsurance;
+                        if (hi != null)
+                        {
+                            if (hi.IsRightRoute)
+                                insuranceAmount = totalCostBeforeInsurance * 0.8m;
+                            else
+                                insuranceAmount = totalCostBeforeInsurance * 0.6m;
+                        }
+                        decimal revenue = totalCostBeforeInsurance - insuranceAmount;
+                        if (revenue < 0) revenue = 0;
+                        total += revenue;
+                    }
+                    result.Add(new { date = g.Key.ToString(), amount = total });
+                }
+            }
+            return Json(result);
         }
     }
 }

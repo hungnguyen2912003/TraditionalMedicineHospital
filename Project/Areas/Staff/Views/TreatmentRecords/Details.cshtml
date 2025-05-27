@@ -195,7 +195,7 @@
                                     <div class="w-full sm:w-1/2">
                                         <label for="Gender">Giới tính</label>
                                         <input id="Gender" type="text" class="form-input" readonly
-                                            value="@Model.Patient.Gender" />
+                                            value="@(EnumExtensions.GetDisplayName(Model.Patient.Gender))" />
                                     </div>
                                     <div class="w-full sm:w-1/2">
                                         <label for="DateOfBirth">Ngày sinh</label>
@@ -270,7 +270,7 @@
                                 <div>
                                     <label>Nơi đăng ký KCB ban đầu</label>
                                     <input type="text" class="form-input" readonly
-                                        value="@Model.Patient.HealthInsurance.PlaceOfRegistration" />
+                                        value="@(EnumExtensions.GetDisplayName(Model.Patient.HealthInsurance.PlaceOfRegistration))" />
                                 </div>
                                 <div>
                                     <label>Ngày hết hạn</label>

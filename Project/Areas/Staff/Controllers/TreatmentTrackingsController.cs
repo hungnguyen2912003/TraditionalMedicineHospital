@@ -44,6 +44,7 @@ namespace Project.Areas.Staff.Controllers
 
             // Lấy mã nhân viên hiện tại từ cookie AuthToken
             string? currentEmployeeCode = null;
+            string? roomName = null;
             var token = Request.Cookies["AuthToken"];
             if (!string.IsNullOrEmpty(token))
             {
@@ -56,9 +57,12 @@ namespace Project.Areas.Staff.Controllers
                         currentEmployeeCode = user.Employee.Code;
                         ViewBag.CurrentEmployeeCode = currentEmployeeCode;
                         ViewBag.CurrentRole = user.Role.ToString();
+                        // Lấy tên phòng của nhân viên hiện tại
+                        roomName = user.Employee.Room?.Name;
                     }
                 }
             }
+            ViewBag.RoomName = roomName;
 
             // Lọc chỉ các bản ghi do bác sĩ hiện tại thực hiện
             if (!string.IsNullOrEmpty(currentEmployeeCode))

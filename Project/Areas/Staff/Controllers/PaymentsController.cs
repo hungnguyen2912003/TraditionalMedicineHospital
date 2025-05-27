@@ -92,6 +92,7 @@ namespace Project.Areas.Staff.Controllers
                     TotalTreatmentMethodCost = totalTreatmentMethodCost,
                     InsuranceAmount = insuranceAmount,
                     TotalCost = totalCostBeforeInsurance,
+                    FinalCost = finalCost,
                     Status = p.Status == PaymentStatus.DaThanhToan ? PaymentStatus.DaThanhToan : PaymentStatus.ChuaThanhToan
                 };
             });
@@ -123,6 +124,10 @@ namespace Project.Areas.Staff.Controllers
                     patientHealthInsuranceIsRightRoute = tr.Patient.HealthInsurance != null ? tr.Patient.HealthInsurance.IsRightRoute : (bool?)null
                 }).ToList();
             ViewBag.TreatmentRecordsCanPayment = treatmentRecords;
+
+            // Thêm danh sách các TreatmentRecordId đã lập phiếu thanh toán
+            var paidTreatmentRecordIds = payments.Select(p => p.TreatmentRecordId).ToList();
+            ViewBag.PaidTreatmentRecordIds = paidTreatmentRecordIds;
 
             ViewBag.PaymentCode = await _codeGenerator.GenerateUniqueCodeAsync(_paymentRepository);
 

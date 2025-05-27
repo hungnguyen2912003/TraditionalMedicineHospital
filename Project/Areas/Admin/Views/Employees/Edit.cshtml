@@ -202,55 +202,6 @@
                                                                         "text-danger" })
                                 </div>
                             </div>
-                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                                <div class="w-full sm:w-1/2">
-                                    <label class="block text-sm font-medium text-gray-700">Thông tin bằng cấp<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
-                                    <div class="select-wrapper">
-                                        <select id="Degree" name="Degree"
-                                            class="form-input w-full mt-1 p-2 border rounded choices">
-                                            <option value="">Chọn bằng cấp</option>
-                                            @foreach (var degree in ViewBag.DegreeOptions)
-                                            {
-                                                if (degree.Value == (int)Model.Degree)
-                                                {
-                                                    <option value="@degree.Value" selected>@degree.Text</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="@degree.Value">@degree.Text</option>
-                                                }
-                                            }
-                                        </select>
-                                    </div>
-                                    @Html.ValidationMessageFor(model => model.Degree, "", new { @class = "text-danger"
-                                                                        })
-                                </div>
-                                <div class="w-full sm:w-1/2">
-                                    <label class="block text-sm font-medium text-gray-700">Thông tin trình độ chuyên
-                                        môn<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
-                                    <div class="select-wrapper">
-                                        <select id="ProfessionalQualification" name="ProfessionalQualification"
-                                            class="form-input w-full mt-1 p-2 border rounded choices">
-                                            <option value="">Chọn trình độ chuyên môn</option>
-                                            @foreach (var pq in ViewBag.ProfessionalOptions)
-                                            {
-                                                if (pq.Value == (int)Model.ProfessionalQualification)
-                                                {
-                                                    <option value="@pq.Value" selected>@pq.Text</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="@pq.Value">@pq.Text</option>
-                                                }
-                                            }
-                                        </select>
-                                    </div>
-                                    @Html.ValidationMessageFor(model => model.ProfessionalQualification, "", new {
-                                    @class = "text-danger" })
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -315,14 +266,6 @@
                             </label>
                         }
                         <input type="file" id="fileInput" accept="image/*" class="hidden">
-                    </div>
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700">Thông tin ngày bắt đầu làm việc<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
-                        <input id="StartDate" type="text" name="StartDate"
-                            class="form-input w-full mt-1 p-2 border rounded flatpickr"
-                            placeholder="Nhập ngày bắt đầu làm" value="@Model.StartDate.ToString("dd/MM/yyyy")" />
-                        @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
                     </div>
                     <div class="mt-4">
                         <label for="Status" class="block text-sm font-medium text-gray-700">Tình trạng làm việc<span
@@ -435,7 +378,6 @@
                 this.setupChoices();
 
                 this.departmentChoices.enable();
-                // Nếu chưa chọn khoa thì disable phòng
                 if (!document.getElementById('DepartmentId').value) {
                     this.roomChoices.disable();
                 } else {
@@ -524,7 +466,7 @@
                             const overlay = document.getElementById('loadingOverlay');
                             overlay.style.display = 'none';
                             notyf.error("Có lỗi xảy ra: " + errorMessage);
-                            this.removeFile(file); // Xóa file không hợp lệ khỏi dropzone
+                            this.removeFile(file);
                         });
                     }
                 });
@@ -640,16 +582,6 @@
                                 }
                             }
                         },
-                        Degree: {
-                            required: true
-                        },
-                        ProfessionalQualification: {
-                            required: true
-                        },
-                        StartDate: {
-                            required: true,
-                            dateFormat: true
-                        },
                         EmployeeCategoryId: {
                             required: true
                         },
@@ -700,16 +632,6 @@
                             maxlength: "Số điện thoại không được vượt quá 15 ký tự.",
                             customPattern: "Số điện thoại không hợp lệ.",
                             remote: "Số điện thoại này đã được đăng ký bởi nhân sự khác."
-                        },
-                        Degree: {
-                            required: "Bằng cấp không được bỏ trống."
-                        },
-                        ProfessionalQualification: {
-                            required: "Trình độ chuyên môn không được bỏ trống."
-                        },
-                        StartDate: {
-                            required: "Ngày bắt đầu làm không được bỏ trống.",
-                            dateFormat: "Ngày bắt đầu làm không hợp lệ."
                         },
                         EmployeeCategoryId: {
                             required: "Loại nhân sự không được bỏ trống."
@@ -782,10 +704,7 @@
                 formData.append('Address', document.getElementById('Address').value);
                 formData.append('EmailAddress', document.getElementById('EmailAddress').value);
                 formData.append('PhoneNumber', document.getElementById('PhoneNumber').value);
-                formData.append('Degree', document.getElementById('Degree').value);
-                formData.append('ProfessionalQualification', document.getElementById('ProfessionalQualification').value);
                 formData.append('Status', document.getElementById('Status').value);
-                formData.append('StartDate', document.getElementById('StartDate').value);
                 formData.append('EmployeeCategoryId', document.getElementById('EmployeeCategoryId').value);
                 formData.append('RoomId', document.getElementById('RoomId').value);
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;

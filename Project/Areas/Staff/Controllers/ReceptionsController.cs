@@ -87,6 +87,30 @@ namespace Project.Areas.Staff.Controllers
                 return RedirectToAction("Login", "Account", new { area = "Admin" });
             }
 
+            // Lấy danh sách bệnh nhân cũ có phiếu điều trị đã hoàn thành hoặc đã hủy bỏ
+            var treatmentRecords = await _treatmentRecordRepository.GetAllAsync();
+
+            // 1. Lấy các bệnh nhân có phiếu điều trị đã hoàn thành hoặc đã hủy bỏ
+            var validPatientIds = treatmentRecords
+                .Where(tr => tr.Status == Project.Models.Enums.TreatmentStatus.DaHoanThanh || tr.Status == Project.Models.Enums.TreatmentStatus.DaHuyBo)
+                .Select(tr => tr.PatientId)
+                .Distinct()
+                .ToList();
+
+            // 2. Lấy các bệnh nhân đang có phiếu điều trị "Đang điều trị"
+            var currentlyTreatingPatientIds = treatmentRecords
+                .Where(tr => tr.Status == Project.Models.Enums.TreatmentStatus.DangDieuTri)
+                .Select(tr => tr.PatientId)
+                .Distinct()
+                .ToList();
+
+            // 3. Loại bỏ các bệnh nhân đang điều trị khỏi danh sách hợp lệ
+            var oldPatients = (await _patientRepository.GetAllAsync())
+                .Where(p => validPatientIds.Contains(p.Id) && !currentlyTreatingPatientIds.Contains(p.Id))
+                .ToList();
+
+            ViewBag.Patients = oldPatients;
+
             // Generate code each entities
 
             var model = new ReceptionDto
@@ -357,10 +381,6 @@ namespace Project.Areas.Staff.Controllers
 
             // Get regulations
             var regulations = await _treatmentRecordRegulationRepository.GetByTreatmentRecordIdAsync(treatmentRecord.Id);
-
-            // // Get all treatment methods for all departments
-            // var treatmentMethods = await _treatmentMethodRepository.GetAllAsync();
-            // ViewBag.TreatmentMethods = treatmentMethods;
 
             // Map to DTOs
             var model = new ReceptionEditDto

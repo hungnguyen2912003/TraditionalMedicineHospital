@@ -101,7 +101,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 mt-5">
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3 mt-5">
                         <div>
                             <label for="Department">Nhân viên thuộc Khoa</label>
                             <input id="Department" type="text" value="@Model.Room?.Department?.Name" readonly
@@ -110,6 +110,11 @@
                         <div>
                             <label for="Room">Phòng làm việc</label>
                             <input id="Room" type="text" class="form-input" value="@Model.Room?.Name" readonly>
+                        </div>
+                        <div>
+                            <label for="Status">Tình trạng làm việc</label>
+                            <input id="Status" type="text" value="@EnumExtensions.GetDisplayName(Model.Status)" readonly
+                                class="form-input">
                         </div>
                     </div>
 
@@ -149,28 +154,6 @@
 
 
                     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 mt-5">
-                        <div>
-                            <label for="Degree">Bằng cấp</label>
-                            <input id="Degree" type="text" value="@EnumExtensions.GetDisplayName(Model.Degree)" readonly
-                                class="form-input">
-                        </div>
-                        <div>
-                            <label for="ProfessionalQualification">Trình độ chuyên môn</label>
-                            <input id="ProfessionalQualification" type="text"
-                                value="@EnumExtensions.GetDisplayName(Model.ProfessionalQualification)" readonly
-                                class="form-input">
-                        </div>
-                        <div>
-                            <label for="StartDate">Ngày bắt đầu làm việc</label>
-                            <input id="StartDate" type="text"
-                                value="@Model.StartDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly
-                                class="form-input">
-                        </div>
-                        <div>
-                            <label for="Status">Tình trạng làm việc</label>
-                            <input id="Status" type="text" value="@EnumExtensions.GetDisplayName(Model.Status)" readonly
-                                class="form-input">
-                        </div>
                         <div>
                             <label for="createdDate">Ngày tạo</label>
                             <input id="createdDate" type="text"

@@ -35,12 +35,6 @@ namespace Project.Areas.Admin.Models.Entities
         public string PhoneNumber { get; set; } = string.Empty;
         public string? Images { get; set; }
         [Required]
-        public DegreeType Degree { get; set; }
-        [Required]
-        public ProfessionalQualificationType ProfessionalQualification { get; set; }
-        [Required]
-        public DateTime StartDate { get; set; }
-        [Required]
         public EmployeeStatus Status { get; set; }
 
         // Foreign Key

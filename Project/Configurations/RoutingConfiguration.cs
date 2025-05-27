@@ -37,6 +37,13 @@
                 defaults: new { area = "", controller = "Home", action = "Index" }
             );
 
+            // Route cụ thể cho home
+            app.MapControllerRoute(
+                name: "thong-ke",
+                pattern: "thong-ke",
+                defaults: new { area = "Staff", controller = "Statistics", action = "Index" }
+            );
+
             app.MapControllerRoute(
                 name: "admin",
                 pattern: "admin",
