@@ -162,7 +162,7 @@ function createDonutChartOptions(data) {
 
 // Function to create and render a chart for a specific department
 async function createDepartmentChart(elementId, departmentCode, startDate, endDate) {
-    let url = `/Staff/Statistics/GetTreatmentStatsByDepartment?departmentCode=${departmentCode}`;
+    let url = `/Admin/Statistics/GetTreatmentStatsByDepartment?departmentCode=${departmentCode}`;
     if (startDate) url += `&startDate=${startDate}`;
     if (endDate) url += `&endDate=${endDate}`;
     const response = await fetch(url);
@@ -189,7 +189,7 @@ async function loadPatientAdmissionStats(startDate, endDate, groupBy) {
             ({ start: startDate, end: endDate } = getDateRange());
         }
         const formatDate = d => d.toISOString().slice(0, 10); // yyyy-MM-dd
-        const response = await fetch(`/Staff/Statistics/GetPatientAdmissionStats?startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}&groupBy=${groupBy}`);
+        const response = await fetch(`/Admin/Statistics/GetPatientAdmissionStats?startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}&groupBy=${groupBy}`);
         const data = await response.json();
 
         // Tạo mảng các mốc thời gian đầy đủ
@@ -305,7 +305,7 @@ async function loadTreatmentCompletionStats(startDate, endDate, groupBy) {
         if (!startDate || !endDate) {
             ({ start: startDate, end: endDate } = getDateRange());
         }
-        const response = await fetch(`/Staff/Statistics/GetTreatmentCompletionStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&groupBy=${groupBy}`);
+        const response = await fetch(`/Admin/Statistics/GetTreatmentCompletionStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&groupBy=${groupBy}`);
         const data = await response.json();
 
         // Tạo mảng các mốc thời gian đầy đủ
@@ -418,7 +418,7 @@ async function loadTreatmentCompletionStats(startDate, endDate, groupBy) {
 
 // Function to render donut chart for suspended reasons
 async function loadSuspendedReasonStats(startDate, endDate, groupBy) {
-    let url = '/Staff/Statistics/GetSuspendedReasonStats';
+    let url = '/Admin/Statistics/GetSuspendedReasonStats';
     if (startDate && endDate && groupBy) {
         url += `?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&groupBy=${groupBy}`;
     }
@@ -454,7 +454,7 @@ async function loadSuspendedReasonStats(startDate, endDate, groupBy) {
 
 // Function to load and render patient type chart (new/old)
 async function loadPatientTypeStats(startDate, endDate, groupBy) {
-    let url = '/Staff/Statistics/GetPatientTypeStats';
+    let url = '/Admin/Statistics/GetPatientTypeStats';
     if (startDate && endDate && groupBy) {
         url += `?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&groupBy=${groupBy}`;
     }
@@ -503,7 +503,7 @@ async function loadRevenueStats(startDate, endDate, groupBy) {
         if (!startDate || !endDate) {
             ({ start: startDate, end: endDate } = getDateRange());
         }
-        const response = await fetch(`/Staff/Statistics/GetRevenueStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&groupBy=${groupBy}`);
+        const response = await fetch(`/Admin/Statistics/GetRevenueStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&groupBy=${groupBy}`);
         const data = await response.json();
 
         // Tạo mảng các mốc thời gian đầy đủ
@@ -620,7 +620,7 @@ async function loadUnpaidPaymentCountStats(startDate, endDate, groupBy) {
         startDate = range.start;
         endDate = range.end;
     }
-    const response = await fetch(`/Staff/Statistics/GetUnpaidPaymentCountStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&groupBy=${groupBy}`);
+    const response = await fetch(`/Admin/Statistics/GetUnpaidPaymentCountStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&groupBy=${groupBy}`);
     const data = await response.json();
 
     // Tạo mảng các mốc thời gian đầy đủ
@@ -696,7 +696,7 @@ async function loadUnpaidPaymentAmountStats(startDate, endDate, groupBy) {
     if (!startDate || !endDate) {
         ({ start: startDate, end: endDate } = getDateRange());
     }
-    const response = await fetch(`/Staff/Statistics/GetUnpaidPaymentAmountStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&groupBy=${groupBy}`);
+    const response = await fetch(`/Admin/Statistics/GetUnpaidPaymentAmountStats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&groupBy=${groupBy}`);
     const data = await response.json();
 
     // Tạo mảng các mốc thời gian đầy đủ

@@ -1,9 +1,10 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project.Repositories.Interfaces;
+using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Admin.Models.ViewModels;
 using Project.Helpers;
+using Project.Repositories.Interfaces;
 
 namespace Project.Areas.Admin.Controllers
 {
@@ -15,12 +16,18 @@ namespace Project.Areas.Admin.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public UsersController(IUserRepository userRepository, IMapper mapper, ViewBagHelper viewBagHelper)
+        public UsersController(
+            IUserRepository userRepository,
+            IMapper mapper,
+            ViewBagHelper viewBagHelper,
+            IHttpClientFactory httpClientFactory)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
+            _httpClientFactory = httpClientFactory;
         }
 
         [HttpGet]

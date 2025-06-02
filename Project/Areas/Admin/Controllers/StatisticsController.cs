@@ -1,21 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project.Areas.Staff.Models.Statistics;
+using Project.Models.Enums;
 using Project.Repositories.Interfaces;
 using Repositories.Interfaces;
-using Project.Models.Enums;
 
-namespace Project.Areas.Staff.Controllers
+namespace Project.Areas.Admin.Controllers
 {
-    [Area("Staff")]
-    [Authorize(Roles = "Admin, Bacsi")]
+    [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class StatisticsController : Controller
     {
-        private readonly ITreatmentTrackingRepository _treatmentTrackingRepository;
         private readonly ITreatmentRecordDetailRepository _treatmentRecordDetailRepository;
         private readonly IPatientRepository _patientRepository;
         private readonly IPaymentRepository _paymentRepository;
-        private readonly IPrescriptionRepository _prescriptionRepository;
         private readonly IRoomRepository _roomRepository;
         private readonly ITreatmentMethodRepository _treatmentMethodRepository;
         private readonly ITreatmentRecordRepository _treatmentRecordRepository;
@@ -30,11 +27,9 @@ namespace Project.Areas.Staff.Controllers
             ITreatmentMethodRepository treatmentMethodRepository,
             ITreatmentRecordRepository treatmentRecordRepository)
         {
-            _treatmentTrackingRepository = treatmentTrackingRepository;
             _treatmentRecordDetailRepository = treatmentRecordDetailRepository;
             _patientRepository = patientRepository;
             _paymentRepository = paymentRepository;
-            _prescriptionRepository = prescriptionRepository;
             _roomRepository = roomRepository;
             _treatmentMethodRepository = treatmentMethodRepository;
             _treatmentRecordRepository = treatmentRecordRepository;
@@ -46,10 +41,12 @@ namespace Project.Areas.Staff.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTreatmentStatsByDepartment(
+        public async Task<IActionResult> GetTreatmentStatsByDepartment
+        (
             string departmentCode,
             string? startDate = null,
-            string? endDate = null)
+            string? endDate = null
+        )
         {
             var detailData = await _treatmentRecordDetailRepository.GetAllAsync();
             var roomData = await _roomRepository.GetAllAdvancedAsync();
@@ -175,6 +172,7 @@ namespace Project.Areas.Staff.Controllers
             }
             return Json(stats);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> GetTreatmentCompletionStats(string? startDate = null, string? endDate = null, string groupBy = "day")

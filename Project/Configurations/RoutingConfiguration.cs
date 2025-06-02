@@ -77,7 +77,7 @@
             app.MapControllerRoute(
                 name: "thong-ke",
                 pattern: "thong-ke",
-                defaults: new { area = "Staff", controller = "Statistics", action = "Index" }
+                defaults: new { area = "Admin", controller = "Statistics", action = "Index" }
             );
 
             return app;
