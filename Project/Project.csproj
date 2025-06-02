@@ -51,7 +51,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Areas\BacSi\Controllers\" />
+    <Folder Include="Areas\BacSi\Data\" />
+    <Folder Include="Areas\BacSi\Models\" />
+    <Folder Include="Areas\BacSi\Views\" />
     <Folder Include="Areas\BenhNhan\Models\" />
+    <Folder Include="Areas\NhanVien\Controllers\" />
+    <Folder Include="Areas\NhanVien\Data\" />
+    <Folder Include="Areas\NhanVien\Models\" />
+    <Folder Include="Areas\NhanVien\Views\" />
+    <Folder Include="Areas\YTa\Controllers\" />
+    <Folder Include="Areas\YTa\Data\" />
+    <Folder Include="Areas\YTa\Models\" />
+    <Folder Include="Areas\YTa\Views\" />
     <Folder Include="wwwroot\Images\Patients\" />
   </ItemGroup>
 
