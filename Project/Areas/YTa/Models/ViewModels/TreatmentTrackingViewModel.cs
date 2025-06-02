@@ -1,6 +1,6 @@
-using Project.Models.Enums;
+﻿using Project.Models.Enums;
 
-namespace Project.Areas.Staff.Models.ViewModels
+namespace Project.Areas.YTa.Models.ViewModels
 {
     public class TreatmentTrackingViewModel
     {
@@ -18,5 +18,3 @@ namespace Project.Areas.Staff.Models.ViewModels
         public TreatmentStatus TreatmentRecordStatus { get; set; }
     }
 }
-
-

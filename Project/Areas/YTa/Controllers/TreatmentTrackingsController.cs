@@ -1,18 +1,18 @@
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project.Repositories.Interfaces;
-using AutoMapper;
-using Project.Areas.Staff.Models.DTOs.TrackingDTO;
-using Project.Areas.Staff.Models.ViewModels;
+using Project.Areas.Staff.Models.Entities;
+using Project.Areas.YTa.Models.DTOs;
+using Project.Areas.YTa.Models.ViewModels;
 using Project.Helpers;
 using Project.Models.Enums;
-using Project.Areas.Staff.Models.Entities;
+using Project.Repositories.Interfaces;
 
-namespace Project.Areas.Staff.Controllers
+namespace Project.Areas.YTa.Controllers
 {
-    [Area("Staff")]
+    [Area("YTa")]
     [Authorize(Roles = "Yta")]
-    [Route("theo-doi-dieu-tri")]
+    [Route("y-ta")]
     public class TreatmentTrackingsController : Controller
     {
         private readonly ITreatmentTrackingRepository _treatmentTrackingRepository;

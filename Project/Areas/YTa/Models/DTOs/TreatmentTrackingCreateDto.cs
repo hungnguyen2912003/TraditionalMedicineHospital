@@ -1,7 +1,6 @@
-using System;
-using Project.Models.Enums;
+﻿using Project.Models.Enums;
 
-namespace Project.Areas.Staff.Models.DTOs.TrackingDTO
+namespace Project.Areas.YTa.Models.DTOs
 {
     public class TreatmentTrackingCreateDto
     {

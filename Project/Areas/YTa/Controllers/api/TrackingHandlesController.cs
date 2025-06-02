@@ -1,36 +1,32 @@
-using Microsoft.AspNetCore.Mvc;
-using Project.Areas.Staff.Models.DTOs.TrackingDTO;
-using Project.Repositories.Interfaces;
-using Project.Areas.Staff.Models.Entities;
-using AutoMapper;
-using Project.Services.Features;
-using Project.Helpers;
-using Hospital.Areas.Staff.Models.DTOs.TrackingDTO;
-using Project.Models.Enums;
-using SequentialGuid;
+﻿using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.Entities;
+using Project.Areas.Staff.Models.Entities;
+using Project.Areas.YTa.Models.DTOs;
+using Project.Helpers;
+using Project.Models.Enums;
+using Project.Repositories.Interfaces;
+using Project.Services.Features;
+using SequentialGuid;
 using System.Globalization;
 
-namespace Project.Areas.Staff.Controllers.api
+namespace Project.Areas.YTa.Controllers.api
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class TrackingsController : ControllerBase
+    [ApiController]
+    public class TrackingHandlesController : ControllerBase
     {
         private readonly ITreatmentTrackingRepository _trackingRepo;
         private readonly ITreatmentRecordDetailRepository _detailRepo;
-        private readonly IMapper _mapper;
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IUserRepository _userRepository;
         private readonly JwtManager _jwtManager;
         private readonly CodeGeneratorHelper _codeGenerator;
         private readonly EmailService _emailService;
 
-        public TrackingsController
+        public TrackingHandlesController
         (
             ITreatmentTrackingRepository trackingRepo,
             ITreatmentRecordDetailRepository detailRepo,
-            IMapper mapper,
             IEmployeeRepository employeeRepository,
             IUserRepository userRepository,
             JwtManager jwtManager,
@@ -40,7 +36,6 @@ namespace Project.Areas.Staff.Controllers.api
         {
             _trackingRepo = trackingRepo;
             _detailRepo = detailRepo;
-            _mapper = mapper;
             _employeeRepository = employeeRepository;
             _userRepository = userRepository;
             _jwtManager = jwtManager;
@@ -101,7 +96,6 @@ namespace Project.Areas.Staff.Controllers.api
                 return StatusCode(500, "Lỗi server: " + ex.Message);
             }
         }
-
         [HttpPost]
         public async Task<IActionResult> CreateTracking([FromBody] TreatmentTrackingCreateDto dto)
         {
@@ -477,5 +471,6 @@ namespace Project.Areas.Staff.Controllers.api
 
             return Ok(new { roomId, roomName });
         }
+
     }
 }

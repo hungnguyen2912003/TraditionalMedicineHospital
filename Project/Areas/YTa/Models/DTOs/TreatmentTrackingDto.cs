@@ -1,7 +1,6 @@
-using System;
-using Project.Models.Enums;
+﻿using Project.Models.Enums;
 
-namespace Project.Areas.Staff.Models.DTOs.TrackingDTO
+namespace Project.Areas.YTa.Models.DTOs
 {
     public class TreatmentTrackingDto
     {
@@ -15,6 +14,6 @@ namespace Project.Areas.Staff.Models.DTOs.TrackingDTO
         public string? PatientName { get; set; }
         public string? RoomName { get; set; }
         public string? EmployeeCode { get; set; }
-        public TreatmentStatus TreatmentRecordStatus { get; set; }      
+        public TreatmentStatus TreatmentRecordStatus { get; set; }
     }
 }

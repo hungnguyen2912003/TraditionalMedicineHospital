@@ -1,6 +1,4 @@
-using Project.Areas.Staff.Models.DTOs.TrackingDTO;
 using Project.Areas.Staff.Models.Entities;
-using Project.Models;
 
 namespace Project.Repositories.Interfaces
 {

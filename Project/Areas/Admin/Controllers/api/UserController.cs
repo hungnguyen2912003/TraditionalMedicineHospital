@@ -75,7 +75,7 @@ namespace Project.Areas.Admin.Controllers.Api
                     role = role
                 });
             }
-            else if (role == "Bacsi" || role == "Yta")
+            else if (role != "Benhnhan")
             {
                 var employee = user.Employee;
                 if (employee == null)

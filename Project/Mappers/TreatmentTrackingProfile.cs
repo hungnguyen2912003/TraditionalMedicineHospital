@@ -1,7 +1,7 @@
 using AutoMapper;
-using Project.Areas.Staff.Models.DTOs.TrackingDTO;
 using Project.Areas.Staff.Models.Entities;
-using Project.Areas.Staff.Models.ViewModels;
+using Project.Areas.YTa.Models.DTOs;
+using Project.Areas.YTa.Models.ViewModels;
 
 namespace Project.Mappers
 {

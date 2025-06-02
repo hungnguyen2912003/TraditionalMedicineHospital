@@ -1,6 +1,6 @@
-using Project.Models.Enums;
+﻿using Project.Models.Enums;
 
-namespace Hospital.Areas.Staff.Models.DTOs.TrackingDTO
+namespace Project.Areas.YTa.Models.DTOs
 {
     public class UpdateTrackingDto
     {
@@ -9,5 +9,3 @@ namespace Hospital.Areas.Staff.Models.DTOs.TrackingDTO
         public Guid EmployeeId { get; set; }
     }
 }
-
-
