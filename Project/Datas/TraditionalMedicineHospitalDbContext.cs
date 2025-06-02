@@ -27,8 +27,6 @@ namespace Project.Datas
         public DbSet<PrescriptionDetail> prescriptionDetails { get; set; }
         public DbSet<TreatmentRecord_Regulation> treatmentRecord_Regulations { get; set; }
         public DbSet<Payment> payments { get; set; }
-        public DbSet<Permission> permissions { get; set; }
-        public DbSet<User_Permission> user_Permissions { get; set; }
         public DbSet<TreatmentRecordDetail> treatmentRecordDetails { get; set; }
         public DbSet<TreatmentTracking> treatmentTrackings { get; set; }
         public DbSet<HealthInsurance> healthInsurances { get; set; }

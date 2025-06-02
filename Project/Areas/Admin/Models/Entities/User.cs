@@ -32,6 +32,5 @@ namespace Project.Areas.Admin.Models.Entities
         public virtual Employee? Employee { get; set; }
         [ForeignKey("PatientId")]
         public virtual Patient? Patient { get; set; }
-        public virtual ICollection<User_Permission> User_Permissions { get; set; } = new HashSet<User_Permission>();
     }
 }
