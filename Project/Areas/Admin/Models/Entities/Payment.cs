@@ -1,25 +1,29 @@
 ﻿using Project.Models.Commons;
+using Project.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Project.Areas.Admin.Models.Entities
 {
-    [Table("Department")]
-    public class Department : BaseEntity
+    [Table("Payment")]
+    public class Payment : BaseEntity
     {
         [Key]
         public Guid Id { get; set; }
-        [Required]
         [StringLength(10)]
         public string Code { get; set; } = string.Empty;
-        [Required]
+        public DateTime PaymentDate { get; set; }
+        public string? Note { get; set; } = string.Empty;
+        public PaymentStatus Status { get; set; }
         [StringLength(50)]
-        public string Name { get; set; } = string.Empty;
-        public string? Description { get; set; }
+
+        //Foreign Key 
+        public Guid TreatmentRecordId { get; set; }
 
         /////////////////////////////////////////////////////
         /// Relationships
         ///
-        public virtual ICollection<Room> Rooms { get; set; } = new HashSet<Room>();
+        [ForeignKey("TreatmentRecordId")]
+        public required virtual TreatmentRecord TreatmentRecord { get; set; }
     }
 }
