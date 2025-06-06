@@ -8,6 +8,12 @@ namespace Project.Areas.BacSi.Models.ViewModels
         public decimal? Price { get; set; }
     }
 
+    public class AssignmentViewModel
+    {
+        public string CreatedBy { get; set; } = string.Empty;
+        public string EmployeeName { get; set; } = string.Empty;
+    }
+
     public class PrescriptionViewModel
     {
         public Guid Id { get; set; }
@@ -28,5 +34,6 @@ namespace Project.Areas.BacSi.Models.ViewModels
         public DateTime? UpdatedDate { get; set; }
         public string? UpdatedBy { get; set; }
         public string? UpdatedByName { get; set; }
+        public List<AssignmentViewModel> Assignments { get; set; } = new();
     }
 }

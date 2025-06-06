@@ -19,6 +19,9 @@ namespace Repositories.Implementations
                     .ThenInclude(d => d.Medicine)
                 .Include(p => p.TreatmentRecord)
                     .ThenInclude(t => t!.Patient)
+                .Include(p => p.TreatmentRecord)
+                    .ThenInclude(t => t!.Assignments)
+                        .ThenInclude(a => a.Employee)
                 .ToListAsync();
         }
 
@@ -29,6 +32,9 @@ namespace Repositories.Implementations
                     .ThenInclude(d => d.Medicine)
                 .Include(p => p.TreatmentRecord)
                     .ThenInclude(t => t!.Patient)
+                .Include(p => p.TreatmentRecord)
+                    .ThenInclude(t => t!.Assignments)
+                        .ThenInclude(a => a.Employee)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 

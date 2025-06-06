@@ -7,6 +7,7 @@ using Project.Helpers;
 using Project.Repositories.Interfaces;
 using Repositories.Interfaces;
 using Project.Models.Enums;
+using Project.Services.Features;
 
 namespace Project.Areas.BacSi.Controllers
 {
@@ -20,6 +21,8 @@ namespace Project.Areas.BacSi.Controllers
         private readonly IMedicineRepository _medicineRepository;
         private readonly ITreatmentRecordRepository _treatmentRecordRepository;
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly JwtManager _jwtManager;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
         private readonly CodeGeneratorHelper _codeGenerator;
@@ -30,6 +33,8 @@ namespace Project.Areas.BacSi.Controllers
             IMedicineRepository medicineRepository,
             ITreatmentRecordRepository treatmentRecordRepository,
             IEmployeeRepository employeeRepository,
+            IUserRepository userRepository,
+            JwtManager jwtManager,
             IMapper mapper,
             ViewBagHelper viewBagHelper,
             CodeGeneratorHelper codeGenerator
@@ -40,6 +45,8 @@ namespace Project.Areas.BacSi.Controllers
             _medicineRepository = medicineRepository;
             _treatmentRecordRepository = treatmentRecordRepository;
             _employeeRepository = employeeRepository;
+            _userRepository = userRepository;
+            _jwtManager = jwtManager;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
             _codeGenerator = codeGenerator;
@@ -48,6 +55,28 @@ namespace Project.Areas.BacSi.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            // Get user info from token
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
+            }
+
+            var (username, role) = _jwtManager.GetClaimsFromToken(token);
+            if (string.IsNullOrEmpty(username))
+            {
+                Response.Cookies.Delete("AuthToken");
+                return Json(new { success = false, message = "Token không hợp lệ." });
+            }
+
+            var user = await _userRepository.GetByUsernameAsync(username);
+            if (user == null || user.Employee == null)
+            {
+                return Json(new { success = false, message = "Người dùng không hợp lệ" });
+            }
+
+            ViewBag.CurrentEmployeeCode = user.Employee.Code;
+
             var list = await _prescriptionRepository.GetAllAdvancedAsync();
             var viewModelList = list
                 .Where(p => p.TreatmentRecord?.Status == TreatmentStatus.DangDieuTri)
@@ -68,7 +97,12 @@ namespace Project.Areas.BacSi.Controllers
                         MedicineName = d.Medicine?.Name ?? string.Empty,
                         Quantity = d.Quantity,
                         Price = d.Medicine?.Price
-                    }).ToList() ?? new List<PrescriptionDetailViewModel>()
+                    }).ToList() ?? new List<PrescriptionDetailViewModel>(),
+                    Assignments = p.TreatmentRecord?.Assignments?.Select(a => new AssignmentViewModel
+                    {
+                        CreatedBy = a.CreatedBy,
+                        EmployeeName = a.Employee?.Name ?? string.Empty
+                    }).ToList() ?? new List<AssignmentViewModel>()
                 }).OrderBy(x => x.PrescriptionDate).ToList();
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
