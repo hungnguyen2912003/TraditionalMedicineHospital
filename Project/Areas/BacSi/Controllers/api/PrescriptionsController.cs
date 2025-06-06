@@ -229,8 +229,19 @@ namespace Project.Areas.Staff.Controllers.api
         [HttpGet("patients-with-active-treatment")]
         public async Task<IActionResult> GetPatientsWithActiveTreatment()
         {
+            // Lấy mã bác sĩ hiện tại từ token
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized();
+            var (username, role) = _jwtManager.GetClaimsFromToken(token);
+            var user = await _userRepository.GetByUsernameAsync(username!);
+            if (user == null || user.Employee == null)
+                return Unauthorized();
+            var currentCode = user.Employee.Code;
+
             var treatmentRecords = (await _treatmentRecordRepository.GetAllAdvancedAsync())
-                .Where(tr => tr.Status == TreatmentStatus.DangDieuTri)
+                .Where(tr => tr.Status == TreatmentStatus.DangDieuTri
+                    && tr.Assignments.Any(a => a.CreatedBy == currentCode))
                 .ToList();
 
             var patients = treatmentRecords
