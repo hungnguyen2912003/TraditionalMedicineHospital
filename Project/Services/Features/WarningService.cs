@@ -1,6 +1,5 @@
-using Project.Areas.Staff.Models.Entities;
+using Project.Areas.Admin.Models.Entities;
 using Project.Repositories.Interfaces;
-using Project.Services.Features;
 
 namespace Project.Services.Features
 {

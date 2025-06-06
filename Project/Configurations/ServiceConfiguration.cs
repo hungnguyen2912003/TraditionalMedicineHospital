@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Project.Areas.Admin.Models.Entities;
-using Project.Areas.Staff.Models.Entities;
 using Project.Models;
 using Project.Services;
 using Project.Services.Features;

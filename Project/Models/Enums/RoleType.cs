@@ -7,11 +7,12 @@ namespace Project.Models.Enums
         [Display(Name = "Admin")]
         Admin = 1,
         [Display(Name = "Bác sĩ")]
-        Bacsi = 2,
+        BacSi = 2,
         [Display(Name = "Nhân viên Y tá")]
-        Yta = 3,
-
+        YTa = 3,
         [Display(Name = "Bệnh nhân")]
-        Benhnhan = 4,
+        BenhNhan = 4,
+        [Display(Name = "Nhân viên hành chính")]
+        NhanVienHanhChinh = 5
     }
 }

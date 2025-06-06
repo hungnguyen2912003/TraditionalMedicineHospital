@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Project.Areas.Admin.Models.Entities;
 using Project.Models.Enums;
 using Project.Repositories.Interfaces;
 using Repositories.Interfaces;
@@ -343,7 +344,7 @@ namespace Project.Areas.Admin.Controllers
                         var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
                             pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
                         decimal totalTreatmentMethodCost = 0;
-                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
+                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<TreatmentRecordDetail>())
                         {
                             var room = detail.Room;
                             var method = room?.TreatmentMethod;
@@ -381,7 +382,7 @@ namespace Project.Areas.Admin.Controllers
                         var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
                             pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
                         decimal totalTreatmentMethodCost = 0;
-                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
+                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<TreatmentRecordDetail>())
                         {
                             var room = detail.Room;
                             var method = room?.TreatmentMethod;
@@ -418,7 +419,7 @@ namespace Project.Areas.Admin.Controllers
                         var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
                             pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
                         decimal totalTreatmentMethodCost = 0;
-                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
+                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<TreatmentRecordDetail>())
                         {
                             var room = detail.Room;
                             var method = room?.TreatmentMethod;
@@ -532,7 +533,7 @@ namespace Project.Areas.Admin.Controllers
                         var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
                             pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
                         decimal totalTreatmentMethodCost = 0;
-                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
+                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<TreatmentRecordDetail>())
                         {
                             var room = detail.Room;
                             var method = room?.TreatmentMethod;
@@ -570,7 +571,7 @@ namespace Project.Areas.Admin.Controllers
                         var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
                             pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
                         decimal totalTreatmentMethodCost = 0;
-                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
+                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<TreatmentRecordDetail>())
                         {
                             var room = detail.Room;
                             var method = room?.TreatmentMethod;
@@ -607,7 +608,7 @@ namespace Project.Areas.Admin.Controllers
                         var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
                             pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
                         decimal totalTreatmentMethodCost = 0;
-                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<Project.Areas.Staff.Models.Entities.TreatmentRecordDetail>())
+                        foreach (var detail in tr.TreatmentRecordDetails ?? new List<TreatmentRecordDetail>())
                         {
                             var room = detail.Room;
                             var method = room?.TreatmentMethod;

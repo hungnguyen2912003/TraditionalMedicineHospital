@@ -1,7 +1,7 @@
 using AutoMapper;
-using Project.Areas.Staff.Models.DTOs;
-using Project.Areas.Staff.Models.Entities;
-using Project.Areas.Staff.Models.ViewModels;
+using Project.Areas.Admin.Models.Entities;
+using Project.Areas.BacSi.Models.DTOs;
+using Project.Areas.BacSi.Models.ViewModels;
 
 namespace Mappers
 {

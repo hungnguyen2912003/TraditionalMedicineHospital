@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project.Areas.Staff.Models.Entities;
+using Project.Areas.Admin.Models.Entities;
 using Project.Areas.YTa.Models.DTOs;
 using Project.Areas.YTa.Models.ViewModels;
 using Project.Helpers;
@@ -11,7 +11,7 @@ using Project.Repositories.Interfaces;
 namespace Project.Areas.YTa.Controllers
 {
     [Area("YTa")]
-    [Authorize(Roles = "Yta")]
+    [Authorize(Roles = "YTa")]
     [Route("y-ta")]
     public class TreatmentTrackingsController : Controller
     {

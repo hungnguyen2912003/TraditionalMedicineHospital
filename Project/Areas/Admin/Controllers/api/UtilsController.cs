@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.Entities;
-using Project.Areas.Staff.Models.DTOs;
+using Project.Areas.BacSi.Models.DTOs;
 using Project.Repositories.Interfaces;
 
 namespace Project.Areas.Admin.Controllers.Api
@@ -193,8 +193,8 @@ namespace Project.Areas.Admin.Controllers.Api
                 {
                     Code = assignment.Code,
                     DoctorName = assignment.Employee.Name,
-                    StartDate = assignment.StartDate.ToString("dd/MM/yyyy"),
-                    EndDate = assignment.EndDate.ToString("dd/MM/yyyy"),
+                    StartDate = assignment.StartDate,
+                    EndDate = assignment.EndDate,
                     Note = assignment.Note
                 };
 
@@ -223,7 +223,7 @@ namespace Project.Areas.Admin.Controllers.Api
                 }
 
                 // Parse dates
-                if (DateTime.TryParseExact(model.StartDate, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime startDate))
+                if (DateTime.TryParseExact(model.StartDate.ToString(), "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime startDate))
                 {
                     assignment.StartDate = startDate;
                 }
@@ -232,7 +232,7 @@ namespace Project.Areas.Admin.Controllers.Api
                     return BadRequest("Ngày bắt đầu không hợp lệ");
                 }
 
-                if (DateTime.TryParseExact(model.EndDate, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime endDate))
+                if (DateTime.TryParseExact(model.EndDate.ToString(), "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime endDate))
                 {
                     assignment.EndDate = endDate;
                 }
@@ -249,8 +249,8 @@ namespace Project.Areas.Admin.Controllers.Api
                 {
                     Code = assignment.Code,
                     DoctorName = assignment.Employee.Name,
-                    StartDate = assignment.StartDate.ToString("dd/MM/yyyy"),
-                    EndDate = assignment.EndDate.ToString("dd/MM/yyyy"),
+                    StartDate = assignment.StartDate,
+                    EndDate = assignment.EndDate,
                     Note = assignment.Note
                 };
 
@@ -262,4 +262,4 @@ namespace Project.Areas.Admin.Controllers.Api
             }
         }
     }
-} 
+}

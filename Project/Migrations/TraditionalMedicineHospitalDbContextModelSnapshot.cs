@@ -22,6 +22,54 @@ namespace Project.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Assignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("TreatmentRecordId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("TreatmentRecordId");
+
+                    b.ToTable("Assignment");
+                });
+
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Department", b =>
                 {
                     b.Property<Guid>("Id")
@@ -170,6 +218,54 @@ namespace Project.Migrations
                     b.ToTable("EmployeeCategory");
                 });
 
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.HealthInsurance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRightRoute")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PlaceOfRegistration")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId")
+                        .IsUnique();
+
+                    b.ToTable("HealthInsurance");
+                });
+
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Medicine", b =>
                 {
                     b.Property<Guid>("Id")
@@ -274,6 +370,192 @@ namespace Project.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("MedicineCategory");
+                });
+
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Patient", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EmailAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IdentityNumber")
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
+
+                    b.Property<string>("Images")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Patient");
+                });
+
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TreatmentRecordId")
+                        .HasMaxLength(50)
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TreatmentRecordId")
+                        .IsUnique();
+
+                    b.ToTable("Payment");
+                });
+
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Prescription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("PrescriptionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("TreatmentRecordId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("TreatmentRecordId");
+
+                    b.ToTable("Prescription");
+                });
+
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.PrescriptionDetail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("MedicineId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PrescriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MedicineId");
+
+                    b.HasIndex("PrescriptionId");
+
+                    b.ToTable("PrescriptionDetail");
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Regulation", b =>
@@ -417,6 +699,204 @@ namespace Project.Migrations
                     b.ToTable("TreatmentMethod");
                 });
 
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("AdvancePayment")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Diagnosis")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SuspendedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("SuspendedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SuspendedNote")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SuspendedReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("TreatmentRecord");
+                });
+
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentRecordDetail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TreatmentRecordId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("TreatmentRecordId");
+
+                    b.ToTable("TreatmentRecordDetail");
+                });
+
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentRecord_Regulation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExecutionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("RegulationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TreatmentRecordId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RegulationId");
+
+                    b.HasIndex("TreatmentRecordId");
+
+                    b.ToTable("TreatmentRecord_Regulation");
+                });
+
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentTracking", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TrackingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("TreatmentRecordDetailId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TreatmentRecordDetailId");
+
+                    b.ToTable("TreatmentTracking");
+                });
+
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -473,485 +953,23 @@ namespace Project.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.Assignment", b =>
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Assignment", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("EmployeeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("TreatmentRecordId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.HasIndex("TreatmentRecordId");
-
-                    b.ToTable("Assignment");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.HealthInsurance", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsRightRoute")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Number")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("PlaceOfRegistration")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId")
-                        .IsUnique();
-
-                    b.ToTable("HealthInsurance");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.Patient", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateOfBirth")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("EmailAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Gender")
-                        .HasColumnType("int");
-
-                    b.Property<string>("IdentityNumber")
-                        .HasMaxLength(12)
-                        .HasColumnType("nvarchar(12)");
-
-                    b.Property<string>("Images")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Patient");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.Payment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("TreatmentRecordId")
-                        .HasMaxLength(50)
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TreatmentRecordId")
-                        .IsUnique();
-
-                    b.ToTable("Payment");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.Prescription", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("EmployeeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("PrescriptionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("TreatmentRecordId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.HasIndex("TreatmentRecordId");
-
-                    b.ToTable("Prescription");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.PrescriptionDetail", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("MedicineId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PrescriptionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MedicineId");
-
-                    b.HasIndex("PrescriptionId");
-
-                    b.ToTable("PrescriptionDetail");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("AdvancePayment")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Diagnosis")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SuspendedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("SuspendedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SuspendedNote")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SuspendedReason")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("TreatmentRecord");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecordDetail", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TreatmentRecordId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoomId");
-
-                    b.HasIndex("TreatmentRecordId");
-
-                    b.ToTable("TreatmentRecordDetail");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecord_Regulation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ExecutionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("RegulationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TreatmentRecordId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RegulationId");
-
-                    b.HasIndex("TreatmentRecordId");
-
-                    b.ToTable("TreatmentRecord_Regulation");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentTracking", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("EmployeeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("TrackingDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("TreatmentRecordDetailId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TreatmentRecordDetailId");
-
-                    b.ToTable("TreatmentTracking");
+                    b.HasOne("Project.Areas.Admin.Models.Entities.Employee", "Employee")
+                        .WithMany("Assignments")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Project.Areas.Admin.Models.Entities.TreatmentRecord", "TreatmentRecord")
+                        .WithMany("Assignments")
+                        .HasForeignKey("TreatmentRecordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("TreatmentRecord");
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Employee", b =>
@@ -973,6 +991,17 @@ namespace Project.Migrations
                     b.Navigation("Room");
                 });
 
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.HealthInsurance", b =>
+                {
+                    b.HasOne("Project.Areas.Admin.Models.Entities.Patient", "Patient")
+                        .WithOne("HealthInsurance")
+                        .HasForeignKey("Project.Areas.Admin.Models.Entities.HealthInsurance", "PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Medicine", b =>
                 {
                     b.HasOne("Project.Areas.Admin.Models.Entities.MedicineCategory", "MedicineCategory")
@@ -982,6 +1011,55 @@ namespace Project.Migrations
                         .IsRequired();
 
                     b.Navigation("MedicineCategory");
+                });
+
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Payment", b =>
+                {
+                    b.HasOne("Project.Areas.Admin.Models.Entities.TreatmentRecord", "TreatmentRecord")
+                        .WithOne("Payment")
+                        .HasForeignKey("Project.Areas.Admin.Models.Entities.Payment", "TreatmentRecordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TreatmentRecord");
+                });
+
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Prescription", b =>
+                {
+                    b.HasOne("Project.Areas.Admin.Models.Entities.Employee", "Employee")
+                        .WithMany("Prescriptions")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Project.Areas.Admin.Models.Entities.TreatmentRecord", "TreatmentRecord")
+                        .WithMany("Prescriptions")
+                        .HasForeignKey("TreatmentRecordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("TreatmentRecord");
+                });
+
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.PrescriptionDetail", b =>
+                {
+                    b.HasOne("Project.Areas.Admin.Models.Entities.Medicine", "Medicine")
+                        .WithMany("PrescriptionDetails")
+                        .HasForeignKey("MedicineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Project.Areas.Admin.Models.Entities.Prescription", "Prescription")
+                        .WithMany("PrescriptionDetails")
+                        .HasForeignKey("PrescriptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Medicine");
+
+                    b.Navigation("Prescription");
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Room", b =>
@@ -1001,105 +1079,9 @@ namespace Project.Migrations
                     b.Navigation("TreatmentMethod");
                 });
 
-            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.User", b =>
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentRecord", b =>
                 {
-                    b.HasOne("Project.Areas.Admin.Models.Entities.Employee", "Employee")
-                        .WithOne("User")
-                        .HasForeignKey("Project.Areas.Admin.Models.Entities.User", "EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Project.Areas.Staff.Models.Entities.Patient", "Patient")
-                        .WithOne("User")
-                        .HasForeignKey("Project.Areas.Admin.Models.Entities.User", "PatientId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Employee");
-
-                    b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.Assignment", b =>
-                {
-                    b.HasOne("Project.Areas.Admin.Models.Entities.Employee", "Employee")
-                        .WithMany("Assignments")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Project.Areas.Staff.Models.Entities.TreatmentRecord", "TreatmentRecord")
-                        .WithMany("Assignments")
-                        .HasForeignKey("TreatmentRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
-
-                    b.Navigation("TreatmentRecord");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.HealthInsurance", b =>
-                {
-                    b.HasOne("Project.Areas.Staff.Models.Entities.Patient", "Patient")
-                        .WithOne("HealthInsurance")
-                        .HasForeignKey("Project.Areas.Staff.Models.Entities.HealthInsurance", "PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.Payment", b =>
-                {
-                    b.HasOne("Project.Areas.Staff.Models.Entities.TreatmentRecord", "TreatmentRecord")
-                        .WithOne("Payment")
-                        .HasForeignKey("Project.Areas.Staff.Models.Entities.Payment", "TreatmentRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TreatmentRecord");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.Prescription", b =>
-                {
-                    b.HasOne("Project.Areas.Admin.Models.Entities.Employee", "Employee")
-                        .WithMany("Prescriptions")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Project.Areas.Staff.Models.Entities.TreatmentRecord", "TreatmentRecord")
-                        .WithMany("Prescriptions")
-                        .HasForeignKey("TreatmentRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
-
-                    b.Navigation("TreatmentRecord");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.PrescriptionDetail", b =>
-                {
-                    b.HasOne("Project.Areas.Admin.Models.Entities.Medicine", "Medicine")
-                        .WithMany("PrescriptionDetails")
-                        .HasForeignKey("MedicineId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Project.Areas.Staff.Models.Entities.Prescription", "Prescription")
-                        .WithMany("PrescriptionDetails")
-                        .HasForeignKey("PrescriptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Medicine");
-
-                    b.Navigation("Prescription");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecord", b =>
-                {
-                    b.HasOne("Project.Areas.Staff.Models.Entities.Patient", "Patient")
+                    b.HasOne("Project.Areas.Admin.Models.Entities.Patient", "Patient")
                         .WithMany("TreatmentRecords")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1108,7 +1090,7 @@ namespace Project.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecordDetail", b =>
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentRecordDetail", b =>
                 {
                     b.HasOne("Project.Areas.Admin.Models.Entities.Room", "Room")
                         .WithMany("TreatmentRecordDetails")
@@ -1116,7 +1098,7 @@ namespace Project.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Project.Areas.Staff.Models.Entities.TreatmentRecord", "TreatmentRecord")
+                    b.HasOne("Project.Areas.Admin.Models.Entities.TreatmentRecord", "TreatmentRecord")
                         .WithMany("TreatmentRecordDetails")
                         .HasForeignKey("TreatmentRecordId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1127,7 +1109,7 @@ namespace Project.Migrations
                     b.Navigation("TreatmentRecord");
                 });
 
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecord_Regulation", b =>
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentRecord_Regulation", b =>
                 {
                     b.HasOne("Project.Areas.Admin.Models.Entities.Regulation", "Regulation")
                         .WithMany("TreatmentRecord_Regulations")
@@ -1135,7 +1117,7 @@ namespace Project.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Project.Areas.Staff.Models.Entities.TreatmentRecord", "TreatmentRecord")
+                    b.HasOne("Project.Areas.Admin.Models.Entities.TreatmentRecord", "TreatmentRecord")
                         .WithMany("TreatmentRecord_Regulations")
                         .HasForeignKey("TreatmentRecordId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1146,14 +1128,31 @@ namespace Project.Migrations
                     b.Navigation("TreatmentRecord");
                 });
 
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentTracking", b =>
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentTracking", b =>
                 {
-                    b.HasOne("Project.Areas.Staff.Models.Entities.TreatmentRecordDetail", "TreatmentRecordDetail")
+                    b.HasOne("Project.Areas.Admin.Models.Entities.TreatmentRecordDetail", "TreatmentRecordDetail")
                         .WithMany("TreatmentTrackings")
                         .HasForeignKey("TreatmentRecordDetailId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("TreatmentRecordDetail");
+                });
+
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.User", b =>
+                {
+                    b.HasOne("Project.Areas.Admin.Models.Entities.Employee", "Employee")
+                        .WithOne("User")
+                        .HasForeignKey("Project.Areas.Admin.Models.Entities.User", "EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Project.Areas.Admin.Models.Entities.Patient", "Patient")
+                        .WithOne("User")
+                        .HasForeignKey("Project.Areas.Admin.Models.Entities.User", "PatientId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Department", b =>
@@ -1185,6 +1184,20 @@ namespace Project.Migrations
                     b.Navigation("Medicines");
                 });
 
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Patient", b =>
+                {
+                    b.Navigation("HealthInsurance");
+
+                    b.Navigation("TreatmentRecords");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Prescription", b =>
+                {
+                    b.Navigation("PrescriptionDetails");
+                });
+
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Regulation", b =>
                 {
                     b.Navigation("TreatmentRecord_Regulations");
@@ -1202,21 +1215,7 @@ namespace Project.Migrations
                     b.Navigation("Rooms");
                 });
 
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.Patient", b =>
-                {
-                    b.Navigation("HealthInsurance");
-
-                    b.Navigation("TreatmentRecords");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.Prescription", b =>
-                {
-                    b.Navigation("PrescriptionDetails");
-                });
-
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecord", b =>
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentRecord", b =>
                 {
                     b.Navigation("Assignments");
 
@@ -1229,7 +1228,7 @@ namespace Project.Migrations
                     b.Navigation("TreatmentRecord_Regulations");
                 });
 
-            modelBuilder.Entity("Project.Areas.Staff.Models.Entities.TreatmentRecordDetail", b =>
+            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentRecordDetail", b =>
                 {
                     b.Navigation("TreatmentTrackings");
                 });

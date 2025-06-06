@@ -1,4 +1,4 @@
-using Project.Areas.Staff.Models.Entities;
+using Project.Areas.Admin.Models.Entities;
 
 namespace Project.Repositories.Interfaces
 {

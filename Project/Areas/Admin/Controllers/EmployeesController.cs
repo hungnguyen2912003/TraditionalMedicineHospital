@@ -104,7 +104,12 @@ namespace Project.Areas.Admin.Controllers
                     Id = Guid.NewGuid(),
                     Username = entity.Code,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("11111111"),
-                    Role = entity.EmployeeCategory?.Name?.ToLower().Contains("y tá") == true ? RoleType.Yta : RoleType.Bacsi,
+                    Role = entity.EmployeeCategory?.Name?.ToLower() switch
+                    {
+                        var name when name?.Contains("y tá") == true => RoleType.YTa,
+                        var name when name?.Contains("nhân viên hành chính") == true => RoleType.NhanVienHanhChinh,
+                        _ => RoleType.BacSi
+                    },
                     CreatedDate = DateTime.UtcNow,
                     CreatedBy = "Admin",
                     EmployeeId = entity.Id,

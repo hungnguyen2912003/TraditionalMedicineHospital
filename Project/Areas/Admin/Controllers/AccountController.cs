@@ -25,9 +25,7 @@ namespace Project.Areas.Admin.Controllers
             AuthValidator validator,
             JwtManager jwtManager,
             EmailService emailService,
-            PasswordResetCodeHelper resetCodeHelper,
-            IHttpClientFactory httpClientFactory,
-            IConfiguration configuration
+            PasswordResetCodeHelper resetCodeHelper
         )
         {
             _userRepository = userRepository;
@@ -94,9 +92,10 @@ namespace Project.Areas.Admin.Controllers
                     string redirectURL = user.Role.ToString() switch
                     {
                         "Admin" => "/admin",
-                        "Bacsi" => "/nhan-vien",
-                        "Yta" => "/y-ta",
-                        "Benhnhan" => "/benh-nhan",
+                        "BacSi" => "/bac-si",
+                        "YTa" => "/y-ta",
+                        "NhanVienHanhChinh" => "/nhan-vien-hanh-chinh",
+                        "BenhNhan" => "/benh-nhan",
                         _ => "/",
                     };
 

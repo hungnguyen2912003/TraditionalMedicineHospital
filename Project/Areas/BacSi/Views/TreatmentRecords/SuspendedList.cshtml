@@ -1,0 +1,329 @@
+﻿@model IEnumerable<Project.Areas.BacSi.Models.ViewModels.TreatmentSuspendedViewModel>
+
+@{
+    ViewData["Title"] = "Danh sách phiếu điều trị bị đình chỉ";
+    Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
+}
+
+<form id="myForm" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="selectedIds" id="selectedIds" />
+
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Phiếu điều trị bị đình chỉ</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Danh sách</span>
+        </li>
+    </ul>
+
+    <div x-data="list">
+        <div class="panel border-[#e0e6ed] px-0 dark:border-[#1b2e4b] mt-3">
+            <div class="px-5">
+                <div class="text-2xl font-bold mb-6">Danh sách phiếu điều trị bị đình chỉ</div>
+                <hr class="mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+                    <div class="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
+                        <div class="group relative">
+                            <input type="text" placeholder="Tìm kiếm..." id="customSearchInput"
+                                   class="peer form-input ltr:pr-8 rtl:pl-8">
+                            <div class="absolute top-1/2 -translate-y-1/2 peer-focus:text-primary ltr:right-[11px] rtl:left-[11px]">
+                                <svg width="24" height="24" viewbox="0 0 24 24" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg" class="h-4 w-4">
+                                    <circle cx="11.5" cy="11.5" r="9.5" stroke="currentColor" stroke-width="1.5"
+                                            opacity="0.5"></circle>
+                                    <path d="M18.5 18.5L22 22" stroke="currentColor" stroke-width="1.5"
+                                          stroke-linecap="round"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FILTER BAR START -->
+                <div class="filter-divider">
+                    <span>Bộ lọc</span>
+                </div>
+                <div class="flex flex-col gap-2 w-full mt-4">
+                    <div class="flex flex-col sm:flex-row gap-5 mb-2 justify-center items-center">
+                        <div class="w-80">
+                            <select id="filterSuspendedReason"
+                                    class="form-input choices w-full mt-1 p-2 border rounded">
+                                <option value="">Chọn lý do đình chỉ...</option>
+                                <option value="1">
+                                    Vi phạm quy định: Tự ý bỏ điều trị từ 3 ngày trong 1 đợt điều trị
+                                </option>
+                                <option value="2">Bệnh nhân mong muốn xuất viện sớm</option>
+                                <option value="3">Kết thúc đợt điều trị và xuất viện</option>
+                            </select>
+                        </div>
+                        <div class="w-32">
+                            <button id="btnFilter" type="button" class="btn btn-primary w-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="inline-block mr-2" width="20" height="20"
+                                     fill="none" viewBox="0 0 24 24">
+                                    <path d="M4 5h16M6 10h12M9 15h6M10 20h4" stroke="currentColor" stroke-width="2"
+                                          stroke-linecap="round" />
+                                </svg>
+                                Lọc
+                            </button>
+                        </div>
+                        <div class="w-32">
+                            <button id="btnResetFilter" type="button" class="btn btn-secondary w-full" disabled
+                                    style="cursor: not-allowed;">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="inline-block mr-2" width="18" height="18"
+                                     fill="none" viewBox="0 0 24 24">
+                                    <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2"
+                                          stroke-linecap="round" />
+                                </svg>
+                                Hủy lọc
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- FILTER BAR END -->
+
+                <div class="table-responsive">
+                    <table id="myTable" class="table-striped table-hover"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="~/Public/assets/js/simple-datatables.js"></script>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('list', () => ({
+            entityList: @Html.Raw(Json.Serialize(Model)),
+            filteredList: [],
+            selectedRows: [],
+            datatable: null,
+
+            init() {
+                if (!Array.isArray(this.entityList)) {
+                    this.entityList = [];
+                }
+                this.filteredList = [...this.entityList];
+                window.list = this;
+                this.initializeTable();
+            },
+
+            initializeTable() {
+                try {
+                    const tableData = this.filteredList.map((entity, index) => [
+                        index + 1,
+                        entity.treatmentCode,
+                        entity.patientName,
+                        new Date(entity.suspendedDate).toLocaleDateString('vi-VN'),
+                        entity.suspendedBy,
+                        entity.reason
+                    ]);
+
+                    this.datatable = new simpleDatatables.DataTable('#myTable', {
+                        data: {
+                            headings: [
+                                'STT',
+                                'Mã phiếu điều trị',
+                                'Tên bệnh nhân',
+                                'Ngày đình chỉ',
+                                'Người đình chỉ',
+                                'Lý do đình chỉ'
+                            ],
+                            data: tableData
+                        },
+                        perPage: 10,
+                        perPageSelect: [10, 20, 30, 50, 100],
+                        firstLast: true,
+                        searchable: false,
+                        firstText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                        lastText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M11 19L17 12L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path opacity="0.5" d="M6.99976 19L12.9998 12L6.99976 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                        prevText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M15 5L9 12L15 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                        nextText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"><path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                        labels: {
+                            perPage: "<span class='ml-2'>{select}</span>",
+                            noRows: 'Không có dữ liệu'
+                        },
+                        layout: {
+                            top: '{search}',
+                            bottom: '{info}{select}{pager}'
+                        },
+                        columns: [
+                            {
+                                select: 0,
+                                sortable: false,
+                                render: (data, cell, row) => {
+                                    return data;
+                                }
+                            }
+                        ],
+                    });
+                } catch (error) {
+                    console.error('Lỗi khởi tạo bảng:', error);
+                }
+            },
+
+            updateTable() {
+                if (this.datatable) {
+                    this.datatable.destroy();
+                    this.datatable = null;
+                }
+                this.initializeTable();
+            }
+        }));
+    });
+
+    document.getElementById('customSearchInput').addEventListener('input', function () {
+        const keyword = removeVietnameseTones(this.value.trim().toLowerCase());
+        if (!window.list) return;
+
+        try {
+            if (keyword === '') {
+                window.list.filteredList = [...window.list.entityList];
+            } else {
+                window.list.filteredList = window.list.entityList.filter(e =>
+                    (e.patientName && removeVietnameseTones(e.patientName).includes(keyword)) ||
+                    (e.TreatmentCode && removeVietnameseTones(e.TreatmentCode).includes(keyword)) ||
+                    (e.PatientName && removeVietnameseTones(e.PatientName).includes(keyword)) ||
+                    (e.SuspendedDate && removeVietnameseTones(e.SuspendedDate).includes(keyword)) ||
+                    (e.SuspendedBy && removeVietnameseTones(e.SuspendedBy).includes(keyword)) ||
+                    (e.Reason && removeVietnameseTones(e.Reason).includes(keyword))
+                );
+            }
+            window.list.updateTable();
+        } catch (error) {
+            console.error('Lỗi xử lý tìm kiếm:', error);
+        }
+    });
+
+    $(document).ready(function () {
+        if (!window.suspendedReasonChoices) {
+            window.suspendedReasonChoices = new Choices('#filterSuspendedReason', {
+                searchEnabled: true,
+                itemSelectText: '',
+                shouldSort: false,
+                placeholder: true,
+                placeholderValue: 'Chọn lý do đình chỉ...'
+            });
+        }
+        updateResetFilterButtonState();
+
+        // Xử lý sự kiện change cho các select
+        $('#filterSuspendedReason').on('change', function () {
+            updateResetFilterButtonState();
+
+            // Kiểm tra nếu tất cả các select đều có giá trị mặc định
+            const suspendedReasonValue = $('#filterSuspendedReason').val();
+
+            if ((!suspendedReasonValue || suspendedReasonValue === "")) {
+                // Reset về danh sách ban đầu
+                window.list.filteredList = [...window.list.entityList];
+                if (window.list.datatable) {
+                    window.list.datatable.destroy();
+                    window.list.datatable = null;
+                }
+                window.list.initializeTable();
+            }
+        });
+    });
+
+    // Nút Lọc
+    $(document).on('click', '#btnFilter', function () {
+        const suspendedReasonValue = $('#filterSuspendedReason').val();
+
+        if (!suspendedReasonValue) {
+            notyf.error('Vui lòng chọn lý do đình chỉ!');
+            return;
+        }
+
+        try {
+
+            const suspendedReasonText = $('#filterSuspendedReason option:selected').text().trim();
+
+            let filtered = [...window.list.entityList];
+
+            if (suspendedReasonText) {
+                filtered = filtered.filter(e => e.reason && e.reason.trim() === suspendedReasonText);
+            }
+
+            // Update filteredList and reinitialize table
+            window.list.filteredList = filtered;
+
+            // Destroy existing table if it exists
+            if (window.list.datatable) {
+                window.list.datatable.destroy();
+                window.list.datatable = null;
+            }
+
+            // Initialize new table with filtered data
+            window.list.initializeTable();
+
+            // Show appropriate message
+            if (filtered.length > 0) {
+                notyf.success('Lọc thành công!');
+            } else {
+                notyf.error('Không tìm thấy kết quả phù hợp!');
+            }
+        } catch (error) {
+            console.error('Error in filterList:', error);
+            notyf.error('Đã xảy ra lỗi khi lọc dữ liệu!');
+        }
+    });
+
+    // Nút Hủy lọc
+    $(document).on('click', '#btnResetFilter', function () {
+        // Reset Choices.js về mặc định cho từng select
+        if (window.suspendedReasonChoices) {
+            window.suspendedReasonChoices.removeActiveItems();
+            window.suspendedReasonChoices.setChoiceByValue('');
+        }
+
+        // Reset search input
+        $('#customSearchInput').val('');
+
+        // Reset filtered list to original data
+        window.list.filteredList = [...window.list.entityList];
+
+        // Destroy existing table if it exists
+        if (window.list.datatable) {
+            window.list.datatable.destroy();
+            window.list.datatable = null;
+        }
+
+        // Reinitialize table with original data
+        window.list.initializeTable();
+
+        // Update reset button state
+        updateResetFilterButtonState();
+
+        // Show success message
+        notyf.success('Đã hủy bộ lọc thành công!');
+    });
+
+    function updateResetFilterButtonState() {
+        const suspendedReason = $('#filterSuspendedReason').val();
+        if (!suspendedReason) {
+            $('#btnResetFilter').prop('disabled', true).css('cursor', 'not-allowed');
+        } else {
+            $('#btnResetFilter').prop('disabled', false).css('cursor', 'pointer');
+        }
+    }
+</script>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            notyf.success('@Html.Raw(TempData["SuccessMessage"])');
+        });
+    </script>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            notyf.error('@Html.Raw(TempData["ErrorMessage"])');
+        });
+    </script>
+}

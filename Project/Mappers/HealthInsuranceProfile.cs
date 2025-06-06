@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using Project.Areas.Admin.Models.Entities;
 using Project.Areas.Staff.Models.DTOs;
-using Project.Areas.Staff.Models.Entities;
 using Project.Areas.Staff.Models.ViewModels;
 
 namespace Project.Mappers

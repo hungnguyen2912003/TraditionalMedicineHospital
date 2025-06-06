@@ -62,6 +62,12 @@
                 defaults: new { area = "BenhNhan", controller = "Home", action = "Index" }
             );
 
+            app.MapControllerRoute(
+                name: "bac-si",
+                pattern: "bac-si",
+                defaults: new { area = "BacSi", controller = "Home", action = "Index" }
+            );
+
             // Route chung cho các area
             app.MapControllerRoute(
                 name: "areas",

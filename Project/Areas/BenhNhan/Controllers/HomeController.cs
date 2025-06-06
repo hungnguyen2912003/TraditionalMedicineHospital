@@ -1,19 +1,19 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Project.Areas.Admin.Models.Entities;
+using Project.Areas.BenhNhan.Models.ViewModels;
 using Project.Helpers;
+using Project.Models.Enums;
 using Project.Repositories.Interfaces;
 using Project.Services.Features;
-using Project.Areas.BenhNhan.Models.ViewModels;
-using Project.Models.Enums;
-using System.Globalization;
 using Repositories.Interfaces;
-using Project.Areas.Staff.Models.Entities;
+using System.Globalization;
 
 namespace Project.Areas.BenhNhan.Controllers
 {
     [Area("BenhNhan")]
-    [Authorize(Roles = "Benhnhan")]
+    [Authorize(Roles = "BenhNhan")]
     public class HomeController : Controller
     {
         private readonly IHealthInsuranceRepository _healthInsuranceRepository;

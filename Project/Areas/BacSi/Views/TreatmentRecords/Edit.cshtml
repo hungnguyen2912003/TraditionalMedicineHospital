@@ -1,0 +1,561 @@
+﻿@model Project.Areas.BacSi.Models.DTOs.TreatmentRecordEditDto
+@using Project.Models.Enums
+@using System.ComponentModel.DataAnnotations
+@using System.Globalization
+
+
+@{
+    ViewData["Title"] = "Chỉnh sửa tiếp nhận";
+    Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
+
+    // Store ViewBag values in variables for easier access
+    var treatmentRecordId = ViewBag.TreatmentRecordId;
+    var patientId = ViewBag.PatientId;
+    var healthInsuranceId = ViewBag.HealthInsuranceId;
+    var existingImage = ViewBag.ExistingImage;
+}
+
+<div class="overlay" id="loadingOverlay">
+    <span class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
+</div>
+
+<form id="editForm" method="post" enctype="multipart/form-data" asp-action="Edit">
+
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" id="treatmentRecordId" name="TreatmentRecordId" value="@treatmentRecordId" />
+
+    <div x-data="editData" class="w-full">
+        <ul class="mb-5 overflow-y-auto whitespace-nowrap border-b border-[#ebedf2] font-semibold dark:border-[#191e3a] sm:flex">
+            <li class="inline-block">
+                <a href="javascript:;"
+                   class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
+                   :class="{'!border-primary text-primary' : tab == 'treatment-record'}"
+                   @@click="tab='treatment-record'">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M10.9436 1.25H13.0564C14.8942 1.24998 16.3498 1.24997 17.489 1.40314C18.6614 1.56076 19.6104 1.89288 20.3588 2.64124C20.6516 2.93414 20.6516 3.40901 20.3588 3.7019C20.0659 3.9948 19.591 3.9948 19.2981 3.7019C18.8749 3.27869 18.2952 3.02502 17.2892 2.88976C16.2615 2.75159 14.9068 2.75 13 2.75H11C9.09318 2.75 7.73851 2.75159 6.71085 2.88976C5.70476 3.02502 5.12511 3.27869 4.7019 3.7019C4.27869 4.12511 4.02502 4.70476 3.88976 5.71085C3.75159 6.73851 3.75 8.09318 3.75 10V14C3.75 15.9068 3.75159 17.2615 3.88976 18.2892C4.02502 19.2952 4.27869 19.8749 4.7019 20.2981C5.12511 20.7213 5.70476 20.975 6.71085 21.1102C7.73851 21.2484 9.09318 21.25 11 21.25H13C14.9068 21.25 16.2615 21.2484 17.2892 21.1102C18.2952 20.975 18.8749 20.7213 19.2981 20.2981C19.994 19.6022 20.2048 18.5208 20.2414 15.9892C20.2474 15.575 20.588 15.2441 21.0022 15.2501C21.4163 15.2561 21.7472 15.5967 21.7412 16.0108C21.7061 18.4383 21.549 20.1685 20.3588 21.3588C19.6104 22.1071 18.6614 22.4392 17.489 22.5969C16.3498 22.75 14.8942 22.75 13.0564 22.75H10.9436C9.10583 22.75 7.65019 22.75 6.51098 22.5969C5.33856 22.4392 4.38961 22.1071 3.64124 21.3588C2.89288 20.6104 2.56076 19.6614 2.40314 18.489C2.24997 17.3498 2.24998 15.8942 2.25 14.0564V9.94358C2.24998 8.10582 2.24997 6.65019 2.40314 5.51098C2.56076 4.33856 2.89288 3.38961 3.64124 2.64124C4.38961 1.89288 5.33856 1.56076 6.51098 1.40314C7.65019 1.24997 9.10582 1.24998 10.9436 1.25ZM18.1131 7.04556C19.1739 5.98481 20.8937 5.98481 21.9544 7.04556C23.0152 8.1063 23.0152 9.82611 21.9544 10.8869L17.1991 15.6422C16.9404 15.901 16.7654 16.076 16.5693 16.2289C16.3387 16.4088 16.0892 16.563 15.8252 16.6889C15.6007 16.7958 15.3659 16.8741 15.0187 16.9897L12.9351 17.6843C12.4751 17.8376 11.9679 17.7179 11.625 17.375C11.2821 17.0321 11.1624 16.5249 11.3157 16.0649L11.9963 14.0232C12.001 14.0091 12.0056 13.9951 12.0102 13.9813C12.1259 13.6342 12.2042 13.3993 12.3111 13.1748C12.437 12.9108 12.5912 12.6613 12.7711 12.4307C12.924 12.2346 13.099 12.0596 13.3578 11.8009C13.3681 11.7906 13.3785 11.7802 13.3891 11.7696L18.1131 7.04556ZM20.8938 8.10622C20.4188 7.63126 19.6488 7.63126 19.1738 8.10622L18.992 8.288C19.0019 8.32149 19.0132 8.3571 19.0262 8.39452C19.1202 8.66565 19.2988 9.02427 19.6372 9.36276C19.9757 9.70125 20.3343 9.87975 20.6055 9.97382C20.6429 9.9868 20.6785 9.99812 20.712 10.008L20.8938 9.8262C21.3687 9.35124 21.3687 8.58118 20.8938 8.10622ZM19.5664 11.1536C19.2485 10.9866 18.9053 10.7521 18.5766 10.4234C18.2479 10.0947 18.0134 9.75146 17.8464 9.43357L14.4497 12.8303C14.1487 13.1314 14.043 13.2388 13.9538 13.3532C13.841 13.4979 13.7442 13.6545 13.6652 13.8202C13.6028 13.9511 13.5539 14.0936 13.4193 14.4976L13.019 15.6985L13.3015 15.981L14.5024 15.5807C14.9064 15.4461 15.0489 15.3972 15.1798 15.3348C15.3455 15.2558 15.5021 15.159 15.6468 15.0462C15.7612 14.957 15.8686 14.8513 16.1697 14.5503L19.5664 11.1536ZM7.25 9C7.25 8.58579 7.58579 8.25 8 8.25H14.5C14.9142 8.25 15.25 8.58579 15.25 9C15.25 9.41421 14.9142 9.75 14.5 9.75H8C7.58579 9.75 7.25 9.41421 7.25 9ZM7.25 13C7.25 12.5858 7.58579 12.25 8 12.25H10.5C10.9142 12.25 11.25 12.5858 11.25 13C11.25 13.4142 10.9142 13.75 10.5 13.75H8C7.58579 13.75 7.25 13.4142 7.25 13ZM7.25 17C7.25 16.5858 7.58579 16.25 8 16.25H9.5C9.91421 16.25 10.25 16.5858 10.25 17C10.25 17.4142 9.91421 17.75 9.5 17.75H8C7.58579 17.75 7.25 17.4142 7.25 17Z"
+                              fill="currentColor" />
+                    </svg>
+                    Thông tin phiếu điều trị
+                </a>
+            </li>
+            <li class="inline-block">
+                <a href="javascript:;"
+                   class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
+                   :class="{'!border-primary text-primary' : tab == 'treatment-details'}"
+                   @@click="tab='treatment-details'">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 11.75C12.4142 11.75 12.75 12.0858 12.75 12.5V13.25H13.5C13.9142 13.25 14.25 13.5858 14.25 14C14.25 14.4142 13.9142 14.75 13.5 14.75H12.75V15.5C12.75 15.9142 12.4142 16.25 12 16.25C11.5858 16.25 11.25 15.9142 11.25 15.5V14.75H10.5C10.0858 14.75 9.75 14.4142 9.75 14C9.75 13.5858 10.0858 13.25 10.5 13.25H11.25V12.5C11.25 12.0858 11.5858 11.75 12 11.75Z" fill="currentColor" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 9.25C9.37665 9.25 7.25 11.3767 7.25 14C7.25 16.6234 9.37665 18.75 12 18.75C14.6234 18.75 16.75 16.6234 16.75 14C16.75 11.3767 14.6234 9.25 12 9.25ZM8.75 14C8.75 12.2051 10.2051 10.75 12 10.75C13.7949 10.75 15.25 12.2051 15.25 14C15.25 15.7949 13.7949 17.25 12 17.25C10.2051 17.25 8.75 15.7949 8.75 14Z" fill="currentColor" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M11.948 1.25C11.0495 1.24997 10.3003 1.24995 9.70552 1.32991C9.07773 1.41432 8.51093 1.59999 8.05546 2.05546C7.59999 2.51093 7.41432 3.07773 7.32991 3.70552C7.27081 4.14512 7.2554 4.66909 7.2514 5.27533C6.60288 5.29614 6.02475 5.33406 5.51098 5.40314C4.33856 5.56077 3.38961 5.89288 2.64124 6.64125C1.89288 7.38961 1.56076 8.33856 1.40314 9.51098C1.24997 10.6502 1.24998 12.1058 1.25 13.9436V14.0564C1.24998 15.8942 1.24997 17.3498 1.40314 18.489C1.56076 19.6614 1.89288 20.6104 2.64124 21.3588C3.38961 22.1071 4.33856 22.4392 5.51098 22.5969C6.65018 22.75 8.1058 22.75 9.94354 22.75H14.0564C15.8942 22.75 17.3498 22.75 18.489 22.5969C19.6614 22.4392 20.6104 22.1071 21.3588 21.3588C22.1071 20.6104 22.4392 19.6614 22.5969 18.489C22.75 17.3498 22.75 15.8942 22.75 14.0565V13.9436C22.75 12.1058 22.75 10.6502 22.5969 9.51098C22.4392 8.33855 22.1071 7.38961 21.3588 6.64125C20.6104 5.89288 19.6614 5.56076 18.489 5.40313C17.9752 5.33406 17.3971 5.29614 16.7486 5.27533C16.7446 4.66909 16.7292 4.14512 16.6701 3.70552C16.5857 3.07773 16.4 2.51093 15.9445 2.05546C15.4891 1.59999 14.9223 1.41432 14.2945 1.32991C13.6997 1.24995 12.9505 1.24997 12.052 1.25H11.948ZM15.2482 5.25178C15.244 4.68146 15.23 4.25125 15.1835 3.9054C15.1214 3.44393 15.0142 3.24644 14.8839 3.11612C14.7536 2.9858 14.5561 2.87858 14.0946 2.81654C13.6116 2.7516 12.964 2.75 12 2.75C11.036 2.75 10.3884 2.7516 9.90539 2.81654C9.44393 2.87858 9.24643 2.9858 9.11612 3.11612C8.9858 3.24644 8.87858 3.44393 8.81654 3.9054C8.77004 4.25125 8.75602 4.68146 8.7518 5.25178C9.12993 5.25 9.52694 5.25 9.94358 5.25H14.0564C14.4731 5.25 14.8701 5.25 15.2482 5.25178ZM3.7019 7.70191C4.12511 7.2787 4.70476 7.02503 5.71085 6.88976C6.73851 6.7516 8.09318 6.75 10 6.75H14C15.9068 6.75 17.2615 6.7516 18.2892 6.88976C19.2952 7.02503 19.8749 7.2787 20.2981 7.70191C20.7213 8.12512 20.975 8.70476 21.1102 9.71085C21.2484 10.7385 21.25 12.0932 21.25 14C21.25 15.9068 21.2484 17.2615 21.1102 18.2892C20.975 19.2952 20.7213 19.8749 20.2981 20.2981C19.8749 20.7213 19.2952 20.975 18.2892 21.1102C17.2615 21.2484 15.9068 21.25 14 21.25H10C8.09318 21.25 6.73851 21.2484 5.71085 21.1102C4.70476 20.975 4.12511 20.7213 3.7019 20.2981C3.27869 19.8749 3.02503 19.2952 2.88976 18.2892C2.75159 17.2615 2.75 15.9068 2.75 14V12Z" fill="currentColor" />
+                    </svg>
+
+                    Thông tin điều trị
+                </a>
+            </li>
+            <li class="inline-block">
+                <a href="javascript:;"
+                   class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
+                   :class="{'!border-primary text-primary' : tab == 'assignment'}" @@click="tab='assignment'">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17 14C17.5523 14 18 13.5523 18 13C18 12.4477 17.5523 12 17 12C16.4477 12 16 12.4477 16 13C16 13.5523 16.4477 14 17 14Z" fill="currentColor" />
+                        <path d="M17 18C17.5523 18 18 17.5523 18 17C18 16.4477 17.5523 16 17 16C16.4477 16 16 16.4477 16 17C16 17.5523 16.4477 18 17 18Z" fill="currentColor" />
+                        <path d="M13 13C13 13.5523 12.5523 14 12 14C11.4477 14 11 13.5523 11 13C11 12.4477 11.4477 12 12 12C12.5523 12 13 12.4477 13 13Z" fill="currentColor" />
+                        <path d="M13 17C13 17.5523 12.5523 18 12 18C11.4477 18 11 17.5523 11 17C11 16.4477 11.4477 16 12 16C12.5523 16 13 16.4477 13 17Z" fill="currentColor" />
+                        <path d="M7 14C7.55229 14 8 13.5523 8 13C8 12.4477 7.55229 12 7 12C6.44772 12 6 12.4477 6 13C6 13.5523 6.44772 14 7 14Z" fill="currentColor" />
+                        <path d="M7 18C7.55229 18 8 17.5523 8 17C8 16.4477 7.55229 16 7 16C6.44772 16 6 16.4477 6 17C6 17.5523 6.44772 18 7 18Z" fill="currentColor" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M7 1.75C7.41421 1.75 7.75 2.08579 7.75 2.5V3.26272C8.412 3.24999 9.14133 3.24999 9.94346 3.25H14.0564C14.8586 3.24999 15.588 3.24999 16.25 3.26272V2.5C16.25 2.08579 16.5858 1.75 17 1.75C17.4142 1.75 17.75 2.08579 17.75 2.5V3.32709C18.0099 3.34691 18.2561 3.37182 18.489 3.40313C19.6614 3.56076 20.6104 3.89288 21.3588 4.64124C22.1071 5.38961 22.4392 6.33855 22.5969 7.51098C22.75 8.65018 22.75 10.1058 22.75 11.9435V14.0564C22.75 15.8941 22.75 17.3498 22.5969 18.489C22.4392 19.6614 22.1071 20.6104 21.3588 21.3588C20.6104 22.1071 19.6614 22.4392 18.489 22.5969C17.3498 22.75 15.8942 22.75 14.0565 22.75H9.94359C8.10585 22.75 6.65018 22.75 5.51098 22.5969C4.33856 22.4392 3.38961 22.1071 2.64124 21.3588C1.89288 20.6104 1.56076 19.6614 1.40314 18.489C1.24997 17.3498 1.24998 15.8942 1.25 14.0564V11.9436C1.24998 10.1058 1.24997 8.65019 1.40314 7.51098C1.56076 6.33855 1.89288 5.38961 2.64124 4.64124C3.38961 3.89288 4.33856 3.56076 5.51098 3.40313C5.7439 3.37182 5.99006 3.34691 6.25 3.32709V2.5C6.25 2.08579 6.58579 1.75 7 1.75ZM5.71085 4.88976C4.70476 5.02502 4.12511 5.27869 3.7019 5.7019C3.27869 6.12511 3.02502 6.70476 2.88976 7.71085C2.86685 7.88123 2.8477 8.06061 2.83168 8.25H21.1683C21.1523 8.06061 21.1331 7.88124 21.1102 7.71085C20.975 6.70476 20.7213 6.12511 20.2981 5.7019C19.8749 5.27869 19.2952 5.02502 18.2892 4.88976C17.2615 4.75159 15.9068 4.75 14 4.75H10C8.09318 4.75 6.73851 4.75159 5.71085 4.88976ZM2.75 12C2.75 11.146 2.75032 10.4027 2.76309 9.75H21.2369C21.2497 10.4027 21.25 11.146 21.25 12V14C21.25 15.9068 21.2484 17.2615 21.1102 18.2892C20.975 19.2952 20.7213 19.8749 20.2981 20.2981C19.8749 20.7213 19.2952 20.975 18.2892 21.1102C17.2615 21.2484 15.9068 21.25 14 21.25H10C8.09318 21.25 6.73851 21.2484 5.71085 21.1102C4.70476 20.975 4.12511 20.7213 3.7019 20.2981C3.27869 19.8749 3.02503 19.2952 2.88976 18.2892C2.75159 17.2615 2.75 15.9068 2.75 14V12Z" fill="currentColor" />
+                    </svg>
+                    Thông tin phân công nhân sự
+                </a>
+            </li>
+            <li class="inline-block">
+                <a href="javascript:;"
+                   class="flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary"
+                   :class="{'!border-primary text-primary' : tab == 'regulations'}" @@click="tab='regulations'">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 6.25C12.4142 6.25 12.75 6.58579 12.75 7V13C12.75 13.4142 12.4142 13.75 12 13.75C11.5858 13.75 11.25 13.4142 11.25 13V7C11.25 6.58579 11.5858 6.25 12 6.25Z" fill="currentColor" />
+                        <path d="M13 16C13 16.5523 12.5523 17 12 17C11.4477 17 11 16.5523 11 16C11 15.4477 11.4477 15 12 15C12.5523 15 13 15.4477 13 16Z" fill="currentColor" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 1.25C11.2954 1.25 10.6519 1.44359 9.94858 1.77037C9.26808 2.08656 8.48039 2.55304 7.49457 3.13685L6.74148 3.58283C5.75533 4.16682 4.96771 4.63324 4.36076 5.07944C3.73315 5.54083 3.25177 6.01311 2.90334 6.63212C2.55548 7.25014 2.39841 7.91095 2.32306 8.69506C2.24999 9.45539 2.24999 10.3865 2.25 11.556V12.444C2.24999 13.6135 2.24999 14.5446 2.32306 15.3049C2.39841 16.0891 2.55548 16.7499 2.90334 17.3679C3.25177 17.9869 3.73315 18.4592 4.36076 18.9206C4.96771 19.3668 5.75533 19.8332 6.74148 20.4172L7.4946 20.8632C8.48038 21.447 9.2681 21.9135 9.94858 22.2296C10.6519 22.5564 11.2954 22.75 12 22.75C12.7046 22.75 13.3481 22.5564 14.0514 22.2296C14.7319 21.9134 15.5196 21.447 16.5054 20.8632L17.2585 20.4172C18.2446 19.8332 19.0323 19.3668 19.6392 18.9206C20.2669 18.4592 20.7482 17.9869 21.0967 17.3679C21.4445 16.7499 21.6016 16.0891 21.6769 15.3049C21.75 14.5446 21.75 13.6135 21.75 12.4441V11.556C21.75 10.378 21.75 9.51884 21.6769 8.69506C21.6016 7.91095 21.4445 7.25014 21.0967 6.63212C20.7482 6.01311 20.2669 5.54083 19.6392 5.07944C19.0323 4.63324 18.2447 4.16683 17.2585 3.58285L16.5054 3.13685C15.5196 2.55303 14.7319 2.08656 14.0514 1.77037C13.3481 1.44359 12.7046 1.25 12 1.25ZM8.22524 4.44744C9.25238 3.83917 9.97606 3.41161 10.5807 3.13069C11.1702 2.85676 11.5907 2.75 12 2.75C12.4093 2.75 12.8298 2.85676 13.4193 3.13069C14.0239 3.41161 14.7476 3.83917 15.7748 4.44744L16.4609 4.85379C17.4879 5.46197 18.2109 5.89115 18.7508 6.288C19.2767 6.67467 19.581 6.99746 19.7895 7.36788C19.9986 7.73929 20.1199 8.1739 20.1838 8.83855C20.2492 9.51884 20.25 10.378 20.25 11.5937V12.4063C20.25 13.622 20.2492 14.4812 20.1838 15.1614C20.1199 15.8261 19.9986 16.2607 19.7895 16.6321C19.581 17.0025 19.2767 17.3253 18.7508 17.712C18.2109 18.1089 17.4879 18.538 16.4609 19.1462L15.7748 19.5526C14.7476 20.1608 14.0239 20.5884 13.4193 20.8693C12.8298 21.1432 12.4093 21.25 12 21.25C11.5907 21.25 11.1702 21.1432 10.5807 20.8693C9.97606 20.5884 9.25238 20.1608 8.22524 19.5526L7.53909 19.1462C6.5121 18.538 5.78906 18.1089 5.24924 17.712C4.72326 17.3253 4.419 17.0025 4.2105 16.6321C4.00145 16.2607 3.88005 15.8261 3.81618 15.1614C3.7508 14.4812 3.75 13.622 3.75 12.4063V11.5937C3.75 10.378 3.7508 9.51884 3.81618 8.83855C3.88005 8.1739 4.00145 7.73929 4.2105 7.36788C4.419 6.99746 4.72326 6.67467 5.24924 6.288C5.78906 5.89115 6.5121 5.46197 7.53909 4.85379L8.22524 4.44744Z" fill="currentColor" />
+                    </svg>
+                    Thông tin quy định
+                </a>
+            </li>
+        </ul>
+
+        <!-- Phần 1: Thông tin phiếu điều trị -->
+        <div x-show="tab === 'treatment-record'" x-cloak>
+            <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
+                <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
+                    <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
+                        <div class="px-6">
+                            <h6 class="mb-5 text-lg font-bold">Thông tin phiếu điều trị</h6>
+                            <div class="flex flex-col lg:flex-row gap-6">
+                                <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
+                                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                        <div class="w-full sm:w-1/2">
+                                            <label for="treatmentRecordCode">Mã điều trị</label>
+                                            <input id="treatmentRecordCode" name="Code" class="form-input" readonly
+                                                   value="@Model.TreatmentRecord.Code" />
+                                        </div>
+                                        <div class="w-full sm:w-1/2">
+                                            <label for="Diagnosis">Chẩn đoán<span class="text-danger">&nbsp*</span></label>
+                                            <div class="select-wrapper">
+                                                <select id="Diagnosis" name="Diagnosis"
+                                                        class="form-input w-full mt-1 p-2 border rounded">
+                                                    <option value="">Chọn chẩn đoán</option>
+                                                    @foreach (var diagnosis in ViewBag.DiagnosisOptions)
+                                                    {
+                                                        if (diagnosis.Value == (int)Model.TreatmentRecord.Diagnosis)
+                                                        {
+                                                            <option value="@diagnosis.Value" selected>@diagnosis.Text</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@diagnosis.Value">@diagnosis.Text</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            @Html.ValidationMessageFor(model => model.TreatmentRecord.Diagnosis, "", new { @class =
+                                            "text-danger" })
+                                        </div>
+                                        <div class="w-full sm:w-1/2">
+                                            <label for="PatientId">Bệnh nhân<span class="text-danger">&nbsp*</span></label>
+                                            <input id="PatientName" class="form-input" type="text" value="@ViewBag.PatientName" readonly />
+                                            <input type="hidden" id="patientId" name="PatientId" value="@Model.TreatmentRecord.PatientId" />
+                                            @Html.ValidationMessageFor(model => model.TreatmentRecord.PatientId, "", new { @class = "text-danger" })
+                                        </div>
+                                        <div class="w-full sm:w-1/2">
+                                            <label for="AdvancePayment">Tiền ứng trước<span class="text-danger">&nbsp*</span></label>
+                                            <div class="flex items-center">
+                                                <input id="AdvancePayment" name="AdvancePayment" class="form-input advance-payment w-full mt-1 p-2 border rounded" type="text"
+                                                       placeholder="Nhập tiền ứng trước" value="@Model.TreatmentRecord.AdvancePayment" />
+                                                <span class="ml-2 text-gray-700" style="font-weight: 900">VND</span>
+                                            </div>
+                                            @Html.ValidationMessageFor(model => model.TreatmentRecord.AdvancePayment, "", new { @class =
+                                                                                        "text-danger" })
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                        <div class="w-full sm:w-1/2">
+                                            <label for="StartDate">
+                                                Ngày bắt đầu<span class="text-danger">&nbsp*</span>
+                                            </label>
+                                            <input id="StartDate" name="StartDate" class="form-input" type="text"
+                                                   placeholder="Chọn ngày bắt đầu" value="@Model.TreatmentRecord.StartDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly/>
+                                            @Html.ValidationMessageFor(model => model.TreatmentRecord.StartDate, "", new { @class =
+                                                                                        "text-danger" })
+                                        </div>
+                                        <div class="w-full sm:w-1/2">
+                                            <label for="EndDate">
+                                                Ngày kết thúc<span class="text-danger">&nbsp*</span>
+                                            </label>
+                                            <input id="EndDate" name="EndDate" class="form-input" type="text"
+                                                   placeholder="Chọn ngày kết thúc" value="@Model.TreatmentRecord.EndDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly/>
+                                            @Html.ValidationMessageFor(model => model.TreatmentRecord.EndDate, "", new { @class =
+                                                                                        "text-danger" })
+                                        </div>
+                                    </div>
+                                    <div class="w-full sm:col-span-2">
+                                        <label for="treatmentRecordNote">Ghi chú</label>
+                                        <textarea id="treatmentRecordNote" name="TreatmentRecord.Note"
+                                                  class="form-textarea w-full mt-1 p-2 border rounded min-h-[100px]"
+                                                  placeholder="Nhập ghi chú...">@Model.TreatmentRecord.Note</textarea>
+                                        @Html.ValidationMessageFor(model => model.TreatmentRecord.Note, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần 2: Thông tin điều trị -->
+        <div x-show="tab === 'treatment-details'" x-cloak>
+            <div x-data="treatmentDetailTable" class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4">
+                <h6 class="mb-5 text-lg font-bold">Thông tin điều trị</h6>
+                <div class="table-responsive">
+                    <table class="table-striped w-full">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; font-weight: bold;">STT</th>
+                                <th style="text-align: center; font-weight: bold;">Mã chi tiết điều trị</th>
+                                <th style="text-align: center; font-weight: bold;">Phương pháp điều trị</th>
+                                <th style="text-align: center; font-weight: bold;">Phòng</th>
+                                <th style="text-align: center; font-weight: bold;">Ghi chú</th>
+                                <th style="text-align: center; font-weight: bold;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="(detail, idx) in details" :key="detail.Code">
+                                <tr>
+                                    <td style="text-align: center;" x-text="idx + 1"></td>
+                                    <td>
+                                        <input :id="'treatmentRecordDetailCode-' + idx" type="text" class="form-input" x-model="detail.Code" readonly
+                                               :name="'TreatmentRecordDetails['+idx+'].Code'">
+                                    </td>
+                                    <td>
+                                        <select :id="'treatmentRecordDetailTreatmentMethod-' + idx" class="form-select" x-model="detail.TreatmentMethodId"
+                                                :name="'TreatmentRecordDetails['+idx+'].TreatmentMethodId'"
+                                                @@change="onMethodChange(idx)"
+                                                :disabled="detail.CreatedBy !== currentEmployeeCode">
+                                            <option value="">Chọn phương pháp</option>
+                                            <template x-for="method in getAvailableMethods(idx)" :key="method.id">
+                                                <option :value="method.id.toString()"
+                                                        x-text="method.name"
+                                                        :selected="detail.TreatmentMethodId === method.id.toString()"></option>
+                                            </template>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select :id="'treatmentRecordDetailRoom-' + idx" class="form-select" x-model="detail.RoomId"
+                                                :name="'TreatmentRecordDetails['+idx+'].RoomId'"
+                                                :disabled="isRoomDisabled(detail) || detail.CreatedBy !== currentEmployeeCode">
+                                            <option value="">Chọn phòng</option>
+                                            <template x-for="room in getRoomsForMethod(detail.TreatmentMethodId, idx)" :key="room.id">
+                                                <option :value="room.id.toString()"
+                                                        x-text="room.name"
+                                                        :selected="detail.RoomId === room.id.toString()"></option>
+                                            </template>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input :id="'treatmentRecordDetailNote-' + idx" type="text" class="form-input" x-model="detail.Note"
+                                               :name="'TreatmentRecordDetails['+idx+'].Note'" placeholder="Nhập ghi chú..."
+                                               :disabled="detail.CreatedBy !== currentEmployeeCode">
+                                    </td>
+                                    <td>
+                                        <button type="button" @@click="removeDetail(idx)"
+                                                :disabled="detail.CreatedBy !== currentEmployeeCode">
+                                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr x-show="details.length === 0">
+                                <td colspan="5" class="text-center">Chưa có thông tin điều trị nào</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6 flex flex-col sm:flex-row justify-between px-4">
+                    <button type="button" class="btn btn-primary mb-4 sm:mb-0" @@click="addDetail()">Thêm mới</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần 3: Phân công bác sĩ -->
+        <div x-show="tab === 'assignment'" x-cloak>
+            <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
+                <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
+                    <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
+                        <div class="px-6">
+                            <h6 class="mb-5 text-lg font-bold">Thông tin Phân công nhân sự</h6>
+
+                            <!-- Bảng danh sách phân công -->
+                            @if (Model.Assignments != null && Model.Assignments.Any())
+                            {
+                                <div class="table-responsive mb-5">
+                                    <table class="table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: center; font-weight: bold;">STT</th>
+                                                <th style="text-align: center; font-weight: bold;">Mã phân công</th>
+                                                <th style="text-align: center; font-weight: bold;">Nhân viên được phân công</th>
+                                                <th style="text-align: center; font-weight: bold;">Ngày bắt đầu</th>
+                                                <th style="text-align: center; font-weight: bold;">Ngày kết thúc</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                int assignmentIndex = 1;
+                                            }
+                                            @foreach (var assignment in Model.Assignments)
+                                            {
+                                                <tr>
+                                                    <td>@assignmentIndex</td>
+                                                    <td>@assignment.Code</td>
+                                                    <td>@assignment.EmployeeName</td>
+                                                    <td>@assignment.StartDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
+                                                    <td>@assignment.EndDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
+                                                </tr>
+                                                assignmentIndex++;
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center text-gray-500">
+                                    Chưa có thông tin phân công
+                                </div>
+                            }
+
+                            <!-- Nút thêm mới -->
+                            <div class="flex justify-end mb-5">
+                                <button type="button" class="btn btn-primary"
+                                        @@click="handleAddAssignment()">
+                                    Thêm mới
+                                </button>
+                            </div>
+
+                            <!-- Form thêm mới phân công -->
+                            <div x-show="showAddAssignmentForm" class="panel mb-5">
+                                <div class="flex flex-col lg:flex-row gap-6">
+                                    <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
+                                        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                            <div class="w-full sm:w-1/2">
+                                                <label for="assignmentCode">Mã phân công</label>
+                                                <input id="assignmentCode" name="NewAssignment.Code" class="form-input" readonly
+                                                       value="@Model.NewAssignment.Code" />
+                                            </div>
+                                            <div class="w-full sm:w-1/2">
+                                                <label for="assignmentEmployee">Bác sĩ phân công<span class="text-danger">&nbsp*</span></label>
+                                                <input id="assignmentEmployee" class="form-input" readonly
+                                                       value="@ViewData["EmployeeName"]" />
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                                            <div class="w-full sm:w-1/2">
+                                                <label for="assignmentStartDate">
+                                                    Ngày bắt đầu<span class="text-danger">&nbsp*</span>
+                                                </label>
+                                                <input id="assignmentStartDate" name="NewAssignment.StartDate"
+                                                       class="form-input" type="text"
+                                                       placeholder="Chọn ngày bắt đầu" />
+                                                @Html.ValidationMessageFor(model => model.NewAssignment.StartDate, "", new { @class = "text-danger" })
+                                            </div>
+                                            <div class="w-full sm:w-1/2">
+                                                <label for="assignmentEndDate">
+                                                    Ngày kết thúc<span class="text-danger">&nbsp*</span>
+                                                </label>
+                                                <input id="assignmentEndDate" name="NewAssignment.EndDate"
+                                                       class="form-input" type="text"
+                                                       placeholder="Chọn ngày kết thúc" />
+                                                @Html.ValidationMessageFor(model => model.NewAssignment.EndDate, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                        <div id="assignmentDateWarning" class="text-sm text-amber-400 mb-4" style="display: none; color: coral; font-weight: bold;">
+                                            <div class="flex items-center">
+                                                <svg class="w-4 h-4 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                Vui lòng chọn thời gian điều trị trước khi chọn thời gian phân công!
+                                            </div>
+                                        </div>
+                                        <div class="w-full sm:col-span-2">
+                                            <label for="assignmentNote">Ghi chú</label>
+                                            <textarea id="assignmentNote" name="NewAssignment.Note"
+                                                      class="form-textarea w-full mt-1 p-2 border rounded min-h-[100px]"
+                                                      placeholder="Nhập ghi chú..."></textarea>
+                                            @Html.ValidationMessageFor(model => model.NewAssignment.Note, "", new { @class = "text-danger" })
+                                        </div>
+                                        <div class="flex justify-end mt-4">
+                                            <button type="button" class="btn btn-danger" @@click="showAddAssignmentForm = false">
+                                                Hủy
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần 4: Quy định điều trị (dạng bảng) -->
+        <div x-show="tab === 'regulations'" x-cloak>
+            <div class="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-[#0e1726]">
+                <h6 class="mb-5 text-lg font-bold">Quy định điều trị</h6>
+                <div class="table-responsive">
+                    <table class="table-striped w-full table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; font-weight: bold;">STT</th>
+                                <th style="text-align: center; font-weight: bold;">Tên quy định</th>
+                                <th style="text-align: center; font-weight: bold;">Ngày thực hiện</th>
+                                <th style="text-align: center; font-weight: bold;">Ghi chú</th>
+                                <th style="text-align: center; font-weight: bold;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="(regulation, idx) in (regulations || []).filter(Boolean)" :key="regulation && regulation.Code ? regulation.Code : idx">
+                                <tr>
+                                    <td style="text-align: center;" x-text="idx + 1"></td>
+                                    <td>
+                                        <select :id="'regulationId-' + idx" :name="'Regulations[' + idx + '].RegulationId'"
+                                                class="form-select" x-model="regulation.RegulationId">
+                                            <option value="">Chọn quy định</option>
+                                            <template x-for="reg in getAvailableRegulations(idx)" :key="reg.id">
+                                                <option :value="reg.id" x-text="reg.name + ' (' + reg.effectiveStartDate + ' - ' + reg.effectiveEndDate + ')'"></option>
+                                            </template>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input :id="'executionDate-' + idx" :name="'Regulations[' + idx + '].ExecutionDate'"
+                                               x-model="regulation.ExecutionDate"
+                                               class="form-input"
+                                               type="text" placeholder="Chọn ngày thực hiện" />
+                                    </td>
+                                    <td>
+                                        <input :id="'note-' + idx" :name="'Regulations[' + idx + '].Note'"
+                                               x-model="regulation.Note"
+                                               class="form-input" placeholder="Nhập ghi chú" />
+                                        <input type="hidden" :name="'Regulations[' + idx + '].Code'"
+                                               :value="regulation.Code" />
+                                    </td>
+                                    <td>
+                                        <button type="button" @@click="removeRegulation(idx)">
+                                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr x-show="regulations.length === 0">
+                                <td colspan="5" class="text-center">Chưa có quy định nào được thêm</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6 flex flex-col sm:flex-row justify-between px-4">
+                    <button type="button" class="btn btn-primary mb-4 sm:mb-0" @@click="addRegulation()">Thêm quy định</button>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-end mt-4">
+            <button type="button" class="btn btn-primary mr-2" @@click="update()">Lưu</button>
+            <button type="button" class="btn btn-secondary" @@click="goBack()">Trở lại</button>
+        </div>
+    </div>
+</form>
+
+<div id="assignmentEditModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate">
+        <h2 class="text-2xl font-bold text-primary text-center mb-4">Chỉnh sửa phân công</h2>
+        <form id="assignmentEditForm">
+            <div class="flex gap-4 mb-4">
+                <div class="flex-1">
+                    <label class="block mb-1">Mã phân công</label>
+                    <input type="text" id="editAssignmentCode" class="form-input w-full" readonly>
+                </div>
+                <div class="flex-1">
+                    <label class="block mb-1">Bác sĩ phân công</label>
+                    <input type="text" id="editAssignmentDoctor" class="form-input w-full" readonly>
+                </div>
+            </div>
+            <div class="flex gap-4 mb-4">
+                <div class="flex-1">
+                    <label class="block mb-1">Ngày bắt đầu</label>
+                    <input type="text" id="editAssignmentStartDate" class="form-input w-full flatpickr" placeholder="Chọn ngày bắt đầu">
+                </div>
+                <div class="flex-1">
+                    <label class="block mb-1">Ngày kết thúc</label>
+                    <input type="text" id="editAssignmentEndDate" class="form-input w-full flatpickr" placeholder="Chọn ngày kết thúc">
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-1">Ghi chú</label>
+                <textarea id="editAssignmentNote" class="form-textarea w-full" rows="3" placeholder="Nhập ghi chú..." style="resize: none;"></textarea>
+            </div>
+            <div id="assignmentEditError" class="text-danger mb-2" style="display:none"></div>
+            <div class="flex justify-center gap-4 mt-6">
+                <button type="button" id="assignmentEditSaveBtn" class="btn btn-primary">Lưu</button>
+                <button type="button" id="assignmentEditCloseBtn" class="btn btn-secondary">Đóng</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/Public/assets/js/treatmentrecordedit.js?v=@DateTime.Now.Ticks"></script>
+
+
+
+<script>
+    window.roomsData = @Html.Raw(Json.Serialize(ViewBag.Rooms));
+    window.regulationsData = @Html.Raw(Json.Serialize(ViewBag.Regulations));
+    window.employeeTreatmentMethod = @Html.Raw(Json.Serialize(ViewBag.EmployeeTreatmentMethod));
+    window.employeeRoom = @Html.Raw(Json.Serialize(ViewBag.EmployeeRoom));
+    window.initialRegulations = @Html.Raw(Json.Serialize(Model.Regulations ?? new List<Project.Areas.BacSi.Models.DTOs.RegulationDto>()));
+    window.treatmentRecordDetailsData = @Html.Raw(Json.Serialize(Model.TreatmentRecordDetails ?? new List<Project.Areas.BacSi.Models.DTOs.TreatmentRecordDetailDto>()));
+    window.assignmentsData = @Html.Raw(Json.Serialize(Model.Assignments ?? new List<Project.Areas.BacSi.Models.DTOs.AssignmentDto>()));
+    window.currentEmployeeId = '@Model.CurrentEmployeeId';
+    window.treatmentMethodsData = @Html.Raw(Json.Serialize(ViewBag.TreatmentMethods_Reception));
+    window.allTreatmentMethodsData = @Html.Raw(Json.Serialize(ViewBag.TreatmentMethods));
+    window.currentEmployeeCode = '@ViewBag.CurrentEmployeeCode';
+</script>
+
+<style>
+    .modal-content-animate {
+        animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #assignmentEditModal.closing .modal-content-animate {
+        animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @@keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @@keyframes modalFadeOut {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    }
+
+    #assignmentEditModal {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+
+    .bg-modal-blur {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+</style>
+
+<script>
+    // Hiệu ứng đóng modal mượt mà cho assignmentEditModal
+    $(function() {
+        $('#assignmentEditCloseBtn').off('click').on('click', function () {
+            const modal = $('#assignmentEditModal');
+            modal.addClass('closing');
+            setTimeout(function () {
+                modal.addClass('hidden').removeClass('closing');
+            }, 200);
+        });
+        // Đóng modal khi click backdrop (không click vào content)
+        $('#assignmentEditModal').on('click', function(e) {
+            if (e.target === this) {
+                const modal = $(this);
+                modal.addClass('closing');
+                setTimeout(function () {
+                    modal.addClass('hidden').removeClass('closing');
+                }, 200);
+            }
+        });
+    });
+</script>
+

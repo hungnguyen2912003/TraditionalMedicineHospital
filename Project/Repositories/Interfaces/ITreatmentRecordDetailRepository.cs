@@ -1,8 +1,5 @@
-using Project.Areas.Staff.Models.Entities;
-using Project.Areas.Staff.Models.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Project.Areas.Admin.Models.Entities;
+using Project.Areas.BacSi.Models.DTOs;
 
 namespace Project.Repositories.Interfaces
 {

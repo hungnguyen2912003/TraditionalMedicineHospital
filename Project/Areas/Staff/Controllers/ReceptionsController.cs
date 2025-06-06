@@ -2,13 +2,12 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Staff.Models.DTOs.ReceptionDTO;
-using Project.Areas.Staff.Models.Entities;
+using Project.Areas.Admin.Models.Entities;
 using Project.Helpers;
 using Project.Models.Enums;
 using Project.Repositories.Interfaces;
 using Project.Services.Features;
 using Project.Services.Interfaces;
-using Project.Areas.Admin.Models.Entities;
 
 namespace Project.Areas.Staff.Controllers
 {
@@ -70,7 +69,7 @@ namespace Project.Areas.Staff.Controllers
             _treatmentMethodRepository = treatmentMethodRepository;
         }
 
-        [HttpGet("tao-phieu")]
+        [HttpGet("lap-phieu")]
         public async Task<IActionResult> Create()
         {
             // Token
@@ -86,30 +85,6 @@ namespace Project.Areas.Staff.Controllers
             {
                 return RedirectToAction("Login", "Account", new { area = "Admin" });
             }
-
-            // Lấy danh sách bệnh nhân cũ có phiếu điều trị đã hoàn thành hoặc đã hủy bỏ
-            var treatmentRecords = await _treatmentRecordRepository.GetAllAsync();
-
-            // 1. Lấy các bệnh nhân có phiếu điều trị đã hoàn thành hoặc đã hủy bỏ
-            var validPatientIds = treatmentRecords
-                .Where(tr => tr.Status == Project.Models.Enums.TreatmentStatus.DaHoanThanh || tr.Status == Project.Models.Enums.TreatmentStatus.DaHuyBo)
-                .Select(tr => tr.PatientId)
-                .Distinct()
-                .ToList();
-
-            // 2. Lấy các bệnh nhân đang có phiếu điều trị "Đang điều trị"
-            var currentlyTreatingPatientIds = treatmentRecords
-                .Where(tr => tr.Status == Project.Models.Enums.TreatmentStatus.DangDieuTri)
-                .Select(tr => tr.PatientId)
-                .Distinct()
-                .ToList();
-
-            // 3. Loại bỏ các bệnh nhân đang điều trị khỏi danh sách hợp lệ
-            var oldPatients = (await _patientRepository.GetAllAsync())
-                .Where(p => validPatientIds.Contains(p.Id) && !currentlyTreatingPatientIds.Contains(p.Id))
-                .ToList();
-
-            ViewBag.Patients = oldPatients;
 
             // Generate code each entities
 
@@ -197,7 +172,7 @@ namespace Project.Areas.Staff.Controllers
                         Id = Guid.NewGuid(),
                         Username = patient.Code,
                         PasswordHash = BCrypt.Net.BCrypt.HashPassword("11111111"),
-                        Role = RoleType.Benhnhan,
+                        Role = RoleType.BenhNhan,
                         CreatedDate = DateTime.UtcNow,
                         CreatedBy = employee.Code,
                         PatientId = patient.Id,

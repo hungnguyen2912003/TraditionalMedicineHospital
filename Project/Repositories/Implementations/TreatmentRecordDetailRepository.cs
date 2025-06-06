@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Project.Areas.Staff.Models.DTOs;
-using Project.Areas.Staff.Models.Entities;
+using Project.Areas.Admin.Models.Entities;
+using Project.Areas.BacSi.Models.DTOs;
 using Project.Datas;
 using Project.Repositories.Interfaces;
 

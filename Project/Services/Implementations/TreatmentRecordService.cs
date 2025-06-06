@@ -1,4 +1,4 @@
-﻿using Project.Areas.Staff.Models.Entities;
+﻿using Project.Areas.Admin.Models.Entities;
 using Project.Repositories;
 
 namespace Project.Services.Implementations

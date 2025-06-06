@@ -134,14 +134,14 @@ namespace Project.Helpers
 
             var treatmentMethods = await _treatmentRepository.GetAllAsync();
             if (depId.HasValue)
-            {   
+            {
                 // Get all treatment methods that belong to this department
                 // This includes methods from all rooms in the department, including administrative rooms
                 var filtered = treatmentMethods
                    .Where(tm => tm.DepartmentId == depId)
                    .Select(tm => new { tm.Id, tm.Name })
                    .ToList();
-                
+
                 viewData["TreatmentMethods_Reception"] = filtered;
             }
 
@@ -293,12 +293,12 @@ namespace Project.Helpers
                     Text = e.GetDisplayName()
                 })
                 .ToList();
-                
+
             var medicines = await _medicineRepository.GetAllAsync();
             viewData["Medicines"] = medicines
                 .Select(m => new { m.Id, m.Name, m.Price })
                 .ToList();
-                
+
 
             viewData["EnumDisplayNames"] = EnumHelper.GetEnumDisplayNames();
         }

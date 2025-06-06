@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project.Areas.Admin.Models.Entities;
-using Project.Areas.Staff.Models.Entities;
-using Project.Models;
 
 namespace Project.Datas
 {

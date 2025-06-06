@@ -1,5 +1,5 @@
 using AutoMapper;
-using Project.Areas.Staff.Models.Entities;
+using Project.Areas.Admin.Models.Entities;
 using Project.Areas.YTa.Models.DTOs;
 using Project.Areas.YTa.Models.ViewModels;
 

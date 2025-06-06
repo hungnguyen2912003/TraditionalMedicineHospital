@@ -5,21 +5,21 @@ namespace Project.Models.Enums
     public enum DiagnosisType
     {
         [Display(Name = "Đau cột sống")]
-        DauCotSong = 0,
+        DauCotSong = 1,
 
         [Display(Name = "Đau khớp")]
-        DauKhop = 1,
+        DauKhop = 2,
 
         [Display(Name = "Thoát vị đĩa đệm")]
-        ThoatViDiaDem = 2,
+        ThoatViDiaDem = 3,
 
         [Display(Name = "Viêm khớp")]
-        ViemKhop = 3,
+        ViemKhop = 4,
 
         [Display(Name = "Thoái hóa khớp")]
-        ThoaiHoaKhop = 4,
+        ThoaiHoaKhop = 5,
 
         [Display(Name = "Đau thần kinh tọa")]
-        DauThanKinhToa = 5
+        DauThanKinhToa = 6
     }
 }

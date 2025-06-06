@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project.Areas.Admin.Models.Entities;
-using Project.Areas.Staff.Models.Entities;
 using Project.Datas;
 using Project.Repositories.Interfaces;
 
@@ -30,21 +29,16 @@ namespace Project.Repositories.Implementations
             return await _context.treatmentRecords
                 .Include(m => m.Patient)
                     .ThenInclude(p => p.HealthInsurance)
-                .Include(m => m.TreatmentRecordDetails)
-                    .ThenInclude(d => d.Room)
-                        .ThenInclude(r => r.Department)
+                .Include(m => m.Assignments)
+                    .ThenInclude(a => a.Employee)
+                        .ThenInclude(r => r.Room)
+                            .ThenInclude(d => d.Department)
                 .Include(m => m.TreatmentRecordDetails)
                     .ThenInclude(d => d.Room)
                         .ThenInclude(tm => tm.TreatmentMethod)
-                .Include(m => m.TreatmentRecordDetails)
-                    .ThenInclude(d => d.TreatmentTrackings)
-                .Include(m => m.Assignments)
-                    .ThenInclude(a => a.Employee)
                 .Include(m => m.TreatmentRecord_Regulations)
                     .ThenInclude(tr => tr.Regulation)
-                .Include(p => p.Prescriptions)
-                    .ThenInclude(p => p.PrescriptionDetails)
-                        .ThenInclude(d => d.Medicine)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
 
