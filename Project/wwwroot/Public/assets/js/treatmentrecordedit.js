@@ -933,7 +933,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         goBack() {
-            window.location.href = '/bac-si';
+            window.location.href = '/phieu-dieu-tri';
         },
         handleAddTreatment() {
             const currentId = (window.currentEmployeeId || '').toLowerCase();

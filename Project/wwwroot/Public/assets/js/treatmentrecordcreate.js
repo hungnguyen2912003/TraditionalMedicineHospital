@@ -967,7 +967,7 @@
         },
 
         goBack() {
-            window.location.href = '/bac-si';
+            window.location.href = '/phieu-dieu-tri';
         }
     }));
 

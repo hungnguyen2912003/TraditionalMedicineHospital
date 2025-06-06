@@ -49,6 +49,12 @@
                                 Lập phiếu
                             </a>
                         </div>
+                        <div>
+                            <a href="/phieu-dieu-tri/danh-sach-phieu-dinh-chi" class="btn btn-secondary">
+                                Xem danh sách phiếu đình chỉ
+                            </a>
+                        </div>
+
                     </div>
                     <div class="flex w-1/2 flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
                         <div class="flex gap-3">
@@ -287,6 +293,7 @@
                         ],
                     });
 
+                    bindSuspendModalButtons();
                 } catch (error) {
                     console.error('Error in initializeTable:', error);
                 }
@@ -344,53 +351,29 @@
         }
     });
 
-    // Gán lại sự kiện cho nút đình chỉ
-    document.querySelectorAll('.open-suspended-modal').forEach(btn => {
-        btn.onclick = () => {
-            const status = Number(btn.getAttribute('data-status'));
-            if (status === 2) {
-                notyf.error('Phiếu điều trị đã hoàn thành, không thể thao tác!');
-                return;
-            }
-            if (status === 3) {
-                notyf.error('Phiếu điều trị đã hủy bỏ, không thể thao tác!');
-                return;
-            }
-            const id = btn.getAttribute('data-id');
-            const entity = this.entityList.find(e => e.id == id);
+    function bindSuspendModalButtons() {
+        document.querySelectorAll('.open-suspended-modal').forEach(btn => {
+            btn.onclick = function (e) {
+                const id = btn.getAttribute('data-id');
+                const entity = window.list.entityList.find(e => e.id == id);
 
-            // Kiểm tra quyền
-            if (!entity.assignments || !entity.assignments.some(a => a.createdBy === window.currentStaffCode)) {
-                notyf.error('Bạn không có quyền đình chỉ phiếu điều trị này. Chỉ bác sĩ được phân công mới có quyền đình chỉ.');
-                return;
-            }
+                // Kiểm tra quyền
+                if (!entity.assignments || !entity.assignments.some(a => a.createdBy === window.currentStaffCode)) {
+                    notyf.error('Bạn không có quyền đình chỉ phiếu điều trị này. Chỉ bác sĩ được phân công mới có quyền đình chỉ.');
+                    e.preventDefault && e.preventDefault();
+                    return;
+                }
 
-            document.getElementById('suspendModal').classList.remove('hidden', 'closing');
-            document.getElementById('suspendRecordCode').value = entity ? entity.code : 'Không xác định';
-            document.getElementById('suspendPatientName').value = entity ? entity.patientName : 'Không xác định';
-            document.getElementById('suspendDate').value = new Date().toLocaleDateString('vi-VN');
-            document.getElementById('suspendStaffName').value = window.currentStaffName || 'Không xác định';
-            document.getElementById('suspendReason').value = '';
-            document.getElementById('suspendNote').value = '';
-        };
-    });
-
-    // Gán lại sự kiện cho nút chỉnh sửa
-    document.querySelectorAll('.edit-treatment-btn').forEach(btn => {
-        btn.onclick = (e) => {
-            const status = Number(btn.getAttribute('data-status'));
-            if (status === 2) {
-                notyf.error('Phiếu điều trị đã hoàn thành, không thể thao tác!');
-                e.preventDefault && e.preventDefault();
-                return;
-            }
-            if (status === 3) {
-                notyf.error('Phiếu điều trị đã hủy bỏ, không thể thao tác!');
-                e.preventDefault && e.preventDefault();
-                return;
-            }
-        };
-    });
+                document.getElementById('suspendModal').classList.remove('hidden', 'closing');
+                document.getElementById('suspendRecordCode').value = entity ? entity.code : 'Không xác định';
+                document.getElementById('suspendPatientName').value = entity ? entity.patientName : 'Không xác định';
+                document.getElementById('suspendDate').value = new Date().toLocaleDateString('vi-VN');
+                document.getElementById('suspendStaffName').value = window.currentStaffName || 'Không xác định';
+                document.getElementById('suspendReason').value = '';
+                document.getElementById('suspendNote').value = '';
+            };
+        });
+    }
 
     document.getElementById('closeSuspendModal').addEventListener('click', function () {
         const modal = document.getElementById('suspendModal');

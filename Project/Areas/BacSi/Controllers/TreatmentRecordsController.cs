@@ -339,9 +339,6 @@ namespace Project.Areas.BacSi.Controllers
                 effectiveEndDate = r.ExpirationDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)
             }).ToList();
 
-            // Get health insurance
-            var healthInsurance = await _healthInsuranceRepository.GetByPatientIdAsync(patient.Id);
-
             // Get treatment record details
             var details = await _treatmentRecordDetailRepository.GetByTreatmentRecordIdAsync(treatmentRecord.Id);
             var detailDtos = _mapper.Map<List<TreatmentRecordDetailDto>>(details);
@@ -385,7 +382,6 @@ namespace Project.Areas.BacSi.Controllers
             // Set ViewBag values for the view
             ViewBag.TreatmentRecordId = treatmentRecord.Id;
             ViewBag.PatientId = patient.Id;
-            ViewBag.HealthInsuranceId = healthInsurance?.Id;
             ViewBag.ExistingImage = patient.Images;
             ViewBag.CurrentEmployeeCode = user.Employee.Code;
 
@@ -564,64 +560,6 @@ namespace Project.Areas.BacSi.Controllers
             {
                 return Json(new { success = false, message = ex.Message });
             }
-        }
-
-        [HttpPost("xoa")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete([FromForm] string selectedIds)
-        {
-            var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(','))
-            {
-                if (Guid.TryParse(id, out var parsedId))
-                {
-                    ids.Add(parsedId);
-                }
-            }
-
-            var delList = new List<TreatmentRecord>();
-            var cannotDeleteList = new List<string>();
-
-            foreach (var id in ids)
-            {
-                var entity = await _treatmentRecordRepository.GetByIdAsync(id);
-                if (entity != null)
-                {
-                    // Kiểm tra xem phiếu điều trị có đang trong thời gian điều trị không
-                    if (DateTime.Now >= entity.StartDate && DateTime.Now <= entity.EndDate)
-                    {
-                        cannotDeleteList.Add(entity.Code);
-                        continue;
-                    }
-
-                    await _treatmentRecordRepository.DeleteAsync(id);
-                    delList.Add(entity);
-                }
-            }
-
-            if (delList.Any())
-            {
-                var codes = string.Join(", ", delList.Select(c => $"\"{c.Code}\""));
-                var message = delList.Count == 1
-                    ? $"Đã xóa đợt điều trị {codes} thành công"
-                    : $"Đã xóa các đợt điều trị đã chọn thành công";
-                TempData["SuccessMessage"] = message;
-            }
-
-            if (cannotDeleteList.Any())
-            {
-                var codes = string.Join(", ", cannotDeleteList.Select(c => $"\"{c}\""));
-                var message = cannotDeleteList.Count == 1
-                    ? $"Không thể xóa đợt điều trị {codes} vì đang trong thời gian điều trị."
-                    : $"Không thể xóa các đợt điều trị đã chọn vì đang trong thời gian điều trị.";
-                TempData["ErrorMessage"] = message;
-            }
-            else if (!delList.Any())
-            {
-                TempData["ErrorMessage"] = "Không tìm thấy đợt điều trị nào để xóa.";
-            }
-
-            return RedirectToAction("Index");
         }
 
         [HttpGet("danh-sach-phieu-dinh-chi")]
