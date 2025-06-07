@@ -1,21 +1,25 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project.Areas.Staff.Models.DTOs;
+using Project.Areas.Admin.Models.Entities;
+using Project.Areas.NhanVien.Models.DTOs;
 using Project.Helpers;
+using Project.Repositories.Implementations;
 using Project.Repositories.Interfaces;
+using Project.Services.Features;
 using Project.Services.Interfaces;
 
 namespace Project.Areas.NhanVien.Controllers
 {
-    [Area("Staff")]
-    [Authorize(Roles = "Admin, Bacsi, Yta")]
-    [Route("quan-ly-benh-nhan")]
+    [Area("NhanVien")]
+    [Authorize(Roles = "NhanVienHanhChinh")]
+    [Route("benh-nhan")]
     public class PatientsController : Controller
     {
         private readonly IPatientRepository _patientRepository;
+        private readonly IEmployeeRepository _employeeRepository;
         private readonly IUserRepository _userRepository;
-        private readonly ITreatmentRecordRepository _treatmentRecordRepository;
+        private readonly JwtManager _jwtManager;
         private readonly IImageService _imgService;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
@@ -24,8 +28,9 @@ namespace Project.Areas.NhanVien.Controllers
         public PatientsController
         (
             IPatientRepository patientRepository,
+            IEmployeeRepository employeeRepository,
             IUserRepository userRepository,
-            ITreatmentRecordRepository treatmentRecordRepository,
+            JwtManager jwtManager,
             IImageService imgService,
             IMapper mapper,
             ViewBagHelper viewBagHelper,
@@ -33,8 +38,9 @@ namespace Project.Areas.NhanVien.Controllers
         )
         {
             _patientRepository = patientRepository;
+            _employeeRepository = employeeRepository;
             _userRepository = userRepository;
-            _treatmentRecordRepository = treatmentRecordRepository;
+            _jwtManager = jwtManager;
             _imgService = imgService;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
@@ -57,6 +63,10 @@ namespace Project.Areas.NhanVien.Controllers
             {
                 return NotFound();
             }
+            var createdByEmployee = await _employeeRepository.GetByCodeAsync(patient.CreatedBy);
+            var updatedByEmployee = await _employeeRepository.GetByCodeAsync(patient.UpdatedBy!);
+            ViewBag.CreatedByEmployee = createdByEmployee?.Name ?? "Không có";
+            ViewBag.UpdatedByEmployee = updatedByEmployee?.Name ?? "Không có";
             return View(patient);
         }
 
@@ -81,11 +91,31 @@ namespace Project.Areas.NhanVien.Controllers
         {
             try
             {
+                // Get user info from token
+                var token = Request.Cookies["AuthToken"];
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
+                }
+
+                var (username, role) = _jwtManager.GetClaimsFromToken(token);
+                if (string.IsNullOrEmpty(username))
+                {
+                    Response.Cookies.Delete("AuthToken");
+                    return Json(new { success = false, message = "Token không hợp lệ." });
+                }
+
+                var user = await _userRepository.GetByUsernameAsync(username);
+                if (user == null || user.Employee == null)
+                {
+                    return Json(new { success = false, message = "Người dùng không hợp lệ" });
+                }
+
                 var entity = await _patientRepository.GetByIdAsync(Id);
                 if (entity == null) return NotFound();
 
                 _mapper.Map(inputDto, entity);
-                entity.UpdatedBy = "Admin";
+                entity.UpdatedBy = user.Employee.Code;
                 entity.UpdatedDate = DateTime.UtcNow;
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)

@@ -1,5 +1,5 @@
 ﻿@using System.Globalization
-@model Project.Areas.Staff.Models.DTOs.PatientDto
+@model Project.Areas.NhanVien.Models.DTOs.PatientDto
 
 @{
     ViewData["Title"] = "Chỉnh sửa thông tin bệnh nhân";
@@ -33,16 +33,20 @@
                         <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Code" class="block text-sm font-medium text-gray-700">Mã bệnh
-                                        nhân</label>
+                                    <label for="Code" class="block text-sm font-medium text-gray-700">
+                                        Mã bệnh
+                                        nhân
+                                    </label>
                                     <input id="Code" type="text" name="Code"
                                         class="form-input w-full mt-1 p-2 border rounded" value="@Model.Code"
                                         readonly />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Name" class="block text-sm font-medium text-gray-700">Tên bệnh
-                                        nhân</label>
+                                    <label for="Name" class="block text-sm font-medium text-gray-700">
+                                        Tên bệnh
+                                        nhân
+                                    </label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập họ tên bệnh nhân" value="@Model.Name" />
@@ -51,8 +55,10 @@
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Gender" class="block text-sm font-medium text-gray-700">Giới
-                                        tính</label>
+                                    <label for="Gender" class="block text-sm font-medium text-gray-700">
+                                        Giới
+                                        tính
+                                    </label>
                                     <div class="select-wrapper">
                                         <select id="Gender" name="Gender"
                                             class="form-input w-full mt-1 p-2 border rounded">
@@ -74,8 +80,10 @@
                                                                         })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="DateOfBirth" class="block text-sm font-medium text-gray-700">Ngày
-                                        sinh</label>
+                                    <label for="DateOfBirth" class="block text-sm font-medium text-gray-700">
+                                        Ngày
+                                        sinh
+                                    </label>
                                     <input id="DateOfBirth" type="text" name="DateOfBirth"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                         placeholder="Nhập ngày sinh"
@@ -84,8 +92,10 @@
                                                                         "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="IdentityNumber" class="block text-sm font-medium text-gray-700">Căn cước
-                                        công dân</label>
+                                    <label for="IdentityNumber" class="block text-sm font-medium text-gray-700">
+                                        Căn cước
+                                        công dân
+                                    </label>
                                     <input id="IdentityNumber" type="text" name="IdentityNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập căn cước công dân" value="@Model.IdentityNumber"
@@ -106,8 +116,10 @@
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Số điện
-                                        thoại</label>
+                                    <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">
+                                        Số điện
+                                        thoại
+                                    </label>
                                     <input id="PhoneNumber" type="text" name="PhoneNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập số điện thoại" value="@Model.PhoneNumber" maxlength="11" />
@@ -195,20 +207,6 @@
     $.validator.addMethod("customPattern", function (value, element, regex) {
         return this.optional(element) || regex.test(value);
     }, "Giá trị không hợp lệ.");
-
-    $.validator.addMethod("over14", function (value, element) {
-        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
-            return false;
-        }
-        var dob = new Date(value.split("/").reverse().join("-"));
-        var today = new Date();
-        var age = today.getFullYear() - dob.getFullYear();
-        var monthDiff = today.getMonth() - dob.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-            age--;
-        }
-        return age >= 14;
-    }, "Bệnh nhân phải trên 14 tuổi.");
 
     $.validator.addMethod("dateFormat", function (value, element) {
         return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
@@ -307,9 +305,9 @@
                     rules: {
                         Name: {
                             required: true,
-                            minlength: 6,
+                            minlength: 2,
                             maxlength: 50,
-                            customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/
+                            customPattern: /^[A-Za-zÀ-ỹ ]*$/
                         },
                         Gender: {
                             required: true,
@@ -394,7 +392,7 @@
                         },
                         PhoneNumber: {
                             required: true,
-                            minlength: 9,
+                            minlength: 10,
                             maxlength: 11,
                             customPattern: /^[0-9]*$/,
                             remote: {
@@ -426,9 +424,9 @@
                     messages: {
                         Name: {
                             required: "Tên bệnh nhân không được bỏ trống.",
-                            minlength: "Tên phải có ít nhất 6 ký tự.",
+                            minlength: "Tên phải có ít nhất 2 ký tự.",
                             maxlength: "Tên không được vượt quá 50 ký tự.",
-                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng."
+                            customPattern: "Tên bệnh nhân chỉ chứa chữ cái."
                         },
                         Gender: {
                             required: "Giới tính không được bỏ trống",
@@ -456,7 +454,7 @@
                         PhoneNumber: {
                             required: "Số điện thoại không được bỏ trống.",
                             minlength: "Số điện thoại phải có ít nhất 10 ký tự.",
-                            maxlength: "Số điện thoại không được vượt quá 15 ký tự.",
+                            maxlength: "Số điện thoại không được vượt quá 11 ký tự.",
                             customPattern: "Số điện thoại không hợp lệ.",
                             remote: "Số điện thoại này đã được sử dụng."
                         }
@@ -524,7 +522,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/quan-ly-benh-nhan';
+                        window.location.href = '/benh-nhan';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -548,7 +546,7 @@
                     } else {
                         const formData = new FormData(form);
                         formData.append('Id', id);
-                        fetch('/quan-ly-benh-nhan/chinh-sua/' + id, {
+                        fetch('/benh-nhan/chinh-sua/' + id, {
                             method: 'POST',
                             body: formData
                         })
@@ -566,7 +564,7 @@
             },
 
             goBack() {
-                window.location.href = '/quan-ly-benh-nhan';
+                window.location.href = '/benh-nhan';
             }
         }));
     });

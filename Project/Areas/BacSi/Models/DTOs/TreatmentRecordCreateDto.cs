@@ -1,6 +1,4 @@
-﻿using Project.Areas.Staff.Models.DTOs.ReceptionDTO;
-
-namespace Project.Areas.BacSi.Models.DTOs
+﻿namespace Project.Areas.BacSi.Models.DTOs
 {
     public class TreatmentRecordCreateDto
     {

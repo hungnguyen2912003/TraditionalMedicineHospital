@@ -1,8 +1,8 @@
-﻿@using Project.Models.Enums
-@model Project.Areas.Admin.Models.DTOs.EmployeeDto
-
+﻿@model Project.Areas.NhanVien.Models.DTOs.ReceptionDto
+@using Project.Models.Enums
+@using System.ComponentModel.DataAnnotations
 @{
-    ViewData["Title"] = "Thêm mới nhân sự";
+    ViewData["Title"] = "Tiếp nhận bệnh nhân";
     Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
 }
 
@@ -17,153 +17,104 @@
     <div x-data="addData">
         <ul class="flex space-x-2 rtl:space-x-reverse">
             <li>
-                <a href="javascript:;" class="text-primary hover:underline">Danh mục nhân sự</a>
-            </li>
-            <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-                <span>Thêm mới</span>
+                <a href="javascript:;" class="text-primary hover:underline">Tiếp nhận bệnh nhân</a>
             </li>
         </ul>
         <div class="pt-5 flex flex-col gap-2.5 xl:flex-row">
             <div class="panel flex-1 px-0 py-6 ltr:lg:mr-6 rtl:lg:ml-6">
                 <div class="px-6">
-                    <div class="text-2xl font-bold mb-6">Thêm thông tin nhân sự</div>
+                    <h6 class="mb-5 text-lg font-bold">Tiếp nhận bệnh nhân</h6>
                     <hr class="mb-6">
                     <div class="flex flex-col lg:flex-row gap-6">
                         <div class="w-full lg:max-w-full p-4 rounded-lg shadow-sm">
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Code" class="block text-sm font-medium text-gray-700">Mã nhân sự</label>
-                                    <input id="Code" type="text" name="Code"
-                                        class="form-input w-full mt-1 p-2 border rounded" value="@Model.Code"
-                                        readonly />
+                                    <label for="Code" class="block text-sm font-medium text-gray-700">
+                                        Mã bệnh nhân
+                                    </label>
+                                    <input id="Code" name="Code" class="form-input w-full mt-1 p-2 border rounded"
+                                        readonly value="@Model.Code" />
                                     @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="Name" class="block text-sm font-medium text-gray-700">Tên nhân
-                                        sự<span
-                                class="text-danger">&nbsp*</span></label>
-                                    <input id="Name" type="text" name="Name"
-                                        class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập họ tên nhân sự" />
+                                    <label for="Name" class="block text-sm font-medium text-gray-700">
+                                        Họ tên bệnh nhân<span class="text-danger">&nbsp*</span>
+                                    </label>
+                                    <input id="Name" name="Name" class="form-input w-full mt-1 p-2 border rounded"
+                                        placeholder="Nhập họ tên bệnh nhân" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
-                                <div class="w-full sm:w-1/2">
-                                    <label for="EmployeeCategoryId" class="block text-sm font-medium text-gray-700">Loại
-                                        nhân sự<span
-                                class="text-danger">&nbsp*</span></label>
-                                    <div class="select-wrapper">
-                                        <select id="EmployeeCategoryId" name="EmployeeCategoryId"
-                                            class="form-input w-full mt-1 p-2 border rounded choices">
-                                            <option value="">Chọn loại nhân sự</option>
-                                            @foreach (var category in ViewBag.EmployeeCategories)
-                                            {
-                                                <option value="@category.Id">@category.Name</option>
-                                            }
-                                        </select>
-                                    </div>
-                                    @Html.ValidationMessageFor(model => model.EmployeeCategoryId, "", new { @class =
-                                    "text-danger" })
-                                </div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="DepartmentId" class="block text-sm font-medium text-gray-700">Nhân sự
-                                        thuộc Khoa<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
-                                    <div class="select-wrapper">
-                                        <select id="DepartmentId" name="DepartmentId"
-                                            class="form-input w-full mt-1 p-2 border rounded"
-                                            x-on:change="onDepartmentChange($event)">
-                                            <option value="">Chọn khoa</option>
-                                            @foreach (var dep in ViewBag.Departments)
-                                            {
-                                                <option value="@dep.Id">@dep.Name</option>
-                                            }
-                                        </select>
-                                    </div>
-                                    @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class =
-                                    "text-danger" })
-                                </div>
-                                <div class="w-full sm:w-1/2">
-                                    <label for="RoomId" class="block text-sm font-medium text-gray-700">Phòng làm
-                                        việc<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
-                                    <div class="select-wrapper">
-                                        <select id="RoomId" name="RoomId"
-                                            class="form-input w-full mt-1 p-2 border rounded">
-                                            <option value="">Chọn phòng làm việc</option>
-                                        </select>
-                                    </div>
-                                    @Html.ValidationMessageFor(model => model.RoomId, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                                <div class="w-full sm:w-1/2">
-                                    <label for="Gender" class="block text-sm font-medium text-gray-700">Giới
-                                        tính<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                    <label for="Gender" class="block text-sm font-medium text-gray-700">
+                                        Giới tính<span class="text-danger">&nbsp*</span>
+                                    </label>
                                     <div class="select-wrapper">
                                         <select id="Gender" name="Gender"
                                             class="form-input w-full mt-1 p-2 border rounded choices">
-                                            <option value="">Chọn loại giới tính</option>
+                                            <option value="">Chọn giới tính</option>
                                             @foreach (var gender in ViewBag.GenderOptions)
                                             {
                                                 <option value="@gender.Value">@gender.Text</option>
                                             }
                                         </select>
                                     </div>
-                                    @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
-                                </div>                                
+                                    @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger"
+                                                                        })
+                                </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="DateOfBirth" class="block text-sm font-medium text-gray-700">Ngày
-                                        sinh<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
-                                    <input id="DateOfBirth" type="text" name="DateOfBirth"
+                                    <label for="DateOfBirth" class="block text-sm font-medium text-gray-700">
+                                        Ngày sinh<span class="text-danger">&nbsp*</span>
+                                    </label>
+                                    <input id="DateOfBirth" name="DateOfBirth"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
-                                        placeholder="Nhập ngày sinh" />
+                                        placeholder="Nhập ngày sinh" type="text" />
                                     @Html.ValidationMessageFor(model => model.DateOfBirth, "", new { @class =
                                                                         "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="IdentityNumber" class="block text-sm font-medium text-gray-700">Căn cước
-                                        công dân<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
-                                    <input id="IdentityNumber" type="text" name="IdentityNumber"
+                                    <label for="IdentityNumber" class="block text-sm font-medium text-gray-700">
+                                        Căn cước công dân<span class="text-danger">&nbsp*</span>
+                                    </label>
+                                    <input id="IdentityNumber" name="IdentityNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập căn cước công dân" maxlength="12"/>
-                                    @Html.ValidationMessageFor(model => model.IdentityNumber, "", new { @class =
-                                                                        "text-danger" })
+                                        placeholder="Nhập căn cước công dân" maxlength="12" />
+                                    @Html.ValidationMessageFor(model => model.IdentityNumber, "", new {
+                                                                        @class = "text-danger" })
                                 </div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full address-container">
-                                    <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                    <label for="Address" class="block text-sm font-medium text-gray-700">
+                                        Địa chỉ<span class="text-danger">&nbsp*</span>
+                                    </label>
                                     <input id="Address" type="text" name="Address"
                                         class="form-input w-full mt-1 p-2 border rounded address-autocomplete"
                                         placeholder="Nhập địa chỉ" autocomplete="off" />
-                                    @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+                                    @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger"
+                                                                        })
                                 </div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
-                                    <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Số điện
-                                        thoại<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
-                                    <input id="PhoneNumber" type="text" name="PhoneNumber"
+                                    <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">
+                                        Số điện thoại<span class="text-danger">&nbsp*</span>
+                                    </label>
+                                    <input id="PhoneNumber" name="PhoneNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập số điện thoại" maxlength="11"/>
-                                    @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class =
-                                                                        "text-danger" })
+                                        placeholder="Nhập số điện thoại" maxlength="11" />
+                                    @Html.ValidationMessageFor(model => model.PhoneNumber, "", new {
+                                                                        @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
-                                    <label for="EmailAddress"
-                                        class="block text-sm font-medium text-gray-700">Email<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
-                                    <input id="EmailAddress" type="text" name="EmailAddress"
+                                    <label for="EmailAddress" class="block text-sm font-medium text-gray-700">
+                                        Email<span class="text-danger">&nbsp*</span>
+                                    </label>
+                                    <input id="EmailAddress" name="EmailAddress"
                                         class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập email" />
-                                    @Html.ValidationMessageFor(model => model.EmailAddress, "", new { @class =
-                                                                        "text-danger" })
+                                    @Html.ValidationMessageFor(model => model.EmailAddress, "", new {
+                                                                        @class = "text-danger" })
                                 </div>
                             </div>
                         </div>
@@ -172,32 +123,116 @@
             </div>
             <div class="mt-6 w-full xl:mt-0 xl:w-96">
                 <div class="panel mb-5">
-                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                        <div class="w-full">
-                            <label class="block text-sm font-medium text-gray-700 form-label mb-2">Hình ảnh
-                                nhân sự</label>
-                            <div class="dropzone flex-1 min-h-[200px] border-2 border-dashed border-gray-300 rounded-lg p-6 flex items-center justify-center relative hover:border-blue-500 transition-colors duration-200"
-                                id="imageDropzone">
-                                <div class="text-center dz-message" data-dz-message>
-                                    <div class="mb-3">
-                                        <svg class="mx-auto h-14 w-14 text-gray-400 group-hover:text-blue-500 transition-colors duration-200"
-                                            stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                            <path
-                                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 form-label mb-2">Hình ảnh bệnh
+                            nhân</label>
+                        <div class="dropzone flex-1 min-h-[200px] border-2 border-dashed border-gray-300 rounded-lg p-6 flex items-center justify-center relative hover:border-blue-500 transition-colors duration-200"
+                            id="imageDropzone">
+                            <div class="text-center dz-message" data-dz-message>
+                                <div class="mb-3">
+                                    <svg class="mx-auto h-14 w-14 text-gray-400 group-hover:text-blue-500 transition-colors duration-200"
+                                        stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path
+                                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                                <p class="text-base font-medium text-gray-700 mb-1">
+                                    Kéo thả hoặc nhấp để chọn ảnh
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    hoặc click để chọn file
+                                </p>
+                                <p class="mt-2 text-xs text-gray-400">
+                                    Chấp nhận file: JPG, PNG, GIF (Tối đa 5MB)
+                                </p>
+                            </div>
+                            <div
+                                class="dz-preview-container absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 rounded-lg hidden">
+                                <div class="text-center">
+                                    <div class="preview-image mb-3 relative">
+                                        <img src="" alt="Preview" class="max-h-[150px] rounded-lg shadow-sm mx-auto">
+                                        <button type="button"
+                                            class="remove-file absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 focus:outline-none">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
                                     </div>
-                                    <div class="text-gray-500">
-                                        <span class="font-medium">Kéo thả hình ảnh vào đây</span> hoặc
-                                        <span class="text-blue-500">nhấp để chọn hình ảnh</span>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-2">PNG, JPG, GIF tối đa 10MB</p>
+                                    <p class="text-sm font-medium text-gray-900 preview-filename"></p>
+                                    <p class="text-xs text-gray-500 preview-size"></p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="panel">
+
+                <div class="panel mb-5" x-data="{ hasHealthInsurance: false }">
+                    <label class="inline-flex cursor-pointer">
+                        <input type="checkbox" class="form-checkbox" name="HasHealthInsurance" id="HasHealthInsurance"
+                            x-model="hasHealthInsurance" />
+                        <span class="text-sm font-medium text-gray-700 ml-2">
+                            Bệnh nhân có thẻ bảo hiểm y tế
+                        </span>
+                    </label>
+                    <!-- Thông tin thẻ BHYT -->
+                    <div class="mt-5" x-show="hasHealthInsurance">
+                        <h6 class="mb-5 text-lg font-bold">Thông tin thẻ BHYT</h6>
+                        <div class="flex flex-col gap-4">
+                            <div class="w-full">
+                                <input type="hidden" id="HealthInsuranceCode" name="HealthInsuranceCode"
+                                    value="@Model.HealthInsuranceCode" />
+                                <label for="HealthInsuranceNumber" class="block text-sm font-medium text-gray-700">
+                                    Số thẻ BHYT<span class="text-danger">&nbsp*</span>
+                                </label>
+                                <input id="HealthInsuranceNumber" name="HealthInsuranceNumber"
+                                    class="form-input w-full mt-1 p-2 border rounded health-insurance-field"
+                                    placeholder="Nhập số thẻ BHYT" maxlength="15" />
+                                @Html.ValidationMessageFor(model => model.HealthInsuranceNumber, "", new
+                                                                { @class = "text-danger" })
+                            </div>
+                            <div class="w-full">
+                                <label for="HealthInsuranceExpiryDate" class="block text-sm font-medium text-gray-700">
+                                    Ngày hết hạn<span class="text-danger">&nbsp*</span>
+                                </label>
+                                <input id="HealthInsuranceExpiryDate" name="HealthInsuranceExpiryDate"
+                                    class="form-input w-full mt-1 p-2 border rounded flatpickr health-insurance-field"
+                                    placeholder="Nhập ngày hết hạn" type="text" />
+                                @Html.ValidationMessageFor(model => model.HealthInsuranceExpiryDate, "",
+                                                                new { @class = "text-danger" })
+                            </div>
+                            <div class="w-full">
+                                <label for="HealthInsurancePlaceOfRegistration"
+                                    class="block text-sm font-medium text-gray-700">
+                                    Nơi đăng ký khám bệnh<span class="text-danger">&nbsp*</span>
+                                </label>
+                                <div class="select-wrapper">
+                                    <select id="HealthInsurancePlaceOfRegistration"
+                                        name="HealthInsurancePlaceOfRegistration"
+                                        class="form-input w-full mt-1 p-2 border rounded choices health-insurance-field">
+                                        <option value="">Chọn nơi đăng ký</option>
+                                        @foreach (var place in ViewBag.HealthInsurancePlaceOptions)
+                                        {
+                                            <option value="@place.Value">@place.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                                @Html.ValidationMessageFor(model =>
+                                model.HealthInsurancePlaceOfRegistration, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="w-full mt-2">
+                                <input type="checkbox" class="form-checkbox" name="Patient.HealthInsuranceIsRightRoute"
+                                    value="true" id="HealthInsuranceIsRightRoute">
+                                <span class="text-sm font-medium text-gray-700 ml-2">
+                                    Thẻ bảo hiểm đúng tuyến KCB<span class="text-danger">&nbsp*</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel mb-5">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
                         <button type="button" @@click="add()"
                             class="btn btn-success py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 hover:bg-green-700">
@@ -216,7 +251,7 @@
                         </button>
                         <button type="button"
                             class="btn btn-secondary w-full py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600"
-                                                        @@click = "goBack()" >
+                            @@click="goBack()">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
                                 <path
@@ -235,43 +270,15 @@
 <script>
     Dropzone.autoDiscover = false;
 
-    $.validator.addMethod("customPattern", function (value, element, regex) {
-        return this.optional(element) || regex.test(value);
-    }, "Giá trị không hợp lệ.");
-
-    $.validator.addMethod("over18", function (value, element) {
-        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
-            return false;
-        }
-        var dob = new Date(value.split("/").reverse().join("-"));
-        var today = new Date();
-        var age = today.getFullYear() - dob.getFullYear();
-        var monthDiff = today.getMonth() - dob.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-            age--;
-        }
-        return age >= 18;
-    }, "Nhân sự phải trên 18 tuổi.");
-
-    $.validator.addMethod("dateFormat", function (value, element) {
-        return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
-    }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
-
     document.addEventListener('alpine:init', () => {
         Alpine.data('addData', () => ({
             dropzone: null,
-            selectedDepartmentId: '',
-            rooms: [],
-            roomChoices: null,
-            departmentChoices: null,
 
             init() {
                 this.setupDropzone();
                 this.setupValidation();
                 this.setupDateTimePicker();
                 this.setupChoices();
-                this.departmentChoices.enable();
-                this.roomChoices.disable();
             },
 
             setupDateTimePicker() {
@@ -292,29 +299,13 @@
                         noChoicesText: 'Không có lựa chọn nào',
                         itemSelectText: ''
                     });
-                });                  
-                this.departmentChoices = new Choices('#DepartmentId', {
-                    searchEnabled: true,
-                    searchPlaceholderValue: 'Tìm kiếm...',
-                    removeItemButton: true,
-                    noResultsText: 'Không tìm thấy kết quả',
-                    noChoicesText: 'Không có lựa chọn nào',
-                    itemSelectText: ''
-                });
-                this.roomChoices = new Choices('#RoomId', {
-                    searchEnabled: true,
-                    searchPlaceholderValue: 'Tìm kiếm...',
-                    removeItemButton: true,
-                    noResultsText: 'Không tìm thấy kết quả',
-                    noChoicesText: 'Không có lựa chọn nào',
-                    itemSelectText: ''
                 });
             },
 
             setupDropzone() {
                 const self = this;
                 this.dropzone = new Dropzone('#imageDropzone', {
-                    url: '/nhan-su/them-moi',
+                    url: '/tiep-nhan-benh-nhan',
                     autoProcessQueue: false,
                     maxFiles: 1,
                     acceptedFiles: 'image/*',
@@ -340,19 +331,40 @@
                             const overlay = document.getElementById('loadingOverlay');
                             overlay.style.display = 'none';
                             notyf.error("Có lỗi xảy ra: " + errorMessage);
-                            this.removeFile(file); 
+                            this.removeFile(file);
                         });
                     }
                 });
             },
 
             setupValidation() {
+                $.validator.addMethod("notExpired", function (value, element) {
+                    // Only validate if health insurance checkbox is checked and there is a value
+                    if (!$('#HasHealthInsurance').is(':checked') || !value) return true;
+
+                    const parts = value.split('/');
+                    const expiryDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return expiryDate >= today;
+                }, "Thẻ BHYT đã hết hạn");
+
+                $.validator.addMethod("customPattern", function (value, element, regex) {
+                    return this.optional(element) || regex.test(value);
+                }, "Giá trị không hợp lệ.");
+
+                $.validator.addMethod("dateFormat", function (value, element) {
+                    return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
+                }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
+
+
+
                 $("#myForm").validate({
                     ignore: [],
                     rules: {
                         Name: {
                             required: true,
-                            minlength: 6,
+                            minlength: 2,
                             maxlength: 50,
                             customPattern: /^[A-Za-zÀ-ỹ ]*$/
                         },
@@ -361,20 +373,30 @@
                         },
                         DateOfBirth: {
                             required: true,
-                            dateFormat: true,
-                            over18: true
+                            dateFormat: true
                         },
                         IdentityNumber: {
-                            required: true,
+                            required: function () {
+                                var dob = $("input[name='DateOfBirth']").val();
+                                if (!dob) return false;
+                                var dateParts = dob.split("/");
+                                var dobDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                                var today = new Date();
+                                var age = today.getFullYear() - dobDate.getFullYear();
+                                var monthDiff = today.getMonth() - dobDate.getMonth();
+                                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
+                                    age--;
+                                }
+                                return age >= 14;
+                            },
                             minlength: 9,
                             maxlength: 12,
-                            customPattern: /^[0-9]*$/,
                             remote: {
-                                url: "/api/validation/employee/check",
+                                url: "/api/validation/patient/check",
                                 type: "GET",
                                 data: {
                                     type: "identitynumber",
-                                    entityType: "employee",
+                                    entityType: "patient",
                                     value: function () { return $("#IdentityNumber").val(); }
                                 },
                                 dataFilter: function (data) {
@@ -383,7 +405,7 @@
                                         if (response.success) {
                                             return response.isUnique === true;
                                         } else {
-                                            notyf.error(response.message || "Lỗi khi kiểm tra căn cước công dân.");
+                                            notyf.error(response.message || "Lỗi khi kiểm tra.");
                                             return false;
                                         }
                                     } catch (e) {
@@ -401,11 +423,11 @@
                             required: true,
                             email: true,
                             remote: {
-                                url: "/api/validation/employee/check",
+                                url: "/api/validation/patient/check",
                                 type: "GET",
                                 data: {
                                     type: "email",
-                                    entityType: "employee",
+                                    entityType: "patient",
                                     value: function () { return $("#EmailAddress").val(); }
                                 },
                                 dataFilter: function (data) {
@@ -426,15 +448,15 @@
                         },
                         PhoneNumber: {
                             required: true,
-                            minlength: 9,
+                            minlength: 10,
                             maxlength: 11,
                             customPattern: /^[0-9]*$/,
                             remote: {
-                                url: "/api/validation/employee/check",
+                                url: "/api/validation/patient/check",
                                 type: "GET",
                                 data: {
                                     type: "phone",
-                                    entityType: "employee",
+                                    entityType: "patient",
                                     value: function () { return $("#PhoneNumber").val(); }
                                 },
                                 dataFilter: function (data) {
@@ -453,27 +475,59 @@
                                 }
                             }
                         },
-                        EmployeeCategoryId: {
-                            required: true
+                        HealthInsuranceNumber: {
+                            required: () => $('#HasHealthInsurance').is(':checked'),
+                            minlength: 15,
+                            maxlength: 15,
+                            customPattern: /^[0-9A-Z]*$/,
+                            remote: {
+                                url: "/api/validation/healthinsurance/check",
+                                type: "GET",
+                                data: {
+                                    type: "numberhealthinsurance",
+                                    entityType: "healthinsurance",
+                                    value: function () { return $("#HealthInsuranceNumber").val(); }
+                                },
+                                dataFilter: function (data) {
+                                    if (!$('#HasHealthInsurance').is(':checked')) return true;
+
+                                    try {
+                                        const response = JSON.parse(data);
+                                        if (response.success) {
+                                            return response.isUnique === true;
+                                        } else {
+                                            notyf.error(response.message || "Lỗi khi kiểm tra.");
+                                            return false;
+                                        }
+                                    } catch (e) {
+                                        notyf.error("Lỗi kết nối server.");
+                                        return false;
+                                    }
+                                }
+                            }
                         },
-                        RoomId: {
-                            required: true
+                        HealthInsuranceExpiryDate: {
+                            required: () => $('#HasHealthInsurance').is(':checked'),
+                            dateFormat: true,
+                            notExpired: true
+                        },
+                        HealthInsurancePlaceOfRegistration: {
+                            required: () => $('#HasHealthInsurance').is(':checked')
                         }
                     },
                     messages: {
                         Name: {
                             required: "Tên nhân sự không được bỏ trống.",
-                            minlength: "Tên phải có ít nhất 6 ký tự.",
+                            minlength: "Tên phải có ít nhất 2 ký tự.",
                             maxlength: "Tên không được vượt quá 50 ký tự.",
-                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái."
+                            customPattern: "Tên bệnh nhân chỉ chứa chữ cái."
                         },
                         Gender: {
                             required: "Giới tính không được bỏ trống"
                         },
                         DateOfBirth: {
                             required: "Ngày sinh không được bỏ trống.",
-                            dateFormat: "Ngày sinh không hợp lệ.",
-                            over18: "Nhân sự phải trên 18 tuổi."
+                            dateFormat: "Ngày sinh không hợp lệ."
                         },
                         IdentityNumber: {
                             required: "Căn cước công dân không được bỏ trống",
@@ -493,16 +547,25 @@
                         },
                         PhoneNumber: {
                             required: "Số điện thoại không được bỏ trống.",
-                            minlength: "Số điện thoại phải có ít nhất 9 ký tự.",
+                            minlength: "Số điện thoại phải có ít nhất 10 ký tự.",
                             maxlength: "Số điện thoại không được vượt quá 11 ký tự.",
                             customPattern: "Số điện thoại không hợp lệ.",
                             remote: "Số điện thoại này đã được đăng ký bởi nhân sự khác."
                         },
-                        EmployeeCategoryId: {
-                            required: "Loại nhân sự không được bỏ trống."
+                        HealthInsuranceNumber: {
+                            required: "Số BHYT không được bỏ trống",
+                            minlength: "Số BHYT phải có 15 ký tự",
+                            maxlength: "Số BHYT phải có 15 ký tự",
+                            customPattern: "Số BHYT chỉ được nhập số và chữ in hoa",
+                            remote: "Số BHYT đã được đăng ký trên hệ thống"
                         },
-                        RoomId: {
-                            required: "Phòng làm việc không được bỏ trống."
+                        HealthInsuranceExpiryDate: {
+                            required: "Ngày hết hạn không được bỏ trống",
+                            dateFormat: "Ngày hết hạn không hợp lệ",
+                            notExpired: "Thẻ BHYT đã hết hạn"
+                        },
+                        HealthInsurancePlaceOfRegistration: {
+                            required: "Nơi đăng ký không được bỏ trống."
                         }
                     },
                     errorElement: "div",
@@ -545,6 +608,32 @@
                 $('select.form-input').on('change', function () {
                     $(this).valid();
                 });
+                $('#DateOfBirth').on('change', function () {
+                    $("#IdentityNumber").valid();
+                });
+                $('#HasHealthInsurance').on('change', function () {
+                    if (!$(this).is(':checked')) {
+                        const form = $("#myForm");
+                        const validator = form.validate();
+                        // Reset lỗi các trường input
+                        $(".health-insurance-field").each(function () {
+                            validator.successList.push(this);
+                            validator.showErrors();
+                            $(this).removeClass('border-red-500');
+                        });
+                        // Reset border-red-500 cho Choices.js select
+                        $(".health-insurance-field").each(function () {
+                            if ($(this).is('select')) {
+                                const choicesContainer = $(this).closest('.select-wrapper').find('.choices__inner');
+                                choicesContainer.removeClass('border-red-500');
+                            }
+                        });
+                        // Xóa message lỗi
+                        $(".health-insurance-field").each(function () {
+                            $(this).siblings('.text-danger').remove();
+                        });
+                    }
+                });
             },
 
             appendFormData(formData) {
@@ -556,8 +645,16 @@
                 formData.append('Gender', document.getElementById('Gender').value);
                 formData.append('EmailAddress', document.getElementById('EmailAddress').value);
                 formData.append('PhoneNumber', document.getElementById('PhoneNumber').value);
-                formData.append('EmployeeCategoryId', document.getElementById('EmployeeCategoryId').value);
-                formData.append('RoomId', document.getElementById('RoomId').value);
+                formData.append('HasHealthInsurance', document.getElementById('HasHealthInsurance').checked);
+
+                if (document.getElementById('HasHealthInsurance').checked) {
+                    formData.append('HealthInsuranceCode', document.getElementById('HealthInsuranceCode').value);
+                    formData.append('HealthInsuranceNumber', document.getElementById('HealthInsuranceNumber').value);
+                    formData.append('HealthInsuranceExpiryDate', document.getElementById('HealthInsuranceExpiryDate').value);
+                    formData.append('HealthInsurancePlaceOfRegistration', document.getElementById('HealthInsurancePlaceOfRegistration').value);
+                    formData.append('HealthInsuranceIsRightRoute', document.getElementById('HealthInsuranceIsRightRoute').checked);
+                }
+
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
                 formData.append('__RequestVerificationToken', token);
             },
@@ -568,7 +665,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/nhan-su';
+                        window.location.href = '/benh-nhan';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -589,7 +686,7 @@
                         this.dropzone.processQueue();
                     } else {
                         const formData = new FormData(form);
-                        fetch('/nhan-su/them-moi', {
+                        fetch('/tiep-nhan-benh-nhan', {
                             method: 'POST',
                             body: formData
                         })
@@ -606,30 +703,7 @@
             },
 
             goBack() {
-                window.location.href = '/nhan-su';
-            },
-
-            onDepartmentChange(e) {
-                this.selectedDepartmentId = e.target.value;
-                this.rooms = [];
-                this.roomChoices.clearStore();
-
-                if (!this.selectedDepartmentId) {
-                    this.roomChoices.disable();
-                } else {
-                    fetch(`/api/Utils/GetRoomsByDepartment/${this.selectedDepartmentId}`)
-                        .then(res => res.json())
-                        .then(data => {
-                            this.rooms = data;
-                            this.roomChoices.setChoices(
-                                data.map(room => ({
-                                    value: room.id || room.Id,
-                                    label: room.name || room.Name
-                                })), 'value', 'label', false
-                            );
-                            this.roomChoices.enable();
-                        });
-                }
+                window.location.href = '/benh-nhan';
             }
         }));
     });

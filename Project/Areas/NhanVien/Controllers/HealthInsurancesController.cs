@@ -2,20 +2,24 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.Entities;
-using Project.Areas.Staff.Models.DTOs;
-using Project.Areas.Staff.Models.ViewModels;
+using Project.Areas.NhanVien.Models.DTOs;
+using Project.Areas.NhanVien.Models.ViewModels;
 using Project.Helpers;
 using Project.Repositories.Interfaces;
+using Project.Services.Features;
 
 namespace Project.Areas.NhanVien.Controllers
 {
-    [Area("Staff")]
-    [Authorize(Roles = "Admin, Bacsi, Yta")]
+    [Area("NhanVien")]
+    [Authorize(Roles = "NhanVienHanhChinh")]
     [Route("bao-hiem-y-te")]
     public class HealthInsurancesController : Controller
     {
         private readonly IHealthInsuranceRepository _healthInsuranceRepository;
         private readonly IPatientRepository _patientRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IEmployeeRepository _employeeRepository;
+        private readonly JwtManager _jwtManager;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
         private readonly CodeGeneratorHelper _codeGenerator;
@@ -24,6 +28,9 @@ namespace Project.Areas.NhanVien.Controllers
         (
             IHealthInsuranceRepository healthInsuranceRepository,
             IPatientRepository patientRepository,
+            IUserRepository userRepository,
+            IEmployeeRepository employeeRepository,
+            JwtManager jwtManager,
             IMapper mapper,
             ViewBagHelper viewBagHelper,
             CodeGeneratorHelper codeGenerator
@@ -31,6 +38,9 @@ namespace Project.Areas.NhanVien.Controllers
         {
             _healthInsuranceRepository = healthInsuranceRepository;
             _patientRepository = patientRepository;
+            _userRepository = userRepository;
+            _employeeRepository = employeeRepository;
+            _jwtManager = jwtManager;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
             _codeGenerator = codeGenerator;
@@ -53,6 +63,10 @@ namespace Project.Areas.NhanVien.Controllers
             {
                 return NotFound();
             }
+            var createdByEmployee = await _employeeRepository.GetByCodeAsync(healthInsurance.CreatedBy);
+            var updatedByEmployee = await _employeeRepository.GetByCodeAsync(healthInsurance.UpdatedBy!);
+            ViewBag.CreatedByEmployee = createdByEmployee?.Name ?? "Không có";
+            ViewBag.UpdatedByEmployee = updatedByEmployee?.Name ?? "Không có";
             return View(healthInsurance);
         }
 
@@ -74,6 +88,26 @@ namespace Project.Areas.NhanVien.Controllers
         {
             try
             {
+                // Get user info from token
+                var token = Request.Cookies["AuthToken"];
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
+                }
+
+                var (username, role) = _jwtManager.GetClaimsFromToken(token);
+                if (string.IsNullOrEmpty(username))
+                {
+                    Response.Cookies.Delete("AuthToken");
+                    return Json(new { success = false, message = "Token không hợp lệ." });
+                }
+
+                var user = await _userRepository.GetByUsernameAsync(username);
+                if (user == null || user.Employee == null)
+                {
+                    return Json(new { success = false, message = "Người dùng không hợp lệ" });
+                }
+
                 // Validate that the patient exists
                 var patient = await _patientRepository.GetByIdAsync(inputDto.PatientId);
                 if (patient == null)
@@ -83,7 +117,7 @@ namespace Project.Areas.NhanVien.Controllers
 
                 var entity = _mapper.Map<HealthInsurance>(inputDto);
 
-                entity.CreatedBy = "Admin";
+                entity.CreatedBy = user.Employee.Code;
                 entity.CreatedDate = DateTime.UtcNow;
                 entity.PatientId = inputDto.PatientId; // Explicitly set PatientId
 
@@ -117,6 +151,26 @@ namespace Project.Areas.NhanVien.Controllers
         {
             try
             {
+                // Get user info from token
+                var token = Request.Cookies["AuthToken"];
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
+                }
+
+                var (username, role) = _jwtManager.GetClaimsFromToken(token);
+                if (string.IsNullOrEmpty(username))
+                {
+                    Response.Cookies.Delete("AuthToken");
+                    return Json(new { success = false, message = "Token không hợp lệ." });
+                }
+
+                var user = await _userRepository.GetByUsernameAsync(username);
+                if (user == null || user.Employee == null)
+                {
+                    return Json(new { success = false, message = "Người dùng không hợp lệ" });
+                }
+
                 var entity = await _healthInsuranceRepository.GetByIdAdvancedAsync(Id);
                 if (entity == null) return NotFound();
 
@@ -129,7 +183,7 @@ namespace Project.Areas.NhanVien.Controllers
                 // Ensure PatientId is preserved
                 entity.PatientId = originalPatientId;
 
-                entity.UpdatedBy = "Admin";
+                entity.UpdatedBy = user.Employee.Code;
                 entity.UpdatedDate = DateTime.UtcNow;
 
                 // Validate that the patient still exists

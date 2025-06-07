@@ -1,4 +1,4 @@
-namespace Project.Areas.Staff.Models.ViewModels
+namespace Project.Areas.NhanVien.Models.ViewModels
 {
     public class WarningPatientViewModel
     {

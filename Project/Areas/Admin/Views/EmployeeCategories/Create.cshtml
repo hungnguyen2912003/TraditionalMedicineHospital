@@ -114,7 +114,7 @@
                             required: true,
                             minlength: 6,
                             maxlength: 50,
-                            customPattern: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9 ]*$/,
+                            customPattern: /^[A-Za-zÀ-ỹ ]*$/,
                             remote: {
                                 url: "/api/validation/employeecategory/check",
                                 type: "GET",
@@ -145,7 +145,7 @@
                             required: "Tên loại nhân sự không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 6 ký tự.",
                             maxlength: "Tên không được vượt quá 50 ký tự.",
-                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng.",
+                            customPattern: "Tên loại nhân sự phải bắt đầu bằng chữ cái và chỉ chứa chữ cái.",
                             remote: "Tên loại nhân sự này đã tồn tại."
                         }
                     },

@@ -1,7 +1,7 @@
 using Project.Areas.Admin.Models.Entities;
 using Project.Models.Enums;
 
-namespace Project.Areas.Staff.Models.ViewModels
+namespace Project.Areas.NhanVien.Models.ViewModels
 {
     public class PaymentViewModel
     {
@@ -19,8 +19,10 @@ namespace Project.Areas.Staff.Models.ViewModels
         public string? Note { get; set; }
         public DateTime CreatedDate { get; set; }
         public string? CreatedBy { get; set; }
+        public string? CreatedByName { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public string? UpdatedBy { get; set; }
+        public string? UpdatedByName { get; set; }
         public decimal AdvancePayment { get; set; }
         public decimal FinalCost { get; set; }
         public List<Prescription> Prescriptions { get; set; } = new();

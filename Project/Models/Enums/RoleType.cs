@@ -13,6 +13,8 @@ namespace Project.Models.Enums
         [Display(Name = "Bệnh nhân")]
         BenhNhan = 4,
         [Display(Name = "Nhân viên hành chính")]
-        NhanVienHanhChinh = 5
+        NhanVienHanhChinh = 5,
+        [Display(Name = "Không xác định")]
+        KhongXacDinh = 6
     }
 }

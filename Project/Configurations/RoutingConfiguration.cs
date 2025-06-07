@@ -53,7 +53,7 @@
             app.MapControllerRoute(
                 name: "nhan-vien",
                 pattern: "nhan-vien",
-                defaults: new { area = "Staff", controller = "Home", action = "Index" }
+                defaults: new { area = "NhanVien", controller = "Home", action = "Index" }
             );
 
             app.MapControllerRoute(

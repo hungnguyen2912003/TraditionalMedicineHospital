@@ -24,6 +24,7 @@ namespace Project.Areas.Admin.Controllers
         private readonly CodeGeneratorHelper _codeGenerator;
         private readonly IRoomRepository _roomRepository;
         private readonly EmailService _emailService;
+        private readonly IEmployeeCategoryRepository _employeeCategoryRepository;
         public EmployeesController
         (
             IEmployeeRepository repository,
@@ -33,7 +34,8 @@ namespace Project.Areas.Admin.Controllers
             ViewBagHelper viewBagHelper,
             CodeGeneratorHelper codeGenerator,
             IRoomRepository roomRepository,
-            EmailService emailService
+            EmailService emailService,
+            IEmployeeCategoryRepository employeeCategoryRepository
         )
         {
             _repository = repository;
@@ -44,6 +46,7 @@ namespace Project.Areas.Admin.Controllers
             _codeGenerator = codeGenerator;
             _roomRepository = roomRepository;
             _emailService = emailService;
+            _employeeCategoryRepository = employeeCategoryRepository;
         }
 
         [Authorize(Roles = "Admin")]
@@ -99,17 +102,22 @@ namespace Project.Areas.Admin.Controllers
 
                 await _repository.CreateAsync(entity);
 
+                var employeeCategory = await _employeeCategoryRepository.GetByIdAsync(entity.EmployeeCategoryId);
+
+                var role = employeeCategory?.Code switch
+                {
+                    "LXP8FEJV" => RoleType.YTa,
+                    "UP6H9W4J" => RoleType.BacSi,
+                    "P5JA44BQ" => RoleType.NhanVienHanhChinh,
+                    _ => RoleType.KhongXacDinh
+                };
+
                 var user = new User
                 {
                     Id = Guid.NewGuid(),
                     Username = entity.Code,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("11111111"),
-                    Role = entity.EmployeeCategory?.Name?.ToLower() switch
-                    {
-                        var name when name?.Contains("y tá") == true => RoleType.YTa,
-                        var name when name?.Contains("nhân viên hành chính") == true => RoleType.NhanVienHanhChinh,
-                        _ => RoleType.BacSi
-                    },
+                    Role = role,
                     CreatedDate = DateTime.UtcNow,
                     CreatedBy = "Admin",
                     EmployeeId = entity.Id,

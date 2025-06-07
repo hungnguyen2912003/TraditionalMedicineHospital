@@ -31,7 +31,7 @@
             </button>
         </div>
         <div class="flex gap-2 lg:justify-end">
-            <a href="/quan-ly-benh-nhan/chinh-sua/@Model.Id" class="btn btn-warning gap-2">
+            <a href="/benh-nhan/chinh-sua/@Model.Id" class="btn btn-warning gap-2">
                 <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
                     class="h-5 w-5">
                     <path opacity="0.5"
@@ -125,7 +125,7 @@
                         </div>
                         <div>
                             <label for="createdBy">Nguời tạo</label>
-                            <input id="createdBy" type="text" value="@Model.CreatedBy" readonly class="form-input">
+                            <input id="createdBy" type="text" value="@ViewBag.CreatedByEmployee" readonly class="form-input">
                         </div>
                         <div>
                             <label for="UpdatedDate">Ngày chỉnh sửa</label>
@@ -135,7 +135,7 @@
                         </div>
                         <div>
                             <label for="UpdatedBy">Nguời chỉnh sửa</label>
-                            <input id="UpdatedBy" type="text" value="@(Model.UpdatedBy ?? "Không có")" readonly
+                            <input id="UpdatedBy" type="text" value="@ViewBag.UpdatedByEmployee" readonly
                                 class="form-input">
                         </div>
                     </div>
@@ -149,7 +149,7 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('details', () => ({
             goBack() {
-                window.location.href = '/quan-ly-benh-nhan';
+                window.location.href = '/benh-nhan';
             }
         }));
     });

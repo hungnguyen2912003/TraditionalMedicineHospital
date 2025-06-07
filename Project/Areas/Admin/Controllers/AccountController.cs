@@ -94,7 +94,7 @@ namespace Project.Areas.Admin.Controllers
                         "Admin" => "/admin",
                         "BacSi" => "/bac-si",
                         "YTa" => "/y-ta",
-                        "NhanVienHanhChinh" => "/nhan-vien-hanh-chinh",
+                        "NhanVienHanhChinh" => "/nhan-vien",
                         "BenhNhan" => "/benh-nhan",
                         _ => "/",
                     };

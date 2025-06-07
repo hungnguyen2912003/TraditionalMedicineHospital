@@ -111,7 +111,8 @@
                     </div>
                     <div>
                         <label for="createdBy">Nguời tạo</label>
-                        <input id="createdBy" type="text" value="@Model.CreatedBy" readonly class="form-input">
+                        <input id="createdBy" type="text" value="@ViewBag.CreatedByEmployee" readonly
+                            class="form-input">
                     </div>
                     <div>
                         <label for="UpdatedDate">Ngày chỉnh sửa</label>
@@ -121,7 +122,7 @@
                     </div>
                     <div>
                         <label for="UpdatedBy">Nguời chỉnh sửa</label>
-                        <input id="UpdatedBy" type="text" value="@(Model.UpdatedBy ?? "Không có")" readonly
+                        <input id="UpdatedBy" type="text" value="@ViewBag.UpdatedByEmployee" readonly
                             class="form-input">
                     </div>
                 </div>

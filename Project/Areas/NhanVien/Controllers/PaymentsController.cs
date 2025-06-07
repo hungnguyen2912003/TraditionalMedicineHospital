@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.Entities;
-using Project.Areas.Staff.Models.ViewModels;
+using Project.Areas.NhanVien.Models.ViewModels;
 using Project.Extensions;
 using Project.Helpers;
 using Project.Models.Enums;
@@ -11,9 +11,9 @@ using System.Globalization;
 
 namespace Project.Areas.NhanVien.Controllers
 {
-    [Area("Staff")]
-    [Authorize(Roles = "Bacsi")]
-    [Route("phieu-thanh-toan")]
+    [Area("NhanVien")]
+    [Authorize(Roles = "NhanVienHanhChinh")]
+    [Route("/thanh-toan")]
     public class PaymentsController : Controller
     {
         private readonly IPaymentRepository _paymentRepository;
@@ -179,6 +179,9 @@ namespace Project.Areas.NhanVien.Controllers
             decimal finalCost = totalCostBeforeInsurance - insuranceAmount - tr.AdvancePayment;
             if (finalCost < 0) finalCost = 0;
 
+            var createdByEmployee = await _employeeRepository.GetByCodeAsync(payment.CreatedBy);
+            var updatedByEmployee = await _employeeRepository.GetByCodeAsync(payment.UpdatedBy!);
+
             var viewModel = new PaymentViewModel
             {
                 Id = payment.Id,
@@ -187,8 +190,10 @@ namespace Project.Areas.NhanVien.Controllers
                 PaymentDate = payment.PaymentDate,
                 CreatedDate = payment.CreatedDate,
                 CreatedBy = payment.CreatedBy,
+                CreatedByName = createdByEmployee?.Name ?? "Không có",
                 UpdatedDate = payment.UpdatedDate,
                 UpdatedBy = payment.UpdatedBy,
+                UpdatedByName = updatedByEmployee?.Name ?? "Không có",
                 TreatmentRecordCode = tr.Code,
                 PatientName = tr.Patient!.Name,
                 TotalPrescriptionCost = totalPrescriptionCost,

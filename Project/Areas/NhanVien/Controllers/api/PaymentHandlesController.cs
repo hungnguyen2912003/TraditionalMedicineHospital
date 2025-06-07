@@ -1,7 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.Entities;
-using Project.Areas.Staff.Models.DTOs;
+using Project.Areas.NhanVien.Models.DTOs;
 using Project.Helpers;
 using Project.Models.Enums;
 using Project.Repositories.Interfaces;
@@ -246,6 +246,7 @@ namespace Project.Areas.NhanVien.Controllers.api
         [HttpPut("UpdateStatus")]
         public async Task<IActionResult> UpdateStatus([FromBody] UpdatePaymentStatusRequest request)
         {
+
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))
                 return Unauthorized("Chưa đăng nhập.");

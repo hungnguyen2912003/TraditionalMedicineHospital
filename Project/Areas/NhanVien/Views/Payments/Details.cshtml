@@ -1,7 +1,7 @@
-@using System.Globalization
+﻿@using System.Globalization
 @using Project.Extensions
 @using Project.Models.Enums
-@model Project.Areas.Staff.Models.ViewModels.PaymentViewModel
+@model Project.Areas.NhanVien.Models.ViewModels.PaymentViewModel
 @{
     ViewData["Title"] = "Chi tiết phiếu thanh toán";
     Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
@@ -20,13 +20,12 @@
     <div class="mb-3 mt-3 flex flex-wrap items-center justify-between gap-4">
         <div>
             <button type="button"
-                class="btn btn-secondary w-full py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600"
-                @@click="goBack()">
+                    class="btn btn-secondary w-full py-2 bg-gray-500 text-white rounded-lg flex items-center gap-2 hover:bg-gray-600"
+                    @@click="goBack()">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5">
-                    <path
-                        d="M4 10L3.29289 10.7071L2.58579 10L3.29289 9.29289L4 10ZM21 18C21 18.5523 20.5523 19 20 19C19.4477 19 19 18.5523 19 18L21 18ZM8.29289 15.7071L3.29289 10.7071L4.70711 9.29289L9.70711 14.2929L8.29289 15.7071ZM3.29289 9.29289L8.29289 4.29289L9.70711 5.70711L4.70711 10.7071L3.29289 9.29289ZM4 9L14 9L14 11L4 11L4 9ZM21 16L21 18L19 18L19 16L21 16ZM14 9C17.866 9 21 12.134 21 16L19 16C19 13.2386 16.7614 11 14 11L14 9Z"
-                        fill="white" />
+                     class="h-5 w-5">
+                    <path d="M4 10L3.29289 10.7071L2.58579 10L3.29289 9.29289L4 10ZM21 18C21 18.5523 20.5523 19 20 19C19.4477 19 19 18.5523 19 18L21 18ZM8.29289 15.7071L3.29289 10.7071L4.70711 9.29289L9.70711 14.2929L8.29289 15.7071ZM3.29289 9.29289L8.29289 4.29289L9.70711 5.70711L4.70711 10.7071L3.29289 9.29289ZM4 9L14 9L14 11L4 11L4 9ZM21 16L21 18L19 18L19 16L21 16ZM14 9C17.866 9 21 12.134 21 16L19 16C19 13.2386 16.7614 11 14 11L14 9Z"
+                          fill="white" />
                 </svg>
                 Trở về
             </button>
@@ -53,8 +52,8 @@
                     <div>
                         <label>Ngày lập phiếu thanh toán</label>
                         <input type="text"
-                            value="@Model.PaymentDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly
-                            class="form-input">
+                               value="@Model.PaymentDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly
+                               class="form-input">
                     </div>
                 </div>
             </div>
@@ -63,34 +62,32 @@
                     <div>
                         <label>Số thẻ BHYT</label>
                         <input type="text" value="@(Model.PatientHealthInsuranceNumber ?? "Không có")" readonly
-                            class="form-input">
+                               class="form-input">
                     </div>
                     <div>
                         <label>Ngày hết hạn</label>
                         <input type="text"
-                            value="@(Model.PatientHealthInsuranceExpiredDate?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) ?? "Không có")"
-                            readonly class="form-input">
+                               value="@(Model.PatientHealthInsuranceExpiredDate?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) ?? "Không có")"
+                               readonly class="form-input">
                     </div>
                     <div>
                         <label>Nơi đăng ký</label>
                         <input type="text"
-                            value="@(EnumExtensions.GetDisplayName(Model.PatientHealthInsurancePlaceOfRegistration!) ?? "Không có")"
-                            readonly class="form-input">
+                               value="@(EnumExtensions.GetDisplayName(Model.PatientHealthInsurancePlaceOfRegistration!) ?? "Không có")"
+                               readonly class="form-input">
                     </div>
                     <div>
                         <label>Tình trạng tuyến thẻ</label>
                         <input type="text"
-                            value="@(Model.PatientHealthInsuranceIsRightRoute == null 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ? "Không có" 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    : (Model.PatientHealthInsuranceIsRightRoute == true ? "Đúng tuyến" : "Không đúng tuyến"))"
-                            readonly class="form-input">
+                               value="@(Model.PatientHealthInsuranceIsRightRoute == null ? "Không có" : (Model.PatientHealthInsuranceIsRightRoute == true ? "Đúng tuyến" : "Không đúng tuyến"))"
+                               readonly class="form-input">
                     </div>
                 </div>
             </div>
             <div class="mt-5">
                 <label>Ghi chú</label>
                 <textarea class="form-textarea w-full mt-1 p-2 border rounded min-h-[80px]" style="resize: none;"
-                    readonly>@(string.IsNullOrWhiteSpace(Model.Note) ? "Không có ghi chú" : Model.Note)</textarea>
+                          readonly>@(string.IsNullOrWhiteSpace(Model.Note) ? "Không có ghi chú" : Model.Note)</textarea>
             </div>
             <div class="mt-5">
                 <h6 class="mb-3 text-lg font-bold">Danh sách các phương pháp điều trị được chỉ định trong phiếu</h6>
@@ -176,9 +173,9 @@
                             <tr>
                                 <td colspan="3" style="text-align: right; font-weight: bold;">Tổng tiền đơn thuốc</td>
                                 <td colspan="2" style="font-weight: bold;">@prescriptionGrandTotal.ToString("N0") VNĐ</td>
-                            </tr>                            
+                            </tr>
                         </tbody>
-                    </table>                    
+                    </table>
                 </div>
             </div>
             <div class="mt-5">
@@ -213,18 +210,26 @@
                         {
                             <tr>
                                 <td><b>Số tiền tạm ứng còn dư</b></td>
-                                <td><b>@((Model.AdvancePayment - (Model.TotalCost - Model.InsuranceAmount)).ToString("N0"))
-                                        VNĐ</b></td>
+                                <td>
+                                    <b>
+                                        @((Model.AdvancePayment - (Model.TotalCost - Model.InsuranceAmount)).ToString("N0"))
+                                        VNĐ
+                                    </b>
+                                </td>
                             </tr>
                         }
                         else if (Model.AdvancePayment - (Model.TotalCost - Model.InsuranceAmount) < 0)
                         {
                             <tr>
                                 <td><b>Số tiền còn thiếu</b></td>
-                                <td><b>@Math.Abs(Model.AdvancePayment - (Model.TotalCost -
-                                                                            Model.InsuranceAmount)).ToString("N0") VNĐ</b></td>
-                        </tr>
-                                                }
+                                <td>
+                                    <b>
+                                        @Math.Abs(Model.AdvancePayment - (Model.TotalCost -
+                                        Model.InsuranceAmount)).ToString("N0") VNĐ
+                                </b>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
@@ -233,22 +238,22 @@
                     <div>
                         <label>Ngày tạo</label>
                         <input type="text"
-                            value="@Model.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly
-                            class="form-input">
+                               value="@Model.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly
+                               class="form-input">
                     </div>
                     <div>
                         <label>Nguời tạo</label>
-                        <input type="text" value="@Model.CreatedBy" readonly class="form-input">
+                        <input type="text" value="@Model.CreatedByName" readonly class="form-input">
                     </div>
                     <div>
                         <label>Ngày chỉnh sửa</label>
                         <input type="text"
-                            value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) ?? "Không có")"
-                            readonly class="form-input">
+                               value="@(Model.UpdatedDate?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) ?? "Không có")"
+                               readonly class="form-input">
                     </div>
                     <div>
                         <label>Nguời chỉnh sửa</label>
-                        <input type="text" value="@(Model.UpdatedBy ?? "Không có")" readonly class="form-input">
+                        <input type="text" value="@Model.UpdatedByName" readonly class="form-input">
                     </div>
                 </div>
 
@@ -283,7 +288,7 @@
         Alpine.data('details', () => ({
 
             goBack() {
-                window.location.href = '/phieu-thanh-toan/';
+                window.location.href = '/thanh-toan';
             }
         }));
     });
@@ -301,7 +306,7 @@
     }
 
     function showLogModal(detailId) {
-        fetch(`/phieu-thanh-toan/get-treatment-tracking?detailId=${detailId}`)
+        fetch(`/thanh-toan/get-treatment-tracking?detailId=${detailId}`)
             .then(res => res.json())
             .then(data => {
                 function getStatusBadge(status) {
@@ -340,7 +345,7 @@
                                             <td>${getStatusBadge(log.status)}</td>
                                             <td>${log.staff}</td>
                                             <td>
-                                                <input type=\"text\" class=\"form-input\" style=\"width:180px;max-width:100%;font-size:14px;\" readonly 
+                                                <input type=\"text\" class=\"form-input\" style=\"width:180px;max-width:100%;font-size:14px;\" readonly
                                                     value=\"${log.note ? log.note : 'Chưa thêm ghi chú'}\" />
                                             </td>
                                         </tr>
@@ -366,7 +371,7 @@
     }
 
     function showPrescriptionDetail(prescriptionId, prescriptionCode) {
-        fetch(`/phieu-thanh-toan/get-prescription-detail?prescriptionId=${prescriptionId}`)
+        fetch(`/thanh-toan/get-prescription-detail?prescriptionId=${prescriptionId}`)
             .then(res => res.json())
             .then(data => {
                 let html = `
@@ -431,45 +436,54 @@
     .modal-content-animate {
         animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
     #logModal.closing .modal-content-animate {
         animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
     #prescriptionModal.closing .modal-content-animate {
         animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
     @@keyframes modalFadeIn {
         from {
             opacity: 0;
             transform: scale(0.95);
         }
+
         to {
             opacity: 1;
             transform: scale(1);
         }
     }
+
     @@keyframes modalFadeOut {
         from {
             opacity: 1;
             transform: scale(1);
         }
+
         to {
             opacity: 0;
             transform: scale(0.95);
         }
     }
+
     #logModal {
         background: rgba(30, 41, 59, 0.2);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
     }
+
     #prescriptionModal {
         background: rgba(30, 41, 59, 0.2);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
     }
+
     .bg-modal-blur {
         background: rgba(30, 41, 59, 0.2);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
-    }    
+    }
 </style>

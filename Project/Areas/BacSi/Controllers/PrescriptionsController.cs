@@ -132,10 +132,10 @@ namespace Project.Areas.BacSi.Controllers
                 EmployeeName = prescription.Employee?.Name ?? string.Empty,
                 CreatedDate = prescription.CreatedDate,
                 CreatedBy = prescription.CreatedBy,
-                CreatedByName = createdByEmployee?.Name ?? string.Empty,
+                CreatedByName = createdByEmployee?.Name ?? "Không có",
                 UpdatedDate = prescription.UpdatedDate,
                 UpdatedBy = prescription.UpdatedBy,
-                UpdatedByName = updatedByEmployee?.Name ?? string.Empty,
+                UpdatedByName = updatedByEmployee?.Name ?? "Không có",
                 PrescriptionDetails = prescription.PrescriptionDetails?.Select(d => new PrescriptionDetailViewModel
                 {
                     MedicineId = d.MedicineId,

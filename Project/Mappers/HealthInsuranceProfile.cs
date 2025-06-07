@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Project.Areas.Admin.Models.Entities;
-using Project.Areas.Staff.Models.DTOs;
-using Project.Areas.Staff.Models.ViewModels;
+using Project.Areas.NhanVien.Models.DTOs;
+using Project.Areas.NhanVien.Models.ViewModels;
 
 namespace Project.Mappers
 {
@@ -15,7 +15,6 @@ namespace Project.Mappers
                 .ForMember(dest => dest.PatientName,
                     opt => opt.MapFrom(src => src.Patient != null ? src.Patient.Name : "Không xác định"))
                 .ForMember(dest => dest.IsRightRoute, opt => opt.MapFrom(src => src.IsRightRoute));
-
         }
     }
 }

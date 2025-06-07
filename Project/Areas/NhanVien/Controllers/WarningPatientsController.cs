@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project.Areas.Staff.Models.ViewModels;
+using Project.Areas.NhanVien.Models.ViewModels;
 using Project.Helpers;
 using Project.Models.Enums;
 using Project.Repositories.Interfaces;
@@ -8,7 +9,8 @@ using Project.Services.Features;
 
 namespace Project.Areas.NhanVien.Controllers
 {
-    [Area("Staff")]
+    [Area("NhanVien")]
+    [Authorize(Roles = "NhanVienHanhChinh")]
     [Route("canh-bao-benh-nhan")]
     public class WarningPatientsController : Controller
     {

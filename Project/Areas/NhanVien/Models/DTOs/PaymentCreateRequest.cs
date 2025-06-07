@@ -1,4 +1,4 @@
-namespace Project.Areas.Staff.Models.DTOs
+namespace Project.Areas.NhanVien.Models.DTOs
 {
     public class PaymentCreateRequest
     {

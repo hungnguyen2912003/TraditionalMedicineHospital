@@ -1,11 +1,10 @@
+﻿using Project.Models.Enums;
 using System.ComponentModel.DataAnnotations;
-using Project.Models.Enums;
 
-namespace Project.Areas.Staff.Models.DTOs.ReceptionDTO
+namespace Project.Areas.NhanVien.Models.DTOs
 {
-    public class ReceptionPatientDto
+    public class ReceptionDto
     {
-        // Patient info
         public string Code { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public DateTime DateOfBirth { get; set; }
@@ -26,6 +25,5 @@ namespace Project.Areas.Staff.Models.DTOs.ReceptionDTO
         public DateTime? HealthInsuranceExpiryDate { get; set; }
         public HealthInsuranceRegistrationPlace? HealthInsurancePlaceOfRegistration { get; set; }
         public bool? HealthInsuranceIsRightRoute { get; set; }
-
     }
 }
