@@ -8,6 +8,7 @@ namespace Project.Areas.NhanVien.Controllers
     [Route("nhan-vien")]
     public class HomeController : Controller
     {
+        [HttpGet]
         public IActionResult Index()
         {
             return View();

@@ -75,7 +75,7 @@ namespace Project.Areas.Admin.Controllers.Api
                     role = role
                 });
             }
-            else if (role != "Benhnhan")
+            else if (role != "BenhNhan")
             {
                 var employee = user.Employee;
                 if (employee == null)
@@ -102,7 +102,7 @@ namespace Project.Areas.Admin.Controllers.Api
                     role = role
                 });
             }
-            else if (role == "Benhnhan")
+            else if (role == "BenhNhan")
             {
                 var patient = user.Patient;
                 if (patient == null)

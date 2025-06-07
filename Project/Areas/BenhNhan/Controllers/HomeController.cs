@@ -59,6 +59,7 @@ namespace Project.Areas.BenhNhan.Controllers
             _paymentRepository = paymentRepository;
         }
 
+
         public async Task<IActionResult> Index()
         {
             var token = Request.Cookies["AuthToken"];
@@ -66,7 +67,7 @@ namespace Project.Areas.BenhNhan.Controllers
                 return RedirectToAction("Login", "Account", new { area = "Admin" });
 
             var (username, role) = _jwtManager.GetClaimsFromToken(token);
-            if (string.IsNullOrEmpty(username) || role != "Benhnhan")
+            if (string.IsNullOrEmpty(username) || role != "BenhNhan")
                 return RedirectToAction("Login", "Account", new { area = "Admin" });
 
             var user = await _userRepository.GetByUsernameAsync(username);

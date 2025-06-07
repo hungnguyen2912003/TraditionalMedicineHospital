@@ -13,7 +13,7 @@ namespace Project.Areas.NhanVien.Controllers
 {
     [Area("NhanVien")]
     [Authorize(Roles = "NhanVienHanhChinh")]
-    [Route("benh-nhan")]
+    [Route("quan-ly-benh-nhan")]
     public class PatientsController : Controller
     {
         private readonly IPatientRepository _patientRepository;

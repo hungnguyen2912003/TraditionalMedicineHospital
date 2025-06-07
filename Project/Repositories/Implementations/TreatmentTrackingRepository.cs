@@ -20,6 +20,7 @@ namespace Project.Repositories.Implementations
                 .Include(t => t.TreatmentRecordDetail!)
                     .ThenInclude(r => r.Room)
                         .ThenInclude(d => d.Department)
+                .AsSplitQuery()
                 .OrderBy(t => t.TrackingDate)
                 .ToListAsync();
         }

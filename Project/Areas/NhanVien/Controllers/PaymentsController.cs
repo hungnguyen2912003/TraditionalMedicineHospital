@@ -50,7 +50,7 @@ namespace Project.Areas.NhanVien.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var payments = await _paymentRepository.GetAllAdvancedAsync();
+            var payments = await _paymentRepository.GetAllForListViewAsync();
             var viewModels = payments.Select(p =>
             {
                 var tr = p.TreatmentRecord;
