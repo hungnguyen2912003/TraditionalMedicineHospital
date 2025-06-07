@@ -113,7 +113,8 @@
                 </div>
                 <div class="w-1/2">
                     <label for="paymentTreatmentRecordId" class="block font-semibold mb-1">Mã phiếu điều trị</label>
-                    <select id="paymentTreatmentRecordId" class="form-input w-full cursor-not-allowed" disabled>
+                    <select id="paymentTreatmentRecordId" class="form-input w-full" disabled>
+                        <option value="">Chọn mã phiếu điều trị</option>
                     </select>
                 </div>
                 <div class="w-1/2">
@@ -508,25 +509,10 @@
     // Danh sách các TreatmentRecordId đã lập phiếu thanh toán (Guid)
     const paidTreatmentRecordIds = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.PaidTreatmentRecordIds));
 
-    // Khởi tạo Choices cho 2 select
-    let patientChoices, treatmentRecordChoices;
-    document.addEventListener('DOMContentLoaded', function () {
-        patientChoices = new Choices('#paymentPatientId', {
-            searchEnabled: true,
-            itemSelectText: '',
-            shouldSort: false
-        });
-        treatmentRecordChoices = new Choices('#paymentTreatmentRecordId', {
-            searchEnabled: true,
-            itemSelectText: '',
-            shouldSort: false
-        });
-    });
-
-    // Khi chọn bệnh nhân, lọc lại dropdown phiếu điều trị
+    // Thay đổi logic JS khi chọn bệnh nhân:
     document.getElementById('paymentPatientId').addEventListener('change', function () {
         const patientId = this.value;
-        // Luôn CLEAR/ẨN các bảng/input/thông tin bảo hiểm y tế trước
+        // Clear các bảng/input/thông tin bảo hiểm y tế như cũ
         document.getElementById('treatmentRecordCosts').style.display = 'none';
         document.getElementById('finalCostContainer').style.display = 'none';
         document.getElementById('totalTreatmentMethodCost').value = '';
@@ -545,40 +531,30 @@
         document.getElementById('hiPlace').value = '';
         document.getElementById('hiRoute').value = '';
 
-        if (!patientId) {
-            treatmentRecordChoices.clearChoices();
-            treatmentRecordChoices.setChoices([
-                { value: '', label: 'Chọn mã phiếu điều trị', selected: true, disabled: false }
-            ], 'value', 'label', false);
-            treatmentRecordChoices.disable();
-            return;
-        }
+        // Xử lý select thường cho mã phiếu điều trị
+        const trSelect = document.getElementById('paymentTreatmentRecordId');
+        trSelect.innerHTML = '<option value="">Chọn mã phiếu điều trị</option>';
+        trSelect.disabled = true;
+        if (!patientId) return;
         // Lọc các phiếu điều trị của bệnh nhân này và status 2,3, đồng thời chưa lập phiếu thanh toán
         const filtered = allTreatmentRecords.filter(tr =>
             tr.patientId === patientId &&
             (tr.status === 2 || tr.status === 3) &&
             !paidTreatmentRecordIds.includes(tr.id)
         );
-        const choices = filtered.map(tr => {
-            const start = new Date(tr.startDate);
-            const end = new Date(tr.endDate);
-            const pad2 = n => n < 10 ? '0' + n : n;
-            const startStr = pad2(start.getDate()) + '/' + pad2(start.getMonth() + 1) + '/' + start.getFullYear();
-            const endStr = pad2(end.getDate()) + '/' + pad2(end.getMonth() + 1) + '/' + end.getFullYear();
-            return {
-                value: tr.id,
-                label: `${tr.code} - ${startStr} - ${endStr}`
-            };
-        });
-        treatmentRecordChoices.clearChoices();
-        if (choices.length > 0) {
-            treatmentRecordChoices.setChoices(choices, 'value', 'label', false);
-            treatmentRecordChoices.enable();
-        } else {
-            treatmentRecordChoices.setChoices([
-                { value: '', label: 'Chọn mã phiếu điều trị', selected: true, disabled: false }
-            ], 'value', 'label', false);
-            treatmentRecordChoices.disable();
+        if (filtered.length > 0) {
+            filtered.forEach(tr => {
+                const start = new Date(tr.startDate);
+                const end = new Date(tr.endDate);
+                const pad2 = n => n < 10 ? '0' + n : n;
+                const startStr = pad2(start.getDate()) + '/' + pad2(start.getMonth() + 1) + '/' + start.getFullYear();
+                const endStr = pad2(end.getDate()) + '/' + pad2(end.getMonth() + 1) + '/' + end.getFullYear();
+                const opt = document.createElement('option');
+                opt.value = tr.id;
+                opt.textContent = `${tr.code} - ${startStr} - ${endStr}`;
+                trSelect.appendChild(opt);
+            });
+            trSelect.disabled = false;
         }
     });
 
@@ -711,16 +687,7 @@
         }
     });
 
-    // Sửa hàm resetPaymentModal để reset Choices.js
     function resetPaymentModal() {
-        if (patientChoices) patientChoices.setChoiceByValue('');
-        if (treatmentRecordChoices) {
-            treatmentRecordChoices.clearChoices();
-            treatmentRecordChoices.setChoices([
-                { value: '', label: 'Chọn mã phiếu điều trị', selected: true, disabled: false }
-            ], 'value', 'label', false);
-            treatmentRecordChoices.disable();
-        }
         document.getElementById('prescriptionNote').value = '';
         // Ẩn và clear các bảng động
         document.getElementById('createTreatmentDetailsTable').innerHTML = '';

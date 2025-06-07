@@ -24,6 +24,7 @@ namespace Project.Areas.NhanVien.Controllers
         private readonly ITreatmentTrackingRepository _treatmentTrackingRepository;
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IPrescriptionRepository _prescriptionRepository;
+        private readonly IUserRepository _userRepository;
 
         public PaymentsController
         (
@@ -34,7 +35,8 @@ namespace Project.Areas.NhanVien.Controllers
             ITreatmentRecordDetailRepository treatmentRecordDetailRepository,
             ITreatmentTrackingRepository treatmentTrackingRepository,
             IEmployeeRepository employeeRepository,
-            IPrescriptionRepository prescriptionRepository
+            IPrescriptionRepository prescriptionRepository,
+            IUserRepository userRepository
         )
         {
             _paymentRepository = paymentRepository;
@@ -45,11 +47,28 @@ namespace Project.Areas.NhanVien.Controllers
             _treatmentTrackingRepository = treatmentTrackingRepository;
             _employeeRepository = employeeRepository;
             _prescriptionRepository = prescriptionRepository;
+            _userRepository = userRepository;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            // Lấy thông tin nhân viên hiện tại từ token
+            var token = Request.Cookies["AuthToken"];
+            Guid? currentDepartmentId = null;
+            if (!string.IsNullOrEmpty(token))
+            {
+                var (username, role) = _viewBagHelper._jwtManager.GetClaimsFromToken(token);
+                if (!string.IsNullOrEmpty(username))
+                {
+                    var user = await _userRepository.GetByUsernameAsync(username);
+                    if (user != null && user.Employee != null)
+                    {
+                        currentDepartmentId = user.Employee.Room.DepartmentId;
+                    }
+                }
+            }
+
             var payments = await _paymentRepository.GetAllForListViewAsync();
             var viewModels = payments.Select(p =>
             {
@@ -100,9 +119,12 @@ namespace Project.Areas.NhanVien.Controllers
             // Lấy danh sách các TreatmentRecord đã lập phiếu thanh toán
             var paidTreatmentRecordIds = payments.Select(p => p.TreatmentRecordId).ToList();
 
-            // Lấy các TreatmentRecord có status 2 hoặc 3, chưa lập phiếu thanh toán
-            var availableTreatmentRecords = (await _treatmentRecordRepository.GetAllAdvancedAsync())
-                .Where(tr => (tr.Status == TreatmentStatus.DaHoanThanh || tr.Status == TreatmentStatus.DaHuyBo) && !paidTreatmentRecordIds.Contains(tr.Id))
+            // Lấy các TreatmentRecord có status 2 hoặc 3, chưa lập phiếu thanh toán, VÀ có ít nhất 1 Assignment.Employee.Room.DepartmentId == currentDepartmentId
+            var allTreatmentRecords = (await _treatmentRecordRepository.GetAllAdvancedAsync()).ToList();
+            var availableTreatmentRecords = allTreatmentRecords
+                .Where(tr => (tr.Status == TreatmentStatus.DaHoanThanh || tr.Status == TreatmentStatus.DaHuyBo)
+                    && !paidTreatmentRecordIds.Contains(tr.Id)
+                    && tr.Assignments.Any(a => a.Employee.Room.DepartmentId == currentDepartmentId))
                 .ToList();
 
             // Lấy danh sách bệnh nhân từ các TreatmentRecord này (không trùng lặp)
@@ -117,8 +139,9 @@ namespace Project.Areas.NhanVien.Controllers
 
             ViewBag.Patients = patients;
 
-            // Lấy toàn bộ TreatmentRecord (Id, Code, PatientId, Status, StartDate, EndDate)
-            var treatmentRecords = (await _treatmentRecordRepository.GetAllAdvancedAsync())
+            // Lấy toàn bộ TreatmentRecord (Id, Code, PatientId, Status, StartDate, EndDate) phù hợp với khoa
+            var treatmentRecords = allTreatmentRecords
+                .Where(tr => tr.Assignments.Any(a => a.Employee.Room.DepartmentId == currentDepartmentId))
                 .Select(tr => new
                 {
                     id = tr.Id,

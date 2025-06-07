@@ -9,6 +9,7 @@ using Project.Services.Features;
 using Repositories.Interfaces;
 using SequentialGuid;
 using System.Globalization;
+using System.Linq;
 
 namespace Project.Areas.NhanVien.Controllers.api
 {
@@ -294,12 +295,14 @@ namespace Project.Areas.NhanVien.Controllers.api
         {
             var tr = await _treatmentRecordRepository.GetByIdAdvancedAsync(treatmentRecordId);
             if (tr == null) return NotFound();
-            var prescriptions = tr.Prescriptions?.Select(p => new
-            {
-                code = p.Code,
-                createdDate = p.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
-                totalCost = p.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0
-            }).ToList();
+            var prescriptions = tr.Prescriptions
+                ?.OrderBy(p => p.PrescriptionDate)
+                .Select(p => new
+                {
+                    code = p.Code,
+                    createdDate = p.CreatedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                    totalCost = p.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0
+                }).ToList();
             if (prescriptions != null) return Ok(prescriptions);
             return Ok(new List<object>());
         }
