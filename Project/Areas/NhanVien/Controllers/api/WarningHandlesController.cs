@@ -162,10 +162,8 @@ namespace Project.Areas.NhanVien.Controllers.api
                     FirstAbsenceDate = prevDate.Value,
                     SentAt = DateTime.UtcNow,
                     CreatedDate = DateTime.UtcNow,
-                    UpdatedDate = DateTime.UtcNow,
                     Type = WarningSentType.Mail,
-                    CreatedBy = user.Employee.Code,
-                    UpdatedBy = user.Employee.Code
+                    CreatedBy = user.Employee.Code
                 };
                 await _warningMailSentRepository.CreateAsync(warningMailSent);
 
@@ -436,10 +434,8 @@ namespace Project.Areas.NhanVien.Controllers.api
                     FirstAbsenceDate = prevDate.Value,
                     SentAt = DateTime.UtcNow,
                     CreatedDate = DateTime.UtcNow,
-                    UpdatedDate = DateTime.UtcNow,
                     Type = WarningSentType.Sms,
-                    CreatedBy = user.Employee.Code,
-                    UpdatedBy = user.Employee.Code
+                    CreatedBy = user.Employee.Code
                 };
                 await _warningMailSentRepository.CreateAsync(warningSmsSent);
 
