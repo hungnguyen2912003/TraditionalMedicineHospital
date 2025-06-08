@@ -93,7 +93,7 @@ namespace Project.Areas.NhanVien.Controllers.api
                 decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
                 decimal insuranceAmount = 0;
                 var hi = tr.Patient?.HealthInsurance;
-                if (hi != null)
+                if (hi != null && hi.ExpiryDate > DateTime.UtcNow)
                 {
                     if (hi.IsRightRoute)
                         insuranceAmount = totalCostBeforeInsurance * 0.8m;
@@ -211,14 +211,14 @@ namespace Project.Areas.NhanVien.Controllers.api
                 decimal insuranceAmount = 0;
                 var patient = tr.Patient;
                 var hi = patient?.HealthInsurance;
-                if (hi != null)
+                if (hi != null && hi.ExpiryDate > DateTime.UtcNow)
                 {
                     if (hi.IsRightRoute)
                         insuranceAmount = totalCostBeforeInsurance * 0.8m;
                     else
                         insuranceAmount = totalCostBeforeInsurance * 0.6m;
                 }
-                // Nếu không có thẻ thì insuranceAmount = 0
+                // Nếu không có thẻ hoặc thẻ hết hạn thì insuranceAmount = 0
 
                 // Số tiền thực tế bệnh nhân phải trả (không trừ tạm ứng, không ép về 0)
                 decimal actualPatientPay = totalCostBeforeInsurance - insuranceAmount;

@@ -89,7 +89,7 @@ namespace Project.Areas.NhanVien.Controllers
                 decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
                 decimal insuranceAmount = 0;
                 var hi = tr.Patient?.HealthInsurance;
-                if (hi != null)
+                if (hi != null && hi.ExpiryDate > DateTime.UtcNow)
                 {
                     if (hi.IsRightRoute)
                         insuranceAmount = totalCostBeforeInsurance * 0.8m;
@@ -191,7 +191,7 @@ namespace Project.Areas.NhanVien.Controllers
             decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
             decimal insuranceAmount = 0;
             var hi = tr.Patient?.HealthInsurance;
-            if (hi != null)
+            if (hi != null && hi.ExpiryDate > DateTime.UtcNow)
             {
                 if (hi.IsRightRoute)
                     insuranceAmount = totalCostBeforeInsurance * 0.8m;

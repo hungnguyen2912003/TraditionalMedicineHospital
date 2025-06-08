@@ -595,6 +595,19 @@
             hiExpiry = tr.patientHealthInsuranceExpiredDate || 'Không có';
             hiPlace = tr.patientHealthInsurancePlaceOfRegistration || 'Không có';
             hiRoute = (tr.patientHealthInsuranceIsRightRoute === true) ? 'Đúng tuyến' : (tr.patientHealthInsuranceIsRightRoute === false ? 'Không đúng tuyến' : 'Không có');
+            // Thêm kiểm tra hết hạn
+            if (hiExpiry !== 'Không có') {
+                // Định dạng dd/MM/yyyy
+                const parts = hiExpiry.split('/');
+                if (parts.length === 3) {
+                    const expiryDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (expiryDate < today) {
+                        hiExpiry += ' - Đã hết hạn';
+                    }
+                }
+            }
         }
         document.getElementById('healthInsuranceInfo').style.display = 'flex';
         document.getElementById('hiNumber').value = hiNumber;
