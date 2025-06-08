@@ -48,20 +48,14 @@
                 <div class="flex flex-col gap-2 w-full mt-4">
                     <div class="flex flex-col sm:flex-row gap-5 mb-2 justify-center items-center">
                         <div class="w-56">
-                            <select id="filterDepartment" class="form-input choices w-full mt-1 p-2 border rounded">
-                                <option value="">Chọn khoa...</option>
-                                @foreach (var d in ViewBag.Departments)
-                                {
-                                    <option value="@d.Name">@d.Name</option>
-                                }
-                            </select>
-                        </div>
-                        <div class="w-56">
                             <select id="filterRoom" class="form-input choices w-full mt-1 p-2 border rounded">
                                 <option value="">Chọn phòng...</option>
-                                @foreach (var room in ViewBag.Rooms)
+                                @foreach (var room in ViewBag.FilterRooms)
                                 {
-                                    <option value="@room.Name">@room.Name</option>
+                                    if (!room.Name.Contains("Hành chính"))
+                                    {
+                                        <option value="@room.Name">@room.Name</option>
+                                    }
                                 }
                             </select>
                         </div>
@@ -207,15 +201,6 @@
     });
 
     $(document).ready(function () {
-        if (!window.departmentChoices) {
-            window.departmentChoices = new Choices('#filterDepartment', {
-                searchEnabled: true,
-                itemSelectText: '',
-                shouldSort: false,
-                placeholder: true,
-                placeholderValue: 'Chọn khoa...'
-            });
-        }
         if (!window.roomChoices) {
             window.roomChoices = new Choices('#filterRoom', {
                 searchEnabled: true,
@@ -228,15 +213,13 @@
         updateResetFilterButtonState();
 
         // Xử lý sự kiện change cho các select
-        $('#filterDepartment, #filterRoom').on('change', function () {
+        $('#filterRoom').on('change', function () {
             updateResetFilterButtonState();
 
             // Kiểm tra nếu tất cả các select đều có giá trị mặc định
-            const departmentValue = $('#filterDepartment').val();
             const roomValue = $('#filterRoom').val();
 
-            if ((!departmentValue || departmentValue === "") &&
-                (!roomValue || roomValue === "")) {
+            if (!roomValue || roomValue === "") {
                 // Reset về danh sách ban đầu
                 window.list.filteredList = [...window.list.entityList];
                 if (window.list.datatable) {
@@ -250,10 +233,9 @@
 
     // Nút Lọc
     $(document).on('click', '#btnFilter', function () {
-        const department = $('#filterDepartment').val();
         const room = $('#filterRoom').val();
 
-        if (!department && !room) {
+        if (!room) {
             notyf.error('Vui lòng chọn ít nhất một trường để lọc!');
             return;
         }
@@ -261,9 +243,6 @@
         try {
             let filtered = [...window.list.entityList];
 
-            if (department) {
-                filtered = filtered.filter(e => e.departmentName === department);
-            }
             if (room) {
                 filtered = filtered.filter(e => e.roomName === room);
             }
@@ -295,10 +274,6 @@
     // Nút Hủy lọc
     $(document).on('click', '#btnResetFilter', function () {
         // Reset Choices.js về mặc định cho từng select
-        if (window.departmentChoices) {
-            window.departmentChoices.removeActiveItems();
-            window.departmentChoices.setChoiceByValue('');
-        }
         if (window.roomChoices) {
             window.roomChoices.removeActiveItems();
             window.roomChoices.setChoiceByValue('');
@@ -327,9 +302,8 @@
     });
 
     function updateResetFilterButtonState() {
-        const department = $('#filterDepartment').val();
         const room = $('#filterRoom').val();
-        if (!department && !room) {
+        if (!room) {
             $('#btnResetFilter').prop('disabled', true).css('cursor', 'not-allowed');
         } else {
             $('#btnResetFilter').prop('disabled', false).css('cursor', 'pointer');

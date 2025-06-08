@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Project.Areas.Admin.Models.Entities;
 using Project.Areas.NhanVien.Models.ViewModels;
 using Project.Helpers;
 using Project.Models.Enums;
@@ -20,6 +21,7 @@ namespace Project.Areas.NhanVien.Controllers
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IUserRepository _userRepository;
         private readonly EmailService _emailService;
+        private readonly IRoomRepository _roomRepository;
 
         public WarningPatientsController
         (
@@ -28,7 +30,8 @@ namespace Project.Areas.NhanVien.Controllers
             IMapper mapper,
             IEmployeeRepository employeeRepository,
             IUserRepository userRepository,
-            EmailService emailService
+            EmailService emailService,
+            IRoomRepository roomRepository
         )
         {
             _treatmentTrackingRepository = treatmentTrackingRepository;
@@ -37,6 +40,7 @@ namespace Project.Areas.NhanVien.Controllers
             _employeeRepository = employeeRepository;
             _userRepository = userRepository;
             _emailService = emailService;
+            _roomRepository = roomRepository;
         }
 
         [HttpGet]
@@ -153,6 +157,22 @@ namespace Project.Areas.NhanVien.Controllers
                     .ThenBy(x => x.FirstAbsenceDate)
                     .ToList();
             }
+
+            // Sau khi xác định currentDepartmentName
+            var allRooms = await _roomRepository.GetAllAsync();
+            List<Room> filterRooms;
+            if (!string.IsNullOrEmpty(currentDepartmentName))
+            {
+                var normalizedDept = currentDepartmentName.Trim().ToLower();
+                filterRooms = allRooms
+                    .Where(r => r.Department != null && r.Department.Name != null && r.Department.Name.Trim().ToLower() == normalizedDept)
+                    .ToList();
+            }
+            else
+            {
+                filterRooms = allRooms.ToList();
+            }
+            ViewBag.FilterRooms = filterRooms;
 
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(warningPatients);
