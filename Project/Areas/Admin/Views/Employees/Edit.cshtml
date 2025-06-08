@@ -717,7 +717,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/nhan-su';
+                        window.history.back();
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -758,7 +758,11 @@
             },
 
             goBack() {
-                window.location.href = '/nhan-su';
+                if (window.isAdmin) {
+                    window.location.href = '/nhan-su';
+                } else {
+                    window.history.back();
+                }
             },
 
             onDepartmentChange(e) {
@@ -786,4 +790,7 @@
             }
         }));
     });
+</script>
+<script>
+    window.isAdmin = @(User.IsInRole("Admin").ToString().ToLower());
 </script>

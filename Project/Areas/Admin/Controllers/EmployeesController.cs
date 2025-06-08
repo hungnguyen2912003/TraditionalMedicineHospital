@@ -18,6 +18,7 @@ namespace Project.Areas.Admin.Controllers
     {
         private readonly IEmployeeRepository _repository;
         private readonly IUserRepository _userRepository;
+        private readonly JwtManager _jwtManager;
         private readonly IMapper _mapper;
         private readonly IImageService _imgService;
         private readonly ViewBagHelper _viewBagHelper;
@@ -29,6 +30,7 @@ namespace Project.Areas.Admin.Controllers
         (
             IEmployeeRepository repository,
             IUserRepository userRepository,
+            JwtManager jwtManager,
             IMapper mapper,
             IImageService imgService,
             ViewBagHelper viewBagHelper,
@@ -40,6 +42,7 @@ namespace Project.Areas.Admin.Controllers
         {
             _repository = repository;
             _userRepository = userRepository;
+            _jwtManager = jwtManager;
             _mapper = mapper;
             _imgService = imgService;
             _viewBagHelper = viewBagHelper;
@@ -59,8 +62,8 @@ namespace Project.Areas.Admin.Controllers
             return View(viewModelList);
         }
 
-        [Authorize(Roles = "Admin, Bacsi, Yta")]
-        [Route("chi-tiet/{id}")]
+        [Authorize(Roles = "Admin, BacSi, YTa, NhanVienHanhChinh")]
+        [Route("xem-chi-tiet/{id}")]
         public async Task<IActionResult> Details(Guid id)
         {
             var entity = await _repository.GetByIdAdvancedAsync(id);
@@ -68,6 +71,23 @@ namespace Project.Areas.Admin.Controllers
             {
                 return NotFound();
             }
+
+            string updatedByName;
+            if (string.IsNullOrEmpty(entity.UpdatedBy))
+            {
+                updatedByName = "Không có";
+            }
+            else if (entity.UpdatedBy == "Admin")
+            {
+                updatedByName = "Admin";
+            }
+            else
+            {
+                var updatedByEmployee = await _repository.GetByCodeAsync(entity.UpdatedBy);
+                updatedByName = updatedByEmployee?.Name ?? entity.UpdatedBy;
+            }
+            ViewBag.UpdatedByName = updatedByName;
+
             return View(entity);
         }
 
@@ -151,7 +171,7 @@ namespace Project.Areas.Admin.Controllers
         }
 
         [HttpGet("chinh-sua/{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, BacSi, YTa, NhanVienHanhChinh")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var entity = await _repository.GetByIdAdvancedAsync(id);
@@ -167,16 +187,44 @@ namespace Project.Areas.Admin.Controllers
         }
 
         [HttpPost("chinh-sua/{id}")]
+        [Authorize(Roles = "Admin, BacSi, YTa, NhanVienHanhChinh")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([FromForm] EmployeeDto inputDto, Guid Id)
         {
             try
             {
+                // Get user info from token
+                var token = Request.Cookies["AuthToken"];
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
+                }
+
+                var (username, role) = _jwtManager.GetClaimsFromToken(token);
+                if (string.IsNullOrEmpty(username))
+                {
+                    Response.Cookies.Delete("AuthToken");
+                    return Json(new { success = false, message = "Token không hợp lệ." });
+                }
+
+                var user = await _userRepository.GetByUsernameAsync(username);
+                if (user == null || user.Employee == null)
+                {
+                    return Json(new { success = false, message = "Người dùng không hợp lệ" });
+                }
                 var entity = await _repository.GetByIdAsync(Id);
                 if (entity == null) return NotFound();
 
                 _mapper.Map(inputDto, entity);
-                entity.UpdatedBy = "Admin";
+
+                if (role == "Admin")
+                {
+                    entity.UpdatedBy = "Admin";
+                }
+                else
+                {
+                    entity.UpdatedBy = user.Employee.Code;
+                }
                 entity.UpdatedDate = DateTime.UtcNow;
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)
@@ -195,7 +243,6 @@ namespace Project.Areas.Admin.Controllers
 
         [HttpPost("xoa")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
         {
             var ids = new List<Guid>();

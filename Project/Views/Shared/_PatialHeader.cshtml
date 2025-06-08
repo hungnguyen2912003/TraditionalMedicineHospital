@@ -97,7 +97,7 @@
                             </div>
                         </li>
                         <li>
-                            <a href="/Admin/Employees/Details/" id="user-details" class="dark:hover:text-white"
+                            <a id="user-details" class="dark:hover:text-white"
                                 @@click="toggle">
                                 <svg class="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" width="18" height="18"
                                     viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -185,7 +185,7 @@
                     nameDropdownElement.textContent = data.name;
                     emailElement.textContent = data.email;
                     emailElement.style.display = 'block';
-                    userDetailsLink.href = `/Admin/Employees/Details/${data.id}`;
+                    userDetailsLink.href = `/nhan-su/xem-chi-tiet/${data.id}`;
                     categoryElement.textContent = data.categoryName ? `Chức vụ: ${data.categoryName}` : 'Không xác định';
                     departmentElement.textContent = data.departmentName ? `Khoa: ${data.departmentName}` : 'Không xác định';
                     roomElement.textContent = data.roomName ? `Phòng: ${data.roomName}` : 'Không xác định';
