@@ -19,10 +19,11 @@ namespace Project.Services.Features
 
         public void SendSms(string to, string message)
         {
+            var toWhatsapp = "whatsapp:" + to;
             TwilioClient.Init(_accountSid, _authToken);
 
             var messageResult = MessageResource.Create(
-                to: new PhoneNumber(to),
+                to: new PhoneNumber(toWhatsapp),
                 from: new PhoneNumber(_fromNumber),
                 body: message
             );

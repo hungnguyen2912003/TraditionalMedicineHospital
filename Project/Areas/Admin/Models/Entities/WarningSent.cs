@@ -1,12 +1,12 @@
-using System;
+using Project.Models.Commons;
+using Project.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Project.Models.Commons;
 
 namespace Project.Areas.Admin.Models.Entities
 {
-    [Table("WarningMailSent")]
-    public class WarningMailSent : BaseEntity
+    [Table("WarningSent")]
+    public class WarningSent : BaseEntity
     {
         [Key]
         public Guid Id { get; set; }
@@ -16,5 +16,6 @@ namespace Project.Areas.Admin.Models.Entities
         public Guid TreatmentRecordDetailId { get; set; }
         public DateTime FirstAbsenceDate { get; set; }
         public DateTime SentAt { get; set; }
+        public WarningSentType Type { get; set; }
     }
 }
