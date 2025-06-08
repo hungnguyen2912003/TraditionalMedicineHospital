@@ -222,7 +222,7 @@
                                 model.HealthInsurancePlaceOfRegistration, "", new { @class = "text-danger" })
                             </div>
                             <div class="w-full mt-2">
-                                <input type="checkbox" class="form-checkbox" name="Patient.HealthInsuranceIsRightRoute"
+                                <input type="checkbox" class="form-checkbox" name="HealthInsuranceIsRightRoute"
                                     value="true" id="HealthInsuranceIsRightRoute">
                                 <span class="text-sm font-medium text-gray-700 ml-2">
                                     Thẻ bảo hiểm đúng tuyến KCB<span class="text-danger">&nbsp*</span>
@@ -357,7 +357,14 @@
                     return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
                 }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
 
-
+                $.validator.addMethod("notFutureDate", function (value, element) {
+                    if (!value) return true;
+                    const parts = value.split('/');
+                    const inputDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return inputDate <= today;
+                }, "Ngày sinh không được lớn hơn ngày hiện tại.");
 
                 $("#myForm").validate({
                     ignore: [],
@@ -373,7 +380,8 @@
                         },
                         DateOfBirth: {
                             required: true,
-                            dateFormat: true
+                            dateFormat: true,
+                            notFutureDate: true
                         },
                         IdentityNumber: {
                             required: function () {
@@ -527,7 +535,8 @@
                         },
                         DateOfBirth: {
                             required: "Ngày sinh không được bỏ trống.",
-                            dateFormat: "Ngày sinh không hợp lệ."
+                            dateFormat: "Ngày sinh không hợp lệ.",
+                            notFutureDate: "Ngày sinh không được lớn hơn ngày hiện tại."
                         },
                         IdentityNumber: {
                             required: "Căn cước công dân không được bỏ trống",
@@ -665,7 +674,7 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.location.href = '/benh-nhan';
+                        window.location.href = '/quan-ly-benh-nhan';
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -685,7 +694,8 @@
                     if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
                         this.dropzone.processQueue();
                     } else {
-                        const formData = new FormData(form);
+                        const formData = new FormData();
+                        this.appendFormData(formData);
                         fetch('/tiep-nhan-benh-nhan', {
                             method: 'POST',
                             body: formData
@@ -703,7 +713,7 @@
             },
 
             goBack() {
-                window.location.href = '/benh-nhan';
+                window.location.href = '/quan-ly-benh-nhan';
             }
         }));
     });

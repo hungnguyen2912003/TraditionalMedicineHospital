@@ -28,12 +28,20 @@
                 <button type="button" class="btn btn-primary" onclick="showPatientInfoModal()" style="min-width: 200px;">
                     Xem thông tin bệnh nhân
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="showPaymentModal()" style="min-width: 200px;" @(status == "Đang điều trị" ? "disabled" : "")>
+                <button type="button" class="btn btn-secondary" onclick="showPaymentModal()" style="min-width: 200px;" @(status == "Đang điều trị" || ViewBag.HasPayment != true ? "disabled" : "")>
                     Xem phiếu thanh toán
                 </button>                
             </div>
         </div>
 
+        @if (Model == null || !Model.Any())
+        {
+            <div class="text-center text-lg text-gray-500 py-12">
+                Bạn chưa tham gia điều trị nào
+            </div>
+        }
+        else
+        {
         <!-- TREATMENT RECORD INFO START -->
         <div class="filter-divider">
             <span>Thông tin điều trị</span>
@@ -179,9 +187,12 @@
                 </tbody>
             </table>
         </div>
+        }
     </div>
 </div>
 
+@if (ViewBag.PatientInfo != null)
+{
 <div id="patientInfoModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-lg shadow-lg fixed-modal-size modal-content-animate">
         <h2 class="text-2xl font-bold text-primary text-center mb-4">Thông tin bệnh nhân</h2>
@@ -201,11 +212,18 @@
                 <div class="flex flex-col sm:flex-row gap-4 mb-4">
                     <div class="w-full sm:w-1/2">
                         <label>Giới tính</label>
-                        <input class="form-input w-full" readonly value="@(EnumExtensions.GetDisplayName(ViewBag.PatientInfo?.Gender))" />
+                        @if (ViewBag.PatientInfo?.Gender != null && Enum.IsDefined(ViewBag.PatientInfo.Gender.GetType(), ViewBag.PatientInfo.Gender))
+                        {
+                            <input class="form-input w-full" readonly value="@EnumExtensions.GetDisplayName(ViewBag.PatientInfo.Gender)" />
+                        }
+                        else
+                        {
+                            <input class="form-input w-full" readonly value="" />
+                        }
                     </div>
                     <div class="w-full sm:w-1/2">
                         <label>Ngày sinh</label>
-                        <input class="form-input w-full" readonly value="@(ViewBag.PatientInfo?.DateOfBirth.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture))" />
+                        <input class="form-input w-full" readonly value="@(ViewBag.PatientInfo?.DateOfBirth != null ? ((DateTime)ViewBag.PatientInfo.DateOfBirth).ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) : "")" />
                     </div>
                     <div class="w-full sm:w-1/2">
                         <label>Căn cước công dân</label>
@@ -231,7 +249,7 @@
             </div>
             <div class="w-full lg:w-1/2 flex flex-col items-center">
                 <label>Hình ảnh bệnh nhân</label>
-                <img src="~/Images/Patients/@ViewBag.PatientInfo?.Images" alt="Ảnh bệnh nhân" class="rounded-lg shadow-sm max-h-48 mb-4" style="object-fit:cover;" />
+                <img src="~/Images/Patients/@ViewBag.PatientInfo?.Images" alt="Ảnh bệnh nhân" class="rounded-lg shadow-sm max-h-48 mb-4" style="object-fit:cover; width:220px; height:280px;" />
                 <div class="panel mb-5 w-full">
                     <label class="block text-sm font-medium text-gray-700 form-label mb-2">Thông tin thẻ BHYT</label>
                     <div class="mt-3">
@@ -246,11 +264,18 @@
                         </div>
                         <div class="mt-3">
                             <label>Ngày hết hạn</label>
-                            <input class="form-input w-full" readonly value="@(ViewBag.HealthInsurance?.ExpiryDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture))" />
+                            <input class="form-input w-full" readonly value="@(ViewBag.HealthInsurance?.ExpiryDate != null ? ((DateTime)ViewBag.HealthInsurance.ExpiryDate).ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) : "")" />
                         </div>
                         <div class="mt-3">
                             <label>Nơi đăng ký khám bệnh</label>
-                            <input class="form-input w-full" readonly value="@(EnumExtensions.GetDisplayName(ViewBag.HealthInsurance?.PlaceOfRegistration))" />
+                            @if (ViewBag.HealthInsurance?.PlaceOfRegistration != null && Enum.IsDefined(ViewBag.HealthInsurance.PlaceOfRegistration.GetType(), ViewBag.HealthInsurance.PlaceOfRegistration))
+                            {
+                                <input class="form-input w-full" readonly value="@EnumExtensions.GetDisplayName(ViewBag.HealthInsurance.PlaceOfRegistration)" />
+                            }
+                            else
+                            {
+                                <input class="form-input w-full" readonly value="" />
+                            }
                         </div>
                         <div class="mt-3">
                             <input class="form-checkbox" type="checkbox" readonly @(ViewBag.HealthInsurance?.IsRightRoute == true ? "checked" : "") disabled/>
@@ -263,6 +288,7 @@
         </div>
     </div>
 </div>
+}
 
 <div id="logModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate">

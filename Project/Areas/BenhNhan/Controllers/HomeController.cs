@@ -78,8 +78,9 @@ namespace Project.Areas.BenhNhan.Controllers
             if (patient == null)
                 return RedirectToAction("Login", "Account", new { area = "Admin" });
 
-            var healthInsurance = await _healthInsuranceRepository.GetByPatientIdAsync(patient.Id);
             ViewBag.PatientInfo = patient;
+
+            var healthInsurance = await _healthInsuranceRepository.GetByPatientIdAsync(patient.Id);
             ViewBag.HealthInsurance = healthInsurance;
 
             // Get all treatment record details for patient's treatment records
@@ -89,71 +90,86 @@ namespace Project.Areas.BenhNhan.Controllers
                 .FirstOrDefault();
 
             var viewModels = new List<PatientViewModel>();
-            if (latestRecord != null)
+            if (latestRecord == null)
             {
-                ViewBag.TreatmentRecordId = latestRecord.Id;
-                var details = await _treatmentRecordDetailRepository.GetByTreatmentRecordIdAsync(latestRecord.Id);
-                foreach (var detail in details)
-                {
-                    var doctorName = "Chưa phân công";
-                    if (detail.TreatmentRecord?.Assignments != null)
-                    {
-                        var assignment = detail.TreatmentRecord.Assignments.FirstOrDefault();
-                        if (assignment?.Employee != null)
-                            doctorName = assignment.Employee.Name;
-                    }
-
-                    var departmentName = detail.Room?.Department?.Name ?? "Chưa xác định";
-                    var treatmentMethodName = detail.Room?.TreatmentMethod?.Name ?? "Chưa phân công";
-                    var roomName = detail.Room?.Name ?? "Chưa xác định";
-
-                    var viewModel = new PatientViewModel
-                    {
-                        Id = detail.Id,
-                        Code = detail.Code,
-                        TreatmentRecordCode = latestRecord.Code,
-                        PatientName = patient.Name,
-                        DoctorName = doctorName,
-                        DepartmentName = departmentName,
-                        TreatmentMethodName = treatmentMethodName,
-                        RoomName = roomName,
-                        StartDate = latestRecord.StartDate,
-                        EndDate = latestRecord.EndDate,
-                        Status = latestRecord.Status,
-                        Note = detail.Note
-                    };
-                    viewModels.Add(viewModel);
-                }
-                ViewBag.TreatmentRecordCode = latestRecord.Code;
-                ViewBag.StartDate = latestRecord.StartDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
-                ViewBag.EndDate = latestRecord.EndDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
-                if (latestRecord.Status == TreatmentStatus.DangDieuTri)
-                    ViewBag.Status = "Đang điều trị";
-                else if (latestRecord.Status == TreatmentStatus.DaHoanThanh)
-                    ViewBag.Status = "Đã hoàn thành";
-                else if (latestRecord.Status == TreatmentStatus.DaHuyBo)
-                    ViewBag.Status = "Đã hủy bỏ";
-
-                // Lấy danh sách đơn thuốc của TreatmentRecord
-                var prescriptions = await _prescriptionRepository.GetByTreatmentRecordIdAsync(latestRecord.Id);
-                ViewBag.Prescriptions = prescriptions;
-
-                // Lấy danh sách mã bác sĩ từ CreatedBy
-                var doctorCodes = prescriptions
-                    .Where(p => !string.IsNullOrEmpty(p.CreatedBy))
-                    .Select(p => p.CreatedBy)
-                    .Distinct()
-                    .ToList();
-
-                // Lấy thông tin bác sĩ từ repository
-                var doctorList = new Dictionary<string, string>();
-                if (doctorCodes.Any())
-                {
-                    var employees = await _employeeRepository.GetByCodesAsync(doctorCodes);
-                    doctorList = employees.ToDictionary(e => e.Code, e => e.Name);
-                }
-                ViewBag.DoctorList = doctorList;
+                ViewBag.HasPayment = false;
+                ViewBag.TreatmentRecordId = null;
+                ViewBag.TreatmentRecordCode = null;
+                ViewBag.StartDate = null;
+                ViewBag.EndDate = null;
+                ViewBag.Status = null;
+                ViewBag.DoctorNames = new List<string>();
+                ViewBag.Prescriptions = null;
+                ViewBag.DoctorList = new Dictionary<string, string>();
+                return View(viewModels);
             }
+
+            ViewBag.TreatmentRecordId = latestRecord.Id;
+            var details = await _treatmentRecordDetailRepository.GetByTreatmentRecordIdAsync(latestRecord.Id);
+            foreach (var detail in details)
+            {
+                var doctorName = "Chưa phân công";
+                if (detail.TreatmentRecord?.Assignments != null)
+                {
+                    var assignment = detail.TreatmentRecord.Assignments.FirstOrDefault();
+                    if (assignment?.Employee != null)
+                        doctorName = assignment.Employee.Name;
+                }
+
+                var departmentName = detail.Room?.Department?.Name ?? "Chưa xác định";
+                var treatmentMethodName = detail.Room?.TreatmentMethod?.Name ?? "Chưa phân công";
+                var roomName = detail.Room?.Name ?? "Chưa xác định";
+
+                var viewModel = new PatientViewModel
+                {
+                    Id = detail.Id,
+                    Code = detail.Code,
+                    TreatmentRecordCode = latestRecord.Code,
+                    PatientName = patient.Name,
+                    DoctorName = doctorName,
+                    DepartmentName = departmentName,
+                    TreatmentMethodName = treatmentMethodName,
+                    RoomName = roomName,
+                    StartDate = latestRecord.StartDate,
+                    EndDate = latestRecord.EndDate,
+                    Status = latestRecord.Status,
+                    Note = detail.Note
+                };
+                viewModels.Add(viewModel);
+            }
+            ViewBag.TreatmentRecordCode = latestRecord.Code;
+            ViewBag.StartDate = latestRecord.StartDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            ViewBag.EndDate = latestRecord.EndDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            if (latestRecord.Status == TreatmentStatus.DangDieuTri)
+                ViewBag.Status = "Đang điều trị";
+            else if (latestRecord.Status == TreatmentStatus.DaHoanThanh)
+                ViewBag.Status = "Đã hoàn thành";
+            else if (latestRecord.Status == TreatmentStatus.DaHuyBo)
+                ViewBag.Status = "Đã hủy bỏ";
+
+            // Lấy danh sách đơn thuốc của TreatmentRecord
+            var prescriptions = await _prescriptionRepository.GetByTreatmentRecordIdAsync(latestRecord.Id);
+            ViewBag.Prescriptions = prescriptions;
+
+            // Lấy danh sách mã bác sĩ từ CreatedBy
+            var doctorCodes = prescriptions
+                .Where(p => !string.IsNullOrEmpty(p.CreatedBy))
+                .Select(p => p.CreatedBy)
+                .Distinct()
+                .ToList();
+
+            // Lấy thông tin bác sĩ từ repository
+            var doctorList = new Dictionary<string, string>();
+            if (doctorCodes.Any())
+            {
+                var employees = await _employeeRepository.GetByCodesAsync(doctorCodes);
+                doctorList = employees.ToDictionary(e => e.Code, e => e.Name);
+            }
+            ViewBag.DoctorList = doctorList;
+
+            // Kiểm tra có payment không
+            var payment = await _paymentRepository.GetByTreatmentRecordIdAsync(latestRecord.Id);
+            ViewBag.HasPayment = payment != null;
 
             List<string> doctorNames = new List<string>();
             if (latestRecord?.Assignments != null)
