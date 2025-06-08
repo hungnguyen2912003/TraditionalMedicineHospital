@@ -47,6 +47,7 @@ namespace Project.Areas.NhanVien.Controllers
 
             // Lấy mã nhân viên hiện tại từ cookie AuthToken
             string? currentEmployeeCode = null;
+            string? currentDepartmentName = null;
             var token = Request.Cookies["AuthToken"];
             if (!string.IsNullOrEmpty(token))
             {
@@ -57,7 +58,9 @@ namespace Project.Areas.NhanVien.Controllers
                     if (user != null && user.Employee != null)
                     {
                         currentEmployeeCode = user.Employee.Code;
+                        currentDepartmentName = user.Employee.Room?.Department?.Name;
                         ViewBag.CurrentEmployeeCode = currentEmployeeCode;
+                        ViewBag.CurrentDepartmentName = currentDepartmentName;
                         ViewBag.CurrentRole = user.Role.ToString();
                     }
                 }
@@ -134,10 +137,22 @@ namespace Project.Areas.NhanVien.Controllers
                 }
             }
 
-            warningPatients = warningPatients
-                .OrderBy(x => x.PatientName)
-                .ThenBy(x => x.FirstAbsenceDate)
-                .ToList();
+            if (!string.IsNullOrEmpty(currentDepartmentName))
+            {
+                var normalizedDept = currentDepartmentName.Trim().ToLower();
+                warningPatients = warningPatients
+                    .Where(x => !string.IsNullOrEmpty(x.DepName) && x.DepName.Trim().ToLower() == normalizedDept)
+                    .OrderBy(x => x.PatientName)
+                    .ThenBy(x => x.FirstAbsenceDate)
+                    .ToList();
+            }
+            else
+            {
+                warningPatients = warningPatients
+                    .OrderBy(x => x.PatientName)
+                    .ThenBy(x => x.FirstAbsenceDate)
+                    .ToList();
+            }
 
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(warningPatients);
