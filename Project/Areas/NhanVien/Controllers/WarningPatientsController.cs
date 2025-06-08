@@ -22,6 +22,7 @@ namespace Project.Areas.NhanVien.Controllers
         private readonly IUserRepository _userRepository;
         private readonly EmailService _emailService;
         private readonly IRoomRepository _roomRepository;
+        private readonly IWarningMailSentRepository _warningMailSentRepository;
 
         public WarningPatientsController
         (
@@ -31,7 +32,8 @@ namespace Project.Areas.NhanVien.Controllers
             IEmployeeRepository employeeRepository,
             IUserRepository userRepository,
             EmailService emailService,
-            IRoomRepository roomRepository
+            IRoomRepository roomRepository,
+            IWarningMailSentRepository warningMailSentRepository
         )
         {
             _treatmentTrackingRepository = treatmentTrackingRepository;
@@ -41,6 +43,7 @@ namespace Project.Areas.NhanVien.Controllers
             _userRepository = userRepository;
             _emailService = emailService;
             _roomRepository = roomRepository;
+            _warningMailSentRepository = warningMailSentRepository;
         }
 
         [HttpGet]
@@ -102,6 +105,9 @@ namespace Project.Areas.NhanVien.Controllers
                 employeeDict = employees.ToDictionary(e => e.Id, e => e.Name);
             }
 
+            // Lấy tất cả warning mail đã gửi
+            var warningMailSents = (await _warningMailSentRepository.GetAllAsync()).ToList();
+
             // Lọc ra các bệnh nhân có thể có nhiều lần cảnh báo (mỗi lần là một dòng)
             var warningPatients = new List<WarningPatientViewModel>();
             foreach (var p in patientGroups)
@@ -120,13 +126,15 @@ namespace Project.Areas.NhanVien.Controllers
                         warningPatients.Add(new WarningPatientViewModel
                         {
                             PatientId = p.PatientId,
+                            TreatmentRecordDetailId = p.TreatmentRecordDetailId ?? Guid.Empty,
                             PatientName = p.PatientName,
                             PatientEmail = p.PatientEmail,
                             FirstAbsenceDate = prev.TrackingDate,
                             SecondAbsenceDate = curr.TrackingDate,
                             DepName = prev.TreatmentRecordDetail?.Room?.Department?.Name ?? "",
                             RoomName = prev.TreatmentRecordDetail?.Room?.Name ?? "",
-                            EmployeeName = prev.EmployeeId.HasValue && employeeDict.ContainsKey(prev.EmployeeId.Value) ? employeeDict[prev.EmployeeId.Value] : ""
+                            EmployeeName = prev.EmployeeId.HasValue && employeeDict.ContainsKey(prev.EmployeeId.Value) ? employeeDict[prev.EmployeeId.Value] : "",
+                            mailSent = warningMailSents.Any(x => x.PatientId == p.PatientId && x.TreatmentRecordDetailId == (p.TreatmentRecordDetailId ?? Guid.Empty) && x.FirstAbsenceDate.Date == prev.TrackingDate.Date)
                         });
                         // Bỏ qua các ngày tiếp theo trong chuỗi liên tiếp "Không điều trị"
                         while (i + 1 < ordered.Count &&

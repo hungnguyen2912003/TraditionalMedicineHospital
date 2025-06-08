@@ -40,6 +40,8 @@ namespace Project.Configurations
 
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
+            builder.Services.AddScoped<IWarningMailSentRepository, WarningMailSentRepository>();
+
             return builder;
         }
     }

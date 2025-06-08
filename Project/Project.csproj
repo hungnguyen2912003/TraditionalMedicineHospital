@@ -11,22 +11,22 @@
     <Compile Remove="Areas\Admin\Models\Enums\**" />
     <Compile Remove="Areas\Admin\Views\Shared\**" />
     <Compile Remove="Areas\BenhNhan\Data\**" />
-    <Compile Remove="Areas\Staff\Data\**" />
+    <Compile Remove="Areas\Staff\**" />
     <Content Remove="Areas\Admin\Data\**" />
     <Content Remove="Areas\Admin\Models\Enums\**" />
     <Content Remove="Areas\Admin\Views\Shared\**" />
     <Content Remove="Areas\BenhNhan\Data\**" />
-    <Content Remove="Areas\Staff\Data\**" />
+    <Content Remove="Areas\Staff\**" />
     <EmbeddedResource Remove="Areas\Admin\Data\**" />
     <EmbeddedResource Remove="Areas\Admin\Models\Enums\**" />
     <EmbeddedResource Remove="Areas\Admin\Views\Shared\**" />
     <EmbeddedResource Remove="Areas\BenhNhan\Data\**" />
-    <EmbeddedResource Remove="Areas\Staff\Data\**" />
+    <EmbeddedResource Remove="Areas\Staff\**" />
     <None Remove="Areas\Admin\Data\**" />
     <None Remove="Areas\Admin\Models\Enums\**" />
     <None Remove="Areas\Admin\Views\Shared\**" />
     <None Remove="Areas\BenhNhan\Data\**" />
-    <None Remove="Areas\Staff\Data\**" />
+    <None Remove="Areas\Staff\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -54,8 +54,6 @@
     <Folder Include="Areas\BacSi\Data\" />
     <Folder Include="Areas\BenhNhan\Models\" />
     <Folder Include="Areas\NhanVien\Data\" />
-    <Folder Include="Areas\Staff\Controllers\" />
-    <Folder Include="Areas\Staff\Models\" />
     <Folder Include="Areas\YTa\Data\" />
     <Folder Include="wwwroot\Images\Patients\" />
   </ItemGroup>

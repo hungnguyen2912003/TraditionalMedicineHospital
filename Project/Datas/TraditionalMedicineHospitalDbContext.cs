@@ -28,6 +28,7 @@ namespace Project.Datas
         public DbSet<TreatmentRecordDetail> treatmentRecordDetails { get; set; }
         public DbSet<TreatmentTracking> treatmentTrackings { get; set; }
         public DbSet<HealthInsurance> healthInsurances { get; set; }
+        public DbSet<WarningMailSent> warningMailSents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
