@@ -9,6 +9,8 @@ using Project.Repositories.Interfaces;
 using Project.Services.Features;
 using Repositories.Interfaces;
 using System.Globalization;
+using Microsoft.Extensions.Configuration;
+using Project.Library;
 
 namespace Project.Areas.BenhNhan.Controllers
 {
@@ -28,6 +30,9 @@ namespace Project.Areas.BenhNhan.Controllers
         private readonly JwtManager _jwtManager;
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IPaymentRepository _paymentRepository;
+        private readonly VNPayService _vnPayService;
+        private readonly IConfiguration _configuration;
+        private readonly CodeGeneratorHelper _codeGenerator;
 
         public HomeController
         (
@@ -42,7 +47,10 @@ namespace Project.Areas.BenhNhan.Controllers
             IUserRepository userRepository,
             JwtManager jwtManager,
             IEmployeeRepository employeeRepository,
-            IPaymentRepository paymentRepository
+            IPaymentRepository paymentRepository,
+            VNPayService vnPayService,
+            IConfiguration configuration,
+            CodeGeneratorHelper codeGenerator
         )
         {
             _healthInsuranceRepository = healthInsuranceRepository;
@@ -57,6 +65,9 @@ namespace Project.Areas.BenhNhan.Controllers
             _jwtManager = jwtManager;
             _employeeRepository = employeeRepository;
             _paymentRepository = paymentRepository;
+            _vnPayService = vnPayService;
+            _configuration = configuration;
+            _codeGenerator = codeGenerator;
         }
 
 
@@ -182,6 +193,8 @@ namespace Project.Areas.BenhNhan.Controllers
             }
 
             ViewBag.DoctorNames = doctorNames;
+
+            ViewBag.PaymentStatus = payment?.Status == PaymentStatus.DaThanhToan ? 2 : 1;
 
             return View(viewModels);
         }
@@ -321,6 +334,77 @@ namespace Project.Areas.BenhNhan.Controllers
                 finalCost,
                 advanceRefund = tr.AdvancePayment - (totalCostBeforeInsurance - insuranceAmount)
             });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PayWithVNPay(Guid treatmentRecordId)
+        {
+            // Lấy payment detail (giống như GetPaymentDetail)
+            var payment = await _paymentRepository.GetByTreatmentRecordIdAsync(treatmentRecordId);
+            if (payment == null || payment.Status == PaymentStatus.DaThanhToan)
+            {
+                TempData["ErrorMessage"] = "Phiếu thanh toán không hợp lệ hoặc đã thanh toán.";
+                return RedirectToAction("Index");
+            }
+
+            // Tính finalCost giống như trong GetPaymentDetail
+            var tr = payment.TreatmentRecord;
+            var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
+                pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
+
+            decimal totalTreatmentMethodCost = 0;
+            foreach (var detail in tr.TreatmentRecordDetails ?? new List<TreatmentRecordDetail>())
+            {
+                var room = detail.Room;
+                var method = room?.TreatmentMethod;
+                if (method == null) continue;
+                int count = detail.TreatmentTrackings?.Count(t => t.Status == TrackingStatus.CoDieuTri) ?? 0;
+                totalTreatmentMethodCost += method.Cost * count;
+            }
+
+            decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
+            decimal insuranceAmount = 0;
+            var hi = tr.Patient?.HealthInsurance;
+            if (hi != null && hi.ExpiryDate > DateTime.UtcNow)
+            {
+                if (hi.IsRightRoute)
+                    insuranceAmount = totalCostBeforeInsurance * 0.8m;
+                else
+                    insuranceAmount = totalCostBeforeInsurance * 0.6m;
+            }
+
+            decimal finalCost = totalCostBeforeInsurance - insuranceAmount - tr.AdvancePayment;
+            if (finalCost < 0) finalCost = 0;
+
+            // Tạo link thanh toán
+            var orderId = await _codeGenerator.GenerateUniqueCodeAsync(_paymentRepository);
+            var orderInfo = payment.Code;
+            var returnUrl = _configuration["VNPaySettings:ReturnUrl"];
+
+            // Lấy các config cần thiết
+            var vnp_Url = _configuration["VNPaySettings:BaseUrl"] ?? throw new ArgumentNullException("BaseUrl configuration is missing");
+            var vnp_TmnCode = _configuration["VNPaySettings:TmnCode"] ?? throw new ArgumentNullException("TmnCode configuration is missing");
+            var vnp_HashSecret = _configuration["VNPaySettings:HashSecret"] ?? throw new ArgumentNullException("HashSecret configuration is missing");
+
+            // Khởi tạo VnPayLibrary và thêm các tham số
+            var vnpay = new VnPayLibrary();
+            vnpay.AddRequestData("vnp_Version", VnPayLibrary.VERSION);
+            vnpay.AddRequestData("vnp_Command", "pay");
+            vnpay.AddRequestData("vnp_TmnCode", vnp_TmnCode);
+            vnpay.AddRequestData("vnp_Amount", ((long)(finalCost * 100)).ToString());
+            vnpay.AddRequestData("vnp_CurrCode", "VND");
+            vnpay.AddRequestData("vnp_TxnRef", orderId);
+            vnpay.AddRequestData("vnp_OrderInfo", orderInfo);
+            vnpay.AddRequestData("vnp_OrderType", "other");
+            vnpay.AddRequestData("vnp_ReturnUrl", returnUrl!);
+            vnpay.AddRequestData("vnp_IpAddr", Utils.GetIpAddress(HttpContext));
+            vnpay.AddRequestData("vnp_Locale", "vn");
+            vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
+
+            // Tạo URL thanh toán
+            var paymentUrl = vnpay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
+
+            return Redirect(paymentUrl);
         }
     }
 }

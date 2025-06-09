@@ -265,7 +265,7 @@
                         entity.code,
                         entity.treatmentRecordCode,
                         entity.patientName,
-                        (entity.totalCost - entity.insuranceAmount || 0).toLocaleString() + ' VNĐ',
+                        entity.finalCost.toLocaleString() + ' VNĐ',
                         entity.type == 1 ? 'Thanh toán tại quầy' : entity.type == 2 ? 'Thanh toán trực tuyến' : 'Không có',
                         getPaymentStatusBadge(entity.status),
                         `<div class="flex gap-4">
@@ -301,7 +301,7 @@
                                 'Mã thanh toán',
                                 'Mã phiếu điều trị',
                                 'Tên bệnh nhân',
-                                'Tổng chi phí',
+                                'Tổng tiền cần thanh toán',
                                 'Hình thức thanh toán',
                                 'Trạng thái',
                                 'Thao tác'

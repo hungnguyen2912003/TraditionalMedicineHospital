@@ -115,7 +115,8 @@ namespace Project.Areas.NhanVien.Controllers.api
                     PaymentDate = request.PaymentDate,
                     Note = request.Note,
                     TreatmentRecordId = request.TreatmentRecordId,
-                    Status = PaymentStatus.ChuaThanhToan,
+                    Status = finalCost == 0 ? PaymentStatus.DaThanhToan : PaymentStatus.ChuaThanhToan,
+                    Type = finalCost == 0 ? PaymentType.TrucTiep : null,
                     CreatedBy = user.Employee.Code,
                     CreatedDate = DateTime.UtcNow,
                     TreatmentRecord = null!
@@ -246,7 +247,6 @@ namespace Project.Areas.NhanVien.Controllers.api
         [HttpPut("UpdateStatus")]
         public async Task<IActionResult> UpdateStatus([FromBody] UpdatePaymentStatusRequest request)
         {
-
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))
                 return Unauthorized("Chưa đăng nhập.");

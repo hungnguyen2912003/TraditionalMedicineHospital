@@ -4,8 +4,10 @@ using Project.Areas.Admin.Models.Entities;
 using Project.Areas.NhanVien.Models.ViewModels;
 using Project.Extensions;
 using Project.Helpers;
+using Project.Library;
 using Project.Models.Enums;
 using Project.Repositories.Interfaces;
+using Project.Services.Features;
 using Repositories.Interfaces;
 using System.Globalization;
 
@@ -25,6 +27,8 @@ namespace Project.Areas.NhanVien.Controllers
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IPrescriptionRepository _prescriptionRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IConfiguration _configuration;
+        private readonly JwtManager _jwtManager;
 
         public PaymentsController
         (
@@ -36,7 +40,9 @@ namespace Project.Areas.NhanVien.Controllers
             ITreatmentTrackingRepository treatmentTrackingRepository,
             IEmployeeRepository employeeRepository,
             IPrescriptionRepository prescriptionRepository,
-            IUserRepository userRepository
+            IUserRepository userRepository,
+            IConfiguration configuration,
+            JwtManager jwtManager
         )
         {
             _paymentRepository = paymentRepository;
@@ -48,6 +54,8 @@ namespace Project.Areas.NhanVien.Controllers
             _employeeRepository = employeeRepository;
             _prescriptionRepository = prescriptionRepository;
             _userRepository = userRepository;
+            _configuration = configuration;
+            _jwtManager = jwtManager;
         }
 
         [HttpGet]

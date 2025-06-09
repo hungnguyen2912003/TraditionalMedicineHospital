@@ -67,13 +67,13 @@
                     <div>
                         <label>Ngày hết hạn</label>
                         <input type="text"
-                               value="@(Model.PatientHealthInsuranceExpiredDate?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) ?? "Không có")"
+                               value="@(Model.PatientHealthInsuranceExpiredDate != null ? Model.PatientHealthInsuranceExpiredDate.Value.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture) : "Không có")"
                                readonly class="form-input">
                     </div>
                     <div>
                         <label>Nơi đăng ký</label>
                         <input type="text"
-                               value="@(EnumExtensions.GetDisplayName(Model.PatientHealthInsurancePlaceOfRegistration!) ?? "Không có")"
+                               value="@(Model.PatientHealthInsurancePlaceOfRegistration != null ? EnumExtensions.GetDisplayName(Model.PatientHealthInsurancePlaceOfRegistration) : "Không có")"
                                readonly class="form-input">
                     </div>
                     <div>
@@ -215,18 +215,6 @@
                                         @((Model.AdvancePayment - (Model.TotalCost - Model.InsuranceAmount)).ToString("N0"))
                                         VNĐ
                                     </b>
-                                </td>
-                            </tr>
-                        }
-                        else if (Model.AdvancePayment - (Model.TotalCost - Model.InsuranceAmount) < 0)
-                        {
-                            <tr>
-                                <td><b>Số tiền còn thiếu</b></td>
-                                <td>
-                                    <b>
-                                        @Math.Abs(Model.AdvancePayment - (Model.TotalCost -
-                                        Model.InsuranceAmount)).ToString("N0") VNĐ
-                                </b>
                                 </td>
                             </tr>
                         }

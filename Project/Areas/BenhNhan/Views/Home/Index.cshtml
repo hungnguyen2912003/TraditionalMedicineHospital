@@ -30,7 +30,10 @@
                 </button>
                 <button type="button" class="btn btn-secondary" onclick="showPaymentModal()" style="min-width: 200px;" @(status == "Đang điều trị" || ViewBag.HasPayment != true ? "disabled" : "")>
                     Xem phiếu thanh toán
-                </button>                
+                </button>
+                <button type="button" class="btn btn-info" onclick="payWithVNPay()" style="min-width: 200px;" @((ViewBag.Status == "Đang điều trị" || ViewBag.HasPayment != true || ViewBag.PaymentStatus == 2) ? "disabled" : "")>
+                    Thanh toán trực tuyến
+                </button>
             </div>
         </div>
 
@@ -610,6 +613,32 @@
             document.getElementById('paymentDetailModal').classList.add('hidden');
             document.getElementById('paymentDetailModal').classList.remove('closing');
         }, 200);
+    }
+
+    function payWithVNPay() {
+        var treatmentRecordId = '@ViewBag.TreatmentRecordId';
+        if (!treatmentRecordId) {
+            notyf.error('Không tìm thấy phiếu điều trị!');
+            return;
+        }
+        fetch(`/BenhNhan/Home/GetPaymentDetail?treatmentRecordId=${treatmentRecordId}`)
+            .then(res => {
+                if (res.status === 404) {
+                    notyf.error('Không tìm thấy phiếu thanh toán!');
+                    throw new Error('No payment');
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (!data.finalCost || data.finalCost <= 0) {
+                    notyf.error('Không có số tiền cần thanh toán hợp lệ!');
+                    return;
+                }
+                window.location.href = `/BenhNhan/Home/PayWithVNPay?treatmentRecordId=${treatmentRecordId}`;
+            })
+            .catch(err => {
+                notyf.error('Lỗi khi lấy thông tin thanh toán!');
+            });
     }
 </script>
 

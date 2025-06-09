@@ -15,7 +15,7 @@ namespace Project.Areas.Admin.Models.Entities
         public DateTime PaymentDate { get; set; }
         public string? Note { get; set; } = string.Empty;
         public PaymentStatus Status { get; set; }
-        public PaymentType Type { get; set; }
+        public PaymentType? Type { get; set; }
         [StringLength(50)]
 
         //Foreign Key 
