@@ -71,7 +71,11 @@ namespace Project.Mappers
 
             CreateMap<TreatmentRecord, TreatmentRecordViewModel>()
                 .ForMember(dest => dest.PatientName,
-                    opt => opt.MapFrom(src => src.Patient != null ? src.Patient.Name : "Không xác định"));
+                    opt => opt.MapFrom(src => src.Patient != null ? src.Patient.Name : "Không xác định"))
+                .ForMember(dest => dest.IsViolated, opt => opt.MapFrom(src => src.IsViolated));
+
+            CreateMap<TreatmentRecordViewModel, TreatmentRecord>()
+                .ForMember(dest => dest.IsViolated, opt => opt.MapFrom(src => src.IsViolated));
         }
     }
 }

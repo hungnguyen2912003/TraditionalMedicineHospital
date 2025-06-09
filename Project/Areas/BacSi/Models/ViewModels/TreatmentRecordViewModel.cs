@@ -14,5 +14,6 @@ namespace Project.Areas.BacSi.Models.ViewModels
         public string PatientName { get; set; } = string.Empty;
         public bool IsActive { get; set; }
         public List<Assignment> Assignments { get; set; } = new List<Assignment>();
+        public bool IsViolated { get; set; }
     }
 }

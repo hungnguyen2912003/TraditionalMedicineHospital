@@ -126,7 +126,8 @@ namespace Project.Areas.NhanVien.Controllers
                     if (daysDiff1 == 1 && daysDiff2 == 1 &&
                         prev2.Status == TrackingStatus.KhongDieuTri &&
                         prev1.Status == TrackingStatus.KhongDieuTri &&
-                        curr.Status == TrackingStatus.KhongDieuTri)
+                        curr.Status == TrackingStatus.KhongDieuTri &&
+                        prev2.TreatmentRecordDetail?.TreatmentRecord?.Status == TreatmentStatus.DangDieuTri)
                     {
                         violatedPatients.Add(new ViolatedPatientViewModel
                         {

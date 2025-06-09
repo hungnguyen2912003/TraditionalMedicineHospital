@@ -114,6 +114,12 @@
                 }
                 this.filteredList = [...this.entityList];
                 window.list = this;
+                // Log danh sách ViolatedPatient, kèm isViolated và treatmentRecordId
+                console.log('ViolatedPatient List:', this.entityList.map(e => ({
+                    patientName: e.patientName,
+                    isViolated: e.isViolated,
+                    treatmentRecordId: e.treatmentRecordId
+                })));
                 this.initializeTable();
             },
 
@@ -364,6 +370,9 @@
             .then(data => {
                 if (data.success) {
                     notyf.success('Đã gửi thông báo bệnh nhân vi phạm thành công!');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
                 } else {
                     notyf.error('Có lỗi xảy ra!');
                 }

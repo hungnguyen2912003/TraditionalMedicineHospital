@@ -220,7 +220,7 @@
                         getTreatmentRecordStatusBadge(entity.status),
                         `<div class="flex gap-4">
                             <a  href="javascript:;"
-                                class="hover:text-secondary open-suspended-modal${(entity.status === 2 || entity.status === 3) ? ' disabled' : ''}"
+                                class="open-suspended-modal ${entity.isViolated ? 'text-warning' : ''}"
                                 x-tooltip="Đình chỉ phiếu"
                                 data-id="${entity.id}"
                                 data-patient="${entity.patientName}"
