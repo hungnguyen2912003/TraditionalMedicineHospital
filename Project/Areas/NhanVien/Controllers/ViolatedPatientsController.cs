@@ -23,6 +23,7 @@ namespace Project.Areas.NhanVien.Controllers
         private readonly EmailService _emailService;
         private readonly IRoomRepository _roomRepository;
         private readonly IWarningSentRepository _warningSentRepository;
+        private readonly ITreatmentRecordRepository _treatmentRecordRepository;
 
         public ViolatedPatientsController
         (
@@ -33,7 +34,8 @@ namespace Project.Areas.NhanVien.Controllers
             IUserRepository userRepository,
             EmailService emailService,
             IRoomRepository roomRepository,
-            IWarningSentRepository warningSentRepository
+            IWarningSentRepository warningSentRepository,
+            ITreatmentRecordRepository treatmentRecordRepository
         )
         {
             _treatmentTrackingRepository = treatmentTrackingRepository;
@@ -44,6 +46,7 @@ namespace Project.Areas.NhanVien.Controllers
             _emailService = emailService;
             _roomRepository = roomRepository;
             _warningSentRepository = warningSentRepository;
+            _treatmentRecordRepository = treatmentRecordRepository;
         }
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -137,7 +140,9 @@ namespace Project.Areas.NhanVien.Controllers
                             ThirdAbsenceDate = curr.TrackingDate,
                             DepName = prev2.TreatmentRecordDetail?.Room?.Department?.Name ?? "",
                             RoomName = prev2.TreatmentRecordDetail?.Room?.Name ?? "",
-                            EmployeeName = prev2.EmployeeId.HasValue && employeeDict.ContainsKey(prev2.EmployeeId.Value) ? employeeDict[prev2.EmployeeId.Value] : ""
+                            EmployeeName = prev2.EmployeeId.HasValue && employeeDict.ContainsKey(prev2.EmployeeId.Value) ? employeeDict[prev2.EmployeeId.Value] : "",
+                            IsViolated = prev2.TreatmentRecordDetail?.TreatmentRecord?.IsViolated ?? false,
+                            TreatmentRecordId = prev2.TreatmentRecordDetail?.TreatmentRecord?.Id ?? Guid.Empty
                         });
 
                         // Bỏ qua các ngày tiếp theo trong chuỗi liên tiếp "Không điều trị"
@@ -189,6 +194,19 @@ namespace Project.Areas.NhanVien.Controllers
 
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(violatedPatients);
+        }
+
+        [HttpPost("SetPreSuspend")]
+        public async Task<IActionResult> SetPreSuspend(Guid treatmentRecordId)
+        {
+            var record = await _treatmentRecordRepository.GetByIdAsync(treatmentRecordId);
+            if (record == null)
+                return NotFound();
+
+            record.IsViolated = true;
+            await _treatmentRecordRepository.UpdateAsync(record);
+
+            return Ok(new { success = true });
         }
     }
 }

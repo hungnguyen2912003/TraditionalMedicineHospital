@@ -15,5 +15,7 @@ namespace Project.Areas.NhanVien.Models.ViewModels
         public string DepName { get; set; } = string.Empty;
         public string RoomName { get; set; } = string.Empty;
         public string EmployeeName { get; set; } = string.Empty;
+        public bool IsViolated { get; set; }
+        public Guid TreatmentRecordId { get; set; }
     }
 }

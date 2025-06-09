@@ -17,6 +17,7 @@ namespace Project.Areas.Admin.Models.Entities
         public DateTime EndDate { get; set; }
         public string? Note { get; set; } = string.Empty;
         public TreatmentStatus Status { get; set; }
+        public bool IsViolated { get; set; } = false;
         public string? SuspendedReason { get; set; } = string.Empty;
         public string? SuspendedNote { get; set; } = string.Empty;
         public string? SuspendedBy { get; set; } = string.Empty;

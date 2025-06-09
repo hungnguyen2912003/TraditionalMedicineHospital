@@ -124,14 +124,12 @@
                         entity.patientName,
                         entity.roomName || '',
                         entity.employeeName || '',
-                        new Date(entity.firstAbsenceDate).toLocaleDateString('vi-VN'),
-                        new Date(entity.secondAbsenceDate).toLocaleDateString('vi-VN'),
-                        new Date(entity.thirdAbsenceDate).toLocaleDateString('vi-VN'),
-                        entity.isHandled ?
+                        `${new Date(entity.firstAbsenceDate).toLocaleDateString('vi-VN')} - ${new Date(entity.secondAbsenceDate).toLocaleDateString('vi-VN')} - ${new Date(entity.thirdAbsenceDate).toLocaleDateString('vi-VN')}`,
+                        entity.isViolated ?
                             `<span class="badge badge-outline-success">Đã xử lý</span>` :
                             `<span class="badge badge-outline-danger">Chưa xử lý</span>`,
                         `<div class="flex gap-2">
-                            <button type='button' class='${entity.isHandled ? 'text-success' : 'text-danger'} hover:text-red-800' onclick='handleViolation(${index})' x-tooltip='${entity.isHandled ? 'Xem chi tiết xử lý' : 'Xử lý vi phạm'}'>
+                            <button type='button' class='${entity.isViolated ? 'text-success' : 'text-danger'} hover:text-red-800' onclick='handleViolation(${index})' x-tooltip='Gửi thông báo bệnh nhân vi phạm'>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24">
                                     <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" stroke="currentColor" stroke-width="1.5"/>
                                 </svg>
@@ -146,9 +144,7 @@
                                 'Tên bệnh nhân',
                                 'Phòng',
                                 'Nhân viên theo dõi',
-                                'Ngày vắng mặt lần 1',
-                                'Ngày vắng mặt lần 2',
-                                'Ngày vắng mặt lần 3',
+                                'Chuỗi 3 ngày vắng mặt liên tiếp',
                                 'Trạng thái',
                                 'Thao tác'
                             ],
@@ -179,7 +175,21 @@
                                 },
                             },
                             {
-                                select: 8,
+                                select: 1,
+                                sortable: false,
+                                render: (data, cell, row) => {
+                                    return data;
+                                },
+                            },
+                            {
+                                select: 5,
+                                sortable: false,
+                                render: (data, cell, row) => {
+                                    return data;
+                                },
+                            },
+                            {
+                                select: 6,
                                 sortable: false,
                                 render: (data, cell, row) => {
                                     return data;
@@ -338,9 +348,26 @@
     function handleViolation(rowIndex) {
         const entity = window.list.filteredList[rowIndex];
         if (!entity) return;
-
-        // TODO: Implement violation handling logic
-        notyf.info('Chức năng xử lý vi phạm đang được phát triển...');
+        if (entity.isViolated) {
+            notyf.error('Đã gửi thông báo vi phạm. Không thao tác được nữa');
+            return;
+        }
+        fetch('/api/violated-patients/set-violated', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            body: JSON.stringify({ treatmentRecordId: entity.treatmentRecordId })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    notyf.success('Đã gửi thông báo bệnh nhân vi phạm thành công!');
+                } else {
+                    notyf.error('Có lỗi xảy ra!');
+                }
+            });
     }
 </script>
 
