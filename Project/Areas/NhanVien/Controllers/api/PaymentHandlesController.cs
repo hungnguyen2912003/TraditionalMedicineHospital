@@ -9,7 +9,6 @@ using Project.Services.Features;
 using Repositories.Interfaces;
 using SequentialGuid;
 using System.Globalization;
-using System.Linq;
 
 namespace Project.Areas.NhanVien.Controllers.api
 {
@@ -266,6 +265,7 @@ namespace Project.Areas.NhanVien.Controllers.api
             if (payment.Status != request.Status)
             {
                 payment.Status = request.Status;
+                payment.Type = PaymentType.TrucTiep;
                 payment.UpdatedBy = user.Employee.Code;
                 payment.UpdatedDate = DateTime.UtcNow;
             }

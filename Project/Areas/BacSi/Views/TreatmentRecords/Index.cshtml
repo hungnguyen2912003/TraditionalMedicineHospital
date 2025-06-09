@@ -50,7 +50,7 @@
                             </a>
                         </div>
                         <div>
-                            <a href="/phieu-dieu-tri/danh-sach-phieu-dinh-chi" class="btn btn-secondary">
+                            <a href="/phieu-dieu-tri/dinh-chi" class="btn btn-secondary">
                                 Xem danh sách phiếu đình chỉ
                             </a>
                         </div>
@@ -395,9 +395,13 @@
 
         // Tìm treatmentRecordId từ mã phiếu
         let treatmentRecordId = null;
+        let treatmentRecordEntity = null;
         if (window.list && window.list.entityList) {
             const found = window.list.entityList.find(e => e.code === treatmentRecordCode);
-            if (found) treatmentRecordId = found.id;
+            if (found) {
+                treatmentRecordId = found.id;
+                treatmentRecordEntity = found;
+            }
         }
 
         // Validate dữ liệu
@@ -409,6 +413,24 @@
         if (!suspendReasonValue) {
             notyf.error('Vui lòng chọn lý do đình chỉ!');
             return;
+        }
+
+        // Validate theo yêu cầu
+        if (suspendReasonValue == '1') {
+            // Lý do vi phạm: kiểm tra isViolated
+            if (!treatmentRecordEntity.isViolated) {
+                notyf.error('Phiếu điều trị này chưa thể đình chỉ vì tình trạng vi phạm của bệnh nhân được chưa báo cáo');
+                return;
+            }
+        }
+        if (suspendReasonValue == '3') {
+            // Lý do kết thúc: kiểm tra endDate > ngày hiện tại
+            const now = new Date();
+            const endDate = treatmentRecordEntity.endDate ? new Date(treatmentRecordEntity.endDate) : null;
+            if (!endDate || endDate > now) {
+                notyf.error('Phiếu điều trị này chưa thể đình chỉ vì chưa đến ngày kết thúc');
+                return;
+            }
         }
 
         // Chuẩn bị dữ liệu gửi API

@@ -21,7 +21,8 @@ namespace Project.Helpers
                 typeof(TrackingStatus),
                 typeof(RoomType),
                 typeof(PaymentStatus),
-                typeof(HealthInsuranceRegistrationPlace)
+                typeof(HealthInsuranceRegistrationPlace),
+                typeof(PaymentType)
             };
             var result = new Dictionary<string, Dictionary<int, string>>();
 

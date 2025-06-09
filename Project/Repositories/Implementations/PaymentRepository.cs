@@ -91,6 +91,7 @@ namespace Project.Repositories.Implementations
                     Code = p.Code,
                     PaymentDate = p.PaymentDate,
                     Status = p.Status,
+                    Type = p.Type,
                     TreatmentRecord = new TreatmentRecord
                     {
                         Id = p.TreatmentRecord.Id,

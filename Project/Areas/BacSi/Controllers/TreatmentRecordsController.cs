@@ -562,7 +562,7 @@ namespace Project.Areas.BacSi.Controllers
             }
         }
 
-        [HttpGet("danh-sach-phieu-dinh-chi")]
+        [HttpGet("dinh-chi")]
         public async Task<IActionResult> SuspendedList()
         {
             var allRecords = await _treatmentRecordRepository.GetAllAdvancedAsync();
