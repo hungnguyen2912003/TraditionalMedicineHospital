@@ -262,11 +262,30 @@
             });
 
             $.get(`/api/trackinghandles/patients-in-room?date=${dateStr}`, function (patients) {
+                // Lọc lại: chỉ lấy bệnh nhân không có 3 bản ghi liên tiếp 'Không điều trị'
+                const entityList = window.entityList || [];
+                const filteredPatients = patients.filter(patient => {
+                    // Lấy tất cả bản ghi của bệnh nhân này, sắp xếp theo ngày tăng dần
+                    const trackings = entityList
+                        .filter(e => e.patientName === patient.patientName)
+                        .sort((a, b) => new Date(a.trackingDate) - new Date(b.trackingDate));
+                    // Kiểm tra nếu có chuỗi 3 bản ghi liên tiếp 'Không điều trị' thì loại bỏ
+                    for (let i = 0; i < trackings.length - 2; i++) {
+                        if (
+                            trackings[i].status === 3 &&
+                            trackings[i + 1].status === 3 &&
+                            trackings[i + 2].status === 3
+                        ) {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
                 let rows = '';
-                if (patients.length === 0) {
+                if (filteredPatients.length === 0) {
                     rows = `<tr><td colspan="5" style="text-align:center;color:#888;font-style:italic;">Không còn bệnh nhân nào cần chấm theo dõi trong ngày hôm nay</td></tr>`;
                 } else {
-                    patients.forEach((patient, idx) => {
+                    filteredPatients.forEach((patient, idx) => {
                         rows += `
                             <tr data-patient-name="${patient.patientName}" data-patient-id="${patient.patientId}">
                                 <td>${idx + 1}</td>
@@ -505,8 +524,40 @@ $(document).on('click', '#editModalPatientTableBody .btn-update', function (e) {
         return;
     }
 
-    overlay.style.display = 'flex';
+    // --- VALIDATE 3 ngày liên tiếp không điều trị ---
+    const entity = window.entityList?.find(e => e.id === currentEditId);
+    if (entity) {
+        const patientName = entity.patientName;
+        // Lấy tất cả bản ghi của bệnh nhân này, sắp xếp theo ngày tăng dần
+        const patientTrackings = window.entityList
+            .filter(e => e.patientName === patientName)
+            .sort((a, b) => new Date(a.trackingDate) - new Date(b.trackingDate));
+        // Tạo bản sao và cập nhật trạng thái mới cho bản ghi đang sửa
+        const updatedTrackings = patientTrackings.map(e => {
+            if (e.id === currentEditId) {
+                return { ...e, status: status };
+            }
+            return e;
+        });
+        // Duyệt toàn bộ danh sách, kiểm tra chuỗi 3 bản ghi liên tiếp 'Không điều trị'
+        for (let i = 0; i < updatedTrackings.length - 3 + 1; i++) {
+            if (
+                updatedTrackings[i].status === 3 &&
+                updatedTrackings[i + 1].status === 3 &&
+                updatedTrackings[i + 2].status === 3
+            ) {
+                // Nếu sau chuỗi này còn bản ghi thì báo lỗi
+                if (i + 3 < updatedTrackings.length) {
+                    notyf.error('Bất thường: Có 3 ngày liên tiếp "Không điều trị" nhưng sau đó vẫn còn bản ghi theo dõi!');
+                    $btn.prop('disabled', false);
+                    return;
+                }
+            }
+        }
+    }
+    // --- END VALIDATE ---
 
+    overlay.style.display = 'flex';
     fetch('/api/trackinghandles/' + currentEditId, {
         method: 'PUT',
         headers: {

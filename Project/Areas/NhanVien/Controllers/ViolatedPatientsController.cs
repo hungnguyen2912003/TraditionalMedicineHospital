@@ -1,19 +1,19 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project.Areas.Admin.Models.Entities;
-using Project.Areas.NhanVien.Models.ViewModels;
 using Project.Helpers;
-using Project.Models.Enums;
 using Project.Repositories.Interfaces;
 using Project.Services.Features;
+using Project.Models.Enums;
+using Project.Areas.NhanVien.Models.ViewModels;
+using Project.Areas.Admin.Models.Entities;
 
 namespace Project.Areas.NhanVien.Controllers
 {
     [Area("NhanVien")]
     [Authorize(Roles = "NhanVienHanhChinh")]
-    [Route("canh-bao-benh-nhan")]
-    public class WarningPatientsController : Controller
+    [Route("benh-nhan-vi-pham")]
+    public class ViolatedPatientsController : Controller
     {
         private readonly ITreatmentTrackingRepository _treatmentTrackingRepository;
         private readonly ViewBagHelper _viewBagHelper;
@@ -24,7 +24,7 @@ namespace Project.Areas.NhanVien.Controllers
         private readonly IRoomRepository _roomRepository;
         private readonly IWarningSentRepository _warningSentRepository;
 
-        public WarningPatientsController
+        public ViolatedPatientsController
         (
             ITreatmentTrackingRepository treatmentTrackingRepository,
             ViewBagHelper viewBagHelper,
@@ -45,7 +45,6 @@ namespace Project.Areas.NhanVien.Controllers
             _roomRepository = roomRepository;
             _warningSentRepository = warningSentRepository;
         }
-
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -70,16 +69,8 @@ namespace Project.Areas.NhanVien.Controllers
                 }
             }
 
-            // Lấy tracking theo khoa nếu có, nếu không thì lấy toàn bộ
-            List<TreatmentTracking> allTrackings;
-            if (!string.IsNullOrEmpty(currentDepartmentName))
-            {
-                allTrackings = (await _treatmentTrackingRepository.GetByDepartmentAsync(currentDepartmentName)).ToList();
-            }
-            else
-            {
-                allTrackings = (await _treatmentTrackingRepository.GetAllAdvancedAsync()).ToList();
-            }
+            // Lấy tracking theo khoa
+            List<TreatmentTracking> allTrackings = (await _treatmentTrackingRepository.GetByDepartmentAsync(currentDepartmentName!)).ToList();
 
             // Nhóm các tracking theo bệnh nhân và từng đợt điều trị
             var patientGroups = allTrackings
@@ -100,7 +91,7 @@ namespace Project.Areas.NhanVien.Controllers
                 })
                 .ToList();
 
-            // 1. Lấy tất cả EmployeeId từ các tracking cảnh báo
+            // Lấy tất cả EmployeeId từ các tracking
             var employeeIds = patientGroups
                 .SelectMany(p => p.Trackings)
                 .Where(t => t.EmployeeId.HasValue)
@@ -114,39 +105,41 @@ namespace Project.Areas.NhanVien.Controllers
                 employeeDict = employees.ToDictionary(e => e.Id, e => e.Name);
             }
 
-            // Lấy tất cả warning mail đã gửi
-            var warningSents = (await _warningSentRepository.GetAllAsync()).ToList();
-
-            // Lọc ra các bệnh nhân có thể có nhiều lần cảnh báo (mỗi lần là một dòng)
-            var warningPatients = new List<WarningPatientViewModel>();
+            // Lọc ra các bệnh nhân có 3 ngày vắng liên tiếp
+            var violatedPatients = new List<ViolatedPatientViewModel>();
             foreach (var p in patientGroups)
             {
                 var ordered = p.Trackings;
-                int i = 1;
+                int i = 2; // Bắt đầu từ index 2 để có thể kiểm tra 3 ngày liên tiếp
                 while (i < ordered.Count)
                 {
-                    var prev = ordered[i - 1];
+                    var prev2 = ordered[i - 2];
+                    var prev1 = ordered[i - 1];
                     var curr = ordered[i];
-                    var daysDiff = (curr.TrackingDate.Date - prev.TrackingDate.Date).TotalDays;
-                    if (daysDiff == 1 &&
-                        prev.Status == TrackingStatus.KhongDieuTri &&
+
+                    var daysDiff1 = (prev1.TrackingDate.Date - prev2.TrackingDate.Date).TotalDays;
+                    var daysDiff2 = (curr.TrackingDate.Date - prev1.TrackingDate.Date).TotalDays;
+
+                    if (daysDiff1 == 1 && daysDiff2 == 1 &&
+                        prev2.Status == TrackingStatus.KhongDieuTri &&
+                        prev1.Status == TrackingStatus.KhongDieuTri &&
                         curr.Status == TrackingStatus.KhongDieuTri)
                     {
-                        warningPatients.Add(new WarningPatientViewModel
+                        violatedPatients.Add(new ViolatedPatientViewModel
                         {
                             PatientId = p.PatientId,
                             TreatmentRecordDetailId = p.TreatmentRecordDetailId ?? Guid.Empty,
                             PatientName = p.PatientName,
                             PatientEmail = p.PatientEmail,
                             PatientPhone = p.PatientPhone,
-                            FirstAbsenceDate = prev.TrackingDate,
-                            SecondAbsenceDate = curr.TrackingDate,
-                            DepName = prev.TreatmentRecordDetail?.Room?.Department?.Name ?? "",
-                            RoomName = prev.TreatmentRecordDetail?.Room?.Name ?? "",
-                            EmployeeName = prev.EmployeeId.HasValue && employeeDict.ContainsKey(prev.EmployeeId.Value) ? employeeDict[prev.EmployeeId.Value] : "",
-                            mailSent = warningSents.Any(x => x.PatientId == p.PatientId && x.TreatmentRecordDetailId == (p.TreatmentRecordDetailId ?? Guid.Empty) && x.FirstAbsenceDate.Date == prev.TrackingDate.Date && x.Type == WarningSentType.Mail),
-                            smsSent = warningSents.Any(x => x.PatientId == p.PatientId && x.TreatmentRecordDetailId == (p.TreatmentRecordDetailId ?? Guid.Empty) && x.FirstAbsenceDate.Date == prev.TrackingDate.Date && x.Type == WarningSentType.Sms)
+                            FirstAbsenceDate = prev2.TrackingDate,
+                            SecondAbsenceDate = prev1.TrackingDate,
+                            ThirdAbsenceDate = curr.TrackingDate,
+                            DepName = prev2.TreatmentRecordDetail?.Room?.Department?.Name ?? "",
+                            RoomName = prev2.TreatmentRecordDetail?.Room?.Name ?? "",
+                            EmployeeName = prev2.EmployeeId.HasValue && employeeDict.ContainsKey(prev2.EmployeeId.Value) ? employeeDict[prev2.EmployeeId.Value] : ""
                         });
+
                         // Bỏ qua các ngày tiếp theo trong chuỗi liên tiếp "Không điều trị"
                         while (i + 1 < ordered.Count &&
                                (ordered[i + 1].TrackingDate.Date - ordered[i].TrackingDate.Date).TotalDays == 1 &&
@@ -160,10 +153,11 @@ namespace Project.Areas.NhanVien.Controllers
                 }
             }
 
+            // Lọc theo phòng ban nếu có
             if (!string.IsNullOrEmpty(currentDepartmentName))
             {
                 var normalizedDept = currentDepartmentName.Trim().ToLower();
-                warningPatients = warningPatients
+                violatedPatients = violatedPatients
                     .Where(x => !string.IsNullOrEmpty(x.DepName) && x.DepName.Trim().ToLower() == normalizedDept)
                     .OrderBy(x => x.PatientName)
                     .ThenBy(x => x.FirstAbsenceDate)
@@ -171,13 +165,13 @@ namespace Project.Areas.NhanVien.Controllers
             }
             else
             {
-                warningPatients = warningPatients
+                violatedPatients = violatedPatients
                     .OrderBy(x => x.PatientName)
                     .ThenBy(x => x.FirstAbsenceDate)
                     .ToList();
             }
 
-            // Sau khi xác định currentDepartmentName
+            // Lấy danh sách phòng để filter
             var allRooms = await _roomRepository.GetAllAsync();
             List<Room> filterRooms;
             if (!string.IsNullOrEmpty(currentDepartmentName))
@@ -194,7 +188,7 @@ namespace Project.Areas.NhanVien.Controllers
             ViewBag.FilterRooms = filterRooms;
 
             await _viewBagHelper.BaseViewBag(ViewData);
-            return View(warningPatients);
+            return View(violatedPatients);
         }
     }
 }

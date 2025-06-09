@@ -38,10 +38,6 @@ namespace Project.Areas.YTa.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var list = await _treatmentTrackingRepository.GetAllAdvancedAsync();
-
-            await _viewBagHelper.BaseViewBag(ViewData);
-
             // Lấy mã nhân viên hiện tại từ cookie AuthToken
             string? currentEmployeeCode = null;
             string? roomName = null;
@@ -64,11 +60,16 @@ namespace Project.Areas.YTa.Controllers
             }
             ViewBag.RoomName = roomName;
 
-            // Lọc chỉ các bản ghi do bác sĩ hiện tại thực hiện
+            // Lấy danh sách theo dõi điều trị do YTa hiện tại tạo
+            var list = new List<TreatmentTracking>();
             if (!string.IsNullOrEmpty(currentEmployeeCode))
             {
-                list = list.Where(x => x.CreatedBy == currentEmployeeCode).ToList();
+                list = (await _treatmentTrackingRepository.GetByCreatedByAsync(currentEmployeeCode))
+                    .Where(x => x.TreatmentRecordDetail?.TreatmentRecord?.Status == TreatmentStatus.DangDieuTri)
+                    .ToList();
             }
+
+            await _viewBagHelper.BaseViewBag(ViewData);
 
             // Lấy tất cả mã nhân viên đã chấm
             var createdByCodes = list
