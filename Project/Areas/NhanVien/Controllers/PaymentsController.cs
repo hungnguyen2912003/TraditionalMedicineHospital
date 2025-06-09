@@ -128,21 +128,28 @@ namespace Project.Areas.NhanVien.Controllers
                     && tr.Assignments.Any(a => a.Employee.Room.DepartmentId == currentDepartmentId))
                 .ToList();
 
-            // Lấy danh sách bệnh nhân từ các TreatmentRecord này (không trùng lặp)
-            var patients = availableTreatmentRecords
-                .Select(tr => tr.Patient)
-                .Distinct()
-                .Select(p => new
+            // Lấy danh sách bệnh nhân chỉ khi còn ít nhất 1 TreatmentRecord hợp lệ
+            var patients = allTreatmentRecords
+                .GroupBy(tr => tr.Patient.Id)
+                .Where(g => g.Any(tr =>
+                    (tr.Status == TreatmentStatus.DaHoanThanh || tr.Status == TreatmentStatus.DaHuyBo)
+                    && !paidTreatmentRecordIds.Contains(tr.Id)
+                    && tr.Assignments.Any(a => a.Employee.Room.DepartmentId == currentDepartmentId)
+                ))
+                .Select(g => new
                 {
-                    id = p.Id,
-                    name = p.Name
+                    id = g.Key,
+                    name = g.First().Patient.Name
                 }).ToList();
 
-            ViewBag.Patients = patients;
+            ViewBag.PatientsCanPayment = patients;
 
             // Lấy toàn bộ TreatmentRecord (Id, Code, PatientId, Status, StartDate, EndDate) phù hợp với khoa
             var treatmentRecords = allTreatmentRecords
-                .Where(tr => tr.Assignments.Any(a => a.Employee.Room.DepartmentId == currentDepartmentId))
+                .Where(tr => tr.Assignments.Any(a => a.Employee.Room.DepartmentId == currentDepartmentId)
+                    && (tr.Status == TreatmentStatus.DaHoanThanh || tr.Status == TreatmentStatus.DaHuyBo)
+                    && !paidTreatmentRecordIds.Contains(tr.Id)
+                )
                 .Select(tr => new
                 {
                     id = tr.Id,

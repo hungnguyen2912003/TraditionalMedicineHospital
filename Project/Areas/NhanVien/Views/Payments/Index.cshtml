@@ -105,7 +105,7 @@
                     <label for="paymentPatientId" class="block font-semibold mb-1">Chọn bệnh nhân</label>
                     <select id="paymentPatientId" class="form-input w-full">
                         <option value="">Chọn bệnh nhân</option>
-                        @foreach (var p in ViewBag.Patients)
+                        @foreach (var p in ViewBag.PatientsCanPayment)
                         {
                             <option value="@p.id">@p.name</option>
                         }
@@ -530,7 +530,7 @@
 
     // Dữ liệu TreatmentRecords từ ViewBag (dạng JS array)
     const allTreatmentRecords = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.TreatmentRecordsCanPayment));
-    const allPatients = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Patients));
+    const allPatients = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.PatientsCanPayment));
     // Danh sách các TreatmentRecordId đã lập phiếu thanh toán (Guid)
     const paidTreatmentRecordIds = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.PaidTreatmentRecordIds));
 
@@ -727,6 +727,11 @@
 
     function resetPaymentModal() {
         document.getElementById('prescriptionNote').value = '';
+        // Reset dropdown chọn bệnh nhân và phiếu điều trị
+        document.getElementById('paymentPatientId').selectedIndex = 0;
+        const trSelect = document.getElementById('paymentTreatmentRecordId');
+        trSelect.innerHTML = '<option value="">Chọn mã phiếu điều trị</option>';
+        trSelect.disabled = true;
         // Ẩn và clear các bảng động
         document.getElementById('createTreatmentDetailsTable').innerHTML = '';
         document.getElementById('createTreatmentDetailsTable').style.display = 'none';
