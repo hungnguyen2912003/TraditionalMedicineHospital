@@ -202,12 +202,10 @@
 
             update() {
                 const form = document.getElementById('myForm');
+                const overlay = document.getElementById('loadingOverlay');
                 if ($("#myForm").valid()) {
-                    const overlay = document.getElementById('loadingOverlay');
                     overlay.style.display = 'flex';
-
                     const id = document.querySelector('input[name="Id"]').value;
-
                     const formData = new FormData(form);
                     formData.append('Id', id);
                     fetch('/loai-nhan-su/chinh-sua/' + id, {

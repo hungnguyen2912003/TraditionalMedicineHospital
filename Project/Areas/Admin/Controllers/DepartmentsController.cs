@@ -21,7 +21,6 @@ namespace Project.Areas.Admin.Controllers
         (
             IDepartmentRepository repository,
             IRoomRepository roomRepository,
-            ITreatmentMethodRepository treatmentRepository,
             IMapper mapper,
             CodeGeneratorHelper codeGenerator
         )
@@ -126,27 +125,17 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            var departments = new List<Department>();
-            foreach (var id in ids)
+            // Lấy tất cả Room có DepartmentId thuộc ids
+            var allRooms = await _roomRepository.GetAllAsync();
+            var usedRooms = allRooms.Where(r => ids.Contains(r.DepartmentId)).ToList();
+            if (usedRooms.Any())
             {
-               var dep = await _repository.GetByIdAsync(id);
-               if (dep == null) continue;
-               var r = await _roomRepository.GetAllAdvancedAsync();
-               var hasRooms = r.Any(x => x.DepartmentId == id);
-               if (hasRooms)
-               {
-                   departments.Add(dep);
-               }
-            }
-
-            if (departments.Any())
-            {
-               var names = string.Join(", ", departments.Select(c => $"\"{c.Name}\""));
-               var message = departments.Count == 1
-                   ? $"Không thể xóa Khoa {names} vì vẫn còn phòng đang thuộc Khoa này."
-                   : $"Không thể xóa các Khoa: {names} vì vẫn còn phòng đang thuộc Khoa này.";
-               TempData["ErrorMessage"] = message;
-               return RedirectToAction("Index");
+                var names = string.Join(", ", usedRooms.Select(r => $"\"{r.Name}\"").Distinct());
+                var message = usedRooms.Count == 1
+                    ? $"Không thể xóa Khoa {names} vì vẫn còn phòng đang thuộc Khoa này."
+                    : $"Không thể xóa các Khoa này vì vẫn còn phòng đang thuộc Khoa này.";
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction("Index");
             }
 
             var delList = new List<Department>();

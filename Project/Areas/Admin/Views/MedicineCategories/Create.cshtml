@@ -195,8 +195,8 @@
             },
 
             add() {
+                const overlay = document.getElementById('loadingOverlay');
                 if ($("#myForm").valid()) {
-                    const overlay = document.getElementById('loadingOverlay');
                     overlay.style.display = 'flex';
                     const form = document.getElementById('myForm');
                     const formData = new FormData(form);

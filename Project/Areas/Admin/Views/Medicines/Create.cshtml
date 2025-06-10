@@ -557,8 +557,8 @@
             },
 
             add() {
+                const overlay = document.getElementById('loadingOverlay');
                 if ($("#myForm").valid()) {
-                    const overlay = document.getElementById('loadingOverlay');
                     overlay.style.display = 'flex';
                     if (this.dropzone.files.length > 0) {
                         this.dropzone.processQueue();

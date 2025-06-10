@@ -16,6 +16,7 @@ namespace Project.Areas.Admin.Controllers
     {
         private readonly IRoomRepository _repository;
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly ITreatmentRecordDetailRepository _treatmentRecordDetailRepository;
         private readonly IMapper _mapper;
         private readonly ViewBagHelper _viewBagHelper;
         private readonly CodeGeneratorHelper _codeGenerator;
@@ -24,6 +25,7 @@ namespace Project.Areas.Admin.Controllers
         (
             IRoomRepository repository,
             IEmployeeRepository employeeRepository,
+            ITreatmentRecordDetailRepository treatmentRecordDetailRepository,
             IMapper mapper,
             ViewBagHelper viewBagHelper,
             CodeGeneratorHelper codeGenerator
@@ -31,6 +33,7 @@ namespace Project.Areas.Admin.Controllers
         {
             _repository = repository;
             _employeeRepository = employeeRepository;
+            _treatmentRecordDetailRepository = treatmentRecordDetailRepository;
             _mapper = mapper;
             _viewBagHelper = viewBagHelper;
             _codeGenerator = codeGenerator;
@@ -137,31 +140,28 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            if (_repository == null)
+            // Lấy tất cả Employee có RoomId thuộc ids
+            var allEmployees = await _employeeRepository.GetAllAsync();
+            var usedEmployees = allEmployees.Where(e => ids.Contains(e.RoomId)).ToList();
+            if (usedEmployees.Any())
             {
-                TempData["ErrorMessage"] = "Hệ thống gặp lỗi, vui lòng thử lại sau.";
+                var names = string.Join(", ", usedEmployees.Select(e => $"\"{e.Name}\"").Distinct());
+                var message = usedEmployees.Count == 1
+                    ? $"Không thể xóa phòng {names} vì vẫn còn nhân sự đang làm việc trong phòng này."
+                    : $"Không thể xóa các phòng đã chọn vì vẫn còn nhân sự đang làm việc trong các phòng này.";
+                TempData["ErrorMessage"] = message;
                 return RedirectToAction("Index");
             }
 
-            var rooms = new List<Room>();
-            foreach (var id in ids)
+            // Lất tất cả TreatmentRecordDetail có RoomId thuộc ids
+            var allTreatmentRecordDetails = await _treatmentRecordDetailRepository.GetAllAsync();
+            var usedTreatmentRecordDetails = allTreatmentRecordDetails.Where(t => ids.Contains(t.RoomId)).ToList();
+            if (usedTreatmentRecordDetails.Any())
             {
-                var room = await _repository.GetByIdAsync(id);
-                if (room == null) continue;
-                var e = await _employeeRepository.GetAllAdvancedAsync();
-                var hasEmployees = e.Any(x => x.RoomId == id);
-                if (hasEmployees)
-                {
-                    rooms.Add(room);
-                }
-            }
-
-            if (rooms.Any())
-            {
-                var names = string.Join(", ", rooms.Select(c => $"\"{c.Name}\""));
-                var message = rooms.Count == 1
-                    ? $"Không thể xóa phòng {names} vì vẫn còn nhân sự đang làm việc trong phòng này."
-                    : $"Không thể xóa các phòng đã chọn vì vẫn còn nhân sự đang làm việc trong các phòng này.";
+                var names = string.Join(", ", usedTreatmentRecordDetails.Select(t => $"\"{t.Room.Name}\"").Distinct());
+                var message = usedTreatmentRecordDetails.Count == 1
+                    ? $"Không thể xóa phòng {names} vì vẫn còn chi tiết phiếu khám đang thuộc phòng này."
+                    : $"Không thể xóa các phòng đã chọn vì vẫn còn chi tiết phiếu khám đang thuộc các phòng này.";
                 TempData["ErrorMessage"] = message;
                 return RedirectToAction("Index");
             }

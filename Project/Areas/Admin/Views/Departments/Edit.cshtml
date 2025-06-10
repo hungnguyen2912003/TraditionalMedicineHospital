@@ -44,7 +44,7 @@
                                             class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập tên Khoa"
-                                        value="@Model.Name" />
+                                        value="@Model.Name" maxlength="50" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -52,7 +52,7 @@
                                 <label for="description" class="block text-sm font-medium text-gray-700">Mô tả
                                     Khoa</label>
                                 <textarea id="Description" name="Description"
-                                    class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]"
+                                    class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" maxlength="1000"
                                     placeholder="Nhập mô tả Khoa...">@Model.Description</textarea>
                                 @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger"
                                                                 })
@@ -99,10 +99,6 @@
 
 
 <script>
-    $.validator.addMethod("customPattern", function (value, element, regex) {
-        return this.optional(element) || regex.test(value);
-    }, "Giá trị không hợp lệ.");
-
     document.addEventListener('alpine:init', () => {
         Alpine.data('editData', () => ({
 
@@ -111,6 +107,10 @@
             },
 
             setupValidation() {
+                $.validator.addMethod("customPattern", function (value, element, regex) {
+                    return this.optional(element) || regex.test(value);
+                }, "Giá trị không hợp lệ.");
+
                 $("#myForm").validate({
                     rules: {
                         Name: {
@@ -142,6 +142,9 @@
                                     }
                                 }
                             }
+                        },
+                        Description: {
+                            maxlength: 1000
                         }
                     },
                     messages: {
@@ -149,8 +152,11 @@
                             required: "Tên Khoa không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 6 ký tự.",
                             maxlength: "Tên không được vượt quá 50 ký tự.",
-                            customPattern: "Tên Khoa phải bắt đầu bằng chữ cái.",
+                            customPattern: "Tên Khoa phải bắt đầu bằng chữ cái, chỉ chứa chữ cái và số",
                             remote: "Tên Khoa đã tồn tại."
+                        },
+                        Description: {
+                            maxlength: "Mô tả không được vượt quá 1000 ký tự."
                         }
                     },
                     errorElement: "div",
@@ -200,9 +206,8 @@
             },
 
             update() {
-                const form = document.getElementById('myForm');
+                const overlay = document.getElementById('loadingOverlay');
                 if ($("#myForm").valid()) {
-                    const overlay = document.getElementById('loadingOverlay');
                     overlay.style.display = 'flex';
 
                     const id = document.querySelector('input[name="Id"]').value;
@@ -220,6 +225,7 @@
                         });
                 }
                 else {
+                    overlay.style.display = 'none';
                     notyf.error("Vui lòng kiểm tra lại thông tin nhập.");
                 }
             },
