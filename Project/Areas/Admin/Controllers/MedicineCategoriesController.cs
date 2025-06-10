@@ -124,26 +124,14 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            // Kiểm tra xem có Medicine nào đang sử dụng MedicineCategory không
-            var categories = new List<MedicineCategory>();
-            foreach (var id in ids)
-            {
-                var category = await _repository.GetByIdAsync(id);
-                if (category == null) continue;
-                // Lấy danh sách Medicine có MedicineCategoryId trỏ đến category.Id
-                var medicines = await _medicineRepository.GetAllAdvancedAsync();
-                var hasMedicines = medicines.Any(m => m.MedicineCategoryId == id);
-                if (hasMedicines)
-                {
-                    categories.Add(category);
-                }
-            }
+            // Lấy tất cả Medicine có MedicineCategoryId thuộc ids
+            var allMedicines = await _medicineRepository.GetAllAsync();
+            var usedMedicines = allMedicines.Where(m => ids.Contains(m.MedicineCategoryId)).ToList();
 
-            // Nếu có MedicineCategory đang được sử dụng, trả về thông báo lỗi
-            if (categories.Any())
+            if (usedMedicines.Any())
             {
-                var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
-                var message = categories.Count == 1
+                var names = string.Join(", ", usedMedicines.Select(m => $"\"{m.Name}\"").Distinct());
+                var message = usedMedicines.Count == 1
                     ? $"Không thể xóa loại thuốc {names} vì vẫn còn thuốc đang sử dụng loại này."
                     : $"Không thể xóa các loại thuốc này vì vẫn còn thuốc đang sử dụng các loại này.";
                 TempData["ErrorMessage"] = message;

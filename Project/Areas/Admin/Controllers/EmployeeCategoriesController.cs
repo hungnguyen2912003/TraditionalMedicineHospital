@@ -123,25 +123,16 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            var categories = new List<EmployeeCategory>();
-            foreach (var id in ids)
-            {
-                var category = await _repository.GetByIdAsync(id);
-                if (category == null) continue;
-                var employees = await _employeeRepository.GetAllAdvancedAsync();
-                var hasMedicines = employees.Any(m => m.EmployeeCategoryId == id);
-                if (hasMedicines)
-                {
-                    categories.Add(category);
-                }
-            }
+            // Lấy tất cả Employee có EmployeeCategoryId thuộc ids
+            var allEmployees = await _employeeRepository.GetAllAsync();
+            var usedEmployees = allEmployees.Where(e => ids.Contains(e.EmployeeCategoryId)).ToList();
 
-            if (categories.Any())
+            if (usedEmployees.Any())
             {
-                var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
-                var message = categories.Count == 1
-                    ? $"Không thể xóa loại nhân sự {names} vì vẫn còn nhân sự đang sử dụng loại này."
-                    : $"Không thể xóa các loại nhân sự: {names} vì vẫn còn nhân sự đang sử dụng các loại này.";
+                var names = string.Join(", ", usedEmployees.Select(e => $"\"{e.Name}\"").Distinct());
+                var message = usedEmployees.Count == 1
+                    ? $"Không thể xóa loại nhân sự {names} vì vẫn còn nhân sự đang phụ trách loại này."
+                    : $"Không thể xóa các loại nhân sự vì vẫn còn nhân sự đang phụ trách các loại này.";
                 TempData["ErrorMessage"] = message;
                 return RedirectToAction("Index");
             }

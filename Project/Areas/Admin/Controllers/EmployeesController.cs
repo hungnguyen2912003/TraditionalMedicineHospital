@@ -26,6 +26,8 @@ namespace Project.Areas.Admin.Controllers
         private readonly IRoomRepository _roomRepository;
         private readonly EmailService _emailService;
         private readonly IEmployeeCategoryRepository _employeeCategoryRepository;
+        private readonly IAssignmentRepository _assignmentRepository;
+        private readonly ITreatmentTrackingRepository _treatmentTrackingRepository;
         public EmployeesController
         (
             IEmployeeRepository repository,
@@ -37,7 +39,9 @@ namespace Project.Areas.Admin.Controllers
             CodeGeneratorHelper codeGenerator,
             IRoomRepository roomRepository,
             EmailService emailService,
-            IEmployeeCategoryRepository employeeCategoryRepository
+            IEmployeeCategoryRepository employeeCategoryRepository,
+            IAssignmentRepository assignmentRepository,
+            ITreatmentTrackingRepository treatmentTrackingRepository
         )
         {
             _repository = repository;
@@ -50,6 +54,8 @@ namespace Project.Areas.Admin.Controllers
             _roomRepository = roomRepository;
             _emailService = emailService;
             _employeeCategoryRepository = employeeCategoryRepository;
+            _assignmentRepository = assignmentRepository;
+            _treatmentTrackingRepository = treatmentTrackingRepository;
         }
 
         [Authorize(Roles = "Admin")]
@@ -254,9 +260,40 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            if (_repository == null)
+            // Lấy tất cả Appointment có EmployeeId thuộc ids
+            var allAssignments = await _assignmentRepository.GetAllAsync();
+            var usedAssignments = allAssignments.Where(a => ids.Contains(a.EmployeeId)).ToList();
+
+            if (usedAssignments.Any())
             {
-                TempData["ErrorMessage"] = "Hệ thống gặp lỗi, vui lòng thử lại sau.";
+                var names = string.Join(", ", usedAssignments.Select(a => $"\"{a.Employee?.Name}\"").Distinct());
+                var message = usedAssignments.Count == 1
+                    ? $"Không thể xóa nhân sự {names} vì vẫn còn đang được phân công làm việc."
+                    : $"Không thể xóa các nhân sự này vì vẫn còn đang được phân công làm việc.";
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction("Index");
+            }
+
+            // Lấy tất cả Tracking có EmployeeId thuộc ids
+            var allTreatmentTrackings = await _treatmentTrackingRepository.GetAllAsync();
+            var usedTreatmentTrackings = allTreatmentTrackings.Where(t => ids.Contains(t.EmployeeId ?? Guid.Empty)).ToList();
+
+            if (usedTreatmentTrackings.Any())
+            {
+                // Lấy danh sách nhân sự để join
+                var allEmployees = await _repository.GetAllAsync();
+                var names = string.Join(", ", usedTreatmentTrackings
+                    .Select(t =>
+                    {
+                        var emp = allEmployees.FirstOrDefault(e => e.Id == t.EmployeeId);
+                        var name = emp?.Name ?? t.EmployeeId.ToString();
+                        return $"\"{name}\"";
+                    })
+                    .Distinct());
+                var message = usedTreatmentTrackings.Count == 1
+                    ? $"Không thể xóa nhân sự {names} vì vẫn còn đang được phân công làm việc theo dõi điều trị."
+                    : $"Không thể xóa các nhân sự này vì vẫn còn đang được phân công làm việc theo dõi điều trị.";
+                TempData["ErrorMessage"] = message;
                 return RedirectToAction("Index");
             }
 

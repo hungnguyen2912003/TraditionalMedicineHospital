@@ -43,7 +43,7 @@
                                         thuốc<span class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập tên loại thuốc" />
+                                        placeholder="Nhập tên loại thuốc" maxlength="50" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -52,7 +52,7 @@
                                     thuốc</label>
                                 <textarea id="Description" name="Description"
                                     class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]"
-                                    placeholder="Nhập mô tả loại thuốc..."></textarea>
+                                    placeholder="Nhập mô tả loại thuốc..." maxlength="1000"></textarea>
                                 @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger"
                                                                 })
                             </div>

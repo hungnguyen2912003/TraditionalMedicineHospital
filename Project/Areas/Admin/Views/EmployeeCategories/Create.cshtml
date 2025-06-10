@@ -42,7 +42,7 @@
                                         sự<span class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập tên loại nhân sự" />
+                                        placeholder="Nhập tên loại nhân sự" maxlength="50" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -50,7 +50,7 @@
                                 <label for="Description" class="block text-sm font-medium text-gray-700">Mô tả loại nhân
                                     sự</label>
                                 <textarea id="Description" name="Description"
-                                    class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]"
+                                    class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]" maxlength="1000"
                                     placeholder="Nhập mô tả loại nhân sự..."></textarea>
                                 @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger"
                                                                 })
@@ -96,10 +96,6 @@
 </form>
 
 <script>
-    $.validator.addMethod("customPattern", function (value, element, regex) {
-        return this.optional(element) || regex.test(value);
-    }, "Giá trị không hợp lệ.");
-
     document.addEventListener('alpine:init', () => {
         Alpine.data('addData', () => ({
 
@@ -108,13 +104,17 @@
             },
 
             setupValidation() {
+                $.validator.addMethod("customPattern", function (value, element, regex) {
+                    return this.optional(element) || regex.test(value);
+                }, "Giá trị không hợp lệ.");
+
                 $("#myForm").validate({
                     rules: {
                         Name: {
                             required: true,
                             minlength: 6,
                             maxlength: 50,
-                            customPattern: /^[A-Za-zÀ-ỹ ]*$/,
+                            customPattern: /^[A-Za-zÀ-ỹ ][A-Za-zÀ-ỹ0-9 ]*$/,
                             remote: {
                                 url: "/api/validation/employeecategory/check",
                                 type: "GET",
@@ -145,7 +145,7 @@
                             required: "Tên loại nhân sự không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 6 ký tự.",
                             maxlength: "Tên không được vượt quá 50 ký tự.",
-                            customPattern: "Tên loại nhân sự phải bắt đầu bằng chữ cái và chỉ chứa chữ cái.",
+                            customPattern: "Tên loại nhân sự phải bắt đầu bằng chữ cái, chỉ chứa chữ cái và số.",
                             remote: "Tên loại nhân sự này đã tồn tại."
                         }
                     },

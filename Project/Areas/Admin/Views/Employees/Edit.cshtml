@@ -44,7 +44,7 @@
                                             class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập họ tên nhân sự" value="@Model.Name" />
+                                        placeholder="Nhập họ tên nhân sự" value="@Model.Name" maxlength="50" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -154,7 +154,8 @@
                                             class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="DateOfBirth" type="text" name="DateOfBirth"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
-                                        placeholder="Nhập sinh" value="@Model.DateOfBirth.ToString("dd/MM/yyyy")" />
+                                        placeholder="Nhập sinh" value="@Model.DateOfBirth.ToString("dd/MM/yyyy")"
+                                        maxlength="10" />
                                     @Html.ValidationMessageFor(model => model.DateOfBirth, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -165,7 +166,7 @@
                                     <input id="IdentityNumber" type="text" name="IdentityNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập căn cước công dân" value="@Model.IdentityNumber"
-                                        maxlength="12" />
+                                        minlength="12" maxlength="12" />
                                     @Html.ValidationMessageFor(model => model.IdentityNumber, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -176,7 +177,8 @@
                                             class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="Address" type="text" name="Address"
                                         class="form-input w-full mt-1 p-2 border rounded address-autocomplete"
-                                        placeholder="Nhập địa chỉ" autocomplete="off" value="@Model.Address" />
+                                        placeholder="Nhập địa chỉ" autocomplete="off" value="@Model.Address"
+                                        maxlength="500" />
                                     @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger"
                                                                         })
                                 </div>
@@ -188,7 +190,8 @@
                                             class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="PhoneNumber" type="text" name="PhoneNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập số điện thoại" value="@Model.PhoneNumber" maxlength="11" />
+                                        placeholder="Nhập số điện thoại" value="@Model.PhoneNumber" minlength="9"
+                                        maxlength="11" />
                                     @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -197,7 +200,7 @@
                                             class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="EmailAddress" type="text" name="EmailAddress"
                                         class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập email"
-                                        value="@Model.EmailAddress" />
+                                        value="@Model.EmailAddress" maxlength="50" />
                                     @Html.ValidationMessageFor(model => model.EmailAddress, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -327,28 +330,6 @@
 <script>
     Dropzone.autoDiscover = false;
 
-    $.validator.addMethod("customPattern", function (value, element, regex) {
-        return this.optional(element) || regex.test(value);
-    }, "Giá trị không hợp lệ.");
-
-    $.validator.addMethod("over18", function (value, element) {
-        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
-            return false;
-        }
-        var dob = new Date(value.split("/").reverse().join("-"));
-        var today = new Date();
-        var age = today.getFullYear() - dob.getFullYear();
-        var monthDiff = today.getMonth() - dob.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-            age--;
-        }
-        return age >= 18;
-    }, "Nhân sự phải trên 18 tuổi.");
-
-    $.validator.addMethod("dateFormat", function (value, element) {
-        return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
-    }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
-
     document.addEventListener('alpine:init', () => {
         Alpine.data('editData', () => ({
             dropzone: null,
@@ -358,70 +339,59 @@
             departmentChoices: null,
 
             init() {
-                $('select').on('focus', function () {
-                    $(this).trigger('click');
-                });
-                const fileInput = document.getElementById('fileInput');
-                fileInput.addEventListener('change', (event) => {
-                    const file = event.target.files[0];
-                    if (file) {
-                        if (this.dropzone.files.length > 0) {
-                            this.dropzone.removeAllFiles();
-                        }
-                        this.dropzone.addFile(file);
-                    }
-                });
-
                 this.setupDropzone();
                 this.setupValidation();
                 this.setupDateTimePicker();
                 this.setupChoices();
-
-                this.departmentChoices.enable();
-                if (!document.getElementById('DepartmentId').value) {
+                this.departmentChoices.disable();
+                this.roomChoices.disable();
+                document.getElementById('EmployeeCategoryId').addEventListener('change', () => {
+                    this.departmentChoices.enable();
+                    this.departmentChoices.setChoiceByValue('');
                     this.roomChoices.disable();
-                } else {
-                    this.roomChoices.enable();
+                    this.roomChoices.clearStore();
+                    this.filterRoomsByEmployeeCategory();
+                });
+                const selectedText = document.querySelector('#EmployeeCategoryId option:checked').textContent.trim().toLowerCase();
+                if (selectedText === 'bác sĩ' || selectedText === 'nhân viên hành chính') {
+                    this.filterRoomsByEmployeeCategory();
                 }
             },
 
             setupChoices() {
-                const selectElements = document.querySelectorAll('.choices');
-                selectElements.forEach(select => {
+                // Khởi tạo Choices cho các select tĩnh
+                const staticSelects = document.querySelectorAll('.choices');
+                staticSelects.forEach(select => {
+                    // KHÔNG khởi tạo lại cho DepartmentId và RoomId
                     if (select.id !== 'DepartmentId' && select.id !== 'RoomId') {
-                        if (!select.classList.contains('choices-initialized')) {
-                            new Choices(select, {
-                                searchEnabled: true,
-                                searchPlaceholderValue: 'Tìm kiếm...',
-                                removeItemButton: true,
-                                noResultsText: 'Không tìm thấy kết quả',
-                                noChoicesText: 'Không có lựa chọn nào',
-                                itemSelectText: ''
-                            });
-                            select.classList.add('choices-initialized');
-                        }
+                        new Choices(select, {
+                            searchEnabled: true,
+                            searchPlaceholderValue: 'Tìm kiếm...',
+                            removeItemButton: true,
+                            noResultsText: 'Không tìm thấy kết quả',
+                            noChoicesText: 'Không có lựa chọn nào',
+                            itemSelectText: ''
+                        });
                     }
                 });
-                if (!this.departmentChoices) {
-                    this.departmentChoices = new Choices('#DepartmentId', {
-                        searchEnabled: true,
-                        searchPlaceholderValue: 'Tìm kiếm...',
-                        removeItemButton: true,
-                        noResultsText: 'Không tìm thấy kết quả',
-                        noChoicesText: 'Không có lựa chọn nào',
-                        itemSelectText: ''
-                    });
-                }
-                if (!this.roomChoices) {
-                    this.roomChoices = new Choices('#RoomId', {
-                        searchEnabled: true,
-                        searchPlaceholderValue: 'Tìm kiếm...',
-                        removeItemButton: true,
-                        noResultsText: 'Không tìm thấy kết quả',
-                        noChoicesText: 'Không có lựa chọn nào',
-                        itemSelectText: ''
-                    });
-                }
+
+                // Chỉ khởi tạo Choices một lần cho DepartmentId và RoomId
+                this.departmentChoices = new Choices('#DepartmentId', {
+                    searchEnabled: true,
+                    searchPlaceholderValue: 'Tìm kiếm...',
+                    removeItemButton: true,
+                    noResultsText: 'Không tìm thấy kết quả',
+                    noChoicesText: 'Không có lựa chọn nào',
+                    itemSelectText: ''
+                });
+                this.roomChoices = new Choices('#RoomId', {
+                    searchEnabled: true,
+                    searchPlaceholderValue: 'Tìm kiếm...',
+                    removeItemButton: true,
+                    noResultsText: 'Không tìm thấy kết quả',
+                    noChoicesText: 'Không có lựa chọn nào',
+                    itemSelectText: ''
+                });
             },
 
             setupDateTimePicker() {
@@ -473,6 +443,28 @@
             },
 
             setupValidation() {
+                $.validator.addMethod("customPattern", function (value, element, regex) {
+                    return this.optional(element) || regex.test(value);
+                }, "Giá trị không hợp lệ.");
+
+                $.validator.addMethod("over18", function (value, element) {
+                    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+                        return false;
+                    }
+                    var dob = new Date(value.split("/").reverse().join("-"));
+                    var today = new Date();
+                    var age = today.getFullYear() - dob.getFullYear();
+                    var monthDiff = today.getMonth() - dob.getMonth();
+                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                        age--;
+                    }
+                    return age >= 18;
+                }, "Nhân sự phải trên 18 tuổi.");
+
+                $.validator.addMethod("dateFormat", function (value, element) {
+                    return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
+                }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
+
                 $("#myForm").validate({
                     ignore: [],
                     rules: {
@@ -492,7 +484,7 @@
                         },
                         IdentityNumber: {
                             required: true,
-                            minlength: 9,
+                            minlength: 12,
                             maxlength: 12,
                             customPattern: /^[0-9]*$/,
                             remote: {
@@ -554,8 +546,8 @@
                         },
                         PhoneNumber: {
                             required: true,
-                            minlength: 10,
-                            maxlength: 15,
+                            minlength: 9,
+                            maxlength: 11,
                             customPattern: /^[0-9]*$/,
                             remote: {
                                 url: "/api/validation/employee/check",
@@ -612,7 +604,7 @@
                         },
                         IdentityNumber: {
                             required: "Căn cước công dân không được bỏ trống",
-                            minlength: "Căn cước công dân có ít nhất 9 số",
+                            minlength: "Căn cước công dân có ít nhất 12 số",
                             maxlength: "Căn cước công dân không vượt quá 12 số",
                             customPattern: "Căn cước công dân không hợp lệ.",
                             remote: "Căn cước công dân này đã được đăng ký bởi nhân sự khác."
@@ -624,12 +616,12 @@
                         EmailAddress: {
                             required: "Email không được bỏ trống.",
                             email: "Email không hợp lệ.",
-                            remote: "Email này đã đã được đăng ký bởi nhân sự khác."
+                            remote: "Email này đã được đăng ký bởi nhân sự khác."
                         },
                         PhoneNumber: {
                             required: "Số điện thoại không được bỏ trống.",
-                            minlength: "Số điện thoại phải có ít nhất 10 ký tự.",
-                            maxlength: "Số điện thoại không được vượt quá 15 ký tự.",
+                            minlength: "Số điện thoại phải có ít nhất 9 ký tự.",
+                            maxlength: "Số điện thoại không được vượt quá 11 ký tự.",
                             customPattern: "Số điện thoại không hợp lệ.",
                             remote: "Số điện thoại này đã được đăng ký bởi nhân sự khác."
                         },
@@ -681,12 +673,6 @@
                             this.element(element);
                         }
                     },
-                    submitHandler: (form) => {
-                        this.doUpdate();
-                    },
-                    invalidHandler: function (event, validator) {
-                        notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
-                    },
                     onkeyup: false
                 });
                 $('select.form-input').on('change', function () {
@@ -717,7 +703,11 @@
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
-                        window.history.back();
+                        if (window.isAdmin) {
+                            window.location.href = '/nhan-su';
+                        } else {
+                            window.history.back();
+                        }
                     }, 2000);
                 } else {
                     overlay.style.display = 'none';
@@ -729,31 +719,32 @@
             },
 
             update() {
-                $('#myForm').submit();
-            },
-
-            doUpdate() {
                 const form = document.getElementById('myForm');
                 const overlay = document.getElementById('loadingOverlay');
-                overlay.style.display = 'flex';
+                if ($("#myForm").valid()) {
+                    overlay.style.display = 'flex';
 
-                const id = document.querySelector('input[name="Id"]').value;
+                    const id = document.querySelector('input[name="Id"]').value;
 
-                if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
-                    this.dropzone.processQueue();
+                    if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
+                        this.dropzone.processQueue();
+                    } else {
+                        const formData = new FormData(form);
+                        formData.append('Id', id);
+                        fetch('/nhan-su/chinh-sua/' + id, {
+                            method: 'POST',
+                            body: formData
+                        })
+                            .then(response => response.json())
+                            .then(this.handleResponse)
+                            .catch(error => {
+                                overlay.style.display = 'none';
+                                notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                            });
+                    }
                 } else {
-                    const formData = new FormData(form);
-                    formData.append('Id', id);
-                    fetch('/nhan-su/chinh-sua/' + id, {
-                        method: 'POST',
-                        body: formData
-                    })
-                        .then(response => response.json())
-                        .then(this.handleResponse)
-                        .catch(error => {
-                            overlay.style.display = 'none';
-                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
-                        });
+                    overlay.style.display = 'none';
+                    notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
                 }
             },
 
@@ -787,6 +778,21 @@
                             this.roomChoices.enable();
                         });
                 }
+            },
+
+            filterRoomsByEmployeeCategory() {
+                const employeeCategoryId = document.getElementById('EmployeeCategoryId').value;
+                const selectedText = document.querySelector('#EmployeeCategoryId option:checked').textContent.trim().toLowerCase();
+                let filteredRooms = this.rooms;
+                if (selectedText === 'bác sĩ' || selectedText === 'nhân viên hành chính') {
+                    filteredRooms = this.rooms.filter(room => (room.name || room.Name || '').toLowerCase().includes('hành chính'));
+                }
+                this.roomChoices.setChoices(
+                    filteredRooms.map(room => ({
+                        value: room.id || room.Id,
+                        label: room.name || room.Name
+                    })), 'value', 'label', true
+                );
             }
         }));
     });

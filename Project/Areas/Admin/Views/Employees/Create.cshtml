@@ -44,7 +44,7 @@
                                 class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập họ tên nhân sự" />
+                                        placeholder="Nhập họ tên nhân sự" maxlength="50" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
@@ -120,7 +120,7 @@
                                 class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="DateOfBirth" type="text" name="DateOfBirth"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
-                                        placeholder="Nhập ngày sinh" />
+                                        placeholder="Nhập ngày sinh" maxlength="10" />
                                     @Html.ValidationMessageFor(model => model.DateOfBirth, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -130,7 +130,7 @@
                                 class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="IdentityNumber" type="text" name="IdentityNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập căn cước công dân" maxlength="12"/>
+                                        placeholder="Nhập căn cước công dân" minlength="12" maxlength="12"/>
                                     @Html.ValidationMessageFor(model => model.IdentityNumber, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -141,7 +141,7 @@
                                 class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="Address" type="text" name="Address"
                                         class="form-input w-full mt-1 p-2 border rounded address-autocomplete"
-                                        placeholder="Nhập địa chỉ" autocomplete="off" />
+                                        placeholder="Nhập địa chỉ" autocomplete="off" maxlength="500" />
                                     @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -152,7 +152,7 @@
                                 class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="PhoneNumber" type="text" name="PhoneNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập số điện thoại" maxlength="11"/>
+                                        placeholder="Nhập số điện thoại" minlength="9" maxlength="11"/>
                                     @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -161,7 +161,7 @@
                                         class="block text-sm font-medium text-gray-700">Email<span
                                 class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
                                     <input id="EmailAddress" type="text" name="EmailAddress"
-                                        class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập email" />
+                                        class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập email" maxlength="50" />
                                     @Html.ValidationMessageFor(model => model.EmailAddress, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -234,29 +234,6 @@
 
 <script>
     Dropzone.autoDiscover = false;
-
-    $.validator.addMethod("customPattern", function (value, element, regex) {
-        return this.optional(element) || regex.test(value);
-    }, "Giá trị không hợp lệ.");
-
-    $.validator.addMethod("over18", function (value, element) {
-        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
-            return false;
-        }
-        var dob = new Date(value.split("/").reverse().join("-"));
-        var today = new Date();
-        var age = today.getFullYear() - dob.getFullYear();
-        var monthDiff = today.getMonth() - dob.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-            age--;
-        }
-        return age >= 18;
-    }, "Nhân sự phải trên 18 tuổi.");
-
-    $.validator.addMethod("dateFormat", function (value, element) {
-        return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
-    }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
-
     document.addEventListener('alpine:init', () => {
         Alpine.data('addData', () => ({
             dropzone: null,
@@ -270,8 +247,15 @@
                 this.setupValidation();
                 this.setupDateTimePicker();
                 this.setupChoices();
-                this.departmentChoices.enable();
+                this.departmentChoices.disable();
                 this.roomChoices.disable();
+                document.getElementById('EmployeeCategoryId').addEventListener('change', () => {
+                    this.departmentChoices.enable();
+                    this.departmentChoices.setChoiceByValue('');
+                    this.roomChoices.disable();
+                    this.roomChoices.clearStore();
+                    this.filterRoomsByEmployeeCategory();
+                });
             },
 
             setupDateTimePicker() {
@@ -347,6 +331,28 @@
             },
 
             setupValidation() {
+                $.validator.addMethod("customPattern", function (value, element, regex) {
+                    return this.optional(element) || regex.test(value);
+                }, "Giá trị không hợp lệ.");
+
+                $.validator.addMethod("over18", function (value, element) {
+                    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+                        return false;
+                    }
+                    var dob = new Date(value.split("/").reverse().join("-"));
+                    var today = new Date();
+                    var age = today.getFullYear() - dob.getFullYear();
+                    var monthDiff = today.getMonth() - dob.getMonth();
+                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                        age--;
+                    }
+                    return age >= 18;
+                }, "Nhân sự phải trên 18 tuổi.");
+
+                $.validator.addMethod("dateFormat", function (value, element) {
+                    return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
+                }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
+
                 $("#myForm").validate({
                     ignore: [],
                     rules: {
@@ -366,7 +372,7 @@
                         },
                         IdentityNumber: {
                             required: true,
-                            minlength: 9,
+                            minlength: 12,
                             maxlength: 12,
                             customPattern: /^[0-9]*$/,
                             remote: {
@@ -456,6 +462,9 @@
                         EmployeeCategoryId: {
                             required: true
                         },
+                        DepartmentId: {
+                            required: true
+                        },
                         RoomId: {
                             required: true
                         }
@@ -477,8 +486,8 @@
                         },
                         IdentityNumber: {
                             required: "Căn cước công dân không được bỏ trống",
-                            minlength: "Căn cước công dân có ít nhất 11 số",
-                            maxlength: "Căn cước công dân không vượt quá 11 số",
+                            minlength: "Căn cước công dân có ít nhất 12 số",
+                            maxlength: "Căn cước công dân không vượt quá 12 số",
                             customPattern: "Căn cước công dân không hợp lệ.",
                             remote: "Căn cước công dân này đã được đăng ký bởi nhân sự khác."
                         },
@@ -500,6 +509,9 @@
                         },
                         EmployeeCategoryId: {
                             required: "Loại nhân sự không được bỏ trống."
+                        },
+                        DepartmentId: {
+                            required: "Khoa không được bỏ trống."
                         },
                         RoomId: {
                             required: "Phòng làm việc không được bỏ trống."
@@ -581,8 +593,8 @@
 
             add() {
                 const form = document.getElementById('myForm');
+                const overlay = document.getElementById('loadingOverlay');
                 if ($("#myForm").valid()) {
-                    const overlay = document.getElementById('loadingOverlay');
                     overlay.style.display = 'flex';
 
                     if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
@@ -621,15 +633,25 @@
                         .then(res => res.json())
                         .then(data => {
                             this.rooms = data;
-                            this.roomChoices.setChoices(
-                                data.map(room => ({
-                                    value: room.id || room.Id,
-                                    label: room.name || room.Name
-                                })), 'value', 'label', false
-                            );
+                            this.filterRoomsByEmployeeCategory();
                             this.roomChoices.enable();
                         });
                 }
+            },
+
+            filterRoomsByEmployeeCategory() {
+                const employeeCategoryId = document.getElementById('EmployeeCategoryId').value;
+                const selectedText = document.querySelector('#EmployeeCategoryId option:checked').textContent.trim().toLowerCase();
+                let filteredRooms = this.rooms;
+                if (selectedText === 'bác sĩ' || selectedText === 'nhân viên hành chính') {
+                    filteredRooms = this.rooms.filter(room => (room.name || room.Name || '').toLowerCase().includes('hành chính'));
+                }
+                this.roomChoices.setChoices(
+                    filteredRooms.map(room => ({
+                        value: room.id || room.Id,
+                        label: room.name || room.Name
+                    })), 'value', 'label', true
+                );
             }
         }));
     });
