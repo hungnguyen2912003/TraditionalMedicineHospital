@@ -139,6 +139,19 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
+            // Lấy tất cả Room có TreatmentMethodId thuộc ids
+            var allRooms = await _roomRepository.GetAllAsync();
+            var usedRooms = allRooms.Where(r => ids.Contains(r.TreatmentMethodId ?? Guid.Empty)).ToList();
+            if (usedRooms.Any())
+            {
+                var names = string.Join(", ", usedRooms.Select(r => $"\"{r.Name}\"").Distinct());
+                var message = usedRooms.Count == 1
+                    ? $"Không thể xóa phương pháp điều trị {names} vì vẫn còn phòng đang sử dụng phương pháp này."
+                    : $"Không thể xóa các phương pháp điều trị: {names} vì vẫn còn các phòng đang sử dụng phương pháp này.";
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction("Index");
+            }
+
             var treatments = new List<TreatmentMethod>();
             foreach (var id in ids)
             {

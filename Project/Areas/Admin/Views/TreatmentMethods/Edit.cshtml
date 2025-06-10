@@ -44,7 +44,8 @@
                                         điều trị<span class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập tên phương pháp điều trị" value="@Model.Name" />
+                                        placeholder="Nhập tên phương pháp điều trị" value="@Model.Name"
+                                        maxlength="50" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -90,7 +91,8 @@
                                     pháp điều trị</label>
                                 <textarea id="Description" name="Description"
                                     class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]"
-                                    placeholder="Nhập mô tả phương pháp điều trị...">@Model.Description</textarea>
+                                    placeholder="Nhập mô tả phương pháp điều trị..."
+                                    maxlength="1000">@Model.Description</textarea>
                                 @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger"
                                                                 })
                             </div>
@@ -135,10 +137,6 @@
 </form>
 
 <script>
-    $.validator.addMethod("customPattern", function (value, element, regex) {
-        return this.optional(element) || regex.test(value);
-    }, "Giá trị không hợp lệ.");
-
     document.addEventListener('alpine:init', () => {
         Alpine.data('editData', () => ({
 
@@ -186,6 +184,10 @@
                     return this.optional(element) || !isNaN(cleanValue) && Number(cleanValue) >= param;
                 }, "Giá bán phải lớn hơn 0.");
 
+                $.validator.addMethod("customPattern", function (value, element, regex) {
+                    return this.optional(element) || regex.test(value);
+                }, "Giá trị không hợp lệ.");
+
                 $("#myForm").validate({
                     ignore: [],
                     rules: {
@@ -226,6 +228,9 @@
                         },
                         DepartmentId: {
                             required: true
+                        },
+                        Description: {
+                            maxlength: 1000
                         }
                     },
                     messages: {
@@ -233,7 +238,7 @@
                             required: "Tên phương pháp điều trị không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 6 ký tự.",
                             maxlength: "Tên không được vượt quá 50 ký tự.",
-                            customPattern: "Tên phải bắt đầu bằng chữ cái.",
+                            customPattern: "Tên phương pháp điều trị phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số và ký tự đặc biệt.",
                             remote: "Tên phương pháp điều trị này đã tồn tại."
                         },
                         Cost: {
@@ -243,6 +248,9 @@
                         },
                         DepartmentId: {
                             required: "Khoa không được bỏ trống."
+                        },
+                        Description: {
+                            maxlength: "Mô tả không được vượt quá 1000 ký tự."
                         }
                     },
                     errorElement: "div",
@@ -315,9 +323,9 @@
             },
 
             update() {
-                const form = document.getElementById('myForm');
+                const overlay = document.getElementById('loadingOverlay');
                 if ($("#myForm").valid()) {
-                    const overlay = document.getElementById('loadingOverlay');
+                    const form = document.getElementById('myForm');
                     overlay.style.display = 'flex';
 
                     const id = document.querySelector('input[name="Id"]').value;
@@ -335,6 +343,7 @@
                         });
                 }
                 else {
+                    overlay.style.display = 'none';
                     notyf.error("Vui lòng kiểm tra lại thông tin nhập.");
                 }
             },
