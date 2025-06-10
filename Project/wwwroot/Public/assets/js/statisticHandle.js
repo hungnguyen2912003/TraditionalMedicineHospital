@@ -1505,6 +1505,7 @@ document.addEventListener('DOMContentLoaded', function () {
         createDepartmentChart('ccdsChart', 'F75HS667', startDate, endDate);
         createDepartmentChart('vltlChart', '42H35AXU', startDate, endDate);
         createDepartmentChart('bnctChart', 'HZWIPN7U', startDate, endDate);
+        showDepartmentFilterRange();
     });
 
     document.getElementById('treatmentFilterBtn').addEventListener('click', function () {
@@ -1767,6 +1768,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Khởi tạo mặc định cho filter admission: 7 ngày gần nhất
         ({ start: admissionStartDate, end: admissionEndDate } = getDateRange());
         loadPatientAdmissionStats(admissionStartDate, admissionEndDate, 'day');
+        showDepartmentFilterRange();
     });
 
     treatmentResetBtn.addEventListener('click', function () {
@@ -1802,6 +1804,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         loadTreatmentCompletionStats(treatmentStartDate, treatmentEndDate, 'day');
         loadSuspendedReasonStats(treatmentStartDate, treatmentEndDate, 'day');
+        showDepartmentFilterRange();
     });
 
     resetBtn.addEventListener('click', function () {
@@ -1833,6 +1836,7 @@ document.addEventListener('DOMContentLoaded', function () {
         createDepartmentChart('ccdsChart', 'F75HS667');
         createDepartmentChart('vltlChart', '42H35AXU');
         createDepartmentChart('bnctChart', 'HZWIPN7U');
+        showDepartmentFilterRange();
     });
 
     patientTypeResetBtn.addEventListener('click', function () {
@@ -1847,6 +1851,7 @@ document.addEventListener('DOMContentLoaded', function () {
             existingChart.__chartInstance.destroy();
         }
         loadPatientTypeStats();
+        showDepartmentFilterRange();
     });
 
     revenueResetBtn.addEventListener('click', function () {
@@ -1877,6 +1882,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Khởi tạo mặc định: 7 ngày gần nhất
         ({ start: revenueStartDate, end: revenueEndDate } = getDateRange());
         loadRevenueStats(revenueStartDate, revenueEndDate, 'day');
+        showDepartmentFilterRange();
     });
 
     unpaidPaymentAmountResetBtn.addEventListener('click', function () {
@@ -1911,6 +1917,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Khởi tạo mặc định: 7 ngày gần nhất
         ({ start: unpaidPaymentAmountStartDate, end: unpaidPaymentAmountEndDate } = getDateRange());
         loadUnpaidPaymentAmountStats(unpaidPaymentAmountStartDate, unpaidPaymentAmountEndDate, 'day');
+        showDepartmentFilterRange();
     });
 
     unpaidPaymentResetBtn.addEventListener('click', function () {
@@ -1945,6 +1952,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Khởi tạo mặc định: 7 ngày gần nhất
         ({ start: unpaidPaymentStartDate, end: unpaidPaymentEndDate } = getDateRange());
         loadUnpaidPaymentCountStats(unpaidPaymentStartDate, unpaidPaymentEndDate, 'day');
+        showDepartmentFilterRange();
     });
 
     // Function to load and display all statistics
@@ -1993,6 +2001,102 @@ document.addEventListener('DOMContentLoaded', function () {
 
         await loadPatientTypeStats();
     }
+
+    // Thêm xử lý xuất PDF cho nút Tải báo cáo
+    document.getElementById('exportReportBtn').addEventListener('click', async function () {
+        this.style.display = 'none';
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        // Ẩn tạm thời các phần tử không muốn export
+        const noExportEls = document.querySelectorAll('.no-export');
+        noExportEls.forEach(el => el.style.display = 'none');
+
+        // Hiện dòng thời gian lọc (nếu có) chỉ để export PDF
+        const rangeText = document.getElementById('departmentFilterRangeText');
+        const prevDisplay = rangeText.style.display;
+        if (rangeText.textContent && rangeText.textContent.trim() !== '') {
+            rangeText.style.display = '';
+        }
+
+        const reportArea = document.getElementById('reportArea');
+        const sections = reportArea.querySelectorAll('div.mt-8');
+        const pdf = new window.jspdf.jsPDF({
+            orientation: 'landscape',
+            unit: 'px',
+            format: 'a4'
+        });
+
+        for (let i = 0; i < sections.length; i++) {
+            const section = sections[i];
+            // eslint-disable-next-line no-await-in-loop
+            const canvas = await html2canvas(section, { scale: 2, backgroundColor: '#fff' });
+            const imgData = canvas.toDataURL('image/png');
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const imgWidth = pageWidth;
+            const imgHeight = canvas.height * pageWidth / canvas.width;
+
+            let y = 0;
+            if (imgHeight > pageHeight) {
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, pageHeight);
+            } else {
+                y = (pageHeight - imgHeight) / 2;
+                pdf.addImage(imgData, 'PNG', 0, y, imgWidth, imgHeight);
+            }
+            if (i < sections.length - 1) {
+                pdf.addPage();
+            }
+        }
+
+        const now = new Date();
+        const pad = n => n.toString().padStart(2, '0');
+        const dateStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+        pdf.save(`bao-cao-thong-ke_${dateStr}.pdf`);
+
+        // Ẩn lại dòng thời gian lọc
+        rangeText.style.display = prevDisplay;
+
+        // Hiện lại các phần tử filter
+        noExportEls.forEach(el => el.style.display = '');
+        document.getElementById('exportReportBtn').style.display = '';
+        document.getElementById('loadingOverlay').style.display = 'none';
+    });
+
+    // Hiển thị thời gian lọc cho biểu đồ department (chỉ phục vụ export PDF, luôn ẩn trên web)
+    function setDepartmentFilterRangeText() {
+        const timeType = document.getElementById('departmentTimeType').value;
+        const startInput = document.getElementById('departmentStartDate');
+        const endInput = document.getElementById('departmentEndDate');
+        const rangeText = document.getElementById('departmentFilterRangeText');
+        let start = startInput.value;
+        let end = endInput.value;
+        if (!timeType || !start || !end) {
+            rangeText.textContent = '';
+            rangeText.style.display = 'none';
+            return;
+        }
+        let display = '';
+        if (timeType === 'day') {
+            const [y1, m1, d1] = start.split('-');
+            const [y2, m2, d2] = end.split('-');
+            display = `Từ ngày ${d1}/${m1}/${y1} - ${d2}/${m2}/${y2}`;
+        } else if (timeType === 'month') {
+            const [y1, m1] = start.split('-');
+            const [y2, m2] = end.split('-');
+            display = `Từ tháng ${m1}/${y1} - ${m2}/${y2}`;
+        } else if (timeType === 'year') {
+            display = `Từ năm ${start} - ${end}`;
+        }
+        rangeText.textContent = display;
+        rangeText.style.display = 'none'; // Luôn ẩn trên web
+    }
+
+    document.getElementById('departmentFilterBtn').addEventListener('click', function () {
+        setDepartmentFilterRangeText();
+    });
+    document.getElementById('departmentResetBtn').addEventListener('click', function () {
+        setDepartmentFilterRangeText();
+    });
+    setDepartmentFilterRangeText();
 });
 
 

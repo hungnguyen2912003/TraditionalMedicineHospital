@@ -4,258 +4,275 @@
 }
 
 <div class="overlay" id="loadingOverlay">
-    <span class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
+    <span
+        class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
 </div>
 
-<ul class="flex space-x-2 rtl:space-x-reverse mb-5">
-    <li>
-        <a href="javascript:;" class="text-primary hover:underline">Thống kê</a>
-    </li>
-</ul>
-
-<div class="panel h-full sm:col-span-2 lg:col-span-1 mt-8">
-    <div class="mb-5 flex items-center justify-between dark:text-white-light">
-        <h5 class="text-xl font-bold">Thống kê số lượt điều trị bằng các phương pháp điều trị theo từng khoa</h5>
-    </div>
-    <div class="mb-5 flex flex-wrap items-center gap-4" id="departmentFilter">
-        <div class="flex items-center gap-3 whitespace-nowrap">
-            <label class="text-sm font-semibold">Loại thời gian:</label>
-            <select id="departmentTimeType" class="form-select text-sm w-56">
-                <option value="">Chọn loại thời gian</option>
-                <option value="day">Báo cáo theo ngày</option>
-                <option value="month">Báo cáo theo tháng</option>
-                <option value="year">Báo cáo theo năm</option>
-            </select>
-        </div>
-        <div id="departmentDateRange" style="display:none;" class="flex items-center gap-2">
-            <label class="text-sm font-semibold">Từ:</label>
-            <input type="date" id="departmentStartDate" class="form-input text-sm">
-            <label class="text-sm font-semibold">Đến:</label>
-            <input type="date" id="departmentEndDate" class="form-input text-sm">
-        </div>
-        <button id="departmentFilterBtn" class="btn btn-primary text-sm">Lọc</button>
-        <button id="departmentResetBtn" class="btn btn-secondary text-sm ml-2" disabled>Hủy lọc</button>
-    </div>
-    <div class="grid gap-8 text-sm font-bold text-[#515365] sm:grid-cols-3">
-        <div>
-            <div>
-                <div>Khoa</div>
-                <div class="text-lg text-[#f8538d]">Châm cứu Dưỡng sinh</div>
-            </div>
-            <div id="ccdsChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
-        </div>
-
-        <div>
-            <div>
-                <div>Khoa</div>
-                <div class="text-lg text-[#f8538d]">Vật lý trị liệu - Phục hồi chức năng</div>
-            </div>
-            <div id="vltlChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
-        </div>
-
-        <div>
-            <div>
-                <div>Khoa</div>
-                <div class="text-lg text-[#f8538d]">Bệnh Người cao tuổi</div>
-            </div>
-            <div id="bnctChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
-        </div>
-    </div>
+<div class="flex items-center justify-between mb-5">
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Thống kê</a>
+        </li>
+    </ul>
+    <button id="exportReportBtn" class="btn btn-success flex items-center gap-2">
+        <i class="fa fa-download"></i> Tải báo cáo
+    </button>
 </div>
 
-<div class="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
-    <div class="grid gap-6 xl:grid-flow-row">
-        <div class="panel overflow-hidden">
-            <div class="flex items-center justify-between mb-5">
-                <h5 class="text-xl font-bold">Thống kê số lượng bệnh nhân đến khám điều trị ngoại trú tại Bệnh viện</h5>
-            </div>
-            <div class="mb-5 flex flex-wrap items-center gap-4" id="admissionFilter">
-                <div class="flex items-center gap-3 whitespace-nowrap">
-                    <label class="text-sm font-semibold">Loại thời gian:</label>
-                    <select id="admissionTimeType" class="form-select text-sm w-56">
-                        <option value="">Chọn loại thời gian</option>
-                        <option value="day">Báo cáo theo ngày</option>
-                        <option value="month">Báo cáo theo tháng</option>
-                        <option value="year">Báo cáo theo năm</option>
-                    </select>
-                </div>
-                <div id="admissionDateRange" style="display:none;"
-                     class="flex items-center justify-center gap-2 w-full">
-                    <label class="text-sm font-semibold">Từ:</label>
-                    <input type="date" id="admissionStartDate" class="form-input text-sm">
-                    <label class="text-sm font-semibold">Đến:</label>
-                    <input type="date" id="admissionEndDate" class="form-input text-sm">
-                </div>
-                <div class="flex items-center justify-center w-full gap-3 whitespace-nowrap">
-                    <button id="admissionFilterBtn" class="btn btn-primary text-sm">Lọc</button>
-                    <button id="admissionResetBtn" class="btn btn-secondary text-sm ml-2" disabled>Hủy lọc</button>
-                </div>
-            </div>
-            <div id="patientAdmissionChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+<div id="reportArea">
+    <div class="panel h-full sm:col-span-2 lg:col-span-1 mt-8">
+        <div class="mb-5 flex items-center justify-between dark:text-white-light">
+            <h5 class="text-xl font-bold">
+                Thống kê số lượt điều trị bằng các phương pháp điều trị theo từng khoa
+                <span class="text-primary font-bold text-xl ml-2" id="departmentFilterRangeText"
+                    style="display:none;"></span>
+            </h5>
         </div>
-    </div>
-    <div class="grid gap-6 xl:grid-flow-row">
-        <div class="panel overflow-hidden">
-            <div class="flex items-center justify-between mb-5">
-                <h5 class="text-xl font-bold">Thống kê loại bệnh nhân mới/cũ khám bệnh</h5>
-            </div>
-            <div class="mb-8 flex flex-wrap items-center gap-4" id="patientTypeFilter">
-                <div class="flex items-center gap-3 whitespace-nowrap">
-                    <label class="text-sm font-semibold">Loại thời gian:</label>
-                    <select id="patientTypeTimeType" class="form-select text-sm w-48">
-                        <option value="">Chọn loại thời gian</option>
-                        <option value="day">Báo cáo theo ngày</option>
-                        <option value="month">Báo cáo theo tháng</option>
-                        <option value="year">Báo cáo theo năm</option>
-                    </select>
-                </div>
-                <div id="patientTypeDateRange" style="display:none;"
-                     class="flex items-center justify-center gap-2 w-full">
-                    <label class="text-sm font-semibold">Từ:</label>
-                    <input type="date" id="patientTypeStartDate" class="form-input text-sm">
-                    <label class="text-sm font-semibold">Đến:</label>
-                    <input type="date" id="patientTypeEndDate" class="form-input text-sm">
-                </div>
-                <div class="flex items-center justify-center w-full gap-3 whitespace-nowrap">
-                    <button id="patientTypeFilterBtn" class="btn btn-primary text-sm">Lọc</button>
-                    <button id="patientTypeResetBtn" class="btn btn-secondary text-sm ml-2" disabled>Hủy lọc</button>
-                </div>
-            </div>
-            <div id="patientTypeChart" class="mt-5 rounded-lg bg-white dark:bg-black overflow-hidden"></div>
-        </div>
-    </div>
-</div>
-
-<div class="mt-8 mb-6 grid gap-6 lg:grid-cols-3">
-    <div class="panel h-full p-5 lg:col-span-2">
-        <div class="mb-5 flex items-center justify-between">
-            <h5 class="text-xl font-bold">Thống kê trạng thái của đợt điều trị</h5>
-        </div>
-        <div class="mb-5 flex flex-wrap items-center gap-4" id="treatmentCompletionFilter">
+        <div class="mb-5 flex flex-wrap items-center gap-4 no-export" id="departmentFilter">
             <div class="flex items-center gap-3 whitespace-nowrap">
                 <label class="text-sm font-semibold">Loại thời gian:</label>
-                <select id="treatmentTimeType" class="form-select text-sm w-48">
+                <select id="departmentTimeType" class="form-select text-sm w-56">
                     <option value="">Chọn loại thời gian</option>
                     <option value="day">Báo cáo theo ngày</option>
                     <option value="month">Báo cáo theo tháng</option>
                     <option value="year">Báo cáo theo năm</option>
                 </select>
             </div>
-            <div id="treatmentDateRange" style="display:none;" class="flex items-center gap-2">
+            <div id="departmentDateRange" style="display:none;" class="flex items-center gap-2">
                 <label class="text-sm font-semibold">Từ:</label>
-                <input type="date" id="treatmentStartDate" class="form-input text-sm">
+                <input type="date" id="departmentStartDate" class="form-input text-sm">
                 <label class="text-sm font-semibold">Đến:</label>
-                <input type="date" id="treatmentEndDate" class="form-input text-sm">
+                <input type="date" id="departmentEndDate" class="form-input text-sm">
             </div>
-            <button id="treatmentFilterBtn" class="btn btn-primary text-sm">Lọc</button>
-            <button id="treatmentResetBtn" class="btn btn-secondary text-sm ml-2" disabled>Hủy lọc</button>
+            <button id="departmentFilterBtn" class="btn btn-primary text-sm">Lọc</button>
+            <button id="departmentResetBtn" class="btn btn-secondary text-sm ml-2" disabled>Hủy lọc</button>
         </div>
-        <div id="treatmentCompletionChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
-    </div>
-
-    <div class="panel h-full">
-        <div class="mb-5 flex items-center">
-            <h5 class="text-xl font-bold">Thống kê đợt điều trị theo từng lý do</h5>
-        </div>
-        <div class="mb-5 flex flex-wrap items-center gap-4 px-5">
-            <!-- Có thể thêm filter ngày nếu muốn -->
-        </div>
-        <div id="suspendedReasonChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
-    </div>
-</div>
-
-
-<div class="mt-8 panel h-full p-0">
-    <div class="mb-5 flex items-start justify-between border-b border-[#e0e6ed] p-5 dark:border-[#1b2e4b] dark:text-white-light">
-        <h5 class="text-xl font-bold">Thống kê doanh thu điều trị ngoại trú</h5>
-    </div>
-    <div class="mb-5 flex flex-wrap items-center gap-4 px-5" id="revenueFilter">
-        <div class="flex items-center gap-3 whitespace-nowrap">
-            <label class="text-sm font-semibold">Loại thời gian:</label>
-            <select id="revenueTimeType" class="form-select text-sm w-48">
-                <option value="">Chọn loại thời gian</option>
-                <option value="day">Báo cáo theo ngày</option>
-                <option value="month">Báo cáo theo tháng</option>
-                <option value="year">Báo cáo theo năm</option>
-            </select>
-        </div>
-        <div id="revenueDateRange" style="display:none;" class="flex items-center gap-2">
-            <label class="text-sm font-semibold">Từ:</label>
-            <input type="date" id="revenueStartDate" class="form-input text-sm">
-            <label class="text-sm font-semibold">Đến:</label>
-            <input type="date" id="revenueEndDate" class="form-input text-sm">
-        </div>
-        <button id="revenueFilterBtn" class="btn btn-primary text-sm">Lọc</button>
-        <button id="revenueResetBtn" class="btn btn-secondary text-sm ml-2" disabled>Hủy lọc</button>
-    </div>
-    <div id="revenueChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
-</div>
-
-<div class="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
-    <div class="grid gap-6 xl:grid-flow-row">
-        <div class="panel overflow-hidden">
-            <div class="flex items-center justify-between mb-5">
-                <h5 class="text-xl font-bold">Thống kê số lượng phiếu thanh toán chưa thanh toán</h5>
+        <div class="grid gap-8 text-sm font-bold text-[#515365] sm:grid-cols-3">
+            <div>
+                <div>
+                    <div>Khoa</div>
+                    <div class="text-lg text-[#f8538d]">Châm cứu Dưỡng sinh</div>
+                </div>
+                <div id="ccdsChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
             </div>
-            <div class="mb-5 flex flex-wrap items-center gap-4" id="admissionFilter">
+
+            <div>
+                <div>
+                    <div>Khoa</div>
+                    <div class="text-lg text-[#f8538d]">Vật lý trị liệu - Phục hồi chức năng</div>
+                </div>
+                <div id="vltlChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+            </div>
+
+            <div>
+                <div>
+                    <div>Khoa</div>
+                    <div class="text-lg text-[#f8538d]">Bệnh Người cao tuổi</div>
+                </div>
+                <div id="bnctChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div class="grid gap-6 xl:grid-flow-row">
+            <div class="panel overflow-hidden">
+                <div class="flex items-center justify-between mb-5">
+                    <h5 class="text-xl font-bold">Thống kê số lượng bệnh nhân đến khám điều trị ngoại trú tại Bệnh viện
+                    </h5>
+                </div>
+                <div class="mb-5 flex flex-wrap items-center gap-4 no-export" id="admissionFilter">
+                    <div class="flex items-center gap-3 whitespace-nowrap">
+                        <label class="text-sm font-semibold">Loại thời gian:</label>
+                        <select id="admissionTimeType" class="form-select text-sm w-56">
+                            <option value="">Chọn loại thời gian</option>
+                            <option value="day">Báo cáo theo ngày</option>
+                            <option value="month">Báo cáo theo tháng</option>
+                            <option value="year">Báo cáo theo năm</option>
+                        </select>
+                    </div>
+                    <div id="admissionDateRange" style="display:none;"
+                        class="flex items-center justify-center gap-2 w-full">
+                        <label class="text-sm font-semibold">Từ:</label>
+                        <input type="date" id="admissionStartDate" class="form-input text-sm">
+                        <label class="text-sm font-semibold">Đến:</label>
+                        <input type="date" id="admissionEndDate" class="form-input text-sm">
+                    </div>
+                    <div class="flex items-center justify-center w-full gap-3 whitespace-nowrap">
+                        <button id="admissionFilterBtn" class="btn btn-primary text-sm">Lọc</button>
+                        <button id="admissionResetBtn" class="btn btn-secondary text-sm ml-2" disabled>Hủy lọc</button>
+                    </div>
+                </div>
+                <div id="patientAdmissionChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+            </div>
+        </div>
+        <div class="grid gap-6 xl:grid-flow-row">
+            <div class="panel overflow-hidden">
+                <div class="flex items-center justify-between mb-5">
+                    <h5 class="text-xl font-bold">Thống kê loại bệnh nhân mới/cũ khám bệnh</h5>
+                </div>
+                <div class="mb-8 flex flex-wrap items-center gap-4 no-export" id="patientTypeFilter">
+                    <div class="flex items-center gap-3 whitespace-nowrap">
+                        <label class="text-sm font-semibold">Loại thời gian:</label>
+                        <select id="patientTypeTimeType" class="form-select text-sm w-48">
+                            <option value="">Chọn loại thời gian</option>
+                            <option value="day">Báo cáo theo ngày</option>
+                            <option value="month">Báo cáo theo tháng</option>
+                            <option value="year">Báo cáo theo năm</option>
+                        </select>
+                    </div>
+                    <div id="patientTypeDateRange" style="display:none;"
+                        class="flex items-center justify-center gap-2 w-full">
+                        <label class="text-sm font-semibold">Từ:</label>
+                        <input type="date" id="patientTypeStartDate" class="form-input text-sm">
+                        <label class="text-sm font-semibold">Đến:</label>
+                        <input type="date" id="patientTypeEndDate" class="form-input text-sm">
+                    </div>
+                    <div class="flex items-center justify-center w-full gap-3 whitespace-nowrap">
+                        <button id="patientTypeFilterBtn" class="btn btn-primary text-sm">Lọc</button>
+                        <button id="patientTypeResetBtn" class="btn btn-secondary text-sm ml-2" disabled>Hủy
+                            lọc</button>
+                    </div>
+                </div>
+                <div id="patientTypeChart" class="mt-5 rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 mb-6 grid gap-6 lg:grid-cols-3">
+        <div class="panel h-full p-5 lg:col-span-2">
+            <div class="mb-5 flex items-center justify-between">
+                <h5 class="text-xl font-bold">Thống kê trạng thái của đợt điều trị</h5>
+            </div>
+            <div class="mb-5 flex flex-wrap items-center gap-4 no-export" id="treatmentCompletionFilter">
                 <div class="flex items-center gap-3 whitespace-nowrap">
                     <label class="text-sm font-semibold">Loại thời gian:</label>
-                    <select id="unpaidPaymentTimeType" class="form-select text-sm w-56">
+                    <select id="treatmentTimeType" class="form-select text-sm w-48">
                         <option value="">Chọn loại thời gian</option>
                         <option value="day">Báo cáo theo ngày</option>
                         <option value="month">Báo cáo theo tháng</option>
                         <option value="year">Báo cáo theo năm</option>
                     </select>
                 </div>
-                <div id="unpaidPaymentDateRange" style="display:none;"
-                     class="flex items-center justify-center gap-2 w-full">
+                <div id="treatmentDateRange" style="display:none;" class="flex items-center gap-2">
                     <label class="text-sm font-semibold">Từ:</label>
-                    <input type="date" id="unpaidPaymentStartDate" class="form-input text-sm">
+                    <input type="date" id="treatmentStartDate" class="form-input text-sm">
                     <label class="text-sm font-semibold">Đến:</label>
-                    <input type="date" id="unpaidPaymentEndDate" class="form-input text-sm">
+                    <input type="date" id="treatmentEndDate" class="form-input text-sm">
                 </div>
-                <div class="flex items-center justify-center w-full gap-3 whitespace-nowrap">
-                    <button id="unpaidPaymentFilterBtn" class="btn btn-primary text-sm">Lọc</button>
-                    <button id="unpaidPaymentResetBtn" class="btn btn-secondary text-sm ml-2" disabled>Hủy lọc</button>
-                </div>
+                <button id="treatmentFilterBtn" class="btn btn-primary text-sm">Lọc</button>
+                <button id="treatmentResetBtn" class="btn btn-secondary text-sm ml-2" disabled>Hủy lọc</button>
             </div>
-            <div id="unpaidPaymentChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+            <div id="treatmentCompletionChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+        </div>
+
+        <div class="panel h-full">
+            <div class="mb-5 flex items-center">
+                <h5 class="text-xl font-bold">Thống kê đợt điều trị theo từng lý do</h5>
+            </div>
+            <div class="mb-5 flex flex-wrap items-center gap-4 px-5 no-export">
+                <!-- Có thể thêm filter ngày nếu muốn -->
+            </div>
+            <div id="suspendedReasonChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
         </div>
     </div>
-    <div class="grid gap-6 xl:grid-flow-row">
-        <div class="panel overflow-hidden">
-            <div class="flex items-center justify-between mb-5">
-                <h5 class="text-xl font-bold">Thống kê số tiền các phiếu thanh toán chưa thanh toán</h5>
+
+
+    <div class="mt-8 panel h-full p-0">
+        <div
+            class="mb-5 flex items-start justify-between border-b border-[#e0e6ed] p-5 dark:border-[#1b2e4b] dark:text-white-light">
+            <h5 class="text-xl font-bold">Thống kê doanh thu điều trị ngoại trú</h5>
+        </div>
+        <div class="mb-5 flex flex-wrap items-center gap-4 px-5 no-export" id="revenueFilter">
+            <div class="flex items-center gap-3 whitespace-nowrap">
+                <label class="text-sm font-semibold">Loại thời gian:</label>
+                <select id="revenueTimeType" class="form-select text-sm w-48">
+                    <option value="">Chọn loại thời gian</option>
+                    <option value="day">Báo cáo theo ngày</option>
+                    <option value="month">Báo cáo theo tháng</option>
+                    <option value="year">Báo cáo theo năm</option>
+                </select>
             </div>
-            <div class="mb-8 flex flex-wrap items-center gap-4" id="patientTypeFilter">
-                <div class="flex items-center gap-3 whitespace-nowrap">
-                    <label class="text-sm font-semibold">Loại thời gian:</label>
-                    <select id="unpaidPaymentAmountTimeType" class="form-select text-sm w-48">
-                        <option value="">Chọn loại thời gian</option>
-                        <option value="day">Báo cáo theo ngày</option>
-                        <option value="month">Báo cáo theo tháng</option>
-                        <option value="year">Báo cáo theo năm</option>
-                    </select>
-                </div>
-                <div id="unpaidPaymentAmountDateRange" style="display:none;"
-                     class="flex items-center justify-center gap-2 w-full">
-                    <label class="text-sm font-semibold">Từ:</label>
-                    <input type="date" id="unpaidPaymentAmountStartDate" class="form-input text-sm">
-                    <label class="text-sm font-semibold">Đến:</label>
-                    <input type="date" id="unpaidPaymentAmountEndDate" class="form-input text-sm">
-                </div>
-                <div class="flex items-center justify-center w-full gap-3 whitespace-nowrap">
-                    <button id="unpaidPaymentAmountFilterBtn" class="btn btn-primary text-sm">Lọc</button>
-                    <button id="unpaidPaymentAmountResetBtn" class="btn btn-secondary text-sm ml-2" disabled>
-                        Hủy
-                        lọc
-                    </button>
-                </div>
+            <div id="revenueDateRange" style="display:none;" class="flex items-center gap-2">
+                <label class="text-sm font-semibold">Từ:</label>
+                <input type="date" id="revenueStartDate" class="form-input text-sm">
+                <label class="text-sm font-semibold">Đến:</label>
+                <input type="date" id="revenueEndDate" class="form-input text-sm">
             </div>
-            <div id="unpaidPaymentAmountChart" class="mt-5 rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+            <button id="revenueFilterBtn" class="btn btn-primary text-sm">Lọc</button>
+            <button id="revenueResetBtn" class="btn btn-secondary text-sm ml-2" disabled>Hủy lọc</button>
+        </div>
+        <div id="revenueChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+    </div>
+
+    <div class="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div class="grid gap-6 xl:grid-flow-row">
+            <div class="panel overflow-hidden">
+                <div class="flex items-center justify-between mb-5">
+                    <h5 class="text-xl font-bold">Thống kê số lượng phiếu thanh toán chưa thanh toán</h5>
+                </div>
+                <div class="mb-5 flex flex-wrap items-center gap-4 no-export" id="admissionFilter">
+                    <div class="flex items-center gap-3 whitespace-nowrap">
+                        <label class="text-sm font-semibold">Loại thời gian:</label>
+                        <select id="unpaidPaymentTimeType" class="form-select text-sm w-56">
+                            <option value="">Chọn loại thời gian</option>
+                            <option value="day">Báo cáo theo ngày</option>
+                            <option value="month">Báo cáo theo tháng</option>
+                            <option value="year">Báo cáo theo năm</option>
+                        </select>
+                    </div>
+                    <div id="unpaidPaymentDateRange" style="display:none;"
+                        class="flex items-center justify-center gap-2 w-full">
+                        <label class="text-sm font-semibold">Từ:</label>
+                        <input type="date" id="unpaidPaymentStartDate" class="form-input text-sm">
+                        <label class="text-sm font-semibold">Đến:</label>
+                        <input type="date" id="unpaidPaymentEndDate" class="form-input text-sm">
+                    </div>
+                    <div class="flex items-center justify-center w-full gap-3 whitespace-nowrap">
+                        <button id="unpaidPaymentFilterBtn" class="btn btn-primary text-sm">Lọc</button>
+                        <button id="unpaidPaymentResetBtn" class="btn btn-secondary text-sm ml-2" disabled>Hủy
+                            lọc</button>
+                    </div>
+                </div>
+                <div id="unpaidPaymentChart" class="rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+            </div>
+        </div>
+        <div class="grid gap-6 xl:grid-flow-row">
+            <div class="panel overflow-hidden">
+                <div class="flex items-center justify-between mb-5">
+                    <h5 class="text-xl font-bold">Thống kê số tiền các phiếu thanh toán chưa thanh toán</h5>
+                </div>
+                <div class="mb-8 flex flex-wrap items-center gap-4 no-export" id="patientTypeFilter">
+                    <div class="flex items-center gap-3 whitespace-nowrap">
+                        <label class="text-sm font-semibold">Loại thời gian:</label>
+                        <select id="unpaidPaymentAmountTimeType" class="form-select text-sm w-48">
+                            <option value="">Chọn loại thời gian</option>
+                            <option value="day">Báo cáo theo ngày</option>
+                            <option value="month">Báo cáo theo tháng</option>
+                            <option value="year">Báo cáo theo năm</option>
+                        </select>
+                    </div>
+                    <div id="unpaidPaymentAmountDateRange" style="display:none;"
+                        class="flex items-center justify-center gap-2 w-full">
+                        <label class="text-sm font-semibold">Từ:</label>
+                        <input type="date" id="unpaidPaymentAmountStartDate" class="form-input text-sm">
+                        <label class="text-sm font-semibold">Đến:</label>
+                        <input type="date" id="unpaidPaymentAmountEndDate" class="form-input text-sm">
+                    </div>
+                    <div class="flex items-center justify-center w-full gap-3 whitespace-nowrap">
+                        <button id="unpaidPaymentAmountFilterBtn" class="btn btn-primary text-sm">Lọc</button>
+                        <button id="unpaidPaymentAmountResetBtn" class="btn btn-secondary text-sm ml-2" disabled>
+                            Hủy
+                            lọc
+                        </button>
+                    </div>
+                </div>
+                <div id="unpaidPaymentAmountChart" class="mt-5 rounded-lg bg-white dark:bg-black overflow-hidden"></div>
+            </div>
         </div>
     </div>
 </div>
-
 
 <script src="~/Public/assets/js/statisticHandle.js?v=@DateTime.Now.Ticks"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
