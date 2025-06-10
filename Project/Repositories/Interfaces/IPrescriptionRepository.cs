@@ -1,7 +1,6 @@
 using Project.Areas.Admin.Models.Entities;
-using Project.Repositories;
 
-namespace Repositories.Interfaces
+namespace Project.Repositories.Interfaces
 {
     public interface IPrescriptionRepository : IBaseRepository<Prescription>
     {

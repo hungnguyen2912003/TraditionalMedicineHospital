@@ -102,7 +102,6 @@ namespace Project.Areas.Admin.Controllers
                 entity.UpdatedBy = "Admin";
                 entity.UpdatedDate = DateTime.UtcNow;
 
-
                 await _repository.UpdateAsync(entity);
                 return Json(new { success = true, message = "Cập nhật loại thuốc thành công!" });
             }
@@ -146,7 +145,7 @@ namespace Project.Areas.Admin.Controllers
                 var names = string.Join(", ", categories.Select(c => $"\"{c.Name}\""));
                 var message = categories.Count == 1
                     ? $"Không thể xóa loại thuốc {names} vì vẫn còn thuốc đang sử dụng loại này."
-                    : $"Không thể xóa các loại thuốc: {names} vì vẫn còn thuốc đang sử dụng các loại này.";
+                    : $"Không thể xóa các loại thuốc này vì vẫn còn thuốc đang sử dụng các loại này.";
                 TempData["ErrorMessage"] = message;
                 return RedirectToAction("Index");
             }

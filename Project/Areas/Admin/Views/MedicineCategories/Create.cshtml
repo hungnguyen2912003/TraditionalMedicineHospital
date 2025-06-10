@@ -145,7 +145,7 @@
                             required: "Tên loại thuốc không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 3 ký tự.",
                             maxlength: "Tên không được vượt quá 50 ký tự.",
-                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng.",
+                            customPattern: "Tên loại thuốc phải bắt đầu bằng chữ cái và chỉ chứa chữ cái và số.",
                             remote: "Tên loại thuốc này đã tồn tại."
                         }
                     },
@@ -212,6 +212,7 @@
                         });
                 }
                 else {
+                    overlay.style.display = 'none';
                     notyf.error("Vui lòng kiểm tra lại thông tin nhập.");
                 }
             },

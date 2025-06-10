@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Areas.Admin.Models.DTOs;
@@ -8,6 +7,7 @@ using Project.Areas.Admin.Models.ViewModels;
 using Project.Helpers;
 using Project.Repositories.Interfaces;
 using Project.Services.Interfaces;
+using Repositories.Interfaces;
 
 namespace Project.Areas.Admin.Controllers
 {
@@ -18,6 +18,7 @@ namespace Project.Areas.Admin.Controllers
     {
         private readonly IMedicineRepository _repository;
         private readonly IMedicineCategoryRepository _categoryRepository;
+        private readonly IPrescriptionDetailRepository _prescriptionDetailRepository;
         private readonly IMapper _mapper;
         private readonly IImageService _imgService;
         private readonly ViewBagHelper _viewBagHelper;
@@ -29,6 +30,7 @@ namespace Project.Areas.Admin.Controllers
             IMapper mapper,
             IImageService imgService,
             IMedicineCategoryRepository categoryRepository,
+            IPrescriptionDetailRepository prescriptionDetailRepository,
             ViewBagHelper viewBagHelper,
             CodeGeneratorHelper codeGenerator
         )
@@ -37,6 +39,7 @@ namespace Project.Areas.Admin.Controllers
             _mapper = mapper;
             _imgService = imgService;
             _categoryRepository = categoryRepository;
+            _prescriptionDetailRepository = prescriptionDetailRepository;
             _viewBagHelper = viewBagHelper;
             _codeGenerator = codeGenerator;
         }
@@ -141,7 +144,7 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Delete([FromForm] string selectedIds)
         {
             var ids = new List<Guid>();
-            foreach (var id in selectedIds.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            foreach (var id in selectedIds.Split(','))
             {
                 if (Guid.TryParse(id, out var parsedId))
                 {
@@ -149,9 +152,17 @@ namespace Project.Areas.Admin.Controllers
                 }
             }
 
-            if (_repository == null)
+            // Lấy tất cả PrescriptionDetail có MedicineId thuộc ids
+            var allPrescriptionDetails = await _prescriptionDetailRepository.GetAllAsync();
+            var usedPrescriptionDetails = allPrescriptionDetails.Where(d => ids.Contains(d.MedicineId)).ToList();
+
+            if (usedPrescriptionDetails.Any())
             {
-                TempData["ErrorMessage"] = "Hệ thống gặp lỗi, vui lòng thử lại sau.";
+                var names = string.Join(", ", usedPrescriptionDetails.Select(d => $"\"{d.Medicine?.Name}\"").Distinct());
+                var message = usedPrescriptionDetails.Count == 1
+                    ? $"Không thể xóa thuốc {names} vì vẫn còn đơn thuốc đang sử dụng."
+                    : $"Không thể xóa các thuốc này vì vẫn còn đơn thuốc đang sử dụng.";
+                TempData["ErrorMessage"] = message;
                 return RedirectToAction("Index");
             }
 

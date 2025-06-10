@@ -206,7 +206,7 @@
                                 class="text-danger">&nbsp*</span></label>
                         <input id="StockQuantity" type="number" name="StockQuantity"
                             class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số lượng"
-                            value="@Model.StockQuantity" />
+                            value="@Model.StockQuantity" min="1" max="10000" />
                         @Html.ValidationMessageFor(model => model.StockQuantity, "", new { @class = "text-danger" })
                     </div>
                     <div class="mt-4">
@@ -289,17 +289,6 @@
             dropzone: null,
 
             init() {
-                const fileInput = document.getElementById('fileInput');
-                fileInput.addEventListener('change', (event) => {
-                    const file = event.target.files[0];
-                    if (file) {
-                        if (this.dropzone.files.length > 0) {
-                            this.dropzone.removeAllFiles();
-                        }
-                        this.dropzone.addFile(file);
-                    }
-                });
-
                 this.setupDropzone();
                 this.setupValidation();
                 this.setupDateTimePicker();
@@ -346,6 +335,7 @@
                     url: '/thuoc/chinh-sua/' + this.id,
                     autoProcessQueue: false,
                     maxFiles: 1,
+                    maxFilesize: 5,
                     acceptedFiles: 'image/*',
                     addRemoveLinks: false,
                     dictDefaultMessage: 'Kéo thả hoặc nhấp để chọn ảnh',
@@ -375,7 +365,7 @@
                             const overlay = document.getElementById('loadingOverlay');
                             overlay.style.display = 'none';
                             notyf.error("Có lỗi xảy ra: " + errorMessage);
-                            this.removeFile(file); // Xóa file không hợp lệ khỏi dropzone
+                            this.removeFile(file);
                         });
                     }
                 });
@@ -391,6 +381,54 @@
                     var cleanValue = value.replace(/,/g, '');
                     return this.optional(element) || !isNaN(cleanValue) && Number(cleanValue) >= param;
                 }, "Giá bán phải lớn hơn 0.");
+
+                $.validator.addMethod("notFutureDate", function (value, element) {
+                    if (!value) return true;
+                    var parts = value.split('/');
+                    var inputDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    var today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return inputDate <= today;
+                }, "Ngày sản xuất không được lớn hơn ngày hiện tại.");
+
+                $.validator.addMethod("maxFiveYearsFromManufactured", function (value, element) {
+                    var manufacturedDate = $('#ManufacturedDate').val();
+                    if (!manufacturedDate || !value) return true;
+                    var mParts = manufacturedDate.split('/');
+                    var eParts = value.split('/');
+                    var manufactured = new Date(mParts[2], mParts[1] - 1, mParts[0]);
+                    var expiry = new Date(eParts[2], eParts[1] - 1, eParts[0]);
+                    var maxExpiry = new Date(manufactured);
+                    maxExpiry.setFullYear(maxExpiry.getFullYear() + 5);
+                    return expiry <= maxExpiry;
+                }, "Ngày hết hạn không được quá 5 năm kể từ ngày sản xuất.");
+
+                $.validator.addMethod("integerOnly", function (value, element) {
+                    if (this.optional(element)) return true;
+                    var cleanValue = value.toString().replace(/,/g, '');
+                    return /^\d+$/.test(cleanValue);
+                }, "Số lượng tồn kho phải là số nguyên.");
+
+                $.validator.addMethod("notPastDate", function (value, element) {
+                    if (!value) return true;
+                    var parts = value.split('/');
+                    var inputDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    var today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return inputDate >= today;
+                }, "Ngày hết hạn không được nhỏ hơn ngày hôm nay.");
+
+                $.validator.addMethod("dateFormat", function (value, element) {
+                    return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
+                }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
+
+                $.validator.addMethod("greaterThanManufactured", function (value, element) {
+                    var manufacturedDate = $('#ManufacturedDate').val();
+                    if (!manufacturedDate || !value) return true;
+                    var manufactured = new Date(manufacturedDate.split('/').reverse().join('-'));
+                    var expiry = new Date(value.split('/').reverse().join('-'));
+                    return expiry > manufactured;
+                }, "Ngày hết hạn phải sau ngày sản xuất.");
 
                 $("#myForm").validate({
                     ignore: [],
@@ -433,16 +471,21 @@
                         },
                         ManufacturedDate: {
                             required: true,
-                            dateFormat: true
+                            dateFormat: true,
+                            notFutureDate: true
                         },
                         ExpiryDate: {
                             required: true,
                             dateFormat: true,
-                            greaterThanManufactured: true
+                            greaterThanManufactured: true,
+                            maxFiveYearsFromManufactured: true,
+                            notPastDate: true
                         },
                         StockQuantity: {
                             required: true,
-                            min: 1
+                            min: 1,
+                            integerOnly: true,
+                            max: 10000
                         },
                         StockUnit: {
                             required: true
@@ -463,7 +506,7 @@
                             required: "Tên thuốc không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 6 ký tự.",
                             maxlength: "Tên không được vượt quá 50 ký tự.",
-                            customPattern: "Tên phải bắt đầu bằng chữ cái và chỉ chứa chữ cái, số hoặc khoảng trắng.",
+                            customPattern: "Tên thuốc phải bắt đầu bằng chữ cái chỉ chứa chữ cái và số.",
                             remote: "Tên thuốc này đã tồn tại."
                         },
                         MedicineCategoryId: {
@@ -474,16 +517,21 @@
                         },
                         ManufacturedDate: {
                             required: "Ngày sản xuất không được bỏ trống.",
-                            dateFormat: "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy)."
+                            dateFormat: "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).",
+                            notFutureDate: "Ngày sản xuất không được lớn hơn ngày hiện tại."
                         },
                         ExpiryDate: {
                             required: "Ngày hết hạn không được bỏ trống.",
                             dateFormat: "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).",
-                            greaterThanManufactured: "Ngày hết hạn phải sau ngày sản xuất."
+                            greaterThanManufactured: "Ngày hết hạn phải sau ngày sản xuất.",
+                            maxFiveYearsFromManufactured: "Ngày hết hạn không được quá 5 năm kể từ ngày sản xuất.",
+                            notPastDate: "Ngày hết hạn không được nhỏ hơn ngày hôm nay."
                         },
                         StockQuantity: {
                             required: "Số lượng tồn kho không được bỏ trống.",
-                            min: "Số lượng tồn kho phải lớn hơn 0."
+                            min: "Số lượng tồn kho phải lớn hơn 0.",
+                            integerOnly: "Số lượng tồn kho phải là số nguyên.",
+                            max: "Số lượng tồn kho không được vượt quá 10000."
                         },
                         StockUnit: {
                             required: "Vui lòng chọn đơn vị."
@@ -539,18 +587,6 @@
                     onkeyup: false
                 });
 
-                $.validator.addMethod("dateFormat", function (value, element) {
-                    return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
-                }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
-
-                $.validator.addMethod("greaterThanManufactured", function (value, element) {
-                    var manufacturedDate = $('#ManufacturedDate').val();
-                    if (!manufacturedDate || !value) return true;
-                    var manufactured = new Date(manufacturedDate.split('/').reverse().join('-'));
-                    var expiry = new Date(value.split('/').reverse().join('-'));
-                    return expiry > manufactured;
-                }, "Ngày hết hạn phải sau ngày sản xuất.");
-
                 $('select.form-input').on('change', function () {
                     $(this).valid();
                 });
@@ -592,71 +628,33 @@
 
             update() {
                 if ($("#myForm").valid()) {
-                    const expiryDateStr = $('#ExpiryDate').val();
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
+                    const overlay = document.getElementById('loadingOverlay');
+                    overlay.style.display = 'flex';
+                    const form = document.getElementById('myForm');
+                    const id = document.querySelector('input[name="Id"]').value;
 
-                    const expiryDateParts = expiryDateStr.split('/');
-                    const expiryDate = new Date(`${expiryDateParts[2]}-${expiryDateParts[1]}-${expiryDateParts[0]}`);
-                    expiryDate.setHours(0, 0, 0, 0);
-
-                    if (expiryDate < today) {
-                        $.confirm({
-                            title: 'Xác nhận',
-                            content: 'Bạn có muốn cập nhật thuốc đã hết hạn hay không?',
-                            icon: 'fa fa-exclamation-triangle',
-                            theme: 'modern',
-                            type: 'orange',
-                            boxWidth: '400px',
-                            useBootstrap: false,
-                            buttons: {
-                                confirm: {
-                                    text: 'Có',
-                                    btnClass: 'btn-warning',
-                                    action: () => {
-                                        this.submitForm();
-                                    }
-                                },
-                                cancel: {
-                                    text: 'Không',
-                                    btnClass: 'btn-red',
-                                    action: () => {
-                                        notyf.error('Vui lòng chỉnh sửa ngày hết hạn.');
-                                        $('#ExpiryDate').focus();
-                                    }
-                                }
-                            }
-                        });
+                    if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
+                        this.dropzone.processQueue();
                     } else {
-                        this.submitForm();
+                        const formData = new FormData(form);
+                        formData.append('Id', id);
+                        fetch('/thuoc/chinh-sua/' + id, {
+                            method: 'POST',
+                            body: formData
+                        })
+                            .then(response => response.json())
+                            .then(this.handleResponse)
+                            .catch(error => {
+                                overlay.style.display = 'none';
+                                notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                            });
                     }
-                } else {
+                }
+                else {
+                    overlay.style.display = 'none';
                     notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
                 }
-            },
 
-            submitForm() {
-                const overlay = document.getElementById('loadingOverlay');
-                overlay.style.display = 'flex';
-                const form = document.getElementById('myForm');
-                const id = document.querySelector('input[name="Id"]').value;
-
-                if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
-                    this.dropzone.processQueue();
-                } else {
-                    const formData = new FormData(form);
-                    formData.append('Id', id);
-                    fetch('/thuoc/chinh-sua/' + id, {
-                        method: 'POST',
-                        body: formData
-                    })
-                        .then(response => response.json())
-                        .then(this.handleResponse)
-                        .catch(error => {
-                            overlay.style.display = 'none';
-                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
-                        });
-                }
             },
 
             goBack() {

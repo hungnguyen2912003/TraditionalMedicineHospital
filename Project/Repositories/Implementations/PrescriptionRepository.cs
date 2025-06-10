@@ -1,10 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Project.Areas.Admin.Models.Entities;
 using Project.Datas;
-using Project.Repositories;
-using Repositories.Interfaces;
+using Project.Repositories.Interfaces;
 
-namespace Repositories.Implementations
+namespace Project.Repositories.Implementations
 {
     public class PrescriptionRepository : BaseRepository<Prescription>, IPrescriptionRepository
     {
