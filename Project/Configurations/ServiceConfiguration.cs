@@ -30,6 +30,7 @@ namespace Project.Configurations
             builder.Services.AddScoped<WarningService>();
             builder.Services.AddScoped<JwtManager>();
             builder.Services.AddScoped<VNPayService>();
+            builder.Services.AddScoped<MomoService>();
             builder.Services.Configure<GoongSettings>(builder.Configuration.GetSection("GoongSettings"));
             builder.Services.AddControllersWithViews();
 

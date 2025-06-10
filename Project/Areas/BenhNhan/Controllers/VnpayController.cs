@@ -38,31 +38,16 @@ namespace Project.Areas.BenhNhan.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> VNPayReturn()
         {
-            // Get user info from token
-            var token = Request.Cookies["AuthToken"];
-            if (string.IsNullOrEmpty(token))
-            {
-                return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
-            }
-
-            var (username, role) = _jwtManager.GetClaimsFromToken(token);
-            if (string.IsNullOrEmpty(username))
-            {
-                Response.Cookies.Delete("AuthToken");
-                return Json(new { success = false, message = "Token không hợp lệ." });
-            }
-
-            var user = await _userRepository.GetByUsernameAsync(username);
-            if (user == null || user.Patient == null)
-            {
-                return Json(new { success = false, message = "Người dùng không hợp lệ" });
-            }
             // Lấy các tham số trả về từ VNPay
             var vnp_ResponseCode = Request.Query["vnp_ResponseCode"].ToString();
             var vnp_TxnRef = Request.Query["vnp_TxnRef"].ToString();
             var vnp_Amount = Request.Query["vnp_Amount"].ToString();
             var vnp_OrderInfo = Request.Query["vnp_OrderInfo"].ToString();
             var vnp_SecureHash = Request.Query["vnp_SecureHash"].ToString();
+
+            var parts = vnp_OrderInfo.Split('|');
+            var paymentCode = parts[0];
+            var userCode = parts.Length > 1 ? parts[1] : null;
 
             // Kiểm tra checksum
             var vnpay = new VnPayLibrary();
@@ -85,16 +70,16 @@ namespace Project.Areas.BenhNhan.Controllers
             if (vnp_ResponseCode == "00")
             {
                 // Tìm phiếu thanh toán theo mã giao dịch (orderId)
-                var payment = await _paymentRepository.GetByCodeAsync(vnp_OrderInfo);
+                var payment = await _paymentRepository.GetByCodeAsync(paymentCode);
                 if (payment != null)
                 {
                     payment.Status = PaymentStatus.DaThanhToan;
                     payment.Type = PaymentType.TrucTuyen;
                     payment.UpdatedDate = DateTime.UtcNow;
-                    payment.UpdatedBy = user.Patient.Code;
+                    payment.UpdatedBy = userCode;
                     await _paymentRepository.UpdateAsync(payment);
                 }
-                ViewBag.PaymentCode = vnp_OrderInfo;
+                ViewBag.PaymentCode = paymentCode;
                 if (long.TryParse(vnp_Amount, out var amount))
                 {
                     ViewBag.Amount = amount / 100;

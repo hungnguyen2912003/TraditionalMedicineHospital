@@ -31,7 +31,7 @@
                 <button type="button" class="btn btn-secondary" onclick="showPaymentModal()" style="min-width: 200px;" @(status == "Đang điều trị" || ViewBag.HasPayment != true ? "disabled" : "")>
                     Xem phiếu thanh toán
                 </button>
-                <button type="button" class="btn btn-info" onclick="payWithVNPay()" style="min-width: 200px;" @((ViewBag.Status == "Đang điều trị" || ViewBag.HasPayment != true || ViewBag.PaymentStatus == 2) ? "disabled" : "")>
+                <button type="button" class="btn btn-info" onclick="showPaymentGatewayModal()" style="min-width: 200px;" @((ViewBag.Status == "Đang điều trị" || ViewBag.HasPayment != true || ViewBag.PaymentStatus == 2) ? "disabled" : "")>
                     Thanh toán trực tuyến
                 </button>
             </div>
@@ -320,6 +320,20 @@
             <i class="fa-solid fa-xmark p-2"></i>
         </button>
         <div id="paymentDetailModalContent"></div>
+    </div>
+</div>
+
+<!-- Modal chọn cổng thanh toán -->
+<div id="paymentGatewayModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate" style="max-height:150vh; overflow-y:auto; max-width:50vw;">
+        <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl font-bold" onclick="closePaymentGatewayModal()">
+            <i class="fa-solid fa-xmark p-2"></i>
+        </button>
+        <h2 class="text-xl font-bold mb-6 text-center">Chọn cổng thanh toán</h2>
+        <div class="flex flex-col gap-4">
+            <button class="btn btn-vnpay w-full" onclick="payWithVNPay()">Thanh toán qua ví điện tử VNPay</button>
+            <button class="btn btn-momo w-full" onclick="payWithMomo()">Thanh toán qua ví điện tử MoMo</button>
+        </div>
     </div>
 </div>
 
@@ -615,30 +629,31 @@
         }, 200);
     }
 
+    function showPaymentGatewayModal() {
+        document.getElementById('paymentGatewayModal').classList.remove('hidden', 'closing');
+    }
+    function closePaymentGatewayModal() {
+        document.getElementById('paymentGatewayModal').classList.add('closing');
+        setTimeout(() => {
+            document.getElementById('paymentGatewayModal').classList.add('hidden');
+            document.getElementById('paymentGatewayModal').classList.remove('closing');
+        }, 200);
+    }
     function payWithVNPay() {
         var treatmentRecordId = '@ViewBag.TreatmentRecordId';
         if (!treatmentRecordId) {
             notyf.error('Không tìm thấy phiếu điều trị!');
             return;
         }
-        fetch(`/BenhNhan/Home/GetPaymentDetail?treatmentRecordId=${treatmentRecordId}`)
-            .then(res => {
-                if (res.status === 404) {
-                    notyf.error('Không tìm thấy phiếu thanh toán!');
-                    throw new Error('No payment');
-                }
-                return res.json();
-            })
-            .then(data => {
-                if (!data.finalCost || data.finalCost <= 0) {
-                    notyf.error('Không có số tiền cần thanh toán hợp lệ!');
-                    return;
-                }
-                window.location.href = `/BenhNhan/Home/PayWithVNPay?treatmentRecordId=${treatmentRecordId}`;
-            })
-            .catch(err => {
-                notyf.error('Lỗi khi lấy thông tin thanh toán!');
-            });
+        window.location.href = `/BenhNhan/Home/PayWithVNPay?treatmentRecordId=${treatmentRecordId}`;
+    }
+    function payWithMomo() {
+        var treatmentRecordId = '@ViewBag.TreatmentRecordId';
+        if (!treatmentRecordId) {
+            notyf.error('Không tìm thấy phiếu điều trị!');
+            return;
+        }
+        window.location.href = `/BenhNhan/Home/PayWithMomo?treatmentRecordId=${treatmentRecordId}`;
     }
 </script>
 
@@ -673,6 +688,9 @@
         animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     #paymentDetailModal.closing .modal-content-animate {
+        animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #paymentGatewayModal.closing .modal-content-animate {
         animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     @@keyframes modalFadeIn {
@@ -715,6 +733,11 @@
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
     }
+    #paymentGatewayModal {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
     .bg-modal-blur {
         background: rgba(30, 41, 59, 0.2);
         backdrop-filter: blur(6px);
@@ -731,6 +754,31 @@
     #paymentDetailModal .modal-content-animate {
         max-height: 80vh;
         overflow-y: auto;
+    }
+
+    .btn-vnpay {
+        background: linear-gradient(90deg, #0059A9 20%, #ED1B24 80%);
+        color: #fff;
+        border: none;
+        font-weight: bold;
+        transition: filter 0.2s;
+    }
+    .btn-vnpay:hover, .btn-vnpay:focus {
+        filter: brightness(1.1);
+        color: #fff;
+    }
+
+    .btn-momo {
+        background: #A50064;
+        color: #fff;
+        border: none;
+        font-weight: bold;
+        transition: filter 0.2s;
+    }
+
+    .btn-momo:hover, .btn-momo:focus {
+        filter: brightness(1.1);
+        color: #fff;
     }
 </style>
 

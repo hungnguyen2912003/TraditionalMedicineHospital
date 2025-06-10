@@ -11,6 +11,7 @@ using Repositories.Interfaces;
 using System.Globalization;
 using Microsoft.Extensions.Configuration;
 using Project.Library;
+using Newtonsoft.Json;
 
 namespace Project.Areas.BenhNhan.Controllers
 {
@@ -339,6 +340,25 @@ namespace Project.Areas.BenhNhan.Controllers
         [HttpGet]
         public async Task<IActionResult> PayWithVNPay(Guid treatmentRecordId)
         {
+            // Get user info from token
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
+            }
+
+            var (username, role) = _jwtManager.GetClaimsFromToken(token);
+            if (string.IsNullOrEmpty(username))
+            {
+                Response.Cookies.Delete("AuthToken");
+                return Json(new { success = false, message = "Token không hợp lệ." });
+            }
+
+            var user = await _userRepository.GetByUsernameAsync(username);
+            if (user == null || user.Patient == null)
+            {
+                return Json(new { success = false, message = "Người dùng không hợp lệ" });
+            }
             // Lấy payment detail (giống như GetPaymentDetail)
             var payment = await _paymentRepository.GetByTreatmentRecordIdAsync(treatmentRecordId);
             if (payment == null || payment.Status == PaymentStatus.DaThanhToan)
@@ -378,33 +398,86 @@ namespace Project.Areas.BenhNhan.Controllers
 
             // Tạo link thanh toán
             var orderId = await _codeGenerator.GenerateUniqueCodeAsync(_paymentRepository);
-            var orderInfo = payment.Code;
-            var returnUrl = _configuration["VNPaySettings:ReturnUrl"];
+            var orderInfo = $"{payment.Code}|{user.Patient.Code}";
+            var ipAddress = Utils.GetIpAddress(HttpContext);
 
-            // Lấy các config cần thiết
-            var vnp_Url = _configuration["VNPaySettings:BaseUrl"] ?? throw new ArgumentNullException("BaseUrl configuration is missing");
-            var vnp_TmnCode = _configuration["VNPaySettings:TmnCode"] ?? throw new ArgumentNullException("TmnCode configuration is missing");
-            var vnp_HashSecret = _configuration["VNPaySettings:HashSecret"] ?? throw new ArgumentNullException("HashSecret configuration is missing");
-
-            // Khởi tạo VnPayLibrary và thêm các tham số
-            var vnpay = new VnPayLibrary();
-            vnpay.AddRequestData("vnp_Version", VnPayLibrary.VERSION);
-            vnpay.AddRequestData("vnp_Command", "pay");
-            vnpay.AddRequestData("vnp_TmnCode", vnp_TmnCode);
-            vnpay.AddRequestData("vnp_Amount", ((long)(finalCost * 100)).ToString());
-            vnpay.AddRequestData("vnp_CurrCode", "VND");
-            vnpay.AddRequestData("vnp_TxnRef", orderId);
-            vnpay.AddRequestData("vnp_OrderInfo", orderInfo);
-            vnpay.AddRequestData("vnp_OrderType", "other");
-            vnpay.AddRequestData("vnp_ReturnUrl", returnUrl!);
-            vnpay.AddRequestData("vnp_IpAddr", Utils.GetIpAddress(HttpContext));
-            vnpay.AddRequestData("vnp_Locale", "vn");
-            vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
-
-            // Tạo URL thanh toán
-            var paymentUrl = vnpay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
+            // Sử dụng service để tạo URL thanh toán
+            var paymentUrl = _vnPayService.CreatePaymentUrl(finalCost, orderId, orderInfo, ipAddress);
 
             return Redirect(paymentUrl);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PayWithMomo(Guid treatmentRecordId)
+        {
+            // Get user info from token
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
+            }
+
+            var (username, role) = _jwtManager.GetClaimsFromToken(token);
+            if (string.IsNullOrEmpty(username))
+            {
+                Response.Cookies.Delete("AuthToken");
+                return Json(new { success = false, message = "Token không hợp lệ." });
+            }
+
+            var user = await _userRepository.GetByUsernameAsync(username);
+            if (user == null || user.Patient == null)
+            {
+                return Json(new { success = false, message = "Người dùng không hợp lệ" });
+            }
+            // Lấy payment detail (giống như GetPaymentDetail)
+            var payment = await _paymentRepository.GetByTreatmentRecordIdAsync(treatmentRecordId);
+            if (payment == null || payment.Status == PaymentStatus.DaThanhToan)
+            {
+                TempData["ErrorMessage"] = "Phiếu thanh toán không hợp lệ hoặc đã thanh toán.";
+                return RedirectToAction("Index");
+            }
+
+            // Tính finalCost giống như trong GetPaymentDetail
+            var tr = payment.TreatmentRecord;
+            var totalPrescriptionCost = tr.Prescriptions?.Sum(pre =>
+                pre.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0) ?? 0;
+
+            decimal totalTreatmentMethodCost = 0;
+            foreach (var detail in tr.TreatmentRecordDetails ?? new List<TreatmentRecordDetail>())
+            {
+                var room = detail.Room;
+                var method = room?.TreatmentMethod;
+                if (method == null) continue;
+                int count = detail.TreatmentTrackings?.Count(t => t.Status == TrackingStatus.CoDieuTri) ?? 0;
+                totalTreatmentMethodCost += method.Cost * count;
+            }
+
+            decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
+            decimal insuranceAmount = 0;
+            var hi = tr.Patient?.HealthInsurance;
+            if (hi != null && hi.ExpiryDate > DateTime.UtcNow)
+            {
+                if (hi.IsRightRoute)
+                    insuranceAmount = totalCostBeforeInsurance * 0.8m;
+                else
+                    insuranceAmount = totalCostBeforeInsurance * 0.6m;
+            }
+
+            decimal finalCost = totalCostBeforeInsurance - insuranceAmount - tr.AdvancePayment;
+            if (finalCost < 0) finalCost = 0;
+
+            // Tạo orderId (có thể dùng payment.Code hoặc sinh mã mới)
+            var orderId = await _codeGenerator.GenerateUniqueCodeAsync(_paymentRepository);
+            var orderInfo = payment.Code;
+            var userCode = user.Patient.Code;
+
+            // Gọi MomoService để lấy payUrl
+            var momoService = new MomoService(_configuration, _jwtManager, _userRepository);
+            var momoResponseString = await momoService.CreatePaymentAsync(finalCost, orderId, orderInfo, userCode);
+            var momoResponse = JsonConvert.DeserializeObject<dynamic>(momoResponseString);
+            string payUrl = momoResponse!.payUrl;
+
+            return Redirect(payUrl);
         }
     }
 }
