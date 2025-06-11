@@ -46,7 +46,7 @@
                                         định<span class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập tên quy định" value="@Model.Name" />
+                                        placeholder="Nhập tên quy định" value="@Model.Name" maxlength="50" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -55,7 +55,7 @@
                                     định<span class="text-danger">&nbsp*</span></label>
                                 <textarea id="Content" name="Content"
                                     class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]"
-                                    placeholder="Nhập nội dung quy định...">@Model.Content</textarea>
+                                    placeholder="Nhập nội dung quy định..." maxlength="1000">@Model.Content</textarea>
                                 @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
                             </div>
                             <div class="mt-4">
@@ -63,11 +63,11 @@
                                     định</label>
                                 <textarea id="Description" name="Description"
                                     class="form-textarea w-full mt-1 p-2 border rounded min-h-[150px]"
-                                    placeholder="Nhập mô tả quy định...">@Model.Description</textarea>
+                                    placeholder="Nhập mô tả quy định..." maxlength="1000">@Model.Description</textarea>
                                 @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger"
                                                                 })
                             </div>
-                            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                            <div class="flex flex-col sm:flex-row gap-4 mt-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="EffectiveDate" class="block text-sm font-medium text-gray-700">Ngày có
                                         hiệu lực<span class="text-danger">&nbsp*</span></label>
@@ -130,26 +130,6 @@
 </form>
 
 <script>
-
-    $.validator.addMethod("greaterThan", function (value, element, param) {
-        if (this.optional(element)) return true;
-        const startDate = $(param).val();
-        const endDate = value;
-
-        const start = startDate.split('/').reverse().join('-');
-        const end = endDate.split('/').reverse().join('-');
-
-        return new Date(end) > new Date(start);
-    }, "Ngày hết hạn phải sau ngày bắt đầu.");
-
-    $.validator.addMethod("customPattern", function (value, element, regex) {
-        return this.optional(element) || regex.test(value);
-    }, "Giá trị không hợp lệ.");
-
-    $.validator.addMethod("dateFormat", function (value, element) {
-        return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
-    }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
-
     document.addEventListener('alpine:init', () => {
         Alpine.data('editData', () => ({
 
@@ -166,6 +146,25 @@
             },
 
             setupValidation() {
+                $.validator.addMethod("greaterThan", function (value, element, param) {
+                    if (this.optional(element)) return true;
+                    const startDate = $(param).val();
+                    const endDate = value;
+
+                    const start = startDate.split('/').reverse().join('-');
+                    const end = endDate.split('/').reverse().join('-');
+
+                    return new Date(end) > new Date(start);
+                }, "Ngày hết hạn phải sau ngày bắt đầu.");
+
+                $.validator.addMethod("customPattern", function (value, element, regex) {
+                    return this.optional(element) || regex.test(value);
+                }, "Giá trị không hợp lệ.");
+
+                $.validator.addMethod("dateFormat", function (value, element) {
+                    return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
+                }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
+
                 $("#myForm").validate({
                     rules: {
                         Name: {
@@ -199,7 +198,8 @@
                             }
                         },
                         Content: {
-                            required: true
+                            required: true,
+                            maxlength: 1000
                         },
                         EffectiveDate: {
                             required: true,
@@ -209,6 +209,9 @@
                             required: true,
                             dateFormat: true,
                             greaterThan: "#EffectiveDate"
+                        },
+                        Description: {
+                            maxlength: 1000
                         }
                     },
                     messages: {
@@ -221,6 +224,7 @@
                         },
                         Content: {
                             required: "Nội dung quy định không được bỏ trống.",
+                            maxlength: "Nội dung quy định không được vượt quá 1000 ký tự."
                         },
                         EffectiveDate: {
                             required: "Ngày sinh không được bỏ trống.",
@@ -230,6 +234,9 @@
                             required: "Ngày sinh không được bỏ trống.",
                             dateFormat: "Ngày sinh không hợp lệ.",
                             greaterThan: "Ngày hết hạn phải sau ngày bắt đầu."
+                        },
+                        Description: {
+                            maxlength: "Mô tả không được vượt quá 1000 ký tự."
                         }
                     },
                     errorElement: "div",
@@ -282,68 +289,28 @@
             },
 
             update() {
-                if ($("#myForm").valid()) {
-                    const expiryDateStr = $('#ExpirationDate').val();
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-
-                    const expiryDateParts = expiryDateStr.split('/');
-                    const expiryDate = new Date(`${expiryDateParts[2]}-${expiryDateParts[1]}-${expiryDateParts[0]}`);
-                    expiryDate.setHours(0, 0, 0, 0);
-
-                    if (expiryDate < today) {
-                        $.confirm({
-                            title: 'Xác nhận',
-                            content: 'Bạn có muốn cập nhật quy định đã hết hạn hay không?',
-                            icon: 'fa fa-exclamation-triangle',
-                            theme: 'modern',
-                            type: 'orange',
-                            boxWidth: '400px',
-                            useBootstrap: false,
-                            buttons: {
-                                confirm: {
-                                    text: 'Có',
-                                    btnClass: 'btn-warning',
-                                    action: () => {
-                                        this.submitForm();
-                                    }
-                                },
-                                cancel: {
-                                    text: 'Không',
-                                    btnClass: 'btn-red',
-                                    action: () => {
-                                        notyf.error('Vui lòng chỉnh sửa ngày hết hạn.');
-                                        $('#ExpirationDate').focus();
-                                    }
-                                }
-                            }
-                        });
-                    } else {
-                        this.submitForm();
-                    }
-                } else {
-                    notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
-                }
-            },
-
-            submitForm() {
                 const overlay = document.getElementById('loadingOverlay');
-                overlay.style.display = 'flex';
-                const form = document.getElementById('myForm');
-                const id = document.querySelector('input[name="Id"]').value;
+                if ($("#myForm").valid()) {
+                    const form = document.getElementById('myForm');
+                    overlay.style.display = 'flex';
+                    const id = document.querySelector('input[name="Id"]').value;
 
-                const formData = new FormData(form);
-                formData.append('Id', id);
-                fetch('/quy-dinh/chinh-sua/' + id, {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(response => response.json())
-                    .then(this.handleResponse)
-                    .catch(error => {
-                        overlay.style.display = 'none';
-                        notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
-                    });
+                    const formData = new FormData(form);
+                    fetch('/quy-dinh/chinh-sua/' + id, {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(this.handleResponse)
+                        .catch(error => {
+                            overlay.style.display = 'none';
+                            notyf.error("Có lỗi xảy ra khi gửi yêu cầu: " + error);
+                        });
+                }
+                else {
+                    overlay.style.display = 'none';
+                    notyf.error("Vui lòng kiểm tra lại thông tin nhập.");
+                }
             },
 
             goBack() {

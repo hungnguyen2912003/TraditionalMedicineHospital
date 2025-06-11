@@ -638,7 +638,6 @@
                         this.dropzone.processQueue();
                     } else {
                         const formData = new FormData(form);
-                        formData.append('Id', id);
                         fetch('/thuoc/chinh-sua/' + id, {
                             method: 'POST',
                             body: formData

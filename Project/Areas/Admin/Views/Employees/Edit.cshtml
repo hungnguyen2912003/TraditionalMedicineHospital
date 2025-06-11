@@ -40,8 +40,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="Name" class="block text-sm font-medium text-gray-700">Tên nhân
-                                        sự<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        sự<span class="text-danger">&nbsp*</span></label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập họ tên nhân sự" value="@Model.Name" maxlength="50" />
@@ -49,11 +48,11 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="EmployeeCategoryId" class="block text-sm font-medium text-gray-700">Loại
-                                        nhân sự<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        nhân sự<span class="text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="EmployeeCategoryId" name="EmployeeCategoryId"
-                                            class="form-input w-full mt-1 p-2 border rounded choices">
+                                            class="form-input w-full mt-1 p-2 border rounded choices"
+                                            @(User.IsInRole("Admin") ? "" : "disabled")>
                                             <option value="">Chọn loại nhân sự</option>
                                             @foreach (var category in ViewBag.EmployeeCategories)
                                             {
@@ -68,6 +67,10 @@
                                             }
                                         </select>
                                     </div>
+                                    @if (!User.IsInRole("Admin"))
+                                    {
+                                        <input type="hidden" name="EmployeeCategoryId" value="@Model.EmployeeCategoryId" />
+                                    }
                                     @Html.ValidationMessageFor(model => model.EmployeeCategoryId, "", new { @class =
                                     "text-danger" })
                                 </div>
@@ -75,12 +78,12 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="DepartmentId" class="block text-sm font-medium text-gray-700">Nhân sự
-                                        thuộc Khoa<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        thuộc Khoa<span class="text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="DepartmentId" name="DepartmentId"
                                             class="form-input w-full mt-1 p-2 border rounded choices"
-                                            x-on:change="onDepartmentChange($event)">
+                                            x-on:change="onDepartmentChange($event)" @(User.IsInRole("Admin") ? "" :
+                                                                                                                                 "disabled")>
                                             <option value="">Chọn Khoa</option>
                                             @foreach (var dep in ViewBag.Departments)
                                             {
@@ -95,16 +98,20 @@
                                             }
                                         </select>
                                     </div>
+                                    @if (!User.IsInRole("Admin"))
+                                    {
+                                        <input type="hidden" name="DepartmentId" value="@Model.DepartmentId" />
+                                    }
                                     @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class =
                                     "text-danger" })
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="RoomId" class="block text-sm font-medium text-gray-700">Phòng làm
-                                        việc<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        việc<span class="text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="RoomId" name="RoomId"
-                                            class="form-input w-full mt-1 p-2 border rounded choices">
+                                            class="form-input w-full mt-1 p-2 border rounded choices"
+                                            @(User.IsInRole("Admin") ? "" : "disabled")>
                                             <option value="">Chọn phòng làm việc</option>
                                             @foreach (var room in ViewBag.Rooms)
                                             {
@@ -119,6 +126,10 @@
                                             }
                                         </select>
                                     </div>
+                                    @if (!User.IsInRole("Admin"))
+                                    {
+                                        <input type="hidden" name="RoomId" value="@Model.RoomId" />
+                                    }
                                     @Html.ValidationMessageFor(model => model.RoomId, "", new { @class = "text-danger"
                                                                         })
                                 </div>
@@ -126,8 +137,7 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="Gender" class="block text-sm font-medium text-gray-700">Giới
-                                        tính<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        tính<span class="text-danger">&nbsp*</span></label>
                                     <div class="select-wrapper">
                                         <select id="Gender" name="Gender"
                                             class="form-input w-full mt-1 p-2 border rounded choices">
@@ -150,8 +160,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="DateOfBirth" class="block text-sm font-medium text-gray-700">Ngày
-                                        sinh<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        sinh<span class="text-danger">&nbsp*</span></label>
                                     <input id="DateOfBirth" type="text" name="DateOfBirth"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                         placeholder="Nhập sinh" value="@Model.DateOfBirth.ToString("dd/MM/yyyy")"
@@ -161,8 +170,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="IdentityNumber" class="block text-sm font-medium text-gray-700">Căn cước
-                                        công dân<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        công dân<span class="text-danger">&nbsp*</span></label>
                                     <input id="IdentityNumber" type="text" name="IdentityNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập căn cước công dân" value="@Model.IdentityNumber"
@@ -174,7 +182,7 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full address-container">
                                     <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            class="text-danger">&nbsp*</span></label>
                                     <input id="Address" type="text" name="Address"
                                         class="form-input w-full mt-1 p-2 border rounded address-autocomplete"
                                         placeholder="Nhập địa chỉ" autocomplete="off" value="@Model.Address"
@@ -186,8 +194,7 @@
                             <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                 <div class="w-full sm:w-1/2">
                                     <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Số điện
-                                        thoại<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                        thoại<span class="text-danger">&nbsp*</span></label>
                                     <input id="PhoneNumber" type="text" name="PhoneNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
                                         placeholder="Nhập số điện thoại" value="@Model.PhoneNumber" minlength="9"
@@ -197,7 +204,7 @@
                                 </div>
                                 <div class="w-full sm:w-1/2">
                                     <label for="EmailAddress" class="block text-sm font-medium text-gray-700">Email<span
-                                            class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                            class="text-danger">&nbsp*</span></label>
                                     <input id="EmailAddress" type="text" name="EmailAddress"
                                         class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập email"
                                         value="@Model.EmailAddress" maxlength="50" />
@@ -272,9 +279,10 @@
                     </div>
                     <div class="mt-4">
                         <label for="Status" class="block text-sm font-medium text-gray-700">Tình trạng làm việc<span
-                                class="text-xl font-medium text-gray-700 text-danger">&nbsp*</span></label>
+                                class="text-danger">&nbsp*</span></label>
                         <div class="select-wrapper">
-                            <select id="Status" name="Status" class="form-input w-full mt-1 p-2 border rounded choices">
+                            <select id="Status" name="Status" class="form-input w-full mt-1 p-2 border rounded choices"
+                                @(User.IsInRole("Admin") ? "" : "disabled")>
                                 <option value="">Chọn tình trạng làm việc</option>
                                 @foreach (var status in ViewBag.StatusOptions)
                                 {
@@ -289,12 +297,16 @@
                                 }
                             </select>
                         </div>
+                        @if (!User.IsInRole("Admin"))
+                        {
+                            <input type="hidden" name="Status" value="@((int)Model.Status)" />
+                        }
                         @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
                     </div>
                 </div>
                 <div class="panel">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
-                        <button type="button" @@click="$('#myForm').submit()"
+                        <button type="button" @@click="update()"
                             class="btn btn-success py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 hover:bg-green-700">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
@@ -705,8 +717,12 @@
                     setTimeout(() => {
                         if (window.isAdmin) {
                             window.location.href = '/nhan-su';
-                        } else {
-                            window.history.back();
+                        } else if (window.isBacSi) {
+                            window.location.href = '/bac-si';
+                        } else if (window.isNhanVienHanhChinh) {
+                            window.location.href = '/nhan-vien-hanh-chinh';
+                        } else if (window.isYTa) {
+                            window.location.href = '/y-ta';
                         }
                     }, 2000);
                 } else {
@@ -725,12 +741,13 @@
                     overlay.style.display = 'flex';
 
                     const id = document.querySelector('input[name="Id"]').value;
+                    document.getElementById('RoomId').disabled = false;
 
                     if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
                         this.dropzone.processQueue();
                     } else {
                         const formData = new FormData(form);
-                        formData.append('Id', id);
+
                         fetch('/nhan-su/chinh-sua/' + id, {
                             method: 'POST',
                             body: formData
@@ -751,8 +768,12 @@
             goBack() {
                 if (window.isAdmin) {
                     window.location.href = '/nhan-su';
-                } else {
-                    window.history.back();
+                } else if (window.isBacSi) {
+                    window.location.href = '/bac-si';
+                } else if (window.isNhanVienHanhChinh) {
+                    window.location.href = '/nhan-vien-hanh-chinh';
+                } else if (window.isYTa) {
+                    window.location.href = '/y-ta';
                 }
             },
 
@@ -799,4 +820,7 @@
 </script>
 <script>
     window.isAdmin = @(User.IsInRole("Admin").ToString().ToLower());
+    window.isBacSi = @(User.IsInRole("BacSi").ToString().ToLower());
+    window.isNhanVienHanhChinh = @(User.IsInRole("NhanVienHanhChinh").ToString().ToLower());
+    window.isYTa = @(User.IsInRole("YTa").ToString().ToLower());
 </script>

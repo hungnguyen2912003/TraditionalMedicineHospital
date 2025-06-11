@@ -212,7 +212,6 @@
 
                     const id = document.querySelector('input[name="Id"]').value;
                     const formData = new FormData(form);
-                    formData.append('Id', id);
                     fetch('/khoa/chinh-sua/' + id, {
                         method: 'POST',
                         body: formData

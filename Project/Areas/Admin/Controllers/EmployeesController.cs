@@ -199,38 +199,36 @@ namespace Project.Areas.Admin.Controllers
         {
             try
             {
-                // Get user info from token
-                var token = Request.Cookies["AuthToken"];
-                if (string.IsNullOrEmpty(token))
+                string updatedBy = "Admin";
+                // Nếu không phải Admin thì mới check token
+                if (!User.IsInRole("Admin"))
                 {
-                    return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
+                    var token = Request.Cookies["AuthToken"];
+                    if (string.IsNullOrEmpty(token))
+                    {
+                        return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
+                    }
+
+                    var (username, role) = _jwtManager.GetClaimsFromToken(token);
+                    if (string.IsNullOrEmpty(username))
+                    {
+                        Response.Cookies.Delete("AuthToken");
+                        return Json(new { success = false, message = "Token không hợp lệ." });
+                    }
+
+                    var user = await _userRepository.GetByUsernameAsync(username);
+                    if (user == null || user.Employee == null)
+                    {
+                        return Json(new { success = false, message = "Người dùng không hợp lệ" });
+                    }
+                    updatedBy = user.Employee.Code;
                 }
 
-                var (username, role) = _jwtManager.GetClaimsFromToken(token);
-                if (string.IsNullOrEmpty(username))
-                {
-                    Response.Cookies.Delete("AuthToken");
-                    return Json(new { success = false, message = "Token không hợp lệ." });
-                }
-
-                var user = await _userRepository.GetByUsernameAsync(username);
-                if (user == null || user.Employee == null)
-                {
-                    return Json(new { success = false, message = "Người dùng không hợp lệ" });
-                }
                 var entity = await _repository.GetByIdAsync(Id);
                 if (entity == null) return NotFound();
 
                 _mapper.Map(inputDto, entity);
-
-                if (role == "Admin")
-                {
-                    entity.UpdatedBy = "Admin";
-                }
-                else
-                {
-                    entity.UpdatedBy = user.Employee.Code;
-                }
+                entity.UpdatedBy = updatedBy;
                 entity.UpdatedDate = DateTime.UtcNow;
 
                 if (inputDto.ImageFile != null && inputDto.ImageFile.Length > 0)

@@ -4,6 +4,7 @@ using Project.Repositories.Interfaces;
 using Project.Services.Features;
 using Project.Validators;
 using Project.Helpers;
+using Project.Models.Enums;
 
 namespace Project.Areas.Admin.Controllers
 {
@@ -58,6 +59,16 @@ namespace Project.Areas.Admin.Controllers
                 var user = await _userRepository.GetByIdentifierAsync(username);
                 if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
                 {
+                    // Check if employee has left or retired
+                    if (user.Employee != null && (user.Employee.Status == EmployeeStatus.DaNghiViec || user.Employee.Status == EmployeeStatus.NghiHuu))
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Tài khoản không thể đăng nhập vì nhân viên đã thôi việc hoặc nghỉ hưu. Vui lòng liên hệ với quản trị viên để được hỗ trợ."
+                        });
+                    }
+
                     var token = _jwtManager.GenerateToken(user.Username, user.Role);
                     var expirationTime = DateTime.UtcNow.AddHours(1);
                     var cookieExpirationTime = expirationTime.AddMinutes(1);

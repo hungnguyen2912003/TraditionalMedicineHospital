@@ -14,17 +14,20 @@ namespace Project.Areas.Admin.Controllers
     public class RegulationsController : Controller
     {
         private readonly IRegulationRepository _repository;
+        private readonly ITreatmentRecordRegulationRepository _treatmentRecordRegulationRepository;
         private readonly IMapper _mapper;
         private readonly CodeGeneratorHelper _codeGenerator;
 
         public RegulationsController
         (
             IRegulationRepository repository,
+            ITreatmentRecordRegulationRepository treatmentRecordRegulationRepository,
             IMapper mapper,
             CodeGeneratorHelper codeGenerator
         )
         {
             _repository = repository;
+            _treatmentRecordRegulationRepository = treatmentRecordRegulationRepository;
             _mapper = mapper;
             _codeGenerator = codeGenerator;
         }
@@ -119,6 +122,19 @@ namespace Project.Areas.Admin.Controllers
                 {
                     ids.Add(parsedId);
                 }
+            }
+
+            // Lấy tất cả TreatmentRecord_Regulation có RegulationId thuộc ids
+            var allTreatmentRecordRegulations = await _treatmentRecordRegulationRepository.GetAllAsync();
+            var usedTreatmentRecordRegulations = allTreatmentRecordRegulations.Where(t => ids.Contains(t.RegulationId)).ToList();
+            if (usedTreatmentRecordRegulations.Any())
+            {
+                var names = string.Join(", ", usedTreatmentRecordRegulations.Select(t => $"\"{t.Regulation.Name}\"").Distinct());
+                var message = usedTreatmentRecordRegulations.Count == 1
+                    ? $"Không thể xóa quy định {names} vì vẫn còn phiếu điều trị đang sử dụng quy định này."
+                    : $"Không thể xóa các quy định đã chọn vì vẫn còn phiếu điều trị đang sử dụng các quy định này.";
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction("Index");
             }
 
             var delList = new List<Regulation>();
