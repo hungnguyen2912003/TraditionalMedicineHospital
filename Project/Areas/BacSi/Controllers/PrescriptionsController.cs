@@ -79,7 +79,6 @@ namespace Project.Areas.BacSi.Controllers
 
             var list = await _prescriptionRepository.GetAllAdvancedAsync();
             var viewModelList = list
-                .Where(p => p.TreatmentRecord?.Status == TreatmentStatus.DangDieuTri)
                 .Select(p => new PrescriptionViewModel
                 {
                     Id = p.Id,
@@ -91,6 +90,7 @@ namespace Project.Areas.BacSi.Controllers
                     PatientName = p.TreatmentRecord?.Patient?.Name ?? string.Empty,
                     EmployeeId = p.EmployeeId,
                     EmployeeName = p.Employee?.Name ?? string.Empty,
+                    TreatmentRecordStatus = p.TreatmentRecord?.Status ?? TreatmentStatus.DangDieuTri,
                     PrescriptionDetails = p.PrescriptionDetails?.Select(d => new PrescriptionDetailViewModel
                     {
                         MedicineId = d.MedicineId,
@@ -103,7 +103,21 @@ namespace Project.Areas.BacSi.Controllers
                         CreatedBy = a.CreatedBy,
                         EmployeeName = a.Employee?.Name ?? string.Empty
                     }).ToList() ?? new List<AssignmentViewModel>()
-                }).OrderBy(x => x.PrescriptionDate).ToList();
+                })
+                .OrderBy(x => x.TreatmentRecordStatus)
+                .ThenBy(x => x.PrescriptionDate)
+                .ToList();
+
+            // Lấy danh sách thuốc còn tồn kho > 0
+            var medicines = (await _medicineRepository.GetAllAdvancedAsync()).Where(m => m.StockQuantity > 0).ToList();
+            ViewBag.MedicinesForPrescription = medicines.Select(m => new MedicineViewModel
+            {
+                Id = m.Id,
+                Name = m.Name,
+                Price = m.Price,
+                StockQuantity = m.StockQuantity
+            }).ToList();
+
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(viewModelList);
         }

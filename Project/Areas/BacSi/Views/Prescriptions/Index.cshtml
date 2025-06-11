@@ -267,6 +267,7 @@
                         entity.treatmentRecordCode,
                         entity.patientName,
                         entity.prescriptionDate ? new Date(entity.prescriptionDate).toLocaleDateString('vi-VN') : 'Không xác định',
+                        getTreatmentRecordStatusBadge(entity.treatmentRecordStatus),
                         entity.totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
                         `<div class="flex gap-4">
                             <a href="javascript:;" class="hover:text-info edit-prescription-btn${(entity.assignments && entity.assignments.some(a => a.createdBy === window.currentStaffCode)) ? '' : ' disabled'}" x-tooltip="Chỉnh sửa" data-id="${entity.id}" data-assignments='${JSON.stringify(entity.assignments || [])}' ${(entity.assignments && entity.assignments.some(a => a.createdBy === window.currentStaffCode)) ? '' : 'tabindex="-1" aria-disabled="true"'}>
@@ -282,7 +283,7 @@
                                     <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" stroke-width="1.5"></path>
                                 </svg>
                             </a>
-                            <button type="button" class="hover:text-danger delete-btn${(entity.assignments && entity.assignments.some(a => a.createdBy === window.currentStaffCode)) ? '' : ' disabled'}" data-id="${entity.id}" data-assignments='${JSON.stringify(entity.assignments || [])}' ${(entity.assignments && entity.assignments.some(a => a.createdBy === window.currentStaffCode)) ? '' : 'tabindex="-1" aria-disabled="true"'} x-tooltip="Đưa vào thùng rác">
+                            <button type="button" class="hover:text-danger delete-btn${(entity.assignments && entity.assignments.some(a => a.CreatedBy === window.currentStaffCode)) ? '' : ' disabled'}" data-id="${entity.id}" data-assignments='${JSON.stringify(entity.assignments || [])}' ${(entity.assignments && entity.assignments.some(a => a.CreatedBy === window.currentStaffCode)) ? '' : 'tabindex="-1" aria-disabled="true"'} x-tooltip="Đưa vào thùng rác">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
                                     <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
                                     <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
@@ -302,6 +303,7 @@
                                 'Mã phiếu điều trị',
                                 'Tên bệnh nhân',
                                 'Ngày lập đơn thuốc',
+                                'Tình trạng phiếu điều trị',
                                 'Tổng tiền',
                                 'Thao tác'
                             ],
@@ -332,7 +334,7 @@
                                 }
                             },
                             {
-                                select: 6,
+                                select: 7,
                                 sortable: false,
                                 render: (data, cell, row) => {
                                     return data;
@@ -358,6 +360,12 @@
                     btn.onclick = function () {
                         const id = this.getAttribute('data-id');
                         const assignments = JSON.parse(this.getAttribute('data-assignments') || '[]');
+                        // Lấy entity để kiểm tra trạng thái phiếu điều trị
+                        const entity = window.list.entityList.find(e => e.id == id);
+                        if (!entity || !(entity.treatmentRecordStatus === 1 || entity.treatmentRecordStatus === 'DangDieuTri')) {
+                            notyf.error('Chỉ được xóa đơn thuốc có phiếu điều trị đang ở trạng thái "Đang điều trị".');
+                            return;
+                        }
                         if (!assignments.some(a => (a.CreatedBy || a.createdBy) === window.currentStaffCode)) {
                             notyf.error('Bạn không có quyền xóa đơn thuốc này. Chỉ bác sĩ được phân công mới có quyền xóa.');
                             return;
@@ -373,12 +381,19 @@
                 document.querySelectorAll('.edit-prescription-btn').forEach(btn => {
                     btn.onclick = (e) => {
                         const assignments = JSON.parse(btn.getAttribute('data-assignments') || '[]');
+                        const id = btn.getAttribute('data-id');
+                        // Lấy entity để kiểm tra trạng thái phiếu điều trị
+                        const entity = window.list.entityList.find(e => e.id == id);
+                        if (!entity || !(entity.treatmentRecordStatus === 1 || entity.treatmentRecordStatus === 'DangDieuTri')) {
+                            notyf.error('Chỉ được chỉnh sửa đơn thuốc có phiếu điều trị đang ở trạng thái "Đang điều trị".');
+                            e.preventDefault && e.preventDefault();
+                            return;
+                        }
                         if (!assignments.some(a => a.createdBy === window.currentStaffCode)) {
                             notyf.error('Bạn không có quyền chỉnh sửa đơn thuốc này. Chỉ bác sĩ được phân công mới có quyền chỉnh sửa.');
                             e.preventDefault && e.preventDefault();
                             return;
                         }
-                        const id = btn.getAttribute('data-id');
                         document.getElementById('prescriptionEditModal').classList.remove('hidden', 'closing');
                         // Gọi API lấy chi tiết đơn thuốc
                         fetch(`/api/Prescriptions/${id}`)
@@ -437,13 +452,13 @@
             },
 
             deleteSelected() {
-                // Lọc lại selectedRows chỉ lấy những đơn thuốc có quyền
+                // Lọc lại selectedRows chỉ lấy những đơn thuốc có quyền và phiếu điều trị đang Đang điều trị
                 const allowedIds = this.selectedRows.filter(id => {
                     const entity = this.entityList.find(e => e.id == id);
-                    return entity && (entity.assignments || []).some(a => (a.CreatedBy || a.createdBy) === window.currentStaffCode);
+                    return entity && (entity.treatmentRecordStatus === 1 || entity.treatmentRecordStatus === 'DangDieuTri') && (entity.assignments || []).some(a => (a.CreatedBy || a.createdBy) === window.currentStaffCode);
                 });
                 if (allowedIds.length === 0) {
-                    notyf.error('Bạn không có quyền xóa các đơn thuốc đã chọn.');
+                    notyf.error('Chỉ được xóa các đơn thuốc có phiếu điều trị đang ở trạng thái "Đang điều trị" hoặc bạn đã tham gia vào phân công của phiếu điều trị này.');
                     return;
                 }
                 $.confirm({
@@ -689,7 +704,7 @@
 
     let medicines = [];
     let currentPrescriptionId = null;
-    const medicineList = @Html.Raw(Json.Serialize(ViewBag.Medicines ?? new List<object>()));
+    const medicineList = @Html.Raw(Json.Serialize(ViewBag.MedicinesForPrescription ?? new List<object>()));
 
     function renderMedicines() {
         const tbodyCreate = document.getElementById('prescriptionCreateItemsBody');
@@ -804,7 +819,10 @@
         renderMedicines();
     };
 
+    let isSavingEdit = false;
     document.querySelector('#prescriptionEditModal .btn-save-edit').addEventListener('click', async function () {
+        if (isSavingEdit) return;
+        isSavingEdit = true;
         const prescriptionDate = document.getElementById('prescriptionEditDate').value;
         const note = document.getElementById('prescriptionEditNote').value;
         const treatmentRecordCode = document.getElementById('prescriptionEditCode').value;
@@ -817,12 +835,24 @@
 
         if (!treatmentRecordId) {
             notyf.error('Không xác định được phiếu điều trị!');
+            isSavingEdit = false;
             return;
         }
 
         if (!medicines.length) {
             notyf.error('Vui lòng thêm ít nhất một thuốc!');
+            isSavingEdit = false;
             return;
+        }
+
+        // Kiểm tra số lượng tồn kho trước khi gửi
+        for (const m of medicines) {
+            const med = medicineList.find(x => x.id == m.medicineId);
+            if (med && Number(m.qty) > Number(med.stockQuantity)) {
+                notyf.error(`Số lượng thuốc ${med.name} vượt quá tồn kho là ${med.stockQuantity}!`);
+                isSavingEdit = false;
+                return;
+            }
         }
 
         const invalidMedicine = medicines.some(m =>
@@ -831,6 +861,7 @@
 
         if (invalidMedicine) {
             notyf.error('Kiểm tra lại thông tin nhập');
+            isSavingEdit = false;
             return;
         }
 
@@ -871,10 +902,15 @@
             }
         } catch (err) {
             notyf.error('Lỗi kết nối API!');
+        } finally {
+            isSavingEdit = false;
         }
     });
 
+    let isSavingCreate = false;
     document.querySelector('#prescriptionCreateModal .btn-save-create').addEventListener('click', async function () {
+        if (isSavingCreate) return;
+        isSavingCreate = true;
         const note = document.getElementById('prescriptionCreateNote').value;
         const prescriptionDate = document.getElementById('prescriptionCreateDate').value;
         // Lấy treatmentRecordId trực tiếp từ select
@@ -882,12 +918,24 @@
 
         if (!treatmentRecordId) {
             notyf.error('Không xác định được phiếu điều trị!');
+            isSavingCreate = false;
             return;
         }
 
         if (!medicines.length) {
             notyf.error('Vui lòng thêm ít nhất một thuốc!');
+            isSavingCreate = false;
             return;
+        }
+
+        // Kiểm tra số lượng tồn kho trước khi gửi
+        for (const m of medicines) {
+            const med = medicineList.find(x => x.id == m.medicineId);
+            if (med && Number(m.qty) > Number(med.stockQuantity)) {
+                notyf.error(`Số lượng thuốc ${med.name} vượt quá tồn kho là ${med.stockQuantity}!`);
+                isSavingCreate = false;
+                return;
+            }
         }
 
         const invalidMedicine = medicines.some(m =>
@@ -896,6 +944,7 @@
 
         if (invalidMedicine) {
             notyf.error('Kiểm tra lại thông tin nhập');
+            isSavingCreate = false;
             return;
         }
 
@@ -936,6 +985,8 @@
             }
         } catch (err) {
             notyf.error('Lỗi kết nối API!');
+        } finally {
+            isSavingCreate = false;
         }
     });
 
@@ -1015,6 +1066,8 @@
     // Khi đóng modal, reset input mã phiếu điều trị và select
 
     document.getElementById('closePrescriptionCreateModal').addEventListener('click', function () {
+        medicines = [];
+        renderMedicines();
         document.getElementById('prescriptionCreateCode').value = '';
         if (window.prescriptionPatientChoices) {
             window.prescriptionPatientChoices.setChoiceByValue('');
@@ -1039,6 +1092,32 @@
     }
 
     window.currentStaffCode = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.CurrentEmployeeCode ?? ""));
+
+    function getTreatmentRecordStatusBadge(status) {
+        let text = '';
+        let style = '';
+        switch (status) {
+            case 1: // Đang trong đợt điều trị
+            case 'DangDieuTri':
+                text = 'Đang điều trị';
+                style = 'background:#3b82f6;color:white;'; // xanh dương
+                break;
+            case 2: // Đã hoàn thành đợt điều trị
+            case 'DaHoanThanh':
+                text = 'Hoàn thành';
+                style = 'background:#22c55e;color:white;'; // xanh lá
+                break;
+            case 3: // Đã hủy bỏ
+            case 'DaHuyBo':
+                text = 'Đã hủy bỏ';
+                style = 'background:#a3a3a3;color:white;'; // xám
+                break;
+            default:
+                text = 'Không xác định';
+                style = 'background:#a3a3a3;color:white;';
+        }
+        return `<span style="display:inline-block;min-width:80px;text-align:center;${style}border-radius:6px;padding:4px 12px;font-size:13px;font-weight:bold;">${text}</span>`;
+    }
 
 </script>
 

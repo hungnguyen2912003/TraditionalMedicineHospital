@@ -21,6 +21,7 @@ namespace Project.Areas.Staff.Controllers.api
         private readonly IUserRepository _userRepository;
         private readonly CodeGeneratorHelper _codeGenerator;
         private readonly ITreatmentRecordRepository _treatmentRecordRepository;
+        private readonly IMedicineRepository _medicineRepository;
 
         public PrescriptionsController(
             IPrescriptionRepository prescriptionRepository,
@@ -29,7 +30,8 @@ namespace Project.Areas.Staff.Controllers.api
             JwtManager jwtManager,
             IUserRepository userRepository,
             CodeGeneratorHelper codeGenerator,
-            ITreatmentRecordRepository treatmentRecordRepository
+            ITreatmentRecordRepository treatmentRecordRepository,
+            IMedicineRepository medicineRepository
         )
         {
             _prescriptionRepository = prescriptionRepository;
@@ -39,6 +41,7 @@ namespace Project.Areas.Staff.Controllers.api
             _userRepository = userRepository;
             _codeGenerator = codeGenerator;
             _treatmentRecordRepository = treatmentRecordRepository;
+            _medicineRepository = medicineRepository;
         }
 
         [HttpPost]
@@ -91,6 +94,18 @@ namespace Project.Areas.Staff.Controllers.api
                 await _prescriptionRepository.CreateAsync(prescription);
                 foreach (var detail in details)
                 {
+                    // Trừ tồn kho thuốc
+                    var medicine = await _medicineRepository.GetByIdAsync(detail.MedicineId);
+                    if (medicine == null)
+                    {
+                        return BadRequest($"Không tìm thấy thuốc với ID {detail.MedicineId}");
+                    }
+                    if (medicine.StockQuantity < detail.Quantity)
+                    {
+                        return BadRequest($"Thuốc {medicine.Name} không đủ tồn kho. Hiện còn {medicine.StockQuantity}.");
+                    }
+                    medicine.StockQuantity -= detail.Quantity;
+                    await _medicineRepository.UpdateAsync(medicine);
                     await _prescriptionDetailRepository.CreateAsync(detail);
                 }
 

@@ -1,3 +1,5 @@
+using Project.Models.Enums;
+
 namespace Project.Areas.BacSi.Models.ViewModels
 {
     public class PrescriptionDetailViewModel
@@ -27,6 +29,7 @@ namespace Project.Areas.BacSi.Models.ViewModels
         public Guid EmployeeId { get; set; }
         public string EmployeeName { get; set; } = string.Empty;
         public bool IsActive { get; set; }
+        public TreatmentStatus TreatmentRecordStatus { get; set; }
         public List<PrescriptionDetailViewModel> PrescriptionDetails { get; set; } = new();
         public DateTime CreatedDate { get; set; }
         public string? CreatedBy { get; set; }
@@ -35,5 +38,13 @@ namespace Project.Areas.BacSi.Models.ViewModels
         public string? UpdatedBy { get; set; }
         public string? UpdatedByName { get; set; }
         public List<AssignmentViewModel> Assignments { get; set; } = new();
+    }
+
+    public class MedicineViewModel
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+        public int StockQuantity { get; set; }
     }
 }
