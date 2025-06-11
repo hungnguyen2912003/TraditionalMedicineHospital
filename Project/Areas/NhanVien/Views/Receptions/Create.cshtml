@@ -41,7 +41,7 @@
                                         Họ tên bệnh nhân<span class="text-danger">&nbsp*</span>
                                     </label>
                                     <input id="Name" name="Name" class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập họ tên bệnh nhân" />
+                                        placeholder="Nhập họ tên bệnh nhân" maxlength="50" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -69,7 +69,7 @@
                                     </label>
                                     <input id="DateOfBirth" name="DateOfBirth"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
-                                        placeholder="Nhập ngày sinh" type="text" />
+                                        placeholder="Nhập ngày sinh" type="text" maxlength="10" />
                                     @Html.ValidationMessageFor(model => model.DateOfBirth, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -91,7 +91,7 @@
                                     </label>
                                     <input id="Address" type="text" name="Address"
                                         class="form-input w-full mt-1 p-2 border rounded address-autocomplete"
-                                        placeholder="Nhập địa chỉ" autocomplete="off" />
+                                        placeholder="Nhập địa chỉ" autocomplete="off" maxlength="500" />
                                     @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger"
                                                                         })
                                 </div>
@@ -103,7 +103,7 @@
                                     </label>
                                     <input id="PhoneNumber" name="PhoneNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập số điện thoại" maxlength="11" />
+                                        placeholder="Nhập số điện thoại" minlength="9" maxlength="11" />
                                     @Html.ValidationMessageFor(model => model.PhoneNumber, "", new {
                                                                         @class = "text-danger" })
                                 </div>
@@ -112,7 +112,8 @@
                                         Email<span class="text-danger">&nbsp*</span>
                                     </label>
                                     <input id="EmailAddress" name="EmailAddress"
-                                        class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập email" />
+                                        class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập email"
+                                        maxlength="50" />
                                     @Html.ValidationMessageFor(model => model.EmailAddress, "", new {
                                                                         @class = "text-danger" })
                                 </div>
@@ -198,7 +199,7 @@
                                 </label>
                                 <input id="HealthInsuranceExpiryDate" name="HealthInsuranceExpiryDate"
                                     class="form-input w-full mt-1 p-2 border rounded flatpickr health-insurance-field"
-                                    placeholder="Nhập ngày hết hạn" type="text" />
+                                    placeholder="Nhập ngày hết hạn" type="text" maxlength="10" />
                                 @Html.ValidationMessageFor(model => model.HealthInsuranceExpiryDate, "",
                                                                 new { @class = "text-danger" })
                             </div>
@@ -456,7 +457,7 @@
                         },
                         PhoneNumber: {
                             required: true,
-                            minlength: 10,
+                            minlength: 9,
                             maxlength: 11,
                             customPattern: /^[0-9]*$/,
                             remote: {
@@ -528,7 +529,7 @@
                             required: "Tên nhân sự không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 2 ký tự.",
                             maxlength: "Tên không được vượt quá 50 ký tự.",
-                            customPattern: "Tên bệnh nhân chỉ chứa chữ cái."
+                            customPattern: "Tên bệnh nhân bắt đầu bằng chữ cái và chỉ chứa chữ cái."
                         },
                         Gender: {
                             required: "Giới tính không được bỏ trống"
@@ -540,8 +541,8 @@
                         },
                         IdentityNumber: {
                             required: "Căn cước công dân không được bỏ trống",
-                            minlength: "Căn cước công dân có ít nhất 11 số",
-                            maxlength: "Căn cước công dân không vượt quá 11 số",
+                            minlength: "Căn cước công dân có ít nhất 12 số",
+                            maxlength: "Căn cước công dân không vượt quá 12 số",
                             customPattern: "Căn cước công dân không hợp lệ.",
                             remote: "Căn cước công dân này đã được đăng ký bởi nhân sự khác."
                         },
@@ -556,7 +557,7 @@
                         },
                         PhoneNumber: {
                             required: "Số điện thoại không được bỏ trống.",
-                            minlength: "Số điện thoại phải có ít nhất 10 ký tự.",
+                            minlength: "Số điện thoại phải có ít nhất 9 ký tự.",
                             maxlength: "Số điện thoại không được vượt quá 11 ký tự.",
                             customPattern: "Số điện thoại không hợp lệ.",
                             remote: "Số điện thoại này đã được đăng ký bởi nhân sự khác."

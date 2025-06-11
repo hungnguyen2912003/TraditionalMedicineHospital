@@ -49,7 +49,7 @@
                                     </label>
                                     <input id="Name" type="text" name="Name"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập họ tên bệnh nhân" value="@Model.Name" />
+                                        placeholder="Nhập họ tên bệnh nhân" value="@Model.Name" maxlength="50" />
                                     @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -87,7 +87,8 @@
                                     <input id="DateOfBirth" type="text" name="DateOfBirth"
                                         class="form-input w-full mt-1 p-2 border rounded flatpickr"
                                         placeholder="Nhập ngày sinh"
-                                        value="@Model.DateOfBirth.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" />
+                                        value="@Model.DateOfBirth.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)"
+                                        maxlength="10" />
                                     @Html.ValidationMessageFor(model => model.DateOfBirth, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -109,7 +110,8 @@
                                     <label for="Address" class="block text-sm font-medium text-gray-700">Địa chỉ</label>
                                     <input id="Address" type="text" name="Address"
                                         class="form-input w-full mt-1 p-2 border rounded address-autocomplete"
-                                        placeholder="Nhập địa chỉ" autocomplete="off" value="@Model.Address" />
+                                        placeholder="Nhập địa chỉ" autocomplete="off" value="@Model.Address"
+                                        maxlength="500" />
                                     @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger"
                                                                         })
                                 </div>
@@ -122,7 +124,8 @@
                                     </label>
                                     <input id="PhoneNumber" type="text" name="PhoneNumber"
                                         class="form-input w-full mt-1 p-2 border rounded"
-                                        placeholder="Nhập số điện thoại" value="@Model.PhoneNumber" maxlength="11" />
+                                        placeholder="Nhập số điện thoại" value="@Model.PhoneNumber" minlength="9"
+                                        maxlength="11" />
                                     @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -130,7 +133,7 @@
                                     <label for="Email" class="block text-sm font-medium text-gray-700">Email</label>
                                     <input id="Email" type="text" name="EmailAddress"
                                         class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập email"
-                                        value="@Model.EmailAddress" />
+                                        value="@Model.EmailAddress" maxlength="50" />
                                     @Html.ValidationMessageFor(model => model.EmailAddress, "", new { @class =
                                                                         "text-danger" })
                                 </div>
@@ -203,14 +206,6 @@
 
 <script>
     Dropzone.autoDiscover = false;
-
-    $.validator.addMethod("customPattern", function (value, element, regex) {
-        return this.optional(element) || regex.test(value);
-    }, "Giá trị không hợp lệ.");
-
-    $.validator.addMethod("dateFormat", function (value, element) {
-        return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
-    }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
 
     document.addEventListener('alpine:init', () => {
         Alpine.data('editData', () => ({
@@ -300,6 +295,13 @@
             },
 
             setupValidation() {
+                $.validator.addMethod("customPattern", function (value, element, regex) {
+                    return this.optional(element) || regex.test(value);
+                }, "Giá trị không hợp lệ.");
+
+                $.validator.addMethod("dateFormat", function (value, element) {
+                    return this.optional(element) || /^\d{2}\/\d{2}\/\d{4}$/.test(value);
+                }, "Vui lòng nhập ngày hợp lệ (dd/mm/yyyy).");
                 $("#myForm").validate({
                     ignore: [],
                     rules: {
@@ -330,7 +332,7 @@
                                 }
                                 return age >= 14;
                             },
-                            minlength: 9,
+                            minlength: 12,
                             maxlength: 12,
                             customPattern: /^[0-9]*$/,
                             remote: {
@@ -392,7 +394,7 @@
                         },
                         PhoneNumber: {
                             required: true,
-                            minlength: 10,
+                            minlength: 9,
                             maxlength: 11,
                             customPattern: /^[0-9]*$/,
                             remote: {
@@ -425,8 +427,8 @@
                         Name: {
                             required: "Tên bệnh nhân không được bỏ trống.",
                             minlength: "Tên phải có ít nhất 2 ký tự.",
-                            maxlength: "Tên không được vượt quá 50 ký tự.",
-                            customPattern: "Tên bệnh nhân chỉ chứa chữ cái."
+                            maxlength: "Tên bệnh nhân không được vượt quá 50 ký tự.",
+                            customPattern: "Tên bệnh nhân bắt đầu bằng chữ cái và chỉ chứa chữ cái."
                         },
                         Gender: {
                             required: "Giới tính không được bỏ trống",
@@ -437,7 +439,7 @@
                         },
                         IdentityNumber: {
                             required: "Căn cước công dân không được bỏ trống",
-                            minlength: "Căn cước công dân có ít nhất 9 số",
+                            minlength: "Căn cước công dân có ít nhất 12 số",
                             maxlength: "Căn cước công dân không vượt quá 12 số",
                             customPattern: "Căn cước công dân không hợp lệ.",
                             remote: "Căn cước công dân này đã được sử dụng."
@@ -453,7 +455,7 @@
                         },
                         PhoneNumber: {
                             required: "Số điện thoại không được bỏ trống.",
-                            minlength: "Số điện thoại phải có ít nhất 10 ký tự.",
+                            minlength: "Số điện thoại phải có ít nhất 9 ký tự.",
                             maxlength: "Số điện thoại không được vượt quá 11 ký tự.",
                             customPattern: "Số điện thoại không hợp lệ.",
                             remote: "Số điện thoại này đã được sử dụng."
@@ -535,10 +537,9 @@
 
             update() {
                 const form = document.getElementById('myForm');
+                const overlay = document.getElementById('loadingOverlay');
                 if ($("#myForm").valid()) {
-                    const overlay = document.getElementById('loadingOverlay');
                     overlay.style.display = 'flex';
-
                     const id = document.querySelector('input[name="Id"]').value;
 
                     if (this.dropzone.files.length > 0 && this.dropzone.getQueuedFiles().length > 0) {
@@ -559,6 +560,7 @@
                     }
                 }
                 else {
+                    overlay.style.display = 'none';
                     notyf.error("Vui lòng kiểm tra lại thông tin đã nhập.");
                 }
             },
