@@ -250,11 +250,18 @@
                 this.departmentChoices.disable();
                 this.roomChoices.disable();
                 document.getElementById('EmployeeCategoryId').addEventListener('change', () => {
-                    this.departmentChoices.enable();
-                    this.departmentChoices.setChoiceByValue('');
-                    this.roomChoices.disable();
-                    this.roomChoices.clearStore();
-                    this.filterRoomsByEmployeeCategory();
+                    if (document.getElementById('EmployeeCategoryId').value) {
+                        this.departmentChoices.enable();
+                        this.departmentChoices.setChoiceByValue('');
+                        this.roomChoices.disable();
+                        this.roomChoices.clearStore();
+                        this.filterRoomsByEmployeeCategory();
+                    } else {
+                        this.departmentChoices.disable();
+                        this.departmentChoices.setChoiceByValue('');
+                        this.roomChoices.disable();
+                        this.roomChoices.clearStore();
+                    }
                 });
             },
 
@@ -646,6 +653,8 @@
                 let filteredRooms = this.rooms;
                 if (selectedText === 'bác sĩ' || selectedText === 'nhân viên hành chính') {
                     filteredRooms = this.rooms.filter(room => (room.name || room.Name || '').toLowerCase().includes('hành chính'));
+                } else if (selectedText === 'nhân viên y tá') {
+                    filteredRooms = this.rooms.filter(room => !(room.name || room.Name || '').toLowerCase().includes('hành chính'));
                 }
                 this.roomChoices.setChoices(
                     filteredRooms.map(room => ({

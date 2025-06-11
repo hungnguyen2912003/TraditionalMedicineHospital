@@ -111,7 +111,8 @@
                     </div>
                     <div>
                         <label for="Manufacturer">Nhà sản xuất thuốc</label>
-                        <input id="Manufacturer" type="text" class="form-input" value="@Model.Manufacturer" readonly>
+                        <input id="Manufacturer" type="text" class="form-input"
+                            value="@EnumExtensions.GetDisplayName(Model.Manufacturer)" readonly>
                     </div>
                     <div>
                         <label for="ManufacturedDate">Ngày sản xuất thuốc</label>

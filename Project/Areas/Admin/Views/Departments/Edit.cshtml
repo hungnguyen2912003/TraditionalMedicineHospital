@@ -208,8 +208,8 @@
             update() {
                 const overlay = document.getElementById('loadingOverlay');
                 if ($("#myForm").valid()) {
+                    const form = document.getElementById('myForm');
                     overlay.style.display = 'flex';
-
                     const id = document.querySelector('input[name="Id"]').value;
                     const formData = new FormData(form);
                     fetch('/khoa/chinh-sua/' + id, {

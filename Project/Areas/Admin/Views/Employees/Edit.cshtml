@@ -358,11 +358,27 @@
                 this.departmentChoices.disable();
                 this.roomChoices.disable();
                 document.getElementById('EmployeeCategoryId').addEventListener('change', () => {
-                    this.departmentChoices.enable();
-                    this.departmentChoices.setChoiceByValue('');
-                    this.roomChoices.disable();
-                    this.roomChoices.clearStore();
-                    this.filterRoomsByEmployeeCategory();
+                    if (document.getElementById('EmployeeCategoryId').value) {
+                        this.departmentChoices.enable();
+                        this.departmentChoices.setChoiceByValue('');
+                        this.roomChoices.disable();
+                        this.roomChoices.clearStore();
+                        const departmentId = document.getElementById('DepartmentId').value;
+                        if (departmentId) {
+                            fetch(`/api/Utils/GetRoomsByDepartment/${departmentId}`)
+                                .then(res => res.json())
+                                .then(data => {
+                                    this.rooms = data;
+                                    this.filterRoomsByEmployeeCategory();
+                                    this.roomChoices.enable();
+                                });
+                        }
+                    } else {
+                        this.departmentChoices.disable();
+                        this.departmentChoices.setChoiceByValue('');
+                        this.roomChoices.disable();
+                        this.roomChoices.clearStore();
+                    }
                 });
                 const selectedText = document.querySelector('#EmployeeCategoryId option:checked').textContent.trim().toLowerCase();
                 if (selectedText === 'bác sĩ' || selectedText === 'nhân viên hành chính') {
@@ -790,12 +806,7 @@
                         .then(res => res.json())
                         .then(data => {
                             this.rooms = data;
-                            this.roomChoices.setChoices(
-                                data.map(room => ({
-                                    value: room.id || room.Id,
-                                    label: room.name || room.Name
-                                })), 'value', 'label', false
-                            );
+                            this.filterRoomsByEmployeeCategory();
                             this.roomChoices.enable();
                         });
                 }
@@ -807,6 +818,8 @@
                 let filteredRooms = this.rooms;
                 if (selectedText === 'bác sĩ' || selectedText === 'nhân viên hành chính') {
                     filteredRooms = this.rooms.filter(room => (room.name || room.Name || '').toLowerCase().includes('hành chính'));
+                } else if (selectedText === 'nhân viên y tá') {
+                    filteredRooms = this.rooms.filter(room => !(room.name || room.Name || '').toLowerCase().includes('hành chính'));
                 }
                 this.roomChoices.setChoices(
                     filteredRooms.map(room => ({

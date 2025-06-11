@@ -206,7 +206,7 @@
                                 class="text-danger">&nbsp*</span></label>
                         <input id="StockQuantity" type="number" name="StockQuantity"
                             class="form-input w-full mt-1 p-2 border rounded" placeholder="Nhập số lượng"
-                            value="@Model.StockQuantity" min="1" max="10000" maxlength="5" />
+                            value="@Model.StockQuantity" />
                         @Html.ValidationMessageFor(model => model.StockQuantity, "", new { @class = "text-danger" })
                     </div>
                     <div class="mt-4">

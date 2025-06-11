@@ -35,6 +35,7 @@ namespace Project.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _repository.GetAllAsync();
+            list = list.OrderBy(c => c.ExpirationDate).ToList();
             return View(list);
         }
 
