@@ -251,6 +251,11 @@
             str = str.replace(/đ/g, "d");
             return str;
         }
+
+        window.isAdmin = @(User.IsInRole("Admin").ToString().ToLower());
+        window.isBacSi = @(User.IsInRole("BacSi").ToString().ToLower());
+        window.isNhanVienHanhChinh = @(User.IsInRole("NhanVienHanhChinh").ToString().ToLower());
+        window.isYTa = @(User.IsInRole("YTa").ToString().ToLower());
     </script>
 </body>
 

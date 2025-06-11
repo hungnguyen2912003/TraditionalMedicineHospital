@@ -727,18 +727,15 @@
 
             handleResponse(response) {
                 const overlay = document.getElementById('loadingOverlay');
+                const id = document.getElementById('Id').value;
                 if (response.success) {
                     overlay.style.display = 'flex';
                     notyf.success(response.message);
                     setTimeout(() => {
                         if (window.isAdmin) {
                             window.location.href = '/nhan-su';
-                        } else if (window.isBacSi) {
-                            window.location.href = '/bac-si';
-                        } else if (window.isNhanVienHanhChinh) {
-                            window.location.href = '/nhan-vien-hanh-chinh';
-                        } else if (window.isYTa) {
-                            window.location.href = '/y-ta';
+                        } else {
+                            window.location.href = '/nhan-su/xem-chi-tiet/' + id;
                         }
                     }, 2000);
                 } else {

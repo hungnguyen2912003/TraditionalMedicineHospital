@@ -78,6 +78,24 @@ namespace Project.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            // Nếu không phải Admin thì chỉ được xem thông tin của chính mình
+            if (!User.IsInRole("Admin"))
+            {
+                // Lấy user hiện tại
+                var token = Request.Cookies["AuthToken"];
+                if (string.IsNullOrEmpty(token))
+                {
+                    return RedirectToRoute("tu-choi-truy-cap");
+                }
+                var (username, role) = _jwtManager.GetClaimsFromToken(token);
+                var user = await _userRepository.GetByUsernameAsync(username!);
+                if (user == null || user.Employee == null || user.Employee.Id != id)
+                {
+                    // Không đúng nhân sự, chặn lại
+                    return RedirectToRoute("tu-choi-truy-cap");
+                }
+            }
+
             string updatedByName;
             if (string.IsNullOrEmpty(entity.UpdatedBy))
             {
@@ -182,13 +200,27 @@ namespace Project.Areas.Admin.Controllers
         {
             var entity = await _repository.GetByIdAdvancedAsync(id);
             if (entity == null) return NotFound();
-            var dto = _mapper.Map<EmployeeDto>(entity);
 
+            // Nếu không phải Admin thì chỉ được sửa thông tin của chính mình
+            if (!User.IsInRole("Admin"))
+            {
+                var token = Request.Cookies["AuthToken"];
+                if (string.IsNullOrEmpty(token))
+                {
+                    return RedirectToRoute("tu-choi-truy-cap");
+                }
+                var (username, role) = _jwtManager.GetClaimsFromToken(token);
+                var user = await _userRepository.GetByUsernameAsync(username!);
+                if (user == null || user.Employee == null || user.Employee.Id != id)
+                {
+                    return RedirectToRoute("tu-choi-truy-cap");
+                }
+            }
+
+            var dto = _mapper.Map<EmployeeDto>(entity);
             ViewBag.EmployeeId = entity.Id;
             ViewBag.ExistingImage = entity.Images;
-
             await _viewBagHelper.BaseViewBag(ViewData);
-
             return View(dto);
         }
 
@@ -200,7 +232,6 @@ namespace Project.Areas.Admin.Controllers
             try
             {
                 string updatedBy = "Admin";
-                // Nếu không phải Admin thì mới check token
                 if (!User.IsInRole("Admin"))
                 {
                     var token = Request.Cookies["AuthToken"];
@@ -217,9 +248,9 @@ namespace Project.Areas.Admin.Controllers
                     }
 
                     var user = await _userRepository.GetByUsernameAsync(username);
-                    if (user == null || user.Employee == null)
+                    if (user == null || user.Employee == null || user.Employee.Id != Id)
                     {
-                        return Json(new { success = false, message = "Người dùng không hợp lệ" });
+                        return Json(new { success = false, message = "Bạn không có quyền chỉnh sửa nhân sự này!" });
                     }
                     updatedBy = user.Employee.Code;
                 }

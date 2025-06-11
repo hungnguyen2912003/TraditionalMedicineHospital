@@ -14,17 +14,39 @@
                     style="font-weight: 900;background: linear-gradient(to right, #FF0000, #800080, #00008B); -webkit-background-clip: text; background-clip: text; color: transparent;">
                     Không tìm thấy trang
                 </div>
-                @if (ViewData["Message"] != null){
+                @if (ViewData["Message"] != null)
+                {
                     <p class="text-xl mt-5 font-medium dark:text-white">@ViewData["Message"]</p>
                 }
-                else{
+                else
+                {
                     <p class="text-xl mt-5 font-medium dark:text-white">Trang bạn đang truy cập không tồn tại</p>
                 }
-                <a href="/"
+                <button @@click="goBack()"
                     class="btn btn-gradient mx-auto !mt-7 w-max border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
                     Trang chủ
-                </a>
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function goBack() {
+        if (window.isAdmin) {
+            window.location.href = '/nhan-su';
+        } else if (window.isBacSi) {
+            window.location.href = '/bac-si';
+        } else if (window.isNhanVienHanhChinh) {
+            window.location.href = '/nhan-vien-hanh-chinh';
+        } else if (window.isYTa) {
+            window.location.href = '/y-ta';
+        } else {
+            window.location.href = '/';
+        }
+    }
+    window.isAdmin = @(User.IsInRole("Admin").ToString().ToLower());
+    window.isBacSi = @(User.IsInRole("BacSi").ToString().ToLower());
+    window.isNhanVienHanhChinh = @(User.IsInRole("NhanVienHanhChinh").ToString().ToLower());
+    window.isYTa = @(User.IsInRole("YTa").ToString().ToLower());
+</script>

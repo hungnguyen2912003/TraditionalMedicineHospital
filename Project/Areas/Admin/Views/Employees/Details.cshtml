@@ -188,8 +188,12 @@
             goBack() {
                 if (window.isAdmin) {
                     window.location.href = '/nhan-su';
-                } else {
-                    window.history.back();
+                } else if (window.isBacSi) {
+                    window.location.href = '/bac-si';
+                } else if (window.isNhanVienHanhChinh) {
+                    window.location.href = '/nhan-vien-hanh-chinh';
+                } else if (window.isYTa) {
+                    window.location.href = '/y-ta';
                 }
             }
         }));
@@ -198,4 +202,7 @@
 
 <script>
     window.isAdmin = @(User.IsInRole("Admin").ToString().ToLower());
+    window.isBacSi = @(User.IsInRole("BacSi").ToString().ToLower());
+    window.isNhanVienHanhChinh = @(User.IsInRole("NhanVienHanhChinh").ToString().ToLower());
+    window.isYTa = @(User.IsInRole("YTa").ToString().ToLower());
 </script>
