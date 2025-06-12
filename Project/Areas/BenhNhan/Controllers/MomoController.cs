@@ -13,14 +13,16 @@ namespace Project.Areas.BenhNhan.Controllers
     {
         private readonly MomoService _momoService;
         private readonly IPaymentRepository _paymentRepository;
+        private readonly IAdvancePaymentRepository _advancePaymentRepository;
         private readonly IUserRepository _userRepository;
         private readonly JwtManager _jwtManager;
         private readonly IConfiguration _configuration;
 
-        public MomoController(MomoService momoService, IPaymentRepository paymentRepository, IUserRepository userRepository, JwtManager jwtManager, IConfiguration configuration)
+        public MomoController(MomoService momoService, IPaymentRepository paymentRepository, IAdvancePaymentRepository advancePaymentRepository, IUserRepository userRepository, JwtManager jwtManager, IConfiguration configuration)
         {
             _momoService = momoService;
             _paymentRepository = paymentRepository;
+            _advancePaymentRepository = advancePaymentRepository;
             _userRepository = userRepository;
             _jwtManager = jwtManager;
             _configuration = configuration;
@@ -38,6 +40,7 @@ namespace Project.Areas.BenhNhan.Controllers
             var extraData = Request.Query["extraData"].ToString();
 
             var payment = await _paymentRepository.GetByCodeAsync(orderInfo);
+            var advancePayment = await _advancePaymentRepository.GetByCodeAsync(orderInfo);
             if (payment != null && errorCode == "0")
             {
                 payment.Status = PaymentStatus.DaThanhToan;
@@ -48,6 +51,19 @@ namespace Project.Areas.BenhNhan.Controllers
 
                 ViewBag.PaymentCode = payment.Code;
                 ViewBag.Amount = amount;
+                ViewBag.Type = "phiếu thanh toán";
+            }
+            else if (advancePayment != null && errorCode == "0")
+            {
+                advancePayment.Status = PaymentStatus.DaThanhToan;
+                advancePayment.Type = PaymentType.TrucTuyen;
+                advancePayment.UpdatedDate = DateTime.UtcNow;
+                advancePayment.UpdatedBy = extraData;
+                await _advancePaymentRepository.UpdateAsync(advancePayment);
+
+                ViewBag.AdvancePaymentCode = advancePayment.Code;
+                ViewBag.Amount = amount;
+                ViewBag.Type = "phiếu tạm ứng";
             }
             else
             {
@@ -64,15 +80,25 @@ namespace Project.Areas.BenhNhan.Controllers
             var resultCode = Request.Form["resultCode"].ToString();
             var message = Request.Form["message"].ToString();
             var amount = Request.Form["amount"].ToString();
+            var extraData = Request.Form["extraData"].ToString();
 
             // Tìm phiếu thanh toán theo mã giao dịch (orderId)
             var payment = await _paymentRepository.GetByCodeAsync(orderId);
+            var advancePayment = await _advancePaymentRepository.GetByCodeAsync(orderId);
             if (payment != null && resultCode == "0")
             {
                 payment.Status = PaymentStatus.DaThanhToan;
                 payment.Type = PaymentType.TrucTuyen;
                 payment.UpdatedDate = DateTime.UtcNow;
                 await _paymentRepository.UpdateAsync(payment);
+            }
+            else if (advancePayment != null && resultCode == "0")
+            {
+                advancePayment.Status = PaymentStatus.DaThanhToan;
+                advancePayment.Type = PaymentType.TrucTuyen;
+                advancePayment.UpdatedDate = DateTime.UtcNow;
+                advancePayment.UpdatedBy = extraData;
+                await _advancePaymentRepository.UpdateAsync(advancePayment);
             }
             // Trả về JSON cho MoMo biết đã nhận được thông báo
             return Json(new { message = "Received" });

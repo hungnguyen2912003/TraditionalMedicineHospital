@@ -2,11 +2,9 @@
 using Project.Areas.Admin.Models.Entities;
 using Project.Areas.YTa.Models.DTOs;
 using Project.Helpers;
-using Project.Models.Enums;
 using Project.Repositories.Interfaces;
 using Project.Services.Features;
 using SequentialGuid;
-using System.Globalization;
 
 namespace Project.Areas.YTa.Controllers.api
 {
@@ -52,20 +50,23 @@ namespace Project.Areas.YTa.Controllers.api
                 if (string.IsNullOrEmpty(username))
                     return Unauthorized("Token không hợp lệ.");
 
+                // Lấy thông tin nhân viên
                 var user = await _userRepository.GetByUsernameAsync(username);
                 if (user == null || user.Employee == null)
                     return NotFound("Không tìm thấy thông tin nhân viên.");
 
+                // Lấy phòng của nhân viên
                 var roomId = user.Employee.RoomId;
                 if (roomId == Guid.Empty)
                     return NotFound("Không tìm thấy phòng cho bác sĩ này.");
 
+                // Lấy ngày cần theo dõi
                 DateTime targetDate = string.IsNullOrEmpty(date) ? DateTime.Today : DateTime.Parse(date);
 
-                // Lấy tất cả detail trong phòng
+                // Lấy tất cả treatmentRecordDetail trong phòng
                 var details = await _detailRepo.GetDetailsByRoomIdAsync(roomId);
 
-                // Lấy danh sách các tracking đã chấm trong ngày (theo detailId)
+                // Lấy danh sách các bệnh nhân được theo dõi trong ngày
                 var trackings = await _trackingRepo.GetAllAdvancedAsync();
                 var trackedDetailIds = trackings
                     .Where(t => t.TrackingDate.Date == targetDate.Date && t.TreatmentRecordDetail != null && t.TreatmentRecordDetail.RoomId == roomId)

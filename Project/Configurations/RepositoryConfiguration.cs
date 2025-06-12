@@ -39,6 +39,7 @@ namespace Project.Configurations
             builder.Services.AddScoped<IPrescriptionDetailRepository, PrescriptionDetailRepository>();
 
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+            builder.Services.AddScoped<IAdvancePaymentRepository, AdvancePaymentRepository>();
 
             builder.Services.AddScoped<IWarningSentRepository, WarningSentRepository>();
 

@@ -114,12 +114,6 @@
                 }
                 this.filteredList = [...this.entityList];
                 window.list = this;
-                // Log danh sách ViolatedPatient, kèm isViolated và treatmentRecordId
-                console.log('ViolatedPatient List:', this.entityList.map(e => ({
-                    patientName: e.patientName,
-                    isViolated: e.isViolated,
-                    treatmentRecordId: e.treatmentRecordId
-                })));
                 this.initializeTable();
             },
 

@@ -27,7 +27,6 @@
                     this.setupDateTimePicker();
                     this.setupValidation();
                     this.setupTreatmentDateListeners();
-                    this.setupCleave();
                     // Setup room filtering
                     const treatmentMethodSelect = document.getElementById('treatmentRecordDetailTreatmentMethod');
                     if (treatmentMethodSelect) {
@@ -37,18 +36,6 @@
             } catch (error) {
                 notyf.error('Có lỗi xảy ra khi khởi tạo form');
             }
-        },
-
-        setupCleave() {
-            new Cleave('.advance-payment', {
-                numeral: true,
-                numeralThousandsGroupStyle: 'thousand',
-                numeralDecimalScale: 0,
-                numeralPositiveOnly: true,
-                onValueChanged: function (e) {
-                    $('#AdvancePayment').trigger('change');
-                }
-            });
         },
 
         /**
@@ -288,7 +275,6 @@
             formData.append('TreatmentRecord.EndDate', document.getElementById('EndDate').value);
             formData.append('TreatmentRecord.PatientId', document.getElementById('PatientId').value);
             formData.append('TreatmentRecord.Note', document.getElementById('treatmentRecordNote').value);
-            formData.append('TreatmentRecord.AdvancePayment', document.getElementById('AdvancePayment').value);
 
             // Append treatment record details
             const methodSelects = document.querySelectorAll('select[name$=".TreatmentMethodId"]');
@@ -682,11 +668,6 @@
                     "Diagnosis": { required: true },
                     "StartDate": { required: true, dateFormat: true, notPastDate: true },
                     "EndDate": { required: true, dateFormat: true, endDateAfterStartDate: true },
-                    "AdvancePayment": {
-                        required: true,
-                        numberWithComma: true,
-                        minWithComma: 1
-                    },
                     "PatientId": { required: true },
                     "TreatmentRecordDetail.TreatmentMethodId": { required: true },
                     "TreatmentRecordDetail.RoomId": { required: true },
@@ -712,11 +693,6 @@
                     "EndDate": {
                         required: "Ngày kết thúc không được bỏ trống.",
                         dateFormat: "Ngày kết thúc không hợp lệ."
-                    },
-                    "AdvancePayment": {
-                        required: "Tiền ứng trước không được bỏ trống.",
-                        numberWithComma: "Tiền ứng trước không hợp lệ.",
-                        minWithComma: "Tiền ứng trước phải lớn hơn 0."
                     },
                     "PatientId": { required: "Bệnh nhân không được bỏ trống." },
                     "TreatmentRecordDetail.TreatmentMethodId": { required: "Phương pháp điều trị không được bỏ trống." },
@@ -778,9 +754,7 @@
                     }
                 },
                 errorPlacement: function (error, element) {
-                    if (element.attr('id') === 'AdvancePayment') {
-                        error.insertAfter(element.closest('.flex'));
-                    } else if (element.is('select')) {
+                    if (element.is('select')) {
                         const wrapper = element.closest('.select-wrapper');
                         if (wrapper.length) {
                             error.insertAfter(wrapper);

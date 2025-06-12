@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project.Datas;
 
@@ -11,9 +12,11 @@ using Project.Datas;
 namespace Project.Migrations
 {
     [DbContext(typeof(TraditionalMedicineHospitalDbContext))]
-    partial class TraditionalMedicineHospitalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250612141832_Add AdvancePayment Tbl")]
+    partial class AddAdvancePaymentTbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,7 +70,8 @@ namespace Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TreatmentRecordId");
+                    b.HasIndex("TreatmentRecordId")
+                        .IsUnique();
 
                     b.ToTable("AdvancePayment");
                 });
@@ -1052,8 +1056,8 @@ namespace Project.Migrations
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.AdvancePayment", b =>
                 {
                     b.HasOne("Project.Areas.Admin.Models.Entities.TreatmentRecord", "TreatmentRecord")
-                        .WithMany("AdvancePayment")
-                        .HasForeignKey("TreatmentRecordId")
+                        .WithOne("AdvancePayment")
+                        .HasForeignKey("Project.Areas.Admin.Models.Entities.AdvancePayment", "TreatmentRecordId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

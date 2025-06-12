@@ -339,16 +339,21 @@
             },
 
             setupValidation() {
-                $.validator.addMethod("notExpired", function (value, element) {
-                    // Only validate if health insurance checkbox is checked and there is a value
-                    if (!$('#HasHealthInsurance').is(':checked') || !value) return true;
+                $.validator.addMethod("checkExpiryDate", function (value, element) {
+                    if (!value) return true;
+                    const dateParts = value.split('/');
+                    const expiryDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                    return expiryDate > new Date();
+                }, "Thẻ BHYT đã hết hạn.");
 
-                    const parts = value.split('/');
-                    const expiryDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    return expiryDate >= today;
-                }, "Thẻ BHYT đã hết hạn");
+                $.validator.addMethod("checkMaxExpiryDate", function (value, element) {
+                    if (!value) return true;
+                    const dateParts = value.split('/');
+                    const expiryDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                    const maxDate = new Date();
+                    maxDate.setMonth(maxDate.getMonth() + 12);
+                    return expiryDate <= maxDate;
+                }, "Ngày hết hạn không được vượt quá 12 tháng kể từ tháng hiện tại.");
 
                 $.validator.addMethod("customPattern", function (value, element, regex) {
                     return this.optional(element) || regex.test(value);
@@ -518,7 +523,8 @@
                         HealthInsuranceExpiryDate: {
                             required: () => $('#HasHealthInsurance').is(':checked'),
                             dateFormat: true,
-                            notExpired: true
+                            checkExpiryDate: true,
+                            checkMaxExpiryDate: true
                         },
                         HealthInsurancePlaceOfRegistration: {
                             required: () => $('#HasHealthInsurance').is(':checked')
@@ -544,7 +550,7 @@
                             minlength: "Căn cước công dân có ít nhất 12 số",
                             maxlength: "Căn cước công dân không vượt quá 12 số",
                             customPattern: "Căn cước công dân không hợp lệ.",
-                            remote: "Căn cước công dân này đã được đăng ký bởi nhân sự khác."
+                            remote: "Căn cước công dân này đã được đăng ký bởi bệnh nhân khác."
                         },
                         Address: {
                             required: "Địa chỉ không được bỏ trống",
@@ -553,14 +559,14 @@
                         EmailAddress: {
                             required: "Email không được bỏ trống.",
                             email: "Email không hợp lệ.",
-                            remote: "Email này đã được đăng ký bởi nhân sự khác."
+                            remote: "Email này đã được đăng ký bởi bệnh nhân khác."
                         },
                         PhoneNumber: {
                             required: "Số điện thoại không được bỏ trống.",
                             minlength: "Số điện thoại phải có ít nhất 9 ký tự.",
                             maxlength: "Số điện thoại không được vượt quá 11 ký tự.",
                             customPattern: "Số điện thoại không hợp lệ.",
-                            remote: "Số điện thoại này đã được đăng ký bởi nhân sự khác."
+                            remote: "Số điện thoại này đã được đăng ký bởi bệnh nhân khác."
                         },
                         HealthInsuranceNumber: {
                             required: "Số BHYT không được bỏ trống",
@@ -572,7 +578,8 @@
                         HealthInsuranceExpiryDate: {
                             required: "Ngày hết hạn không được bỏ trống",
                             dateFormat: "Ngày hết hạn không hợp lệ",
-                            notExpired: "Thẻ BHYT đã hết hạn"
+                            checkExpiryDate: "Thẻ BHYT đã hết hạn",
+                            checkMaxExpiryDate: "Ngày hết hạn không được vượt quá 12 tháng kể từ tháng hiện tại."
                         },
                         HealthInsurancePlaceOfRegistration: {
                             required: "Nơi đăng ký không được bỏ trống."

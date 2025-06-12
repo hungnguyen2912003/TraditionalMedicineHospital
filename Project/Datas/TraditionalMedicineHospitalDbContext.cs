@@ -29,6 +29,7 @@ namespace Project.Datas
         public DbSet<TreatmentTracking> treatmentTrackings { get; set; }
         public DbSet<HealthInsurance> healthInsurances { get; set; }
         public DbSet<WarningSent> warningSents { get; set; }
+        public DbSet<AdvancePayment> advancePayments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,8 +41,8 @@ namespace Project.Datas
                 .Property(e => e.Cost)
                 .HasPrecision(18, 2);
 
-            modelBuilder.Entity<TreatmentRecord>()
-                .Property(e => e.AdvancePayment)
+            modelBuilder.Entity<AdvancePayment>()
+                .Property(e => e.Amount)
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<Medicine>()

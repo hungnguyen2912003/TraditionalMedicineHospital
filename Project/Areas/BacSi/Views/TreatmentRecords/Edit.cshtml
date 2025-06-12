@@ -102,8 +102,7 @@
                                         <div class="w-full sm:w-1/2">
                                             <label for="Diagnosis">Chẩn đoán<span class="text-danger">&nbsp*</span></label>
                                             <div class="select-wrapper">
-                                                <select id="Diagnosis" name="Diagnosis"
-                                                        class="form-input w-full mt-1 p-2 border rounded">
+                                                <select id="Diagnosis" name="Diagnosis" class="form-input w-full mt-1 p-2 border rounded choices">
                                                     <option value="">Chọn chẩn đoán</option>
                                                     @foreach (var diagnosis in ViewBag.DiagnosisOptions)
                                                     {
@@ -126,16 +125,6 @@
                                             <input id="PatientName" class="form-input" type="text" value="@ViewBag.PatientName" readonly />
                                             <input type="hidden" id="patientId" name="PatientId" value="@Model.TreatmentRecord.PatientId" />
                                             @Html.ValidationMessageFor(model => model.TreatmentRecord.PatientId, "", new { @class = "text-danger" })
-                                        </div>
-                                        <div class="w-full sm:w-1/2">
-                                            <label for="AdvancePayment">Tiền ứng trước<span class="text-danger">&nbsp*</span></label>
-                                            <div class="flex items-center">
-                                                <input id="AdvancePayment" name="AdvancePayment" class="form-input advance-payment w-full mt-1 p-2 border rounded" type="text"
-                                                       placeholder="Nhập tiền ứng trước" value="@Model.TreatmentRecord.AdvancePayment" />
-                                                <span class="ml-2 text-gray-700" style="font-weight: 900">VND</span>
-                                            </div>
-                                            @Html.ValidationMessageFor(model => model.TreatmentRecord.AdvancePayment, "", new { @class =
-                                                                                        "text-danger" })
                                         </div>
                                     </div>
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">

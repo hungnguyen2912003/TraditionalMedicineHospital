@@ -123,16 +123,6 @@
                                             @Html.ValidationMessageFor(model => model.TreatmentRecord.PatientId, "", new { @class =
                                             "text-danger" })
                                         </div>
-                                        <div class="w-full sm:w-1/2">
-                                            <label for="AdvancePayment">Tiền ứng trước<span class="text-danger">&nbsp*</span></label>
-                                            <div class="flex items-center">
-                                                <input id="AdvancePayment" name="AdvancePayment" class="form-input advance-payment w-full mt-1 p-2 border rounded" type="text"
-                                                       placeholder="Nhập tiền ứng trước" />
-                                                <span class="ml-2 text-gray-700" style="font-weight: 900">VND</span>
-                                            </div>
-                                            @Html.ValidationMessageFor(model => model.TreatmentRecord.AdvancePayment, "", new { @class =
-                                                                                        "text-danger" })
-                                        </div>
                                     </div>
                                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                         <div class="w-full sm:w-1/2">

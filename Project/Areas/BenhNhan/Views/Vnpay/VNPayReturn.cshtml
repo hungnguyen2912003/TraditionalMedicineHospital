@@ -32,7 +32,7 @@
                     <img src="~/Public/assets/images/credit-card-accepted.png" alt="Thanh toán thành công"
                         class="mx-auto object-cover max-w-[160px] mb-5">
                     <p class="text-base font-bold leading-normal text-gray-800 mb-4">
-                        Bạn đã thanh toán cho mã phiếu thanh toán <span style="color:#2563eb">@ViewBag.PaymentCode</span>
+                        Bạn đã thanh toán cho mã @ViewBag.Type <span style="color:#2563eb">@ViewBag.PaymentCode</span>
                         thành công với số tiền <span style="color:#22c55e">
                             @String.Format(new CultureInfo("vi-VN"), "{0:N0}", Convert.ToDecimal(ViewBag.Amount))
                         </span> VNĐ

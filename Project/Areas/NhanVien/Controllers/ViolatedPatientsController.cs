@@ -51,18 +51,21 @@ namespace Project.Areas.NhanVien.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            // Lấy mã nhân viên hiện tại từ cookie AuthToken
+            // 1. Lấy thông tin nhân viên hiện tại từ cookie AuthToken
             string? currentEmployeeCode = null;
             string? currentDepartmentName = null;
             var token = Request.Cookies["AuthToken"];
             if (!string.IsNullOrEmpty(token))
             {
+                // Giải mã token để lấy username và role
                 var (username, role) = _viewBagHelper._jwtManager.GetClaimsFromToken(token);
                 if (!string.IsNullOrEmpty(username))
                 {
+                    // Lấy thông tin user từ database
                     var user = await _userRepository.GetByUsernameAsync(username);
                     if (user != null && user.Employee != null)
                     {
+                        // Lưu thông tin nhân viên vào ViewBag để sử dụng trong view
                         currentEmployeeCode = user.Employee.Code;
                         currentDepartmentName = user.Employee.Room?.Department?.Name;
                         ViewBag.CurrentEmployeeCode = currentEmployeeCode;
@@ -72,10 +75,10 @@ namespace Project.Areas.NhanVien.Controllers
                 }
             }
 
-            // Lấy tracking theo khoa
+            // 2. Lấy danh sách tracking theo khoa của nhân viên hiện tại
             List<TreatmentTracking> allTrackings = (await _treatmentTrackingRepository.GetByDepartmentAsync(currentDepartmentName!)).ToList();
 
-            // Nhóm các tracking theo bệnh nhân và từng đợt điều trị
+            // 3. Nhóm các tracking theo bệnh nhân và từng đợt điều trị
             var patientGroups = allTrackings
                 .Where(t => t.TreatmentRecordDetail?.TreatmentRecord?.Patient != null)
                 .GroupBy(t => new
@@ -94,7 +97,7 @@ namespace Project.Areas.NhanVien.Controllers
                 })
                 .ToList();
 
-            // Lấy tất cả EmployeeId từ các tracking
+            // 4. Lấy tất cả EmployeeId từ các tracking để map sang tên nhân viên
             var employeeIds = patientGroups
                 .SelectMany(p => p.Trackings)
                 .Where(t => t.EmployeeId.HasValue)
@@ -104,31 +107,36 @@ namespace Project.Areas.NhanVien.Controllers
             var employeeDict = new Dictionary<Guid, string>();
             if (employeeIds.Any())
             {
+                // Tạo dictionary để map EmployeeId với tên nhân viên
                 var employees = await _employeeRepository.GetByIdsAsync(employeeIds);
                 employeeDict = employees.ToDictionary(e => e.Id, e => e.Name);
             }
 
-            // Lọc ra các bệnh nhân có 3 ngày vắng liên tiếp
+            // 5. Lọc ra các bệnh nhân có 3 ngày vắng liên tiếp
             var violatedPatients = new List<ViolatedPatientViewModel>();
             foreach (var p in patientGroups)
             {
                 var ordered = p.Trackings;
-                int i = 2; // Bắt đầu từ index 2 để có thể kiểm tra 3 ngày liên tiếp
+                int i = 2; // Bắt đầu từ index 2 để kiểm tra 3 ngày liên tiếp
                 while (i < ordered.Count)
                 {
+                    // Lấy 3 ngày liên tiếp
                     var prev2 = ordered[i - 2];
                     var prev1 = ordered[i - 1];
                     var curr = ordered[i];
 
+                    // Tính số ngày giữa các lần tracking
                     var daysDiff1 = (prev1.TrackingDate.Date - prev2.TrackingDate.Date).TotalDays;
                     var daysDiff2 = (curr.TrackingDate.Date - prev1.TrackingDate.Date).TotalDays;
 
+                    // Kiểm tra nếu cả 3 ngày đều liên tiếp và đều không điều trị, đồng thời phiếu điều trị đang hoạt động
                     if (daysDiff1 == 1 && daysDiff2 == 1 &&
                         prev2.Status == TrackingStatus.KhongDieuTri &&
                         prev1.Status == TrackingStatus.KhongDieuTri &&
                         curr.Status == TrackingStatus.KhongDieuTri &&
                         prev2.TreatmentRecordDetail?.TreatmentRecord?.Status == TreatmentStatus.DangDieuTri)
                     {
+                        // Thêm vào danh sách bệnh nhân vi phạm
                         violatedPatients.Add(new ViolatedPatientViewModel
                         {
                             PatientId = p.PatientId,
@@ -159,7 +167,7 @@ namespace Project.Areas.NhanVien.Controllers
                 }
             }
 
-            // Lọc theo phòng ban nếu có
+            // 6. Lọc lại danh sách bệnh nhân vi phạm theo phòng ban nếu có
             if (!string.IsNullOrEmpty(currentDepartmentName))
             {
                 var normalizedDept = currentDepartmentName.Trim().ToLower();
@@ -177,7 +185,7 @@ namespace Project.Areas.NhanVien.Controllers
                     .ToList();
             }
 
-            // Lấy danh sách phòng để filter
+            // 7. Lấy danh sách phòng để filter trên giao diện
             var allRooms = await _roomRepository.GetAllAsync();
             List<Room> filterRooms;
             if (!string.IsNullOrEmpty(currentDepartmentName))
@@ -193,6 +201,7 @@ namespace Project.Areas.NhanVien.Controllers
             }
             ViewBag.FilterRooms = filterRooms;
 
+            // 8. Cập nhật ViewBag và trả về view với danh sách bệnh nhân vi phạm
             await _viewBagHelper.BaseViewBag(ViewData);
             return View(violatedPatients);
         }

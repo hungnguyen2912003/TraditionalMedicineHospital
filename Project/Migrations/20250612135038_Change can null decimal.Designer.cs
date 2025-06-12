@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project.Datas;
 
@@ -11,9 +12,11 @@ using Project.Datas;
 namespace Project.Migrations
 {
     [DbContext(typeof(TraditionalMedicineHospitalDbContext))]
-    partial class TraditionalMedicineHospitalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250612135038_Change can null decimal")]
+    partial class Changecannulldecimal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,56 +24,6 @@ namespace Project.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.AdvancePayment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("TreatmentRecordId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TreatmentRecordId");
-
-                    b.ToTable("AdvancePayment");
-                });
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Assignment", b =>
                 {
@@ -758,6 +711,10 @@ namespace Project.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal?>("AdvancePayment")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -1049,17 +1006,6 @@ namespace Project.Migrations
                     b.ToTable("WarningSent");
                 });
 
-            modelBuilder.Entity("Project.Areas.Admin.Models.Entities.AdvancePayment", b =>
-                {
-                    b.HasOne("Project.Areas.Admin.Models.Entities.TreatmentRecord", "TreatmentRecord")
-                        .WithMany("AdvancePayment")
-                        .HasForeignKey("TreatmentRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TreatmentRecord");
-                });
-
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.Assignment", b =>
                 {
                     b.HasOne("Project.Areas.Admin.Models.Entities.Employee", "Employee")
@@ -1324,8 +1270,6 @@ namespace Project.Migrations
 
             modelBuilder.Entity("Project.Areas.Admin.Models.Entities.TreatmentRecord", b =>
                 {
-                    b.Navigation("AdvancePayment");
-
                     b.Navigation("Assignments");
 
                     b.Navigation("Payment");

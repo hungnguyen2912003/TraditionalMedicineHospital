@@ -7,6 +7,6 @@ namespace Project.Models.Enums
         [Display(Name = "Thanh toán tại quầy")]
         TrucTiep = 1,
         [Display(Name = "Thanh toán trực tuyến")]
-        TrucTuyen = 2 
+        TrucTuyen = 2
     }
 }

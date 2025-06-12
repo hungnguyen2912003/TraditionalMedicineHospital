@@ -133,7 +133,7 @@
                                         <input id="Diagnosis" class="form-input" readonly
                                             value="@(EnumExtensions.GetDisplayName(Model.Diagnosis))" />
                                     </div>
-                                    <div class="w-full sm:w-1/2">
+                                    @* <div class="w-full sm:w-1/2">
                                         <label for="AdvancePayment">
                                             Tiền ứng trước<span class="text-danger">&nbsp*</span>
                                         </label>
@@ -141,10 +141,10 @@
                                             <input id="AdvancePayment" name="TreatmentRecord.AdvancePayment"
                                                 class="form-input advance-payment w-full mt-1 p-2 border rounded"
                                                 type="text" placeholder="Nhập tiền ứng trước"
-                                                value="@Model.AdvancePayment.ToString("N0", CultureInfo.InvariantCulture)" />
+                                                value="@Model.AdvancePayment?.ToString("N0", CultureInfo.InvariantCulture)" />
                                             <span class="ml-2 text-gray-700" style="font-weight: 900">VND</span>
                                         </div>
-                                    </div>
+                                    </div> *@
                                 </div>
                                 <div class="flex flex-col sm:flex-row gap-4 mb-4">
                                     <div class="w-full sm:w-1/2">

@@ -6,7 +6,6 @@ using Project.Helpers;
 using Project.Models.Enums;
 using Project.Repositories.Interfaces;
 using Project.Services.Features;
-using Repositories.Interfaces;
 using SequentialGuid;
 using System.Globalization;
 
@@ -58,56 +57,74 @@ namespace Project.Areas.NhanVien.Controllers.api
         {
             try
             {
+                // 1. Kiểm tra xác thực người dùng thông qua token
                 var token = Request.Cookies["AuthToken"];
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized("Chưa đăng nhập.");
 
+                // 2. Lấy thông tin username và role từ token
                 var (username, role) = _jwtManager.GetClaimsFromToken(token);
                 if (string.IsNullOrEmpty(username))
                     return Unauthorized("Token không hợp lệ.");
 
+                // 3. Lấy thông tin người dùng từ database
                 var user = await _userRepository.GetByUsernameAsync(username);
                 if (user == null || user.Employee == null)
                     return NotFound("Không tìm thấy thông tin nhân viên.");
 
-                // Lấy thông tin TreatmentRecord để tính toán chi phí
+                // 4. Lấy thông tin phiếu điều trị để tính toán chi phí
                 var tr = await _treatmentRecordRepository.GetByIdAdvancedAsync(request.TreatmentRecordId);
                 if (tr == null) return NotFound("Không tìm thấy phiếu điều trị");
 
-                // Tính toán các chi phí
+                // 5. Tính tổng chi phí đơn thuốc
                 var prescriptions = tr.Prescriptions ?? new List<Prescription>();
+                // Tính tổng chi phí = (giá thuốc * số lượng) cho từng chi tiết đơn thuốc
                 var totalPrescriptionCost = prescriptions.Sum(p =>
                     p.PrescriptionDetails?.Sum(d => (d.Medicine?.Price ?? 0) * d.Quantity) ?? 0);
 
+                // 6. Tính tổng chi phí phương pháp điều trị
                 decimal totalTreatmentMethodCost = 0;
+                // Tính tổng chi phí = (chi phí phương pháp * số lần điều trị) cho từng chi tiết điều trị
                 foreach (var detail in tr.TreatmentRecordDetails ?? new List<TreatmentRecordDetail>())
                 {
                     var room = detail.Room;
                     var method = room?.TreatmentMethod;
                     if (method == null) continue;
+                    // Đếm số lần điều trị đã thực hiện (status = CoDieuTri)
                     int count = detail.TreatmentTrackings?.Count(t => t.Status == TrackingStatus.CoDieuTri) ?? 0;
                     totalTreatmentMethodCost += method.Cost * count;
                 }
 
+                // 7. Tính tổng chi phí trước khi áp dụng BHYT
                 decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
+
+                // 8. Tính số tiền được giảm từ BHYT
                 decimal insuranceAmount = 0;
                 var hi = tr.Patient?.HealthInsurance;
                 if (hi != null && hi.ExpiryDate > DateTime.UtcNow)
                 {
+                    // Nếu đúng tuyến giảm 80%, trái tuyến giảm 60%
                     if (hi.IsRightRoute)
                         insuranceAmount = totalCostBeforeInsurance * 0.8m;
                     else
                         insuranceAmount = totalCostBeforeInsurance * 0.6m;
                 }
 
-                decimal finalCost = totalCostBeforeInsurance - insuranceAmount - tr.AdvancePayment;
+                // 9. Tính số tiền cuối cùng bệnh nhân phải trả
+                // (Tổng chi phí - BHYT - Tạm ứng), nếu âm thì = 0
+                //decimal finalCost = totalCostBeforeInsurance - insuranceAmount - (tr.AdvancePayment ?? 0);
+                decimal finalCost = totalCostBeforeInsurance - insuranceAmount;
                 if (finalCost < 0) finalCost = 0;
 
-                // Tính số tiền tạm ứng còn dư hoặc số tiền còn thiếu
+                // 10. Tính số tiền thực tế bệnh nhân phải trả và số tiền tạm ứng còn dư
                 decimal actualPatientPay = totalCostBeforeInsurance - insuranceAmount;
-                decimal advanceRefund = tr.AdvancePayment - actualPatientPay;
+                //decimal advanceRefund = (tr.AdvancePayment ?? 0) - actualPatientPay;
+                decimal advanceRefund = actualPatientPay;
+
+                // 11. Tạo mã thanh toán mới
                 var sequentialGuid = SequentialGuidGenerator.Instance.NewGuid();
 
+                // 12. Tạo đối tượng Payment mới
                 var payment = new Payment
                 {
                     Id = sequentialGuid,
@@ -115,16 +132,19 @@ namespace Project.Areas.NhanVien.Controllers.api
                     PaymentDate = request.PaymentDate,
                     Note = request.Note,
                     TreatmentRecordId = request.TreatmentRecordId,
+                    // Nếu finalCost = 0 thì đã thanh toán xong, ngược lại chưa thanh toán
                     Status = finalCost == 0 ? PaymentStatus.DaThanhToan : PaymentStatus.ChuaThanhToan,
+                    // Nếu finalCost = 0 thì thanh toán trực tiếp, ngược lại chưa xác định
                     Type = finalCost == 0 ? PaymentType.TrucTiep : null,
                     CreatedBy = user.Employee.Code,
                     CreatedDate = DateTime.UtcNow,
                     TreatmentRecord = null!
                 };
 
+                // 13. Lưu thông tin thanh toán vào database
                 await _paymentRepository.CreateAsync(payment);
 
-                // Gửi email cho bệnh nhân
+                // 14. Gửi email thông báo cho bệnh nhân nếu có email
                 if (tr.Patient?.EmailAddress != null)
                 {
                     var emailSubject = $"Thông báo thanh toán chi phí";
@@ -141,6 +161,7 @@ namespace Project.Areas.NhanVien.Controllers.api
                             <li><b>Tổng số tiền cần thanh toán: {finalCost:N0} VNĐ</b></li>
                         </ul>";
 
+                    // 15. Thêm thông tin về số tiền tạm ứng còn dư hoặc số tiền còn thiếu
                     if (advanceRefund > 0)
                     {
                         emailBody += $@"
@@ -164,13 +185,16 @@ namespace Project.Areas.NhanVien.Controllers.api
                     emailBody += $@"
                 <p>Trân trọng,<br>Bệnh viện Y học cổ truyền</p>";
 
+                    // 16. Gửi email thông báo
                     await _emailService.SendEmailAsync(tr.Patient.EmailAddress, emailSubject, emailBody);
                 }
 
+                // 17. Trả về kết quả thành công
                 return Ok(new { success = true, message = "Tạo phiếu thanh toán thành công!", paymentId = payment.Id });
             }
             catch (Exception ex)
             {
+                // 18. Xử lý lỗi nếu có
                 return StatusCode(500, new { success = false, message = "Lỗi server: " + ex.Message });
             }
         }
@@ -202,7 +226,8 @@ namespace Project.Areas.NhanVien.Controllers.api
                 }
 
                 // 4. Tạm ứng
-                decimal advancePayment = tr.AdvancePayment;
+                //decimal advancePayment = (tr.AdvancePayment ?? 0);
+                decimal advancePayment = 0;
 
                 // 5. Tổng chi phí trước BHYT (KHÔNG trừ tạm ứng)
                 decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;

@@ -85,7 +85,7 @@ namespace Project.Areas.Admin.Controllers
                 var token = Request.Cookies["AuthToken"];
                 if (string.IsNullOrEmpty(token))
                 {
-                    return RedirectToRoute("tu-choi-truy-cap");
+                    return RedirectToRoute("dang-nhap");
                 }
                 var (username, role) = _jwtManager.GetClaimsFromToken(token);
                 var user = await _userRepository.GetByUsernameAsync(username!);
@@ -207,7 +207,7 @@ namespace Project.Areas.Admin.Controllers
                 var token = Request.Cookies["AuthToken"];
                 if (string.IsNullOrEmpty(token))
                 {
-                    return RedirectToRoute("tu-choi-truy-cap");
+                    return RedirectToRoute("dang-nhap");
                 }
                 var (username, role) = _jwtManager.GetClaimsFromToken(token);
                 var user = await _userRepository.GetByUsernameAsync(username!);

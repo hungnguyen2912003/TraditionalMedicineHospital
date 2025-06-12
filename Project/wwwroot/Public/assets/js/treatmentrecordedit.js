@@ -247,7 +247,6 @@ document.addEventListener('alpine:init', () => {
             this.setupValidation();
             this.setupDateListeners();
             this.updateRegulationSelectsState();
-            this.setupCleave();
 
             $('select').on('focus', function () {
                 $(this).trigger('click');
@@ -272,18 +271,6 @@ document.addEventListener('alpine:init', () => {
             });
 
             isInitialized = true;
-        },
-
-        setupCleave() {
-            new Cleave('.advance-payment', {
-                numeral: true,
-                numeralThousandsGroupStyle: 'thousand',
-                numeralDecimalScale: 0,
-                numeralPositiveOnly: true,
-                onValueChanged: function (e) {
-                    $('#AdvancePayment').trigger('change');
-                }
-            });
         },
 
         // Thêm hàm formatVNDate để chuyển ngày ISO sang dd/MM/yyyy
@@ -511,7 +498,6 @@ document.addEventListener('alpine:init', () => {
             formData.append('TreatmentRecord.StartDate', document.getElementById('StartDate')?.value || '');
             formData.append('TreatmentRecord.EndDate', document.getElementById('EndDate')?.value || '');
             formData.append('TreatmentRecord.Note', document.getElementById('treatmentRecordNote')?.value || '');
-            formData.append('TreatmentRecord.AdvancePayment', document.getElementById('AdvancePayment')?.value || '');
 
             const treatmentTableComponent = document.querySelector('[x-data="treatmentDetailTable"]');
             const details = treatmentTableComponent && Alpine.$data(treatmentTableComponent).details || [];
@@ -673,11 +659,6 @@ document.addEventListener('alpine:init', () => {
                         dateFormat: true,
                         endDateAfterStartDate: true
                     },
-                    "AdvancePayment": {
-                        required: true,
-                        numberWithComma: true,
-                        minWithComma: 1
-                    },
                     "Diagnosis": {
                         required: true
                     },
@@ -705,11 +686,6 @@ document.addEventListener('alpine:init', () => {
                         required: "Ngày kết thúc không được bỏ trống",
                         dateFormat: "Ngày kết thúc không hợp lệ",
                         endDateAfterStartDate: "Ngày kết thúc phải sau ngày bắt đầu"
-                    },
-                    "AdvancePayment": {
-                        required: "Tiền ứng trước không được bỏ trống.",
-                        numberWithComma: "Tiền ứng trước không hợp lệ.",
-                        minWithComma: "Tiền ứng trước phải lớn hơn 0."
                     },
                     "Diagnosis": {
                         required: "Chẩn đoán không được bỏ trống"
