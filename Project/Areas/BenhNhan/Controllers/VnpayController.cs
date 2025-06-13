@@ -13,7 +13,6 @@ namespace Project.Areas.BenhNhan.Controllers
     public class VnpayController : Controller
     {
         private readonly IPaymentRepository _paymentRepository;
-        private readonly IAdvancePaymentRepository _advancePaymentRepository;
         private readonly IUserRepository _userRepository;
         private readonly VNPayService _vnPayService;
         private readonly JwtManager _jwtManager;
@@ -22,7 +21,6 @@ namespace Project.Areas.BenhNhan.Controllers
         public VnpayController
         (
             IPaymentRepository paymentRepository,
-            IAdvancePaymentRepository advancePaymentRepository,
             IUserRepository userRepository,
             VNPayService vnPayService,
             JwtManager jwtManager,
@@ -30,7 +28,6 @@ namespace Project.Areas.BenhNhan.Controllers
         )
         {
             _paymentRepository = paymentRepository;
-            _advancePaymentRepository = advancePaymentRepository;
             _userRepository = userRepository;
             _vnPayService = vnPayService;
             _jwtManager = jwtManager;
@@ -74,7 +71,6 @@ namespace Project.Areas.BenhNhan.Controllers
             {
                 // Tìm phiếu thanh toán theo mã giao dịch (orderId)
                 var payment = await _paymentRepository.GetByCodeAsync(paymentCode);
-                var advancePayment = await _advancePaymentRepository.GetByCodeAsync(paymentCode);
                 if (payment != null)
                 {
                     payment.Status = PaymentStatus.DaThanhToan;
@@ -83,15 +79,6 @@ namespace Project.Areas.BenhNhan.Controllers
                     payment.UpdatedBy = userCode;
                     await _paymentRepository.UpdateAsync(payment);
                     ViewBag.Type = "phiếu thanh toán";
-                }
-                else if (advancePayment != null)
-                {
-                    advancePayment.Status = PaymentStatus.DaThanhToan;
-                    advancePayment.Type = PaymentType.TrucTuyen;
-                    advancePayment.UpdatedDate = DateTime.UtcNow;
-                    advancePayment.UpdatedBy = userCode;
-                    await _advancePaymentRepository.UpdateAsync(advancePayment);
-                    ViewBag.Type = "phiếu tạm ứng";
                 }
                 ViewBag.PaymentCode = paymentCode;
                 if (long.TryParse(vnp_Amount, out var amount))

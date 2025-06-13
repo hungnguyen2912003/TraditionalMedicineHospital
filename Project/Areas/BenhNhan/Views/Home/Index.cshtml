@@ -31,15 +31,9 @@
                 <button type="button" class="btn btn-secondary" onclick="showPaymentModal()" style="min-width: 200px;" @(status == "Đang điều trị" || ViewBag.HasPayment != true ? "disabled" : "")>
                     Xem phiếu thanh toán
                 </button>
-                <button type="button" class="btn btn-info" onclick="showAdvancePaymentModal()" style="min-width: 200px;" @(status != "Đang điều trị" || ViewBag.HasAdvancePayment != true ? "disabled" : "")>
-                    Xem danh sách phiếu tạm ứng
+                <button type="button" class="btn btn-info" onclick="showPaymentGatewayModal()" style="min-width: 200px;" @((ViewBag.Status == "Đang điều trị" || ViewBag.HasPayment != true || ViewBag.PaymentStatus == 2) ? "disabled" : "")>
+                    Thanh toán trực tuyến
                 </button>
-                @if (ViewBag.HasPayment == true)
-                {
-                    <button type="button" class="btn btn-warning" onclick="showPaymentGatewayModal()" style="min-width: 200px;">
-                        Thanh toán trực tuyến
-                    </button>
-                }
             </div>
         </div>
 
@@ -299,17 +293,6 @@
 </div>
 }
 
-<div id="advancePaymentModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate fixed-modal-size">
-        <h2 class="text-2xl font-bold text-primary text-center mb-4">Danh sách phiếu tạm ứng</h2>
-        <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl font-bold" onclick="closeAdvancePaymentModal()">
-            <i class="fa-solid fa-xmark p-2"></i>
-        </button>
-        <div id="advancePaymentModalContent">
-        </div>
-    </div>
-</div>
-
 <div id="logModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate">
         <h2 class="text-2xl font-bold text-primary text-center mb-4">Nhật ký điều trị</h2>
@@ -344,19 +327,6 @@
 <div id="paymentGatewayModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate" style="max-height:150vh; overflow-y:auto; max-width:50vw;">
         <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl font-bold" onclick="closePaymentGatewayModal()">
-            <i class="fa-solid fa-xmark p-2"></i>
-        </button>
-        <h2 class="text-xl font-bold mb-6 text-center">Chọn cổng thanh toán</h2>
-        <div class="flex flex-col gap-4">
-            <button class="btn btn-vnpay w-full" onclick="payWithVNPay()">Thanh toán qua ví điện tử VNPay</button>
-            <button class="btn btn-momo w-full" onclick="payWithMomo()">Thanh toán qua ví điện tử MoMo</button>
-        </div>
-    </div>
-</div>
-
-<div id="advancePaymentGatewayModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative modal-content-animate" style="max-height:150vh; overflow-y:auto; max-width:50vw;">
-        <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl font-bold" onclick="closeAdvancePaymentGatewayModal()">
             <i class="fa-solid fa-xmark p-2"></i>
         </button>
         <h2 class="text-xl font-bold mb-6 text-center">Chọn cổng thanh toán</h2>
@@ -453,15 +423,6 @@
     }
     function closeLogModal() {
         const modal = document.getElementById('logModal');
-        modal.classList.add('closing');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            modal.classList.remove('closing');
-        }, 200);
-    }
-
-    function closeAdvancePaymentModal() {
-        const modal = document.getElementById('advancePaymentModal');
         modal.classList.add('closing');
         setTimeout(() => {
             modal.classList.add('hidden');
@@ -694,66 +655,6 @@
         }
         window.location.href = `/BenhNhan/Home/PayWithMomo?treatmentRecordId=${treatmentRecordId}`;
     }
-
-    function showAdvancePaymentModal() {
-        var treatmentRecordId = '@ViewBag.TreatmentRecordId';
-        fetch(`/BenhNhan/Home/GetAdvancePaymentsByTreatmentRecord?treatmentRecordId=${treatmentRecordId}`)
-            .then(res => res.json())
-            .then(data => {
-                let html = `
-                    <table class="table table-bordered w-full">
-                        <thead>
-                            <tr>
-                                <th style="text-align:center; font-weight:bold;">STT</th>
-                                <th style="text-align:center; font-weight:bold;">Mã phiếu</th>
-                                <th style="text-align:center; font-weight:bold;">Ngày lập</th>
-                                <th style="text-align:center; font-weight:bold;">Số tiền</th>
-                                <th style="text-align:center; font-weight:bold;">Trạng thái</th>
-                                <th style="text-align:center; font-weight:bold;">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${data.length === 0 ? '<tr><td colspan="6" class="text-center">Không có phiếu tạm ứng nào</td></tr>' :
-                                data.map((ap, i) => `
-                                    <tr>
-                                        <td>${i + 1}</td>
-                                        <td>${ap.code}</td>
-                                        <td>${ap.paymentDate}</td>
-                                        <td>${ap.amount.toLocaleString()} VNĐ</td>
-                                        <td>${ap.status == 1 ? 
-                                            '<span class="badge badge-danger" style="background:#ef4444;color:white;padding:0.4rem;">Chưa thanh toán</span>' : 
-                                            '<span class="badge badge-success" style="background:#22c55e;color:white;padding:0.4rem;">Đã thanh toán</span>'
-                                        }</td>
-                                        <td class="flex gap-4 justify-center">
-                                            ${ap.status == 1 ? `
-                                                <button class="btn btn-sm" onclick="payAdvanceWithVNPay('${ap.code}')" x-tooltip="Thanh toán qua VNPay">
-                                                    <img src="/public/assets/images/vnpay-logo.jpg" class="h-6 w-auto">
-                                                </button>
-                                                <button class="btn btn-sm" onclick="payAdvanceWithMomo('${ap.code}')" x-tooltip="Thanh toán qua Momo">
-                                                    <img src="/public/assets/images/momo-logo.png" class="h-6 w-auto">
-                                                </button>
-                                            ` : ''}
-                                        </td>
-                                    </tr>
-                                `).join('')
-                            }
-                        </tbody>
-                    </table>
-                `;
-                document.getElementById('advancePaymentModalContent').innerHTML = html;
-                document.getElementById('advancePaymentModal').classList.remove('hidden', 'closing');
-            });
-    }
-
-    function payAdvanceWithVNPay(advancePaymentCode) {
-        window.location.href = `/BenhNhan/Home/PayAdvanceWithVNPay?advancePaymentCode=${advancePaymentCode}`;
-    }
-    function payAdvanceWithMomo(advancePaymentCode) {
-        window.location.href = `/BenhNhan/Home/PayAdvanceWithMomo?advancePaymentCode=${advancePaymentCode}`;
-    }
-
-    console.log("HasAdvancePayment:", @((ViewBag.HasAdvancePayment ?? false).ToString().ToLower()));
-    console.log("TreatmentRecordId:", "@ViewBag.TreatmentRecordId");
 </script>
 
 @if (TempData["SuccessMessage"] != null)
@@ -790,12 +691,6 @@
         animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     #paymentGatewayModal.closing .modal-content-animate {
-        animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    #advancePaymentModal.closing .modal-content-animate {
-        animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    #advancePaymentGatewayModal.closing .modal-content-animate {
         animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     @@keyframes modalFadeIn {
@@ -839,16 +734,6 @@
         -webkit-backdrop-filter: blur(6px);
     }
     #paymentGatewayModal {
-        background: rgba(30, 41, 59, 0.2);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-    }
-    #advancePaymentModal {
-        background: rgba(30, 41, 59, 0.2);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-    }
-    #advancePaymentGatewayModal {
         background: rgba(30, 41, 59, 0.2);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);

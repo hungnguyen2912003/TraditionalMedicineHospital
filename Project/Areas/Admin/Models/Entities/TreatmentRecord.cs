@@ -22,6 +22,7 @@ namespace Project.Areas.Admin.Models.Entities
         public string? SuspendedNote { get; set; } = string.Empty;
         public string? SuspendedBy { get; set; } = string.Empty;
         public DateTime? SuspendedDate { get; set; }
+        public decimal? AdvancePayment { get; set; }
 
         //Foreign key
         public Guid PatientId { get; set; }
@@ -36,6 +37,5 @@ namespace Project.Areas.Admin.Models.Entities
         public virtual ICollection<Prescription> Prescriptions { get; set; } = new HashSet<Prescription>();
         public virtual ICollection<TreatmentRecord_Regulation> TreatmentRecord_Regulations { get; set; } = new HashSet<TreatmentRecord_Regulation>();
         public virtual ICollection<TreatmentRecordDetail> TreatmentRecordDetails { get; set; } = new HashSet<TreatmentRecordDetail>();
-        public virtual ICollection<AdvancePayment> AdvancePayment { get; set; } = new HashSet<AdvancePayment>();
     }
 }

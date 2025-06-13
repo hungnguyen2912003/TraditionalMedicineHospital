@@ -105,8 +105,7 @@ namespace Project.Areas.NhanVien.Controllers
                         insuranceAmount = totalCostBeforeInsurance * 0.6m;
                 }
 
-                //decimal finalCost = totalCostBeforeInsurance - insuranceAmount - (tr.AdvancePayment ?? 0);
-                decimal finalCost = totalCostBeforeInsurance - insuranceAmount;
+                decimal finalCost = totalCostBeforeInsurance - insuranceAmount - (tr.AdvancePayment ?? 0);
                 if (finalCost < 0) finalCost = 0;
 
                 return new PaymentViewModel
@@ -216,8 +215,7 @@ namespace Project.Areas.NhanVien.Controllers
                     insuranceAmount = totalCostBeforeInsurance * 0.6m;
             }
 
-            //decimal finalCost = totalCostBeforeInsurance - insuranceAmount - (tr.AdvancePayment ?? 0);
-            decimal finalCost = totalCostBeforeInsurance - insuranceAmount;
+            decimal finalCost = totalCostBeforeInsurance - insuranceAmount - (tr.AdvancePayment ?? 0);
             if (finalCost < 0) finalCost = 0;
 
             var createdByEmployee = await _employeeRepository.GetByCodeAsync(payment.CreatedBy);
@@ -241,8 +239,7 @@ namespace Project.Areas.NhanVien.Controllers
                 TotalPrescriptionCost = totalPrescriptionCost,
                 TotalTreatmentMethodCost = totalTreatmentMethodCost,
                 InsuranceAmount = insuranceAmount,
-                //AdvancePayment = (tr.AdvancePayment ?? 0),
-                AdvancePayment = 0,
+                AdvancePayment = (tr.AdvancePayment ?? 0),
                 TotalCost = totalCostBeforeInsurance,
                 FinalCost = finalCost,
                 Status = payment.Status,

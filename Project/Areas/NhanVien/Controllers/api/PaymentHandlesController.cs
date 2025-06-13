@@ -112,14 +112,12 @@ namespace Project.Areas.NhanVien.Controllers.api
 
                 // 9. Tính số tiền cuối cùng bệnh nhân phải trả
                 // (Tổng chi phí - BHYT - Tạm ứng), nếu âm thì = 0
-                //decimal finalCost = totalCostBeforeInsurance - insuranceAmount - (tr.AdvancePayment ?? 0);
-                decimal finalCost = totalCostBeforeInsurance - insuranceAmount;
+                decimal finalCost = totalCostBeforeInsurance - insuranceAmount - (tr.AdvancePayment ?? 0);
                 if (finalCost < 0) finalCost = 0;
 
                 // 10. Tính số tiền thực tế bệnh nhân phải trả và số tiền tạm ứng còn dư
                 decimal actualPatientPay = totalCostBeforeInsurance - insuranceAmount;
-                //decimal advanceRefund = (tr.AdvancePayment ?? 0) - actualPatientPay;
-                decimal advanceRefund = actualPatientPay;
+                decimal advanceRefund = (tr.AdvancePayment ?? 0) - actualPatientPay;
 
                 // 11. Tạo mã thanh toán mới
                 var sequentialGuid = SequentialGuidGenerator.Instance.NewGuid();
@@ -226,8 +224,7 @@ namespace Project.Areas.NhanVien.Controllers.api
                 }
 
                 // 4. Tạm ứng
-                //decimal advancePayment = (tr.AdvancePayment ?? 0);
-                decimal advancePayment = 0;
+                decimal advancePayment = (tr.AdvancePayment ?? 0);
 
                 // 5. Tổng chi phí trước BHYT (KHÔNG trừ tạm ứng)
                 decimal totalCostBeforeInsurance = totalPrescriptionCost + totalTreatmentMethodCost;
@@ -330,6 +327,87 @@ namespace Project.Areas.NhanVien.Controllers.api
                 }).ToList();
             if (prescriptions != null) return Ok(prescriptions);
             return Ok(new List<object>());
+        }
+
+        [HttpPut("UpdateAdvancePayment")]
+        public async Task<IActionResult> UpdateAdvancePayment([FromBody] UpdateAdvancePaymentRequest request)
+        {
+            try
+            {
+                // 1. Kiểm tra xác thực người dùng thông qua token
+                var token = Request.Cookies["AuthToken"];
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized("Chưa đăng nhập.");
+
+                // 2. Lấy thông tin username và role từ token
+                var (username, role) = _jwtManager.GetClaimsFromToken(token);
+                if (string.IsNullOrEmpty(username))
+                    return Unauthorized("Token không hợp lệ.");
+
+                // 3. Lấy thông tin người dùng từ database
+                var user = await _userRepository.GetByUsernameAsync(username);
+                if (user == null || user.Employee == null)
+                    return NotFound("Không tìm thấy thông tin nhân viên.");
+
+                // 4. Lấy thông tin phiếu điều trị
+                var tr = await _treatmentRecordRepository.GetByIdAdvancedAsync(request.TreatmentRecordId);
+                if (tr == null) return NotFound("Không tìm thấy phiếu điều trị");
+
+                // 5. Cập nhật thông tin tạm ứng
+                tr.AdvancePayment = request.Amount;
+                tr.UpdatedBy = user.Employee.Code;
+                tr.UpdatedDate = DateTime.UtcNow;
+
+                // 6. Lưu thay đổi vào database
+                await _treatmentRecordRepository.UpdateAsync(tr);
+
+                // 7. Gửi email thông báo cho bệnh nhân nếu có email
+                if (tr.Patient?.EmailAddress != null)
+                {
+                    var emailSubject = $"Thông báo cập nhật tạm ứng";
+                    var emailBody = $@"
+                        <h2>Thông báo cập nhật tạm ứng</h2>
+                        <p>Kính gửi {tr.Patient.Name},</p>
+                        <p>Chúng tôi xin thông báo về việc cập nhật số tiền tạm ứng của bạn cho phiếu điều trị {tr.Code}:</p>
+                        <ul>
+                            <li>Số tiền tạm ứng bạn đã thanh toán: {request.Amount:N0} VNĐ</li>
+                            <li>Ngày thanh toán: {request.PaymentDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}</li>
+                        </ul>
+                        <p>Trân trọng,<br>Bệnh viện Y học cổ truyền</p>";
+
+                    await _emailService.SendEmailAsync(tr.Patient.EmailAddress, emailSubject, emailBody);
+                }
+
+                // 8. Trả về kết quả thành công
+                return Ok(new { success = true, message = "Cập nhật tạm ứng thành công!" });
+            }
+            catch (Exception ex)
+            {
+                // 9. Xử lý lỗi nếu có
+                return StatusCode(500, new { success = false, message = "Lỗi server: " + ex.Message });
+            }
+        }
+
+        [HttpGet("GetAdvancePayment/{treatmentRecordId}")]
+        public async Task<IActionResult> GetAdvancePayment(Guid treatmentRecordId)
+        {
+            try
+            {
+                // 1. Lấy thông tin phiếu điều trị
+                var tr = await _treatmentRecordRepository.GetByIdAdvancedAsync(treatmentRecordId);
+                if (tr == null) return NotFound("Không tìm thấy phiếu điều trị");
+
+                // 2. Trả về thông tin tạm ứng
+                return Ok(new
+                {
+                    advancePayment = tr.AdvancePayment ?? 0,
+                    paymentDate = tr.UpdatedDate?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi server: " + ex.Message });
+            }
         }
     }
 }

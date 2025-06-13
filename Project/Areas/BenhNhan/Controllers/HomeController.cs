@@ -1,17 +1,15 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Project.Areas.Admin.Models.Entities;
 using Project.Areas.BenhNhan.Models.ViewModels;
 using Project.Helpers;
+using Project.Library;
 using Project.Models.Enums;
 using Project.Repositories.Interfaces;
 using Project.Services.Features;
-using Repositories.Interfaces;
 using System.Globalization;
-using Microsoft.Extensions.Configuration;
-using Project.Library;
-using Newtonsoft.Json;
 
 namespace Project.Areas.BenhNhan.Controllers
 {
@@ -31,7 +29,6 @@ namespace Project.Areas.BenhNhan.Controllers
         private readonly JwtManager _jwtManager;
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IPaymentRepository _paymentRepository;
-        private readonly IAdvancePaymentRepository _advancePaymentRepository;
         private readonly VNPayService _vnPayService;
         private readonly IConfiguration _configuration;
         private readonly CodeGeneratorHelper _codeGenerator;
@@ -50,7 +47,6 @@ namespace Project.Areas.BenhNhan.Controllers
             JwtManager jwtManager,
             IEmployeeRepository employeeRepository,
             IPaymentRepository paymentRepository,
-            IAdvancePaymentRepository advancePaymentRepository,
             VNPayService vnPayService,
             IConfiguration configuration,
             CodeGeneratorHelper codeGenerator
@@ -68,7 +64,6 @@ namespace Project.Areas.BenhNhan.Controllers
             _jwtManager = jwtManager;
             _employeeRepository = employeeRepository;
             _paymentRepository = paymentRepository;
-            _advancePaymentRepository = advancePaymentRepository;
             _vnPayService = vnPayService;
             _configuration = configuration;
             _codeGenerator = codeGenerator;
@@ -185,10 +180,6 @@ namespace Project.Areas.BenhNhan.Controllers
             // Kiểm tra có payment không
             var payment = await _paymentRepository.GetByTreatmentRecordIdAsync(latestRecord.Id);
             ViewBag.HasPayment = payment != null;
-
-            // Kiểm tra có advance payment không
-            var advancePayments = await _advancePaymentRepository.GetListByTreatmentRecordIdAsync(latestRecord.Id);
-            ViewBag.HasAdvancePayment = advancePayments != null && advancePayments.Any();
 
             List<string> doctorNames = new List<string>();
             if (latestRecord?.Assignments != null)
@@ -314,8 +305,7 @@ namespace Project.Areas.BenhNhan.Controllers
                     insuranceAmount = totalCostBeforeInsurance * 0.6m;
             }
 
-            //decimal finalCost = totalCostBeforeInsurance - insuranceAmount - (tr.AdvancePayment ?? 0);
-            decimal finalCost = totalCostBeforeInsurance - insuranceAmount;
+            decimal finalCost = totalCostBeforeInsurance - insuranceAmount - (tr.AdvancePayment ?? 0);
             if (finalCost < 0) finalCost = 0;
 
             var prescriptions = tr.Prescriptions?.Select(p => new
@@ -341,28 +331,7 @@ namespace Project.Areas.BenhNhan.Controllers
                 advancePayment = tr.AdvancePayment,
                 totalCostBeforeInsurance,
                 finalCost,
-                //advanceRefund = tr.AdvancePayment - (totalCostBeforeInsurance - insuranceAmount)
-                advanceRefund = totalCostBeforeInsurance - insuranceAmount
-            });
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAdvancePaymentDetail(Guid treatmentRecordId)
-        {
-            var advancePayment = await _advancePaymentRepository.GetByTreatmentRecordIdAsync(treatmentRecordId);
-            if (advancePayment == null) return NotFound();
-
-
-
-            return Json(new
-            {
-                code = advancePayment.Code,
-                paymentDate = advancePayment.PaymentDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
-                createdBy = advancePayment.CreatedBy,
-                amount = advancePayment.Amount,
-                status = advancePayment.Status,
-                statusText = advancePayment.Status == PaymentStatus.DaThanhToan ? "Đã thanh toán" : "Chưa thanh toán",
-                note = advancePayment.Note
+                advanceRefund = tr.AdvancePayment - (totalCostBeforeInsurance - insuranceAmount)
             });
         }
 
@@ -422,8 +391,7 @@ namespace Project.Areas.BenhNhan.Controllers
                     insuranceAmount = totalCostBeforeInsurance * 0.6m;
             }
 
-            //decimal finalCost = totalCostBeforeInsurance - insuranceAmount - (tr.AdvancePayment ?? 0);
-            decimal finalCost = totalCostBeforeInsurance - insuranceAmount;
+            decimal finalCost = totalCostBeforeInsurance - insuranceAmount - (tr.AdvancePayment ?? 0);
             if (finalCost < 0) finalCost = 0;
 
             // Tạo link thanh toán
@@ -493,8 +461,8 @@ namespace Project.Areas.BenhNhan.Controllers
                     insuranceAmount = totalCostBeforeInsurance * 0.6m;
             }
 
-            //decimal finalCost = totalCostBeforeInsurance - insuranceAmount - (tr.AdvancePayment ?? 0);
-            decimal finalCost = totalCostBeforeInsurance - insuranceAmount;
+            decimal finalCost = totalCostBeforeInsurance - insuranceAmount - (tr.AdvancePayment ?? 0);
+            
             if (finalCost < 0) finalCost = 0;
 
             // Tạo orderId (có thể dùng payment.Code hoặc sinh mã mới)
@@ -508,74 +476,6 @@ namespace Project.Areas.BenhNhan.Controllers
             var momoResponse = JsonConvert.DeserializeObject<dynamic>(momoResponseString);
             string payUrl = momoResponse!.payUrl;
 
-            return Redirect(payUrl);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAdvancePaymentsByTreatmentRecord(Guid treatmentRecordId)
-        {
-            var list = await _advancePaymentRepository.GetListByTreatmentRecordIdAsync(treatmentRecordId);
-            var result = list.Select(ap => new
-            {
-                code = ap.Code,
-                paymentDate = ap.PaymentDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
-                amount = ap.Amount,
-                status = ap.Status,
-                note = ap.Note
-            });
-            return Json(result);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> PayAdvanceWithVNPay(string advancePaymentCode)
-        {
-            // Get user info from token
-            var token = Request.Cookies["AuthToken"];
-            if (string.IsNullOrEmpty(token))
-            {
-                return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
-            }
-
-            var (username, role) = _jwtManager.GetClaimsFromToken(token);
-            if (string.IsNullOrEmpty(username))
-            {
-                Response.Cookies.Delete("AuthToken");
-                return Json(new { success = false, message = "Token không hợp lệ." });
-            }
-
-            var user = await _userRepository.GetByUsernameAsync(username);
-            if (user == null || user.Patient == null)
-            {
-                return Json(new { success = false, message = "Người dùng không hợp lệ" });
-            }
-            var advancePayment = await _advancePaymentRepository.GetByCodeAsync(advancePaymentCode);
-            if (advancePayment == null || advancePayment.Status == PaymentStatus.DaThanhToan)
-            {
-                TempData["ErrorMessage"] = "Phiếu tạm ứng không hợp lệ hoặc đã thanh toán.";
-                return RedirectToAction("Index");
-            }
-            var orderId = await _codeGenerator.GenerateUniqueCodeAsync(_advancePaymentRepository);
-            var orderInfo = $"{advancePayment.Code}|{user.Patient.Code}";
-            var ipAddress = Utils.GetIpAddress(HttpContext);
-            var paymentUrl = _vnPayService.CreatePaymentUrl(advancePayment.Amount, orderId, orderInfo, ipAddress);
-            return Redirect(paymentUrl);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> PayAdvanceWithMomo(string advancePaymentCode)
-        {
-            var advancePayment = await _advancePaymentRepository.GetByCodeAsync(advancePaymentCode);
-            if (advancePayment == null || advancePayment.Status == PaymentStatus.DaThanhToan)
-            {
-                TempData["ErrorMessage"] = "Phiếu tạm ứng không hợp lệ hoặc đã thanh toán.";
-                return RedirectToAction("Index");
-            }
-            var orderId = await _codeGenerator.GenerateUniqueCodeAsync(_advancePaymentRepository);
-            var orderInfo = advancePayment.Code;
-            var momoService = new MomoService(_configuration, _jwtManager, _userRepository);
-            var momoResponseString = await momoService.CreatePaymentAsync(advancePayment.Amount, orderId, orderInfo, orderId);
-            var momoResponse = JsonConvert.DeserializeObject<dynamic>(momoResponseString);
-            string payUrl = momoResponse!.payUrl;
             return Redirect(payUrl);
         }
     }

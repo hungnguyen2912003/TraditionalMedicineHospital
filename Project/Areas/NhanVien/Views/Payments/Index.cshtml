@@ -576,7 +576,7 @@
                 const endStr = pad2(end.getDate()) + '/' + pad2(end.getMonth() + 1) + '/' + end.getFullYear();
                 const opt = document.createElement('option');
                 opt.value = tr.id;
-                opt.textContent = `${tr.code} - ${startStr} - ${endStr}`;
+                opt.textContent = `${tr.code} (${startStr} - ${endStr})`;
                 trSelect.appendChild(opt);
             });
             trSelect.disabled = false;
@@ -726,7 +726,7 @@
     });
 
     function resetPaymentModal() {
-        document.getElementById('prescriptionNote').value = '';
+        document.getElementById('paymentNote').value = '';
         // Reset dropdown chọn bệnh nhân và phiếu điều trị
         document.getElementById('paymentPatientId').selectedIndex = 0;
         const trSelect = document.getElementById('paymentTreatmentRecordId');
@@ -781,7 +781,7 @@
             const [day, month, year] = paymentDateStr.split('/');
             paymentDate = `${year}-${month}-${day}`;
         }
-        const note = document.getElementById('prescriptionNote').value;
+        const note = document.getElementById('paymentNote').value;
         // Lấy số, loại bỏ VNĐ và dấu phẩy
         function parseMoney(val) {
             return Number((val || '').replace(/[^\d.-]/g, '')) || 0;

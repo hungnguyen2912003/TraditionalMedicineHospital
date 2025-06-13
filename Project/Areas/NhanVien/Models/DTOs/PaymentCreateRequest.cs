@@ -7,4 +7,11 @@ namespace Project.Areas.NhanVien.Models.DTOs
         public string? Note { get; set; }
         public Guid TreatmentRecordId { get; set; }
     }
+
+    public class UpdateAdvancePaymentRequest
+    {
+        public Guid TreatmentRecordId { get; set; }
+        public DateTime PaymentDate { get; set; }
+        public decimal Amount { get; set; }
+    }
 }

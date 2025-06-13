@@ -1,8 +1,13 @@
-﻿@{
+﻿@using System.Globalization
+@{
     ViewData["Title"] = "Trang chủ nhân viên";
     Layout = "~/Views/Shared/_mainAdminLayout.cshtml";
 }
 
+<div class="overlay" id="loadingOverlay">
+    <span
+        class="animate-spin border-8 border-[#f1f2f3] border-l-primary rounded-full w-14 h-14 inline-block align-middle"></span>
+</div>
 
 <div class="pt-5">
     <div class="mb-5 flex items-center font-bold">
@@ -55,6 +60,13 @@
             <div class="panel bg-gradient-to-r from-cyan-500 to-fuchsia-400">
                 <div class="mt-5 flex items-center">
                     <div class="text-2xl font-bold ltr:mr-3 rtl:ml-3">Bệnh nhân vi phạm</div>
+                </div>
+            </div>
+        </a>
+        <a href="#" id="btnUpdateAdvancePayment" class='group'>
+            <div class="panel bg-gradient-to-r from-cyan-500 to-fuchsia-400">
+                <div class="mt-5 flex items-center">
+                    <div class="text-2xl font-bold ltr:mr-3 rtl:ml-3">Cập nhật tạm ứng</div>
                 </div>
             </div>
         </a>
@@ -139,3 +151,234 @@
         </div>
     </div>
 </div>
+
+<div id="advancePaymentModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-7xl p-6 relative modal-content-animate">
+        <div class="text-2xl font-bold text-primary text-center mb-4">Cập nhật tạm ứng vào phiếu điều trị</div>
+        <div id="advancePaymentModalBody">
+            <div class="mb-4 flex gap-4">
+                <div class="w-1/2">
+                    <label for="advancePaymentPatientId" class="block font-semibold mb-1">Chọn bệnh nhân</label>
+                    <select id="advancePaymentPatientId" class="form-input w-full">
+                        <option value="">Chọn bệnh nhân</option>
+                        @foreach (var p in ViewBag.Patients)
+                        {
+                            <option value="@p.id">@p.name</option>
+                        }
+                    </select>
+                </div>
+                <div class="w-1/2">
+                    <label for="advancePaymentTreatmentRecordId" class="block font-semibold mb-1">Mã phiếu điều
+                        trị</label>
+                    <select id="advancePaymentTreatmentRecordId" class="form-input w-full" disabled>
+                        <option value="">Chọn mã phiếu điều trị</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-4 flex gap-4">
+                <div class="w-1/2">
+                    <label for="advancePaymentCreatedDate" class="block font-semibold mb-1">Ngày thanh toán tạm
+                        ứng</label>
+                    <input type="text" id="advancePaymentCreatedDate" class="form-input w-full flatpickr"
+                        value="@DateTime.Now.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)" readonly>
+                </div>
+                <div class="w-1/2">
+                    <label for="advancePaymentAmount" class="block font-semibold mb-1">Số tiền tạm ứng</label>
+                    <div class="flex items-center">
+                        <input type="text" id="advancePaymentAmount" class="form-input w-full price-input"
+                            placeholder="Nhập số tiền tạm ứng">
+                        <span class="ml-2 text-gray-700" style="font-weight: 900">VND</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: center; gap: 24px;">
+            <button class="btn btn-primary btn-save">Lưu</button>
+            <button id="closeAdvancePaymentModal" class="btn btn-secondary">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal-content-animate {
+        animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #advancePaymentModal.closing .modal-content-animate {
+        animation: modalFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @@keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @@keyframes modalFadeOut {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    }
+
+    #advancePaymentModal {
+        background: rgba(30, 41, 59, 0.2);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+
+    #advancePaymentModal .modal-content-animate {
+        max-width: 900px;
+        width: 90vw;
+        max-height: 95vh;
+        overflow-y: auto;
+    }
+</style>
+
+<script src="~/public/assets/js/cleave.min.js"></script>
+<script>
+    // Khởi tạo Cleave cho input số tiền tạm ứng
+    new Cleave('#advancePaymentAmount', {
+        numeral: true,
+        numeralThousandsGroupStyle: 'thousand',
+        numeralDecimalScale: 0,
+        numeralPositiveOnly: true
+    });
+
+    // Dữ liệu TreatmentRecords từ ViewBag (dạng JS array)
+    const allTreatmentRecords = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.TreatmentRecords));
+    const allPatients = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Patients));
+
+    document.getElementById('closeAdvancePaymentModal').addEventListener('click', function () {
+        const modal = document.getElementById('advancePaymentModal');
+        modal.classList.add('closing');
+        setTimeout(function () {
+            modal.classList.add('hidden');
+            modal.classList.remove('closing');
+        }, 200);
+    });
+
+    function resetAdvancePaymentModal() {
+        // Reset dropdown chọn bệnh nhân và phiếu điều trị
+        document.getElementById('advancePaymentPatientId').selectedIndex = 0;
+        const trSelect = document.getElementById('advancePaymentTreatmentRecordId');
+        trSelect.innerHTML = '<option value="">Chọn mã phiếu điều trị</option>';
+        trSelect.disabled = true;
+    }
+
+    document.getElementById('advancePaymentPatientId').addEventListener('change', function () {
+        const patientId = this.value;
+        document.getElementById('advancePaymentTreatmentRecordId').innerHTML = '<option value="">Chọn mã phiếu điều trị</option>';
+        document.getElementById('advancePaymentTreatmentRecordId').disabled = true;
+        document.getElementById('advancePaymentCreatedDate').value = '@DateTime.Now.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)';
+
+        // Xử lý select thường cho mã phiếu điều trị
+        const trSelect = document.getElementById('advancePaymentTreatmentRecordId');
+        trSelect.innerHTML = '<option value="">Chọn mã phiếu điều trị</option>';
+        trSelect.disabled = true;
+        if (!patientId) return;
+        // Lọc các phiếu điều trị của bệnh nhân này
+        const filtered = allTreatmentRecords.filter(tr => tr.patientId === patientId);
+        if (filtered.length > 0) {
+            filtered.forEach(tr => {
+                const start = new Date(tr.startDate);
+                const end = new Date(tr.endDate);
+                const pad2 = n => n < 10 ? '0' + n : n;
+                const startStr = pad2(start.getDate()) + '/' + pad2(start.getMonth() + 1) + '/' + start.getFullYear();
+                const endStr = pad2(end.getDate()) + '/' + pad2(end.getMonth() + 1) + '/' + end.getFullYear();
+                const opt = document.createElement('option');
+                opt.value = tr.id;
+                opt.textContent = `${tr.code} (${startStr} - ${endStr})`;
+                trSelect.appendChild(opt);
+            });
+            trSelect.disabled = false;
+        }
+    });
+
+    // Validate và submit AJAX khi nhấn nút Lưu
+    document.querySelector('.btn-save').addEventListener('click', async function (e) {
+        const patientId = document.getElementById('advancePaymentPatientId').value;
+        const treatmentRecordId = document.getElementById('advancePaymentTreatmentRecordId').value;
+        if (!patientId) {
+            notyf.error('Vui lòng chọn bệnh nhân!');
+            e.preventDefault();
+            return false;
+        }
+        if (!treatmentRecordId) {
+            notyf.error('Vui lòng Chọn mã phiếu điều trị!');
+            e.preventDefault();
+            return false;
+        }
+
+        // Lấy dữ liệu từ các input
+        const paymentDateStr = document.getElementById('advancePaymentCreatedDate').value;
+        let paymentDate = paymentDateStr;
+        if (paymentDateStr && paymentDateStr.includes('/')) {
+            const [day, month, year] = paymentDateStr.split('/');
+            paymentDate = `${year}-${month}-${day}`;
+        }
+        const amount = Number(document.getElementById('advancePaymentAmount').value.replace(/[^\d.-]/g, '')) || 0;
+
+        if (amount <= 0) {
+            notyf.error('Vui lòng nhập số tiền tạm ứng hợp lệ!');
+            e.preventDefault();
+            return false;
+        }
+
+        const overlay = document.getElementById('loadingOverlay');
+
+        overlay.style.display = 'flex';
+        // Gửi AJAX
+        try {
+            const res = await fetch('/api/PaymentHandles/UpdateAdvancePayment', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    treatmentRecordId: treatmentRecordId,
+                    paymentDate: paymentDate,
+                    amount: amount
+                })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                overlay.style.display = 'none';
+                notyf.success(data.message || 'Cập nhật tạm ứng thành công!');
+                // Đóng modal
+                setTimeout(() => {
+                    document.getElementById('closeAdvancePaymentModal').click();
+                    // Reload lại trang hoặc bảng
+                    window.location.reload();
+                }, 1000);
+            } else {
+                overlay.style.display = 'none';
+                notyf.error(data.message || 'Cập nhật tạm ứng thất bại!');
+            }
+        } catch (err) {
+            overlay.style.display = 'none';
+            notyf.error('Lỗi khi gửi dữ liệu: ' + err.message);
+        }
+        e.preventDefault();
+        return false;
+    });
+
+    // Sự kiện mở modal khi click vào "Cập nhật tạm ứng"
+    document.getElementById('btnUpdateAdvancePayment').addEventListener('click', function (e) {
+        e.preventDefault();
+        $('#advancePaymentModal').removeClass('hidden closing');
+        $('.modal-content-animate', '#advancePaymentModal').removeClass('animate__fadeOut');
+        resetAdvancePaymentModal();
+    });
+</script>
