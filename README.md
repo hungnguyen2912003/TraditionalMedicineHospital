@@ -6,5 +6,5 @@ Phần mềm lập trình: Visual Studio 2022 (.NET 8.0) <br>
 Hệ quản trị cơ sở dữ liệu: SQL Server 2019
 
 # Đăng nhập trang quản lý hệ thống với vai trò quản trị viên
-Tài khoản: admin
+Tài khoản: admin <br>
 Mật khẩu: 11111111
